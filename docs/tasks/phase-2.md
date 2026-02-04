@@ -10,8 +10,8 @@
 | ----------------- | ------------------- |
 | **Phase**         | 2                   |
 | **Name**          | Core Infrastructure |
-| **Status**        | ⬜ NOT_STARTED      |
-| **Progress**      | 0/12 tasks          |
+| **Status**        | 🔄 IN_PROGRESS      |
+| **Progress**      | 1/12 tasks          |
 | **Est. Duration** | 2 weeks             |
 | **Dependencies**  | Phase 0, Phase 1    |
 
@@ -19,7 +19,7 @@
 
 ## 🎯 OBJECTIVES
 
-- [ ] Xây dựng DDD base classes (Entity, ValueObject, AggregateRoot)
+- [x] Xây dựng DDD base classes (Entity, ValueObject, AggregateRoot)
 - [ ] Implement Domain Events infrastructure
 - [ ] Setup CQRS với MediatR
 - [ ] Implement Unit of Work và Repository pattern
@@ -35,7 +35,7 @@
 | Property         | Value                           |
 | ---------------- | ------------------------------- |
 | **ID**           | TASK-014                        |
-| **Status**       | ⬜ NOT_STARTED                  |
+| **Status**       | ✅ COMPLETED                    |
 | **Priority**     | 🔴 Critical                     |
 | **Estimate**     | 3 hours                         |
 | **Branch**       | `feature/TASK-014-base-classes` |
@@ -46,12 +46,12 @@ Tạo base classes cho DDD: Entity, ValueObject, AggregateRoot.
 
 **Acceptance Criteria:**
 
-- [ ] `Entity<TId>` base class created
-- [ ] `ValueObject` base class created
-- [ ] `AggregateRoot<TId>` base class created
-- [ ] `IHasDomainEvents` interface created
-- [ ] Strong-typed ID base created
-- [ ] Unit tests written
+- [x] `Entity<TId>` base class created
+- [x] `ValueObject` base class created
+- [x] `AggregateRoot<TId>` base class created
+- [x] `IHasDomainEvents` interface created
+- [x] Strong-typed ID base created
+- [x] Unit tests written
 
 **Files to Create:**
 
