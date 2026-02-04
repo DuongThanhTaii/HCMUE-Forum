@@ -11,7 +11,7 @@
 | **Phase**         | 1                |
 | **Name**          | Domain Discovery |
 | **Status**        | 🔵 IN_PROGRESS   |
-| **Progress**      | 3/5 tasks (60%)  |
+| **Progress**      | 4/5 tasks (80%)  |
 | **Est. Duration** | 1 week           |
 | **Dependencies**  | Phase 0          |
 
@@ -22,7 +22,7 @@
 - [x] Xây dựng Ubiquitous Language (Glossary)
 - [x] Xác định các Bounded Contexts
 - [x] Vẽ Context Map với relationships
-- [ ] Phân loại Core/Supporting/Generic domains
+- [x] Phân loại Core/Supporting/Generic domains
 - [ ] Define module boundaries và integration contracts
 
 ---
@@ -123,14 +123,14 @@ Refs: TASK-009
 
 ### TASK-011: Create Context Map
 
-| Property         | Value                        |
-| ---------------- | ---------------------------- |
-| **ID**           | TASK-011                     |
-| **Status**       | ✅ COMPLETED                 |
-| **Priority**     | 🔴 Critical                  |
-| **Estimate**     | 3 hours                      |
-| **Branch**       | `docs/TASK-011-context-map`  |
-| **Dependencies** | TASK-010                     |
+| Property         | Value                       |
+| ---------------- | --------------------------- |
+| **ID**           | TASK-011                    |
+| **Status**       | ✅ COMPLETED                |
+| **Priority**     | 🔴 Critical                 |
+| **Estimate**     | 3 hours                     |
+| **Branch**       | `docs/TASK-011-context-map` |
+| **Dependencies** | TASK-010                    |
 
 **Description:**
 Tạo context map thể hiện relationships giữa các bounded contexts.
@@ -413,7 +413,7 @@ Refs: TASK-011
 | Property         | Value                                 |
 | ---------------- | ------------------------------------- |
 | **ID**           | TASK-012                              |
-| **Status**       | ⬜ NOT_STARTED                        |
+| **Status**       | ✅ COMPLETED                          |
 | **Priority**     | 🟡 Medium                             |
 | **Estimate**     | 2 hours                               |
 | **Branch**       | `docs/TASK-012-domain-classification` |
@@ -424,10 +424,10 @@ Phân loại các domains thành Core, Supporting, Generic.
 
 **Acceptance Criteria:**
 
-- [ ] All domains classified
-- [ ] Classification rationale documented
-- [ ] Development priority determined
-- [ ] Resource allocation suggested
+- [x] All domains classified
+- [x] Classification rationale documented
+- [x] Development priority determined
+- [x] Resource allocation suggested
 
 **Deliverable:**
 Update `docs/domain/BOUNDED_CONTEXTS.md`
