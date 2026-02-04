@@ -1,0 +1,74 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: unihub-postgres
+    environment:
+      POSTGRES_USER: unihub
+      POSTGRES_PASSWORD: unihub_dev_2026
+      POSTGRES_DB: unihub
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U unihub"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - unihub-network
+
+  mongodb:
+    image: mongo:7-jammy
+    container_name: unihub-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: unihub
+      MONGO_INITDB_ROOT_PASSWORD: unihub_dev_2026
+      MONGO_INITDB_DATABASE: unihub
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - unihub-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: unihub-redis
+    command: redis-server --requirepass unihub_dev_2026 --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - unihub-network
+
+volumes:
+  postgres_data:
+    driver: local
+  mongo_data:
+    driver: local
+  mongo_config:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  unihub-network:
+    driver: bridge
