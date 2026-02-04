@@ -16,6 +16,7 @@
     <PackageReference Include="MediatR" />
     <PackageReference Include="Moq" />
     <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
   </ItemGroup>
 
   <ItemGroup>
