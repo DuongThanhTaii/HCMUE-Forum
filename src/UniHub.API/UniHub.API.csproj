@@ -17,4 +17,8 @@
     <PackageReference Include="Serilog.Enrichers.Process" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\UniHub.SharedKernel\UniHub.SharedKernel.csproj" />
+  </ItemGroup>
+
 </Project>
