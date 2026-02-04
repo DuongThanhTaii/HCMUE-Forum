@@ -11,7 +11,7 @@
 | **Phase**         | 2                   |
 | **Name**          | Core Infrastructure |
 | **Status**        | 🔄 IN_PROGRESS      |
-| **Progress**      | 4/12 tasks          |
+| **Progress**      | 5/12 tasks          |
 | **Est. Duration** | 2 weeks             |
 | **Dependencies**  | Phase 0, Phase 1    |
 
@@ -272,7 +272,7 @@ Refs: TASK-016
 | Property         | Value                                 |
 | ---------------- | ------------------------------------- |
 | **ID**           | TASK-017                              |
-| **Status**       | ⬜ NOT_STARTED                        |
+| **Status**       | ✅ COMPLETED                          |
 | **Priority**     | 🔴 Critical                           |
 | **Estimate**     | 4 hours                               |
 | **Branch**       | `feature/TASK-017-pipeline-behaviors` |
@@ -283,12 +283,12 @@ Implement MediatR pipeline behaviors cho validation, logging, performance.
 
 **Acceptance Criteria:**
 
-- [ ] `ValidationBehavior` implemented
-- [ ] `LoggingBehavior` implemented
-- [ ] `PerformanceBehavior` implemented
-- [ ] `UnhandledExceptionBehavior` implemented
-- [ ] Behaviors registered in DI
-- [ ] Unit tests written
+- [x] `ValidationBehavior` implemented
+- [x] `LoggingBehavior` implemented
+- [x] `PerformanceBehavior` implemented
+- [x] `UnhandledExceptionBehavior` implemented
+- [x] Behaviors registered in DI
+- [x] Unit tests written
 
 **Files to Create:**
 
