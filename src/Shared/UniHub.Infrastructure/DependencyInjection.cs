@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using StackExchange.Redis;
+using UniHub.Infrastructure.Caching;
 using UniHub.Infrastructure.MongoDb;
 using UniHub.Infrastructure.Persistence;
 using UniHub.Infrastructure.Persistence.Interceptors;
@@ -26,6 +28,7 @@ public static class DependencyInjection
     {
         services.AddPersistence(configuration);
         services.AddMongoDb(configuration);
+        services.AddRedisCache(configuration);
 
         return services;
     }
@@ -126,6 +129,52 @@ public static class DependencyInjection
         // Note: MongoDB health check requires AspNetCore.HealthChecks.MongoDb package
         // and is configured with: .AddMongoDb(connectionString)
         // For now, basic connectivity can be verified through the IMongoClient registration
+
+        return services;
+    }
+
+    /// <summary>
+    /// Adds Redis caching services.
+    /// </summary>
+    private static IServiceCollection AddRedisCache(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var redisConnectionString = configuration.GetConnectionString("Redis")
+            ?? throw new InvalidOperationException("Redis connection string not found.");
+
+        // Register Redis connection multiplexer
+        services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>
+        {
+            var configurationOptions = ConfigurationOptions.Parse(redisConnectionString);
+            configurationOptions.AbortOnConnectFail = false;
+            configurationOptions.ConnectTimeout = 5000;
+            configurationOptions.SyncTimeout = 5000;
+
+            return ConnectionMultiplexer.Connect(configurationOptions);
+        });
+
+        // Register distributed cache with Redis
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = redisConnectionString;
+            options.InstanceName = "UniHub:";
+        });
+
+        // Register cache service
+        services.AddSingleton<ICacheService, RedisCacheService>();
+
+        // Add SignalR with Redis backplane
+        services.AddSignalR()
+            .AddStackExchangeRedis(redisConnectionString, options =>
+            {
+                options.Configuration.AbortOnConnectFail = false;
+                options.Configuration.ConnectTimeout = 5000;
+            });
+
+        // Add health check
+        services.AddHealthChecks()
+            .AddRedis(redisConnectionString, name: "redis", tags: new[] { "cache", "redis" });
 
         return services;
     }
