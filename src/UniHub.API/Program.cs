@@ -32,10 +32,17 @@ try
     // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
     builder.Services.AddOpenApi();
 
+    // Add exception handler
+    builder.Services.AddExceptionHandler<UniHub.API.Middlewares.GlobalExceptionHandler>();
+    builder.Services.AddProblemDetails();
+
     // Add health checks
     builder.Services.AddHealthChecks();
 
     var app = builder.Build();
+
+    // Use exception handler
+    app.UseExceptionHandler();
 
     // Use Serilog request logging
     app.UseSerilogRequestLogging(options =>
