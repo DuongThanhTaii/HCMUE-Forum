@@ -10,7 +10,7 @@
 | ----------------- | ---------------- |
 | **Phase**         | 1                |
 | **Name**          | Domain Discovery |
-| **Status**        | ✅ DONE           |
+| **Status**        | ✅ DONE          |
 | **Progress**      | 5/5 tasks (100%) |
 | **Est. Duration** | 1 week           |
 | **Dependencies**  | Phase 0          |
@@ -318,92 +318,6 @@ docs(domain): define bounded contexts
 - Create context diagram
 
 Refs: TASK-010
-```
-
----
-
-### TASK-011: Create Context Map
-
-| Property         | Value                       |
-| ---------------- | --------------------------- |
-| **ID**           | TASK-011                    |
-| **Status**       | ⬜ NOT_STARTED              |
-| **Priority**     | 🔴 Critical                 |
-| **Estimate**     | 3 hours                     |
-| **Branch**       | `docs/TASK-011-context-map` |
-| **Dependencies** | TASK-010                    |
-
-**Description:**
-Vẽ Context Map thể hiện relationships giữa các bounded contexts.
-
-**Acceptance Criteria:**
-
-- [ ] Context Map diagram created
-- [ ] Relationships clearly labeled
-- [ ] Integration patterns defined
-- [ ] Upstream/Downstream identified
-
-**Deliverable:**
-Create `docs/domain/CONTEXT_MAP.md`
-
-**Relationships:**
-
-```markdown
-## Context Relationships
-
-### Identity → All Contexts (Upstream)
-
-- Pattern: Open Host Service (OHS)
-- Identity provides user info to all contexts
-- Published Language: UserDTO, PermissionDTO
-
-### Forum ↔ Identity
-
-- Pattern: Customer/Supplier
-- Forum consumes user info
-- Forum publishes: PostCreatedEvent
-
-### Learning ↔ Identity
-
-- Pattern: Customer/Supplier
-- Learning needs user for upload
-- Learning publishes: DocumentApprovedEvent
-
-### Chat ↔ Identity
-
-- Pattern: Customer/Supplier
-- Chat needs user for messaging
-- Chat uses SignalR for real-time
-
-### Career ↔ Identity
-
-- Pattern: Customer/Supplier
-- Career needs user/company profiles
-
-### Notification ← All Contexts (Downstream)
-
-- Pattern: Published Language
-- Subscribes to events from all contexts
-- Sends notifications based on events
-
-### AI → Forum, Chat, Learning
-
-- Pattern: Conformist
-- AI consumes content for moderation
-- AI provides smart features
-```
-
-**Commit Message:**
-
-```
-docs(domain): create context map
-
-- Define context relationships
-- Identify upstream/downstream
-- Document integration patterns
-- Create visual diagram
-
-Refs: TASK-011
 ```
 
 ---
