@@ -11,7 +11,7 @@
 | **Phase**         | 2                   |
 | **Name**          | Core Infrastructure |
 | **Status**        | 🔄 IN_PROGRESS      |
-| **Progress**      | 8/12 tasks          |
+| **Progress**      | 9/12 tasks          |
 | **Est. Duration** | 2 weeks             |
 | **Dependencies**  | Phase 0, Phase 1    |
 
@@ -484,7 +484,7 @@ Refs: TASK-020
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **ID**           | TASK-021                         |
-| **Status**       | ⬜ NOT_STARTED                   |
+| **Status**       | ✅ COMPLETED                     |
 | **Priority**     | 🔴 Critical                      |
 | **Estimate**     | 3 hours                          |
 | **Branch**       | `feature/TASK-021-mongodb-setup` |
@@ -753,7 +753,7 @@ Refs: TASK-025
 - [x] TASK-018: Implement Unit of Work Pattern
 - [x] TASK-019: Implement Repository Base
 - [x] TASK-020: Setup PostgreSQL DbContext
-- [ ] TASK-021: Setup MongoDB Context
+- [x] TASK-021: Setup MongoDB Context
 - [ ] TASK-022: Setup Redis Caching
 - [x] TASK-023: Implement Result Pattern
 - [ ] TASK-024: Setup Serilog Logging
