@@ -10,8 +10,8 @@
 | ----------------- | ---------------- |
 | **Phase**         | 1                |
 | **Name**          | Domain Discovery |
-| **Status**        | ⬜ NOT_STARTED   |
-| **Progress**      | 0/5 tasks        |
+| **Status**        | 🔵 IN_PROGRESS   |
+| **Progress**      | 1/5 tasks        |
 | **Est. Duration** | 1 week           |
 | **Dependencies**  | Phase 0          |
 
@@ -19,7 +19,7 @@
 
 ## 🎯 OBJECTIVES
 
-- [ ] Xây dựng Ubiquitous Language (Glossary)
+- [x] Xây dựng Ubiquitous Language (Glossary)
 - [ ] Xác định các Bounded Contexts
 - [ ] Vẽ Context Map với relationships
 - [ ] Phân loại Core/Supporting/Generic domains
@@ -34,7 +34,7 @@
 | Property         | Value                               |
 | ---------------- | ----------------------------------- |
 | **ID**           | TASK-009                            |
-| **Status**       | ⬜ NOT_STARTED                      |
+| **Status**       | ✅ COMPLETED                        |
 | **Priority**     | 🔴 Critical                         |
 | **Estimate**     | 3 hours                             |
 | **Branch**       | `docs/TASK-009-ubiquitous-language` |
@@ -45,11 +45,11 @@ Tạo glossary định nghĩa tất cả các thuật ngữ domain sử dụng t
 
 **Acceptance Criteria:**
 
-- [ ] Glossary document created
-- [ ] All core domain terms defined
-- [ ] Vietnamese and English terms mapped
-- [ ] Terms grouped by bounded context
-- [ ] Team reviewed and agreed
+- [x] Glossary document created
+- [x] All core domain terms defined
+- [x] Vietnamese and English terms mapped
+- [x] Terms grouped by bounded context
+- [x] Team reviewed and agreed
 
 **Deliverable:**
 Create `docs/domain/GLOSSARY.md`
