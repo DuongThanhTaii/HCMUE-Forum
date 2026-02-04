@@ -11,7 +11,7 @@
 | **Phase**         | 0                |
 | **Name**          | Foundation Setup |
 | **Status**        | 🔵 IN_PROGRESS   |
-| **Progress**      | 1/8 tasks        |
+| **Progress**      | 2/8 tasks        |
 | **Est. Duration** | 1 week           |
 | **Dependencies**  | None             |
 
@@ -99,7 +99,7 @@ Refs: TASK-001
 | Property         | Value                              |
 | ---------------- | ---------------------------------- |
 | **ID**           | TASK-002                           |
-| **Status**       | ⬜ NOT_STARTED                     |
+| **Status**       | ✅ COMPLETED                       |
 | **Priority**     | 🔴 Critical                        |
 | **Estimate**     | 3 hours                            |
 | **Branch**       | `feature/TASK-002-dotnet-projects` |
@@ -110,11 +110,11 @@ Tạo tất cả các .NET projects với proper references.
 
 **Acceptance Criteria:**
 
-- [ ] UniHub.API project created (ASP.NET Core Web API)
-- [ ] All module projects created (Domain, Application, Infrastructure, Presentation)
-- [ ] SharedKernel, Infrastructure, Contracts projects created
-- [ ] Project references configured correctly
-- [ ] Solution compiles without errors
+- [x] UniHub.API project created (ASP.NET Core Web API)
+- [x] All module projects created (Domain, Application, Infrastructure, Presentation)
+- [x] SharedKernel, Infrastructure, Contracts projects created
+- [x] Project references configured correctly
+- [x] Solution compiles without errors
 
 **Projects to Create:**
 
