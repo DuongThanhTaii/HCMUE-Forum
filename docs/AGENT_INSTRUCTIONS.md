@@ -115,7 +115,7 @@ public sealed class {Entity} : Entity<{Entity}Id>, IAggregateRoot
             Name = name,
             CreatedAt = DateTime.UtcNow
         };
-        
+
         entity.AddDomainEvent(new {Entity}CreatedDomainEvent(entity.Id));
         return entity;
     }
@@ -149,7 +149,7 @@ public sealed class Email : ValueObject
         // Validation
         if (string.IsNullOrWhiteSpace(email))
             throw new DomainException("Email cannot be empty");
-            
+
         if (!email.Contains('@'))
             throw new DomainException("Invalid email format");
 
@@ -189,7 +189,7 @@ using UniHub.SharedKernel.Application;
 
 namespace UniHub.{Module}.Application.Commands.{Command};
 
-internal sealed class {Command}CommandHandler 
+internal sealed class {Command}CommandHandler
     : ICommandHandler<{Command}Command, {Command}Response>
 {
     private readonly I{Entity}Repository _repository;
@@ -276,7 +276,7 @@ internal sealed class {Entity}Repository : I{Entity}Repository
     }
 
     public async Task<{Entity}?> GetByIdAsync(
-        {Entity}Id id, 
+        {Entity}Id id,
         CancellationToken ct = default)
     {
         return await _context.{Entities}
@@ -289,9 +289,9 @@ internal sealed class {Entity}Repository : I{Entity}Repository
     }
 
     public void Add({Entity} entity) => _context.{Entities}.Add(entity);
-    
+
     public void Update({Entity} entity) => _context.{Entities}.Update(entity);
-    
+
     public void Remove({Entity} entity) => _context.{Entities}.Remove(entity);
 }
 ```
@@ -325,8 +325,8 @@ public sealed class {Entities}Controller : ControllerBase
     {
         var command = new {Command}Command(request.Property1, request.Property2);
         var result = await _sender.Send(command, ct);
-        
-        return result.IsSuccess 
+
+        return result.IsSuccess
             ? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value)
             : BadRequest(result.Error);
     }
@@ -336,8 +336,8 @@ public sealed class {Entities}Controller : ControllerBase
     {
         var query = new {Query}Query(id);
         var result = await _sender.Send(query, ct);
-        
-        return result.IsSuccess 
+
+        return result.IsSuccess
             ? Ok(result.Value)
             : NotFound(result.Error);
     }
@@ -413,9 +413,9 @@ export function use{Entity}(id: string) {
 
 export function useCreate{Entity}() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: Create{Entity}Request) => 
+    mutationFn: (data: Create{Entity}Request) =>
       api.post<{Entity}>('/api/{entities}', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['{entities}'] });
@@ -501,4 +501,4 @@ Nếu gặp vấn đề không thể tự giải quyết:
 
 ---
 
-*Document này được thiết kế để Claude Sonnet 4.5 có thể implement tasks một cách độc lập và chính xác.*
+_Document này được thiết kế để Claude Sonnet 4.5 có thể implement tasks một cách độc lập và chính xác._
