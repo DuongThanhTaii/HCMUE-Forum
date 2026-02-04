@@ -11,7 +11,7 @@
 | **Phase**         | 2                   |
 | **Name**          | Core Infrastructure |
 | **Status**        | 🔄 IN_PROGRESS      |
-| **Progress**      | 2/12 tasks          |
+| **Progress**      | 7/12 tasks          |
 | **Est. Duration** | 2 weeks             |
 | **Dependencies**  | Phase 0, Phase 1    |
 
@@ -21,10 +21,10 @@
 
 - [x] Xây dựng DDD base classes (Entity, ValueObject, AggregateRoot)
 - [x] Implement Domain Events infrastructure
-- [ ] Setup CQRS với MediatR
-- [ ] Implement Unit of Work và Repository pattern
+- [x] Setup CQRS với MediatR
+- [x] Implement Unit of Work và Repository pattern
 - [ ] Configure databases (PostgreSQL, MongoDB, Redis)
-- [ ] Setup Error handling và Logging
+- [x] Setup Error handling và Logging
 
 ---
 
@@ -198,7 +198,7 @@ Refs: TASK-015
 | Property         | Value                         |
 | ---------------- | ----------------------------- |
 | **ID**           | TASK-016                      |
-| **Status**       | ⬜ NOT_STARTED                |
+| **Status**       | ✅ COMPLETED                  |
 | **Priority**     | 🔴 Critical                   |
 | **Estimate**     | 4 hours                       |
 | **Branch**       | `feature/TASK-016-cqrs-setup` |
@@ -209,12 +209,12 @@ Setup CQRS pattern với ICommand, IQuery, và handlers.
 
 **Acceptance Criteria:**
 
-- [ ] `ICommand<TResult>` interface created
-- [ ] `ICommandHandler<TCommand, TResult>` interface created
-- [ ] `IQuery<TResult>` interface created
-- [ ] `IQueryHandler<TQuery, TResult>` interface created
-- [ ] MediatR integration configured
-- [ ] Unit tests written
+- [x] `ICommand<TResult>` interface created
+- [x] `ICommandHandler<TCommand, TResult>` interface created
+- [x] `IQuery<TResult>` interface created
+- [x] `IQueryHandler<TQuery, TResult>` interface created
+- [x] MediatR integration configured
+- [x] Unit tests written
 
 **Files to Create:**
 
@@ -272,7 +272,7 @@ Refs: TASK-016
 | Property         | Value                                 |
 | ---------------- | ------------------------------------- |
 | **ID**           | TASK-017                              |
-| **Status**       | ⬜ NOT_STARTED                        |
+| **Status**       | ✅ COMPLETED                          |
 | **Priority**     | 🔴 Critical                           |
 | **Estimate**     | 4 hours                               |
 | **Branch**       | `feature/TASK-017-pipeline-behaviors` |
@@ -283,12 +283,12 @@ Implement MediatR pipeline behaviors cho validation, logging, performance.
 
 **Acceptance Criteria:**
 
-- [ ] `ValidationBehavior` implemented
-- [ ] `LoggingBehavior` implemented
-- [ ] `PerformanceBehavior` implemented
-- [ ] `UnhandledExceptionBehavior` implemented
-- [ ] Behaviors registered in DI
-- [ ] Unit tests written
+- [x] `ValidationBehavior` implemented
+- [x] `LoggingBehavior` implemented
+- [x] `PerformanceBehavior` implemented
+- [x] `UnhandledExceptionBehavior` implemented
+- [x] Behaviors registered in DI
+- [x] Unit tests written
 
 **Files to Create:**
 
@@ -322,7 +322,7 @@ Refs: TASK-017
 | Property         | Value                           |
 | ---------------- | ------------------------------- |
 | **ID**           | TASK-018                        |
-| **Status**       | ⬜ NOT_STARTED                  |
+| **Status**       | ✅ COMPLETED                    |
 | **Priority**     | 🔴 Critical                     |
 | **Estimate**     | 3 hours                         |
 | **Branch**       | `feature/TASK-018-unit-of-work` |
@@ -333,11 +333,11 @@ Implement Unit of Work pattern cho transaction management.
 
 **Acceptance Criteria:**
 
-- [ ] `IUnitOfWork` interface defined
-- [ ] `UnitOfWork` implementation cho EF Core
-- [ ] Domain events dispatched on SaveChanges
-- [ ] Transaction support
-- [ ] Unit tests written
+- [x] `IUnitOfWork` interface defined
+- [x] `UnitOfWork` implementation cho EF Core
+- [x] Domain events dispatched on SaveChanges
+- [x] Transaction support
+- [x] Unit tests written
 
 **Files to Create:**
 
@@ -385,7 +385,7 @@ Refs: TASK-018
 | Property         | Value                              |
 | ---------------- | ---------------------------------- |
 | **ID**           | TASK-019                           |
-| **Status**       | ⬜ NOT_STARTED                     |
+| **Status**       | ✅ COMPLETED                       |
 | **Priority**     | 🔴 Critical                        |
 | **Estimate**     | 3 hours                            |
 | **Branch**       | `feature/TASK-019-repository-base` |
@@ -396,10 +396,10 @@ Implement base repository cho Aggregate Roots.
 
 **Acceptance Criteria:**
 
-- [ ] `IRepository<T>` interface defined
-- [ ] `Repository<T>` base implementation
-- [ ] Specification pattern support
-- [ ] Unit tests written
+- [x] `IRepository<T>` interface defined
+- [x] `Repository<T>` base implementation
+- [x] Specification pattern support
+- [x] Unit tests written
 
 **Files to Create:**
 
@@ -580,7 +580,7 @@ Refs: TASK-022
 | Property         | Value                             |
 | ---------------- | --------------------------------- |
 | **ID**           | TASK-023                          |
-| **Status**       | ⬜ NOT_STARTED                    |
+| **Status**       | ✅ COMPLETED                      |
 | **Priority**     | 🔴 Critical                       |
 | **Estimate**     | 2 hours                           |
 | **Branch**       | `feature/TASK-023-result-pattern` |
@@ -591,11 +591,11 @@ Implement Result pattern cho error handling functional style.
 
 **Acceptance Criteria:**
 
-- [ ] `Result` class implemented
-- [ ] `Result<T>` class implemented
-- [ ] `Error` class implemented
-- [ ] Extension methods for mapping
-- [ ] Unit tests written
+- [x] `Result` class implemented
+- [x] `Result<T>` class implemented
+- [x] `Error` class implemented
+- [x] Extension methods for mapping
+- [x] Unit tests written
 
 **Files to Create:**
 
@@ -748,14 +748,14 @@ Refs: TASK-025
 
 - [x] TASK-014: Create Base Entity and Value Object
 - [x] TASK-015: Implement Domain Events Infrastructure
-- [ ] TASK-016: Setup CQRS Base Infrastructure
-- [ ] TASK-017: Setup MediatR Pipeline Behaviors
-- [ ] TASK-018: Implement Unit of Work Pattern
-- [ ] TASK-019: Implement Repository Base
+- [x] TASK-016: Setup CQRS Base Infrastructure
+- [x] TASK-017: Setup MediatR Pipeline Behaviors
+- [x] TASK-018: Implement Unit of Work Pattern
+- [x] TASK-019: Implement Repository Base
 - [ ] TASK-020: Setup PostgreSQL DbContext
 - [ ] TASK-021: Setup MongoDB Context
 - [ ] TASK-022: Setup Redis Caching
-- [ ] TASK-023: Implement Result Pattern
+- [x] TASK-023: Implement Result Pattern
 - [ ] TASK-024: Setup Serilog Logging
 - [ ] TASK-025: Setup Global Exception Handling
 
