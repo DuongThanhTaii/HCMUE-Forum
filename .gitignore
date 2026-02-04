@@ -1,0 +1,145 @@
+# .NET
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.cache
+*.dll
+*.pdb
+*.exe
+.vs/
+*.DotSettings.user
+*.DotSettings
+
+# User-specific files
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+*.local.json
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+*.nuget.props
+*.nuget.targets
+
+# Node.js / Frontend
+node_modules/
+.next/
+out/
+dist/
+.npm/
+.pnpm-store/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Test Results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+
+# Publish
+publish/
+PublishOutput/
+
+# Docker
+docker-compose.override.yml
+
+# Misc
+*.log
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Rider
+.idea/
+
+# Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Visual Studio Code
+.history/
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Credentials
+credentials.json
+service-account.json
+*.pem
+*.key
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
