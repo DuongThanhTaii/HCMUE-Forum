@@ -996,6 +996,457 @@ src/Modules/
 
 ---
 
+## 🎯 DOMAIN CLASSIFICATION
+
+> **Strategic classification of bounded contexts by business value**
+>
+> Phân loại domains theo Eric Evans' model: Core, Supporting, Generic
+
+### 📊 Classification Overview
+
+| Context      | Classification | Priority | Investment | Build/Buy                    |
+| ------------ | -------------- | -------- | ---------- | ---------------------------- |
+| Identity     | **Core**       | 🔴 Critical | High       | 🏗️ Build in-house             |
+| Forum        | **Core**       | 🔴 Critical | High       | 🏗️ Build in-house             |
+| Learning     | **Core**       | 🔴 Critical | High       | 🏗️ Build in-house             |
+| Chat         | **Core**       | 🔴 Critical | High       | 🏗️ Build in-house             |
+| Career       | **Supporting** | 🟡 Medium  | Medium     | 🏗️ Build with reusable parts |
+| Notification | **Supporting** | 🟡 Medium  | Low        | 🏗️ Build with standard patterns |
+| AI           | **Generic**    | 🟢 Lower   | Low        | 🛒 Use external services     |
+
+---
+
+### 🏆 CORE DOMAINS
+
+**Definition**: Domains that provide **competitive advantage** and differentiate UniHub from competitors.
+
+**Characteristics**:
+- Unique business logic
+- High complexity
+- Requires domain expertise
+- Frequent changes
+- Strategic importance
+
+---
+
+#### 1️⃣ Identity Context (Core)
+
+**Why Core?**
+
+✅ **Unique RBAC System**
+- Dynamic permission system với module-based permissions
+- `Permission.Code` format: `{Module}.{Entity}.{Action}` (e.g., `Forum.Post.Delete`)
+- Role composition khác với standard auth (not just Admin/User)
+- Hỗ trợ 5 roles: Student, Teacher, Moderator, Admin, Recruiter
+
+✅ **Official Badge System**
+- Unique verification mechanism cho đơn vị chính thức
+- Custom badge design (name, icon, description)
+- Exclusive permissions (can pin posts, featured content)
+- Không có sẵn trong auth libraries
+
+✅ **HCMUE-Specific Verification**
+- Email verification với domain @hcmue.edu.vn
+- Automatic role assignment based on email pattern
+- Integration với HCMUE systems (future)
+
+**Competitive Advantage**:
+- Phân quyền linh hoạt hơn competitors (Reddit, Discord)
+- Xác thực đơn vị chính thức (unique feature)
+- Foundation cho tất cả modules
+
+**Investment Strategy**:
+- 🏗️ Build in-house with Clean Architecture
+- 💰 High investment: 2 senior devs
+- 🔒 Security audit required
+- 📚 Extensive documentation
+
+**Risk of Outsourcing**: ❌ High
+- Mất control over core business logic
+- Khó customize permissions system
+- Vendor lock-in
+
+---
+
+#### 2️⃣ Forum Context (Core)
+
+**Why Core?**
+
+✅ **Unique Confession System**
+- Anonymous posting với admin-only identity reveal
+- Complex voting + approval workflow
+- Different from standard forum software
+
+✅ **Category Subscriptions**
+- Real-time notifications per category
+- Custom digest settings
+- Integration với Learning Context (posts by course)
+
+✅ **Rich Content Features**
+- Advanced Markdown rendering
+- Code highlighting
+- Math equations (KaTeX)
+- Embedded media
+- Better than competitors (HCMUE-specific needs)
+
+✅ **Moderation Workflow**
+- AI-powered content moderation
+- Moderator queue với priority
+- Context-specific rules per category
+
+**Competitive Advantage**:
+- Confession feature (unique to Vietnamese university forums)
+- Better UX than existing HCMUE forums
+- Tight integration với Learning module
+
+**Investment Strategy**:
+- 🏗️ Build in-house with DDD patterns
+- 💰 High investment: 3 devs (largest team)
+- 🎨 Custom UI/UX
+- ⚡ Performance optimization (caching, pagination)
+
+**Risk of Outsourcing**: ❌ Very High
+- Core product differentiator
+- Standard forum software lacks confession feature
+- Hard to customize voting + approval logic
+
+---
+
+#### 3️⃣ Learning Context (Core)
+
+**Why Core?**
+
+✅ **Unique Approval Workflow**
+- Document submissions require moderator approval
+- Faculty-specific moderators
+- Rejection reasons + resubmission flow
+- Event Sourcing for audit trail (who approved, when, why)
+
+✅ **HCMUE-Specific Structure**
+- Course codes (e.g., DHSP101)
+- Faculty organization (Toán, Lý, Hóa, etc.)
+- Semester management
+- Grade levels (K47, K48, K49)
+
+✅ **Document Rating System**
+- Verified downloads (only logged-in users)
+- Rating after download (prevents fake ratings)
+- Usefulness scoring algorithm
+- Quality metrics per faculty
+
+**Competitive Advantage**:
+- Tailored to HCMUE structure (not generic file sharing)
+- Quality control via approval workflow
+- Better than Google Drive chaos
+- Metadata-rich search (by course, semester, faculty)
+
+**Investment Strategy**:
+- 🏗️ Build in-house with Event Sourcing
+- 💰 High investment: 2 devs
+- 📊 Analytics dashboard for moderators
+- 🔍 Advanced search with Elasticsearch (future)
+
+**Risk of Outsourcing**: ❌ High
+- No existing solution fits HCMUE structure
+- Approval workflow is business-critical
+- Need full control over quality standards
+
+---
+
+#### 4️⃣ Chat Context (Core)
+
+**Why Core?**
+
+✅ **Real-Time UX Critical**
+- Live messaging experience
+- Online presence indicators
+- Typing indicators
+- Read receipts
+- Must be fast and reliable
+
+✅ **Context-Aware Conversations**
+- Study groups linked to courses
+- Forum threads can spawn chat rooms
+- Career discussions with recruiters
+- Better integration than standalone chat apps
+
+✅ **HCMUE-Specific Features**
+- Class-based channels (e.g., "K47 Toán")
+- Faculty lounges
+- Study group recommendations
+- Different from generic chat (Slack, Discord)
+
+**Competitive Advantage**:
+- Seamless integration với Forum + Learning
+- Context awareness (know who's in same class)
+- Better than Facebook Messenger for studying
+
+**Investment Strategy**:
+- 🏗️ Build in-house with SignalR
+- 💰 High investment: 2 devs
+- ⚡ Performance critical (WebSocket optimization)
+- 📱 Mobile-first design
+
+**Risk of Outsourcing**: ⚠️ Medium-High
+- Could use Twilio, SendBird, etc.
+- BUT: Integration với contexts is key
+- Customization limitations
+- Cost per message adds up
+
+**Decision**: Build in-house for control + integration
+
+---
+
+### 🛠️ SUPPORTING DOMAINS
+
+**Definition**: Domains necessary for the system but **not differentiating**.
+
+**Characteristics**:
+- Standard business logic
+- Moderate complexity
+- Can use existing patterns
+- Less frequent changes
+- Important but not unique
+
+---
+
+#### 5️⃣ Career Context (Supporting)
+
+**Why Supporting (not Core)?**
+
+✅ **Important but Standard**
+- Job posting logic is common across platforms
+- Application tracking follows industry patterns
+- No HCMUE-specific complexity
+
+✅ **Reusable Patterns**
+- Similar to LinkedIn, Indeed, TopCV
+- Standard CRUD operations
+- Simple status workflow (Applied → Reviewing → Interviewed → Accepted/Rejected)
+
+❌ **Not Differentiating**
+- Không phải core value prop của UniHub
+- Nice to have, nhưng users won't choose UniHub for job board
+- Main value: convenience (same platform as Forum)
+
+**Investment Strategy**:
+- 🏗️ Build with standard patterns (Repository + CQRS)
+- 💰 Medium investment: 2 devs
+- 📦 Use libraries where possible (e.g., AutoMapper)
+- 🚀 Ship faster with less customization
+
+**Could Outsource?**: ✅ Yes (but won't)
+- Could integrate với LinkedIn API, TopCV API
+- But: Want data ownership
+- But: Users prefer all-in-one platform
+- Decision: Build lightweight version
+
+---
+
+#### 6️⃣ Notification Context (Supporting)
+
+**Why Supporting (not Core)?**
+
+✅ **Standard Patterns**
+- Push notifications (FCM, APNs)
+- Email (SendGrid, AWS SES)
+- In-app notifications (polling or WebSocket)
+- Industry-standard approaches
+
+✅ **No Unique Logic**
+- Just listens to events and sends messages
+- Template management is straightforward
+- Subscription preferences are common
+
+❌ **Not Differentiating**
+- Users expect notifications, but quality doesn't differentiate
+- More important: Notification **content** (comes from core domains)
+
+**Investment Strategy**:
+- 🏗️ Build with standard patterns (Observer pattern)
+- 💰 Low investment: 1 dev
+- 🛒 Use external services (SendGrid for email, FCM for push)
+- 📐 Keep it simple (no over-engineering)
+
+**Could Outsource?**: ✅ Yes
+- Could use OneSignal, Firebase Cloud Messaging, Twilio
+- Decision: Build thin layer, outsource delivery
+
+---
+
+### 🔧 GENERIC DOMAINS
+
+**Definition**: Domains that are **not specific to UniHub** and have proven solutions.
+
+**Characteristics**:
+- No business logic
+- Commodity functionality
+- Off-the-shelf solutions exist
+- Rare changes
+- Low strategic value
+
+---
+
+#### 7️⃣ AI Context (Generic)
+
+**Why Generic?**
+
+✅ **Commodity AI Services**
+- LLM APIs are ubiquitous (OpenAI, Groq, Gemini, Claude)
+- Content moderation is standard (Perspective API, OpenAI Moderation)
+- No unique AI algorithms needed
+
+✅ **External Solutions Better**
+- Groq/Gemini have better models than we can train
+- Frequent updates without our effort
+- Cost-effective (pay per use)
+
+✅ **No Competitive Advantage**
+- AI features are **enhancers**, not core value
+- Users come for Forum/Learning, AI is bonus
+- Chatbot quality doesn't differentiate (yet)
+
+**Investment Strategy**:
+- 🛒 **Use external APIs** (Groq, Gemini)
+- 💰 Low investment: 1 dev
+- 🔌 Build thin adapter layer (Conformist pattern)
+- 🔄 Easy to swap providers (fallback mechanism)
+
+**Should Build?**: ❌ No
+- Don't train own models (expensive, time-consuming)
+- Don't host own LLM (infrastructure cost)
+- Focus on integration, not AI research
+
+**Adapter Pattern**:
+```csharp
+public interface IAIProvider
+{
+    Task<string> GenerateAsync(string prompt);
+}
+
+// Easy to swap Groq → Gemini
+public class GroqProvider : IAIProvider { }
+public class GeminiProvider : IAIProvider { }
+```
+
+---
+
+## 📈 STRATEGIC ROADMAP
+
+### Phase-Based Development Priority
+
+```
+Phase 1-3: Core Domains (Critical Path)
+├── Identity (Month 1-2)
+├── Forum (Month 3-4)
+├── Learning (Month 5-6)
+└── Chat (Month 7-8)
+
+Phase 4: Supporting Domains
+├── Career (Month 9)
+└── Notification (Month 9-10)
+
+Phase 5: Generic Domains
+└── AI (Month 10-11)
+```
+
+### Resource Allocation
+
+| Domain       | Devs | Months | Person-Months | Budget % |
+| ------------ | ---- | ------ | ------------- | -------- |
+| Identity     | 2    | 2      | 4             | 18%      |
+| Forum        | 3    | 2      | 6             | 27%      |
+| Learning     | 2    | 2      | 4             | 18%      |
+| Chat         | 2    | 2      | 4             | 18%      |
+| Career       | 2    | 1      | 2             | 9%       |
+| Notification | 1    | 1      | 1             | 5%       |
+| AI           | 1    | 1      | 1             | 5%       |
+| **Total**    | -    | -      | **22**        | **100%** |
+
+### Quality Investment
+
+| Domain       | Classification | Unit Tests | Integration Tests | E2E Tests |
+| ------------ | -------------- | ---------- | ----------------- | --------- |
+| Identity     | Core           | >80%       | ✅ Yes             | ✅ Yes     |
+| Forum        | Core           | >80%       | ✅ Yes             | ✅ Yes     |
+| Learning     | Core           | >80%       | ✅ Yes             | ✅ Yes     |
+| Chat         | Core           | >70%       | ✅ Yes             | ✅ Yes     |
+| Career       | Supporting     | >60%       | ⚠️ Limited         | ❌ No      |
+| Notification | Supporting     | >50%       | ⚠️ Limited         | ❌ No      |
+| AI           | Generic        | >40%       | ❌ No              | ❌ No      |
+
+---
+
+## 🎓 DECISION CRITERIA
+
+### When to Classify as Core?
+
+Ask these questions:
+
+1. **Competitive Advantage?**
+   - ✅ Yes → Likely Core
+   - ❌ No → Supporting/Generic
+
+2. **Unique Business Logic?**
+   - ✅ Yes → Likely Core
+   - ❌ No (standard patterns) → Supporting/Generic
+
+3. **Frequent Changes?**
+   - ✅ Yes → Core
+   - ❌ No → Generic
+
+4. **Can Buy Off-the-Shelf?**
+   - ❌ No good solutions → Core
+   - ✅ Yes → Generic
+
+5. **Would Users Choose Us for This?**
+   - ✅ Yes → Core
+   - ❌ No → Supporting/Generic
+
+### Example: Why Forum is Core but Career is Supporting?
+
+| Criteria                | Forum (Core)                        | Career (Supporting)              |
+| ----------------------- | ----------------------------------- | -------------------------------- |
+| Competitive Advantage?  | ✅ Confession system unique          | ❌ Standard job board             |
+| Unique Business Logic?  | ✅ Complex voting + approval         | ❌ Simple CRUD + workflow         |
+| Frequent Changes?       | ✅ New features often                | ❌ Stable after initial build     |
+| Can Buy Off-the-Shelf?  | ❌ No (custom requirements)          | ✅ Yes (many job board platforms) |
+| Users Choose Us for It? | ✅ Yes (main feature)                | ❌ No (convenience only)          |
+| **Result**              | **Core Domain - High Investment**   | **Supporting - Medium Investment** |
+
+---
+
+## 🚨 RISKS & MITIGATION
+
+### Risk 1: Misclassifying Domains
+
+**Problem**: Treating supporting domain as core → Over-engineering
+
+**Mitigation**:
+- Review classification quarterly
+- Measure actual usage and complexity
+- Refactor if needed
+
+### Risk 2: Under-Investing in Core
+
+**Problem**: Rushing core domains → Technical debt
+
+**Mitigation**:
+- Protect core domain development time
+- Higher code quality standards for core
+- Pair programming for complex features
+
+### Risk 3: Over-Investing in Generic
+
+**Problem**: Building AI from scratch → Waste resources
+
+**Mitigation**:
+- Use existing APIs
+- Adapter pattern for easy swapping
+- Focus on integration, not research
+
+---
+
 ## 📚 REFERENCES
 
 - [Domain-Driven Design - Eric Evans](https://www.domainlanguage.com/)
@@ -1007,9 +1458,10 @@ src/Modules/
 
 ## 🔄 VERSIONING
 
-| Version | Date       | Changes                | Author |
-| ------- | ---------- | ---------------------- | ------ |
-| 1.0     | 2026-02-04 | Initial bounded contexts | Agent  |
+| Version | Date       | Changes                          | Author |
+| ------- | ---------- | -------------------------------- | ------ |
+| 1.0     | 2026-02-04 | Initial bounded contexts         | Agent  |
+| 1.1     | 2026-02-04 | Add domain classification (TASK-012) | Agent  |
 
 ---
 
