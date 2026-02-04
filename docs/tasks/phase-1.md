@@ -10,8 +10,8 @@
 | ----------------- | ---------------- |
 | **Phase**         | 1                |
 | **Name**          | Domain Discovery |
-| **Status**        | ⬜ NOT_STARTED   |
-| **Progress**      | 0/5 tasks        |
+| **Status**        | 🔵 IN_PROGRESS   |
+| **Progress**      | 2/5 tasks        |
 | **Est. Duration** | 1 week           |
 | **Dependencies**  | Phase 0          |
 
@@ -19,8 +19,8 @@
 
 ## 🎯 OBJECTIVES
 
-- [ ] Xây dựng Ubiquitous Language (Glossary)
-- [ ] Xác định các Bounded Contexts
+- [x] Xây dựng Ubiquitous Language (Glossary)
+- [x] Xác định các Bounded Contexts
 - [ ] Vẽ Context Map với relationships
 - [ ] Phân loại Core/Supporting/Generic domains
 - [ ] Define module boundaries và integration contracts
@@ -34,7 +34,7 @@
 | Property         | Value                               |
 | ---------------- | ----------------------------------- |
 | **ID**           | TASK-009                            |
-| **Status**       | ⬜ NOT_STARTED                      |
+| **Status**       | ✅ COMPLETED                        |
 | **Priority**     | 🔴 Critical                         |
 | **Estimate**     | 3 hours                             |
 | **Branch**       | `docs/TASK-009-ubiquitous-language` |
@@ -45,11 +45,11 @@ Tạo glossary định nghĩa tất cả các thuật ngữ domain sử dụng t
 
 **Acceptance Criteria:**
 
-- [ ] Glossary document created
-- [ ] All core domain terms defined
-- [ ] Vietnamese and English terms mapped
-- [ ] Terms grouped by bounded context
-- [ ] Team reviewed and agreed
+- [x] Glossary document created
+- [x] All core domain terms defined
+- [x] Vietnamese and English terms mapped
+- [x] Terms grouped by bounded context
+- [x] Team reviewed and agreed
 
 **Deliverable:**
 Create `docs/domain/GLOSSARY.md`
@@ -126,7 +126,7 @@ Refs: TASK-009
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **ID**           | TASK-010                         |
-| **Status**       | ⬜ NOT_STARTED                   |
+| **Status**       | ✅ COMPLETED                     |
 | **Priority**     | 🔴 Critical                      |
 | **Estimate**     | 4 hours                          |
 | **Branch**       | `docs/TASK-010-bounded-contexts` |
@@ -137,11 +137,11 @@ Xác định và document tất cả bounded contexts trong hệ thống.
 
 **Acceptance Criteria:**
 
-- [ ] All bounded contexts identified
-- [ ] Context responsibilities defined
-- [ ] Context boundaries clear
-- [ ] Aggregates per context listed
-- [ ] Diagram created
+- [x] All bounded contexts identified
+- [x] Context responsibilities defined
+- [x] Context boundaries clear
+- [x] Aggregates per context listed
+- [x] Diagram created
 
 **Deliverable:**
 Create `docs/domain/BOUNDED_CONTEXTS.md`
