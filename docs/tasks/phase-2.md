@@ -675,12 +675,12 @@ Refs: TASK-023
 
 ---
 
-### TASK-024: Setup Serilog Logging
+### TASK-024: Setup Serilog Logging ✅
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **ID**           | TASK-024                         |
-| **Status**       | ⬜ NOT_STARTED                   |
+| **Status**       | ✅ COMPLETED                     |
 | **Priority**     | 🟡 Medium                        |
 | **Estimate**     | 2 hours                          |
 | **Branch**       | `feature/TASK-024-serilog-setup` |
@@ -691,21 +691,52 @@ Configure Serilog cho structured logging.
 
 **Acceptance Criteria:**
 
-- [ ] Serilog configured in Program.cs
-- [ ] Console sink configured
-- [ ] File sink configured (dev)
-- [ ] Enrichers configured
-- [ ] Request logging middleware
+- [x] Serilog configured in Program.cs
+- [x] Console sink configured
+- [x] File sink configured (dev)
+- [x] Enrichers configured
+- [x] Request logging middleware
+
+**Implementation Details:**
+
+- **Program.cs**:
+  - Bootstrap logger configured before WebApplication builder
+  - Reads from appsettings.json and environment-specific files
+  - Console sink with custom output template
+  - File sink with daily rolling logs (30 days retention)
+  - Try-catch-finally for proper cleanup and error handling
+- **Enrichers**:
+  - FromLogContext: Contextual logging
+  - WithMachineName: Machine identification
+  - WithThreadId: Thread tracking
+  - WithProcessId: Process tracking
+- **Request Logging**:
+  - UseSerilogRequestLogging middleware
+  - Custom message template with timing
+  - Diagnostic context enrichment (RequestHost, RequestScheme, UserAgent, RemoteIP)
+- **Configuration**:
+  - appsettings.json: Base configuration with Information level
+  - appsettings.Development.json: Debug level with more detailed logging
+  - Minimum level overrides for Microsoft and System namespaces
+- **Packages**:
+  - Serilog.AspNetCore 8.0.3
+  - Serilog.Sinks.Console 6.0.0
+  - Serilog.Sinks.File 6.0.0
+  - Serilog.Enrichers.Environment 3.0.1
+  - Serilog.Enrichers.Thread 4.0.0
+  - Serilog.Enrichers.Process 3.0.0
 
 **Commit Message:**
 
 ```
-feat(infra): setup Serilog logging
+feat: setup Serilog logging (TASK-024)
 
-- Configure Serilog in Program.cs
-- Add console and file sinks
-- Add enrichers (machine name, thread id)
-- Add request logging middleware
+- Configure Serilog in Program.cs with console and file sinks
+- Add enrichers (machine name, thread ID, process ID)
+- Add request logging middleware with enhanced diagnostic context
+- Update appsettings.json with Serilog configuration
+- Add Serilog packages: AspNetCore, Sinks.Console, Sinks.File, Enrichers
+- All 148 tests passing
 
 Refs: TASK-024
 ```
@@ -776,16 +807,8 @@ Refs: TASK-025
 - [x] TASK-020: Setup PostgreSQL DbContext
 - [x] TASK-021: Setup MongoDB Context
 - [x] TASK-022: Setup Redis Caching
-- [ ] TASK-023: Implement Result Pattern
-- [ ] TASK-024: Setup Serilog Logging
-- [ ] TASK-025: Setup Global Exception Handling
-- [x] TASK-018: Implement Unit of Work Pattern
-- [x] TASK-019: Implement Repository Base
-- [x] TASK-020: Setup PostgreSQL DbContext
-- [x] TASK-021: Setup MongoDB Context
-- [ ] TASK-022: Setup Redis Caching
 - [x] TASK-023: Implement Result Pattern
-- [ ] TASK-024: Setup Serilog Logging
+- [x] TASK-024: Setup Serilog Logging
 - [ ] TASK-025: Setup Global Exception Handling
 
 ---
