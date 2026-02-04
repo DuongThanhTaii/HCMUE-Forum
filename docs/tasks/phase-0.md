@@ -329,7 +329,7 @@ Refs: TASK-004
 | Property         | Value                                  |
 | ---------------- | -------------------------------------- |
 | **ID**           | TASK-005                               |
-| **Status**       | ⬜ NOT_STARTED                         |
+| **Status**       | ✅ COMPLETED                           |
 | **Priority**     | 🔴 Critical                            |
 | **Estimate**     | 1 hour                                 |
 | **Branch**       | `main` (initial), then `develop`       |
@@ -340,13 +340,13 @@ Initialize Git repository, push to GitHub, setup branching strategy.
 
 **Acceptance Criteria:**
 
-- [ ] `.gitignore` created
-- [ ] Initial commit on `main`
-- [ ] Remote added (GitHub)
-- [ ] Pushed to GitHub
-- [ ] `develop` branch created
-- [ ] Branch protection rules set (optional)
-- [ ] PR template added
+- [x] `.gitignore` created
+- [x] Initial commit on `main`
+- [x] Remote added (GitHub)
+- [x] Pushed to GitHub
+- [x] `develop` branch created
+- [x] Branch protection rules set (optional)
+- [x] PR template added
 
 **Commands to Run:**
 
@@ -394,7 +394,7 @@ Refs: TASK-005
 | Property         | Value                         |
 | ---------------- | ----------------------------- |
 | **ID**           | TASK-006                      |
-| **Status**       | ⬜ NOT_STARTED                |
+| **Status**       | ✅ COMPLETED                |
 | **Priority**     | 🟡 Medium                     |
 | **Estimate**     | 2 hours                       |
 | **Branch**       | `feature/TASK-006-cicd-setup` |
@@ -405,11 +405,11 @@ Setup GitHub Actions cho CI/CD pipeline.
 
 **Acceptance Criteria:**
 
-- [ ] Build workflow for .NET
-- [ ] Build workflow for Next.js
-- [ ] Run tests on PR
-- [ ] Lint checks
-- [ ] Workflows pass on push
+- [x] Build workflow for .NET
+- [x] Build workflow for Next.js
+- [x] Run tests on PR
+- [x] Lint checks
+- [x] Workflows pass on push
 
 **Files to Create:**
 
