@@ -394,7 +394,7 @@ Refs: TASK-005
 | Property         | Value                         |
 | ---------------- | ----------------------------- |
 | **ID**           | TASK-006                      |
-| **Status**       | ✅ COMPLETED                |
+| **Status**       | ✅ COMPLETED                  |
 | **Priority**     | 🟡 Medium                     |
 | **Estimate**     | 2 hours                       |
 | **Branch**       | `feature/TASK-006-cicd-setup` |
