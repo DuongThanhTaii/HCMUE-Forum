@@ -14,6 +14,8 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="MongoDB.Driver" />
+    <PackageReference Include="AspNetCore.HealthChecks.MongoDb" />
   </ItemGroup>
 
   <ItemGroup>
