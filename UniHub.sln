@@ -97,6 +97,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{D0D6B8
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniHub.SharedKernel.Tests", "tests\Shared\UniHub.SharedKernel.Tests\UniHub.SharedKernel.Tests.csproj", "{1A297AA0-8166-4AB7-8965-4492840383B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniHub.Infrastructure.Tests", "tests\Shared\UniHub.Infrastructure.Tests\UniHub.Infrastructure.Tests.csproj", "{FD098B4B-D990-4986-B4E3-83971994FD7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -527,6 +529,18 @@ Global
 		{1A297AA0-8166-4AB7-8965-4492840383B4}.Release|x64.Build.0 = Release|Any CPU
 		{1A297AA0-8166-4AB7-8965-4492840383B4}.Release|x86.ActiveCfg = Release|Any CPU
 		{1A297AA0-8166-4AB7-8965-4492840383B4}.Release|x86.Build.0 = Release|Any CPU
+		{FD098B4B-D990-4986-B4E3-83971994FD7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD098B4B-D990-4986-B4E3-83971994FD7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD098B4B-D990-4986-B4E3-83971994FD7F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FD098B4B-D990-4986-B4E3-83971994FD7F}.Debug|x64.Build.0 = Debug|Any CPU
+		{FD098B4B-D990-4986-B4E3-83971994FD7F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FD098B4B-D990-4986-B4E3-83971994FD7F}.Debug|x86.Build.0 = Debug|Any CPU
+		{FD098B4B-D990-4986-B4E3-83971994FD7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD098B4B-D990-4986-B4E3-83971994FD7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD098B4B-D990-4986-B4E3-83971994FD7F}.Release|x64.ActiveCfg = Release|Any CPU
+		{FD098B4B-D990-4986-B4E3-83971994FD7F}.Release|x64.Build.0 = Release|Any CPU
+		{FD098B4B-D990-4986-B4E3-83971994FD7F}.Release|x86.ActiveCfg = Release|Any CPU
+		{FD098B4B-D990-4986-B4E3-83971994FD7F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -577,5 +591,6 @@ Global
 		{55E23BD8-87AD-4916-902B-F778F67E55DA} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{D0D6B8B0-AC35-B3FA-0B96-A9B0E4A3253E} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{1A297AA0-8166-4AB7-8965-4492840383B4} = {D0D6B8B0-AC35-B3FA-0B96-A9B0E4A3253E}
+		{FD098B4B-D990-4986-B4E3-83971994FD7F} = {D0D6B8B0-AC35-B3FA-0B96-A9B0E4A3253E}
 	EndGlobalSection
 EndGlobal
