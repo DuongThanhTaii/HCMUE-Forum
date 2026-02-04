@@ -11,7 +11,7 @@
 | **Phase**         | 1                |
 | **Name**          | Domain Discovery |
 | **Status**        | 🔵 IN_PROGRESS   |
-| **Progress**      | 2/5 tasks        |
+| **Progress**      | 3/5 tasks (60%)  |
 | **Est. Duration** | 1 week           |
 | **Dependencies**  | Phase 0          |
 
@@ -21,7 +21,7 @@
 
 - [x] Xây dựng Ubiquitous Language (Glossary)
 - [x] Xác định các Bounded Contexts
-- [ ] Vẽ Context Map với relationships
+- [x] Vẽ Context Map với relationships
 - [ ] Phân loại Core/Supporting/Generic domains
 - [ ] Define module boundaries và integration contracts
 
@@ -118,6 +118,56 @@ docs(domain): create ubiquitous language glossary
 
 Refs: TASK-009
 ```
+
+---
+
+### TASK-011: Create Context Map
+
+| Property         | Value                        |
+| ---------------- | ---------------------------- |
+| **ID**           | TASK-011                     |
+| **Status**       | ✅ COMPLETED                 |
+| **Priority**     | 🔴 Critical                  |
+| **Estimate**     | 3 hours                      |
+| **Branch**       | `docs/TASK-011-context-map`  |
+| **Dependencies** | TASK-010                     |
+
+**Description:**
+Tạo context map thể hiện relationships giữa các bounded contexts.
+
+**Acceptance Criteria:**
+
+- [x] Context Map diagram created
+- [x] Relationships clearly labeled
+- [x] Integration patterns defined
+- [x] Upstream/Downstream identified
+
+**Deliverable:**
+Create `docs/domain/CONTEXT_MAP.md`
+
+**Context Relationships:**
+
+1. Identity Context → All (Open Host Service)
+2. All Contexts → Notification (Event-driven)
+3. Core Contexts → AI (Anti-Corruption Layer)
+4. AI → External APIs (Conformist)
+
+**Commit Message:**
+
+```
+docs(domain): create context map with integration patterns
+
+- Create comprehensive context map showing relationships
+- Define 7 bounded contexts with integration patterns
+- Document OHS, ACL, Conformist, Customer/Supplier patterns
+- Add visual Mermaid diagram for context relationships
+- Define communication mechanisms (sync/async)
+- Document evolution strategy (monolith → microservices)
+
+TASK-011
+```
+
+Refs: TASK-010
 
 ---
 
