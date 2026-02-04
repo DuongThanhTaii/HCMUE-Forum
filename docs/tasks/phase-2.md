@@ -10,8 +10,8 @@
 | ----------------- | ------------------- |
 | **Phase**         | 2                   |
 | **Name**          | Core Infrastructure |
-| **Status**        | ⬜ NOT_STARTED      |
-| **Progress**      | 0/12 tasks          |
+| **Status**        | 🔄 IN_PROGRESS      |
+| **Progress**      | 2/12 tasks          |
 | **Est. Duration** | 2 weeks             |
 | **Dependencies**  | Phase 0, Phase 1    |
 
@@ -19,8 +19,8 @@
 
 ## 🎯 OBJECTIVES
 
-- [ ] Xây dựng DDD base classes (Entity, ValueObject, AggregateRoot)
-- [ ] Implement Domain Events infrastructure
+- [x] Xây dựng DDD base classes (Entity, ValueObject, AggregateRoot)
+- [x] Implement Domain Events infrastructure
 - [ ] Setup CQRS với MediatR
 - [ ] Implement Unit of Work và Repository pattern
 - [ ] Configure databases (PostgreSQL, MongoDB, Redis)
@@ -35,7 +35,7 @@
 | Property         | Value                           |
 | ---------------- | ------------------------------- |
 | **ID**           | TASK-014                        |
-| **Status**       | ⬜ NOT_STARTED                  |
+| **Status**       | ✅ COMPLETED                    |
 | **Priority**     | 🔴 Critical                     |
 | **Estimate**     | 3 hours                         |
 | **Branch**       | `feature/TASK-014-base-classes` |
@@ -46,12 +46,12 @@ Tạo base classes cho DDD: Entity, ValueObject, AggregateRoot.
 
 **Acceptance Criteria:**
 
-- [ ] `Entity<TId>` base class created
-- [ ] `ValueObject` base class created
-- [ ] `AggregateRoot<TId>` base class created
-- [ ] `IHasDomainEvents` interface created
-- [ ] Strong-typed ID base created
-- [ ] Unit tests written
+- [x] `Entity<TId>` base class created
+- [x] `ValueObject` base class created
+- [x] `AggregateRoot<TId>` base class created
+- [x] `IHasDomainEvents` interface created
+- [x] Strong-typed ID base created
+- [x] Unit tests written
 
 **Files to Create:**
 
@@ -150,7 +150,7 @@ Refs: TASK-014
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **ID**           | TASK-015                         |
-| **Status**       | ⬜ NOT_STARTED                   |
+| **Status**       | ✅ COMPLETED                     |
 | **Priority**     | 🔴 Critical                      |
 | **Estimate**     | 3 hours                          |
 | **Branch**       | `feature/TASK-015-domain-events` |
@@ -161,11 +161,11 @@ Implement infrastructure để dispatch và handle domain events.
 
 **Acceptance Criteria:**
 
-- [ ] `IDomainEvent` interface defined
-- [ ] `IDomainEventHandler<T>` interface defined
-- [ ] `DomainEventDispatcher` implemented
-- [ ] Integration với MediatR
-- [ ] Unit tests written
+- [x] `IDomainEvent` interface defined
+- [x] `IDomainEventHandler<T>` interface defined
+- [x] `DomainEventDispatcher` implemented
+- [x] Integration với MediatR
+- [x] Unit tests written
 
 **Files to Create:**
 
@@ -746,8 +746,8 @@ Refs: TASK-025
 
 ## ✅ COMPLETION CHECKLIST
 
-- [ ] TASK-014: Create Base Entity and Value Object
-- [ ] TASK-015: Implement Domain Events Infrastructure
+- [x] TASK-014: Create Base Entity and Value Object
+- [x] TASK-015: Implement Domain Events Infrastructure
 - [ ] TASK-016: Setup CQRS Base Infrastructure
 - [ ] TASK-017: Setup MediatR Pipeline Behaviors
 - [ ] TASK-018: Implement Unit of Work Pattern
