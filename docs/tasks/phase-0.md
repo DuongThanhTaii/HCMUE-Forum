@@ -11,7 +11,7 @@
 | **Phase**         | 0                |
 | **Name**          | Foundation Setup |
 | **Status**        | 🔵 IN_PROGRESS   |
-| **Progress**      | 2/8 tasks        |
+| **Progress**      | 3/8 tasks        |
 | **Est. Duration** | 1 week           |
 | **Dependencies**  | None             |
 
@@ -167,7 +167,7 @@ Refs: TASK-002
 | Property         | Value                           |
 | ---------------- | ------------------------------- |
 | **ID**           | TASK-003                        |
-| **Status**       | ⬜ NOT_STARTED                  |
+| **Status**       | ✅ COMPLETED                    |
 | **Priority**     | 🟡 Medium                       |
 | **Estimate**     | 2 hours                         |
 | **Branch**       | `feature/TASK-003-docker-setup` |
@@ -178,12 +178,12 @@ Tạo Docker configuration cho local development với PostgreSQL, MongoDB, Redi
 
 **Acceptance Criteria:**
 
-- [ ] `docker-compose.yml` created
-- [ ] `docker-compose.override.yml` for development
-- [ ] PostgreSQL container configured
-- [ ] MongoDB container configured
-- [ ] Redis container configured
-- [ ] Containers start successfully with `docker-compose up`
+- [x] `docker-compose.yml` created
+- [x] `docker-compose.override.yml` for development
+- [x] PostgreSQL container configured
+- [x] MongoDB container configured
+- [x] Redis container configured
+- [x] Containers start successfully with `docker-compose up`
 
 **Files to Create:**
 
