@@ -501,7 +501,7 @@ Refs: TASK-006
 | Property         | Value                             |
 | ---------------- | --------------------------------- |
 | **ID**           | TASK-007                          |
-| **Status**       | ⬜ NOT_STARTED                    |
+| **Status**       | ✅ COMPLETED                      |
 | **Priority**     | 🔴 Critical                       |
 | **Estimate**     | 2 hours                           |
 | **Branch**       | `feature/TASK-007-db-connections` |
@@ -512,11 +512,11 @@ Configure connection strings cho Neon.tech (PostgreSQL), MongoDB Atlas, và Upst
 
 **Acceptance Criteria:**
 
-- [ ] `appsettings.json` template created
-- [ ] `appsettings.Development.json` with local connections
-- [ ] Environment variables documented
-- [ ] Connection test endpoint created
-- [ ] User secrets configured for sensitive data
+- [x] `appsettings.json` template created
+- [x] `appsettings.Development.json` with local connections
+- [x] Environment variables documented
+- [x] Connection test endpoint created
+- [x] User secrets configured for sensitive data
 
 **Files to Create:**
 
