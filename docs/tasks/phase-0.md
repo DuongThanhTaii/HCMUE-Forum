@@ -11,7 +11,7 @@
 | **Phase**         | 0                |
 | **Name**          | Foundation Setup |
 | **Status**        | 🔵 IN_PROGRESS   |
-| **Progress**      | 3/8 tasks        |
+| **Progress**      | 4/8 tasks        |
 | **Est. Duration** | 1 week           |
 | **Dependencies**  | None             |
 
@@ -246,7 +246,7 @@ Refs: TASK-003
 | Property         | Value                           |
 | ---------------- | ------------------------------- |
 | **ID**           | TASK-004                        |
-| **Status**       | ⬜ NOT_STARTED                  |
+| **Status**       | ✅ COMPLETED                    |
 | **Priority**     | 🔴 Critical                     |
 | **Estimate**     | 3 hours                         |
 | **Branch**       | `feature/TASK-004-nextjs-setup` |
@@ -257,14 +257,14 @@ Setup Next.js 14 project với App Router, TypeScript, Tailwind CSS, và Shadcn/
 
 **Acceptance Criteria:**
 
-- [ ] Next.js 14 project created with App Router
-- [ ] TypeScript configured
-- [ ] Tailwind CSS configured
-- [ ] Shadcn/ui initialized
-- [ ] Basic components installed (Button, Input, Card)
-- [ ] Folder structure created
-- [ ] PWA manifest added
-- [ ] App runs successfully on localhost
+- [x] Next.js 14 project created with App Router
+- [x] TypeScript configured
+- [x] Tailwind CSS configured
+- [x] Shadcn/ui initialized
+- [x] Basic components installed (Button, Input, Card)
+- [x] Folder structure created
+- [x] PWA manifest added
+- [x] App runs successfully on localhost
 
 **Commands to Run:**
 
