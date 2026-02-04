@@ -11,7 +11,7 @@
 | **Phase**         | 2                   |
 | **Name**          | Core Infrastructure |
 | **Status**        | 🔄 IN_PROGRESS      |
-| **Progress**      | 2/12 tasks          |
+| **Progress**      | 4/12 tasks          |
 | **Est. Duration** | 2 weeks             |
 | **Dependencies**  | Phase 0, Phase 1    |
 
@@ -21,10 +21,10 @@
 
 - [x] Xây dựng DDD base classes (Entity, ValueObject, AggregateRoot)
 - [x] Implement Domain Events infrastructure
-- [ ] Setup CQRS với MediatR
+- [x] Setup CQRS với MediatR
 - [ ] Implement Unit of Work và Repository pattern
 - [ ] Configure databases (PostgreSQL, MongoDB, Redis)
-- [ ] Setup Error handling và Logging
+- [x] Setup Error handling và Logging
 
 ---
 
@@ -198,7 +198,7 @@ Refs: TASK-015
 | Property         | Value                         |
 | ---------------- | ----------------------------- |
 | **ID**           | TASK-016                      |
-| **Status**       | ⬜ NOT_STARTED                |
+| **Status**       | ✅ COMPLETED                  |
 | **Priority**     | 🔴 Critical                   |
 | **Estimate**     | 4 hours                       |
 | **Branch**       | `feature/TASK-016-cqrs-setup` |
@@ -209,12 +209,12 @@ Setup CQRS pattern với ICommand, IQuery, và handlers.
 
 **Acceptance Criteria:**
 
-- [ ] `ICommand<TResult>` interface created
-- [ ] `ICommandHandler<TCommand, TResult>` interface created
-- [ ] `IQuery<TResult>` interface created
-- [ ] `IQueryHandler<TQuery, TResult>` interface created
-- [ ] MediatR integration configured
-- [ ] Unit tests written
+- [x] `ICommand<TResult>` interface created
+- [x] `ICommandHandler<TCommand, TResult>` interface created
+- [x] `IQuery<TResult>` interface created
+- [x] `IQueryHandler<TQuery, TResult>` interface created
+- [x] MediatR integration configured
+- [x] Unit tests written
 
 **Files to Create:**
 
@@ -580,7 +580,7 @@ Refs: TASK-022
 | Property         | Value                             |
 | ---------------- | --------------------------------- |
 | **ID**           | TASK-023                          |
-| **Status**       | ⬜ NOT_STARTED                    |
+| **Status**       | ✅ COMPLETED                      |
 | **Priority**     | 🔴 Critical                       |
 | **Estimate**     | 2 hours                           |
 | **Branch**       | `feature/TASK-023-result-pattern` |
@@ -591,11 +591,11 @@ Implement Result pattern cho error handling functional style.
 
 **Acceptance Criteria:**
 
-- [ ] `Result` class implemented
-- [ ] `Result<T>` class implemented
-- [ ] `Error` class implemented
-- [ ] Extension methods for mapping
-- [ ] Unit tests written
+- [x] `Result` class implemented
+- [x] `Result<T>` class implemented
+- [x] `Error` class implemented
+- [x] Extension methods for mapping
+- [x] Unit tests written
 
 **Files to Create:**
 
@@ -748,14 +748,14 @@ Refs: TASK-025
 
 - [x] TASK-014: Create Base Entity and Value Object
 - [x] TASK-015: Implement Domain Events Infrastructure
-- [ ] TASK-016: Setup CQRS Base Infrastructure
+- [x] TASK-016: Setup CQRS Base Infrastructure
 - [ ] TASK-017: Setup MediatR Pipeline Behaviors
 - [ ] TASK-018: Implement Unit of Work Pattern
 - [ ] TASK-019: Implement Repository Base
 - [ ] TASK-020: Setup PostgreSQL DbContext
 - [ ] TASK-021: Setup MongoDB Context
 - [ ] TASK-022: Setup Redis Caching
-- [ ] TASK-023: Implement Result Pattern
+- [x] TASK-023: Implement Result Pattern
 - [ ] TASK-024: Setup Serilog Logging
 - [ ] TASK-025: Setup Global Exception Handling
 
