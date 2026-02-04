@@ -527,12 +527,12 @@ Refs: TASK-021
 
 ---
 
-### TASK-022: Setup Redis Caching
+### TASK-022: Setup Redis Caching ✅
 
 | Property         | Value                          |
 | ---------------- | ------------------------------ |
 | **ID**           | TASK-022                       |
-| **Status**       | ⬜ NOT_STARTED                 |
+| **Status**       | ✅ COMPLETED                   |
 | **Priority**     | 🟡 Medium                      |
 | **Estimate**     | 3 hours                        |
 | **Branch**       | `feature/TASK-022-redis-setup` |
@@ -543,11 +543,11 @@ Configure Redis cho caching và SignalR backplane.
 
 **Acceptance Criteria:**
 
-- [ ] `ICacheService` interface defined
-- [ ] `RedisCacheService` implementation
-- [ ] Connection string configured
-- [ ] SignalR backplane configured
-- [ ] Health check added
+- [x] `ICacheService` interface defined
+- [x] `RedisCacheService` implementation
+- [x] Connection string configured
+- [x] SignalR backplane configured
+- [x] Health check added
 
 **Files to Create:**
 
@@ -559,16 +559,37 @@ src/Shared/UniHub.Infrastructure/
 │   └── CacheKeys.cs
 ```
 
+**Implementation Details:**
+
+- **ICacheService.cs**: Generic caching interface with methods:
+  - `GetAsync<T>`: Retrieve cached value
+  - `SetAsync<T>`: Store value with optional expiration
+  - `RemoveAsync`: Delete single key
+  - `RemoveByPatternAsync`: Delete keys matching pattern
+  - `GetOrSetAsync<T>`: Cache-aside pattern implementation
+- **RedisCacheService.cs**: Redis implementation using `IDistributedCache` and `IConnectionMultiplexer`
+  - Uses byte arrays for serialization (base interface methods)
+  - Default expiration: 1 hour
+  - Pattern-based key removal via `server.Keys()`
+- **CacheKeys.cs**: Static helper class with key prefixes for all modules (user, post, forum, notification, course, chat)
+- **DependencyInjection.cs**: Added `AddRedisCache` method with:
+  - IConnectionMultiplexer configuration (AbortOnConnectFail=false, timeouts=5000ms)
+  - StackExchangeRedisCache with "UniHub:" instance name
+  - SignalR Redis backplane configuration
+  - Health check registration
+- **Unit Tests**: 17 tests (10 for RedisCacheService, 7 for CacheKeys) - 148 total passing
+
 **Commit Message:**
 
 ```
-feat(infra): setup Redis caching
+feat: implement Redis caching infrastructure (TASK-022)
 
-- Add ICacheService interface
-- Add RedisCacheService implementation
-- Configure SignalR Redis backplane
-- Add cache key constants
-- Add health check
+- Add ICacheService interface with Get, Set, Remove, RemoveByPattern, GetOrSet methods
+- Implement RedisCacheService using IDistributedCache and IConnectionMultiplexer
+- Add CacheKeys helper class with key prefixes for all modules
+- Configure Redis connection with health check and SignalR backplane
+- Update appsettings with Redis connection strings
+- Add 17 unit tests for caching functionality (148 tests total passing)
 
 Refs: TASK-022
 ```
@@ -750,6 +771,14 @@ Refs: TASK-025
 - [x] TASK-015: Implement Domain Events Infrastructure
 - [x] TASK-016: Setup CQRS Base Infrastructure
 - [x] TASK-017: Setup MediatR Pipeline Behaviors
+- [x] TASK-018: Implement Unit of Work Pattern
+- [x] TASK-019: Create Repository Base
+- [x] TASK-020: Setup PostgreSQL DbContext
+- [x] TASK-021: Setup MongoDB Context
+- [x] TASK-022: Setup Redis Caching
+- [ ] TASK-023: Implement Result Pattern
+- [ ] TASK-024: Setup Serilog Logging
+- [ ] TASK-025: Setup Global Exception Handling
 - [x] TASK-018: Implement Unit of Work Pattern
 - [x] TASK-019: Implement Repository Base
 - [x] TASK-020: Setup PostgreSQL DbContext
