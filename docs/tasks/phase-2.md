@@ -11,7 +11,7 @@
 | **Phase**         | 2                   |
 | **Name**          | Core Infrastructure |
 | **Status**        | 🔄 IN_PROGRESS      |
-| **Progress**      | 5/12 tasks          |
+| **Progress**      | 6/12 tasks          |
 | **Est. Duration** | 2 weeks             |
 | **Dependencies**  | Phase 0, Phase 1    |
 
@@ -322,7 +322,7 @@ Refs: TASK-017
 | Property         | Value                           |
 | ---------------- | ------------------------------- |
 | **ID**           | TASK-018                        |
-| **Status**       | ⬜ NOT_STARTED                  |
+| **Status**       | ✅ COMPLETED                    |
 | **Priority**     | 🔴 Critical                     |
 | **Estimate**     | 3 hours                         |
 | **Branch**       | `feature/TASK-018-unit-of-work` |
@@ -333,11 +333,11 @@ Implement Unit of Work pattern cho transaction management.
 
 **Acceptance Criteria:**
 
-- [ ] `IUnitOfWork` interface defined
-- [ ] `UnitOfWork` implementation cho EF Core
-- [ ] Domain events dispatched on SaveChanges
-- [ ] Transaction support
-- [ ] Unit tests written
+- [x] `IUnitOfWork` interface defined
+- [x] `UnitOfWork` implementation cho EF Core
+- [x] Domain events dispatched on SaveChanges
+- [x] Transaction support
+- [x] Unit tests written
 
 **Files to Create:**
 
@@ -749,8 +749,8 @@ Refs: TASK-025
 - [x] TASK-014: Create Base Entity and Value Object
 - [x] TASK-015: Implement Domain Events Infrastructure
 - [x] TASK-016: Setup CQRS Base Infrastructure
-- [ ] TASK-017: Setup MediatR Pipeline Behaviors
-- [ ] TASK-018: Implement Unit of Work Pattern
+- [x] TASK-017: Setup MediatR Pipeline Behaviors
+- [x] TASK-018: Implement Unit of Work Pattern
 - [ ] TASK-019: Implement Repository Base
 - [ ] TASK-020: Setup PostgreSQL DbContext
 - [ ] TASK-021: Setup MongoDB Context
