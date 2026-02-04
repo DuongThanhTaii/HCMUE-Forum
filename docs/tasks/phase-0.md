@@ -11,7 +11,7 @@
 | **Phase**         | 0                |
 | **Name**          | Foundation Setup |
 | **Status**        | 🔵 IN_PROGRESS   |
-| **Progress**      | 3/8 tasks        |
+| **Progress**      | 4/8 tasks        |
 | **Est. Duration** | 1 week           |
 | **Dependencies**  | None             |
 
@@ -246,7 +246,7 @@ Refs: TASK-003
 | Property         | Value                           |
 | ---------------- | ------------------------------- |
 | **ID**           | TASK-004                        |
-| **Status**       | ⬜ NOT_STARTED                  |
+| **Status**       | ✅ COMPLETED                    |
 | **Priority**     | 🔴 Critical                     |
 | **Estimate**     | 3 hours                         |
 | **Branch**       | `feature/TASK-004-nextjs-setup` |
@@ -257,14 +257,14 @@ Setup Next.js 14 project với App Router, TypeScript, Tailwind CSS, và Shadcn/
 
 **Acceptance Criteria:**
 
-- [ ] Next.js 14 project created with App Router
-- [ ] TypeScript configured
-- [ ] Tailwind CSS configured
-- [ ] Shadcn/ui initialized
-- [ ] Basic components installed (Button, Input, Card)
-- [ ] Folder structure created
-- [ ] PWA manifest added
-- [ ] App runs successfully on localhost
+- [x] Next.js 14 project created with App Router
+- [x] TypeScript configured
+- [x] Tailwind CSS configured
+- [x] Shadcn/ui initialized
+- [x] Basic components installed (Button, Input, Card)
+- [x] Folder structure created
+- [x] PWA manifest added
+- [x] App runs successfully on localhost
 
 **Commands to Run:**
 
@@ -329,7 +329,7 @@ Refs: TASK-004
 | Property         | Value                                  |
 | ---------------- | -------------------------------------- |
 | **ID**           | TASK-005                               |
-| **Status**       | ⬜ NOT_STARTED                         |
+| **Status**       | ✅ COMPLETED                           |
 | **Priority**     | 🔴 Critical                            |
 | **Estimate**     | 1 hour                                 |
 | **Branch**       | `main` (initial), then `develop`       |
@@ -340,13 +340,13 @@ Initialize Git repository, push to GitHub, setup branching strategy.
 
 **Acceptance Criteria:**
 
-- [ ] `.gitignore` created
-- [ ] Initial commit on `main`
-- [ ] Remote added (GitHub)
-- [ ] Pushed to GitHub
-- [ ] `develop` branch created
-- [ ] Branch protection rules set (optional)
-- [ ] PR template added
+- [x] `.gitignore` created
+- [x] Initial commit on `main`
+- [x] Remote added (GitHub)
+- [x] Pushed to GitHub
+- [x] `develop` branch created
+- [x] Branch protection rules set (optional)
+- [x] PR template added
 
 **Commands to Run:**
 
@@ -394,7 +394,7 @@ Refs: TASK-005
 | Property         | Value                         |
 | ---------------- | ----------------------------- |
 | **ID**           | TASK-006                      |
-| **Status**       | ⬜ NOT_STARTED                |
+| **Status**       | ✅ COMPLETED                  |
 | **Priority**     | 🟡 Medium                     |
 | **Estimate**     | 2 hours                       |
 | **Branch**       | `feature/TASK-006-cicd-setup` |
@@ -405,11 +405,11 @@ Setup GitHub Actions cho CI/CD pipeline.
 
 **Acceptance Criteria:**
 
-- [ ] Build workflow for .NET
-- [ ] Build workflow for Next.js
-- [ ] Run tests on PR
-- [ ] Lint checks
-- [ ] Workflows pass on push
+- [x] Build workflow for .NET
+- [x] Build workflow for Next.js
+- [x] Run tests on PR
+- [x] Lint checks
+- [x] Workflows pass on push
 
 **Files to Create:**
 

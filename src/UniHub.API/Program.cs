@@ -4,6 +4,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// Add health checks
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -13,6 +16,28 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Health check endpoint
+app.MapHealthChecks("/health");
+
+// Connection test endpoint
+app.MapGet("/health/connections", (IConfiguration config) =>
+{
+    var connections = new
+    {
+        PostgreSQL = !string.IsNullOrEmpty(config.GetConnectionString("PostgreSQL")),
+        MongoDB = !string.IsNullOrEmpty(config.GetConnectionString("MongoDB")),
+        Redis = !string.IsNullOrEmpty(config.GetConnectionString("Redis"))
+    };
+    
+    return Results.Ok(new
+    {
+        Status = "Healthy",
+        Timestamp = DateTime.UtcNow,
+        ConnectionsConfigured = connections
+    });
+})
+.WithName("GetConnectionsHealth");
 
 var summaries = new[]
 {
