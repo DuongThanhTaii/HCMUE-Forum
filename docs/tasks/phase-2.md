@@ -11,7 +11,7 @@
 | **Phase**         | 2                   |
 | **Name**          | Core Infrastructure |
 | **Status**        | 🔄 IN_PROGRESS      |
-| **Progress**      | 6/12 tasks          |
+| **Progress**      | 7/12 tasks          |
 | **Est. Duration** | 2 weeks             |
 | **Dependencies**  | Phase 0, Phase 1    |
 
@@ -22,7 +22,7 @@
 - [x] Xây dựng DDD base classes (Entity, ValueObject, AggregateRoot)
 - [x] Implement Domain Events infrastructure
 - [x] Setup CQRS với MediatR
-- [ ] Implement Unit of Work và Repository pattern
+- [x] Implement Unit of Work và Repository pattern
 - [ ] Configure databases (PostgreSQL, MongoDB, Redis)
 - [x] Setup Error handling và Logging
 
@@ -385,7 +385,7 @@ Refs: TASK-018
 | Property         | Value                              |
 | ---------------- | ---------------------------------- |
 | **ID**           | TASK-019                           |
-| **Status**       | ⬜ NOT_STARTED                     |
+| **Status**       | ✅ COMPLETED                       |
 | **Priority**     | 🔴 Critical                        |
 | **Estimate**     | 3 hours                            |
 | **Branch**       | `feature/TASK-019-repository-base` |
@@ -396,10 +396,10 @@ Implement base repository cho Aggregate Roots.
 
 **Acceptance Criteria:**
 
-- [ ] `IRepository<T>` interface defined
-- [ ] `Repository<T>` base implementation
-- [ ] Specification pattern support
-- [ ] Unit tests written
+- [x] `IRepository<T>` interface defined
+- [x] `Repository<T>` base implementation
+- [x] Specification pattern support
+- [x] Unit tests written
 
 **Files to Create:**
 
@@ -751,7 +751,7 @@ Refs: TASK-025
 - [x] TASK-016: Setup CQRS Base Infrastructure
 - [x] TASK-017: Setup MediatR Pipeline Behaviors
 - [x] TASK-018: Implement Unit of Work Pattern
-- [ ] TASK-019: Implement Repository Base
+- [x] TASK-019: Implement Repository Base
 - [ ] TASK-020: Setup PostgreSQL DbContext
 - [ ] TASK-021: Setup MongoDB Context
 - [ ] TASK-022: Setup Redis Caching
