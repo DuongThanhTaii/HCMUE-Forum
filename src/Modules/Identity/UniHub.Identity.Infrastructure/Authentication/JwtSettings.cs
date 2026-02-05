@@ -26,4 +26,9 @@ public sealed class JwtSettings
     /// Access token expiry duration in minutes (default: 15 minutes)
     /// </summary>
     public int AccessTokenExpiryMinutes { get; init; } = 15;
+
+    /// <summary>
+    /// Refresh token expiry duration in days (default: 7 days)
+    /// </summary>
+    public int RefreshTokenExpiryDays { get; init; } = 7;
 }

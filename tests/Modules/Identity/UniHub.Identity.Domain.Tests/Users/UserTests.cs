@@ -264,7 +264,7 @@ public class UserTests
         user.RefreshTokens.Should().HaveCount(1);
         user.RefreshTokens.First().Should().Be(refreshToken);
         refreshToken.Token.Should().Be(token);
-        refreshToken.ExpiryTime.Should().Be(expires);
+        refreshToken.ExpiresAt.Should().Be(expires);
         refreshToken.UserId.Should().Be(user.Id);
     }
 

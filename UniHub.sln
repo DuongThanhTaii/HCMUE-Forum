@@ -107,6 +107,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniHub.Identity.Domain.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniHub.Identity.Infrastructure.Tests", "tests\Modules\Identity\UniHub.Identity.Infrastructure.Tests\UniHub.Identity.Infrastructure.Tests.csproj", "{3430A12E-C302-4F61-BAA0-08B020E3EF91}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniHub.Identity.Application.Tests", "tests\Modules\Identity\UniHub.Identity.Application.Tests\UniHub.Identity.Application.Tests.csproj", "{47B7CAEE-A049-495E-9E3A-87337AE68247}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -573,6 +575,18 @@ Global
 		{3430A12E-C302-4F61-BAA0-08B020E3EF91}.Release|x64.Build.0 = Release|Any CPU
 		{3430A12E-C302-4F61-BAA0-08B020E3EF91}.Release|x86.ActiveCfg = Release|Any CPU
 		{3430A12E-C302-4F61-BAA0-08B020E3EF91}.Release|x86.Build.0 = Release|Any CPU
+		{47B7CAEE-A049-495E-9E3A-87337AE68247}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47B7CAEE-A049-495E-9E3A-87337AE68247}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47B7CAEE-A049-495E-9E3A-87337AE68247}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{47B7CAEE-A049-495E-9E3A-87337AE68247}.Debug|x64.Build.0 = Debug|Any CPU
+		{47B7CAEE-A049-495E-9E3A-87337AE68247}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{47B7CAEE-A049-495E-9E3A-87337AE68247}.Debug|x86.Build.0 = Debug|Any CPU
+		{47B7CAEE-A049-495E-9E3A-87337AE68247}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47B7CAEE-A049-495E-9E3A-87337AE68247}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47B7CAEE-A049-495E-9E3A-87337AE68247}.Release|x64.ActiveCfg = Release|Any CPU
+		{47B7CAEE-A049-495E-9E3A-87337AE68247}.Release|x64.Build.0 = Release|Any CPU
+		{47B7CAEE-A049-495E-9E3A-87337AE68247}.Release|x86.ActiveCfg = Release|Any CPU
+		{47B7CAEE-A049-495E-9E3A-87337AE68247}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -628,5 +642,6 @@ Global
 		{ACB2D19B-6984-27D8-539C-F209B7C78BA5} = {D7DC9B74-6BC4-2470-2038-1E57C2DCB73B}
 		{2F183234-0C60-412E-A11B-43E8727F4DA8} = {ACB2D19B-6984-27D8-539C-F209B7C78BA5}
 		{3430A12E-C302-4F61-BAA0-08B020E3EF91} = {ACB2D19B-6984-27D8-539C-F209B7C78BA5}
+		{47B7CAEE-A049-495E-9E3A-87337AE68247} = {ACB2D19B-6984-27D8-539C-F209B7C78BA5}
 	EndGlobalSection
 EndGlobal
