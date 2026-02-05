@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Infrastructure.Authentication;
+using UniHub.Identity.Infrastructure.Authorization;
+using UniHub.Identity.Infrastructure.Caching;
 using UniHub.Identity.Infrastructure.Persistence.Repositories;
 
 namespace UniHub.Identity.Infrastructure;
@@ -48,6 +50,8 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IPermissionRepository, PermissionRepository>();
+        services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
 
         return services;
     }
@@ -55,6 +59,8 @@ public static class DependencyInjection
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<IPermissionCache, InMemoryPermissionCache>();
+        services.AddScoped<IPermissionChecker, PermissionChecker>();
 
         return services;
     }

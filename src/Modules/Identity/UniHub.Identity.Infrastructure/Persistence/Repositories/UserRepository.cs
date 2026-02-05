@@ -13,6 +13,14 @@ public sealed class UserRepository : IUserRepository
     private static readonly List<User> _users = new();
     private static readonly object _lock = new();
 
+    public Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        lock (_lock)
+        {
+            return Task.FromResult<IReadOnlyList<User>>(_users.ToList().AsReadOnly());
+        }
+    }
+
     public Task<User?> GetByIdAsync(UserId userId, CancellationToken cancellationToken = default)
     {
         lock (_lock)

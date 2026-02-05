@@ -9,6 +9,11 @@ namespace UniHub.Identity.Application.Abstractions;
 public interface IUserRepository
 {
     /// <summary>
+    /// Gets all users
+    /// </summary>
+    Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Gets a user by their unique ID
     /// </summary>
     Task<User?> GetByIdAsync(UserId userId, CancellationToken cancellationToken = default);
