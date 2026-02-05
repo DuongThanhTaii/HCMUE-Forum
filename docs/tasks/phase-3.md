@@ -783,9 +783,9 @@ Refs: TASK-037
 
 - [x] TASK-026: Design User Aggregate
 - [x] TASK-027: Design Role & Permission Entities
-- [ ] TASK-028: Implement JWT Authentication
-- [ ] TASK-029: Implement Refresh Token Flow
-- [ ] TASK-030: Create Registration Flow
+- [x] TASK-028: Implement JWT Authentication
+- [x] TASK-029: Implement Refresh Token Flow
+- [x] TASK-030: Create Registration Flow
 - [ ] TASK-031: Create Login Flow
 - [ ] TASK-032: Implement Dynamic Role Management
 - [ ] TASK-033: Implement Permission Assignment
