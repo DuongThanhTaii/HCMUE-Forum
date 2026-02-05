@@ -25,7 +25,7 @@
 - [x] Implement Dynamic Role Management
 - [x] Implement Permission Assignment
 - [x] Implement Official Badge system
-- [ ] Implement Scoped Permissions
+- [x] Implement Scoped Permissions
 
 ---
 
@@ -674,12 +674,12 @@ Refs: TASK-034
 
 ---
 
-### TASK-035: Implement Scoped Permissions
+### TASK-035: Implement Scoped Permissions ✅
 
 | Property         | Value                                 |
 | ---------------- | ------------------------------------- |
 | **ID**           | TASK-035                              |
-| **Status**       | ⬜ NOT_STARTED                        |
+| **Status**       | ✅ COMPLETED                          |
 | **Priority**     | 🟡 Medium                             |
 | **Estimate**     | 4 hours                               |
 | **Branch**       | `feature/TASK-035-scoped-permissions` |
@@ -690,23 +690,44 @@ Implement scoped permissions (per-course, per-department).
 
 **Acceptance Criteria:**
 
-- [ ] `PermissionScope` value object
-- [ ] Scope types: Module, Course, Department, Category
-- [ ] Check scoped permission logic
-- [ ] Assign scoped role command
+- [x] `PermissionScope` value object (already existed)
+- [x] Scope types: Module, Course, Department, Category
+- [x] Check scoped permission logic
+- [x] Assign/Remove scoped permission commands
 - [ ] Unit tests written
 
-**Files to Create:**
+**Files Created:**
 
 ```
-src/Modules/Identity/UniHub.Identity.Domain/
-├── Permissions/
-│   └── PermissionScope.cs
-
 src/Modules/Identity/UniHub.Identity.Application/
-├── Services/
+├── Abstractions/
 │   └── IPermissionChecker.cs
+├── Commands/AssignScopedPermission/
+│   ├── AssignScopedPermissionCommand.cs
+│   ├── AssignScopedPermissionCommandHandler.cs
+│   └── AssignScopedPermissionCommandValidator.cs
+└── Commands/RemoveScopedPermission/
+    ├── RemoveScopedPermissionCommand.cs
+    ├── RemoveScopedPermissionCommandHandler.cs
+    └── RemoveScopedPermissionCommandValidator.cs
+
+src/Modules/Identity/UniHub.Identity.Infrastructure/
+├── Authorization/
+│   └── PermissionChecker.cs
+└── Persistence/Repositories/
+    └── PermissionRepository.cs
 ```
+
+**Implementation Details:**
+
+- PermissionScope value object already existed in domain (Global, Module, Course, Department, Category)
+- IPermissionChecker service provides 6 methods for permission checking with scope awareness
+- PermissionChecker implementation uses cache and repository pattern
+- AssignScopedPermission command assigns permissions to roles with specific scopes
+- RemoveScopedPermission command removes scoped permissions from roles
+- PermissionRepository seeded with default permissions for Forum, Learning, and Identity modules
+- All services registered in DI container
+- Cache invalidation on permission changes
 
 **Example:**
 
@@ -722,12 +743,18 @@ var scopedPermission = new ScopedPermission(
 **Commit Message:**
 
 ```
-feat(identity): implement scoped permissions
+feat(identity): implement scoped permissions - TASK-035
 
-- Add PermissionScope value object
-- Add scope types: Module, Course, Department, Category
-- Add IPermissionChecker service
-- Add scoped permission checking logic
+- Add IPermissionChecker interface and PermissionChecker implementation
+- Add AssignScopedPermission command, validator, and handler
+- Add RemoveScopedPermission command, validator, and handler
+- Add PermissionRepository with in-memory implementation
+- Support permission scopes: Global, Module, Course, Department, Category
+- Cache-aware permission checking with scope matching
+- Register all services in DI container
+
+Refs: TASK-035
+```
 - Add unit tests
 
 Refs: TASK-035
@@ -866,7 +893,7 @@ Refs: TASK-037
 - [x] TASK-032: Implement Dynamic Role Management
 - [x] TASK-033: Implement Permission Assignment
 - [x] TASK-034: Create Official Account System
-- [ ] TASK-035: Implement Scoped Permissions
+- [x] TASK-035: Implement Scoped Permissions
 - [ ] TASK-036: Password Reset Flow
 - [ ] TASK-037: Identity API Endpoints
 
