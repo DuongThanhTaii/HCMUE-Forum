@@ -16,6 +16,7 @@ public static class DependencyInjection
     {
         services.AddAuthentication(configuration);
         services.AddRepositories();
+        services.AddServices();
         
         return services;
     }
@@ -45,6 +46,15 @@ public static class DependencyInjection
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddServices(this IServiceCollection services)
+    {
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         return services;
     }

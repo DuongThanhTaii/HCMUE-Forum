@@ -348,7 +348,7 @@ Refs: TASK-029
 | Property         | Value                           |
 | ---------------- | ------------------------------- |
 | **ID**           | TASK-030                        |
-| **Status**       | ⬜ NOT_STARTED                  |
+| **Status**       | ✅ COMPLETED                    |
 | **Priority**     | 🔴 Critical                     |
 | **Estimate**     | 3 hours                         |
 | **Branch**       | `feature/TASK-030-registration` |
@@ -359,36 +359,61 @@ Implement user registration command và handler.
 
 **Acceptance Criteria:**
 
-- [ ] `RegisterUserCommand` implemented
-- [ ] `RegisterUserCommandHandler` implemented
-- [ ] `RegisterUserCommandValidator` implemented
-- [ ] Email uniqueness check
-- [ ] Password hashing
-- [ ] Default role assignment
-- [ ] Unit tests written
+- [x] `RegisterUserCommand` implemented
+- [x] `RegisterUserCommandHandler` implemented
+- [x] `RegisterUserCommandValidator` implemented
+- [x] Email uniqueness check
+- [x] Password hashing
+- [x] Default role assignment
+- [x] Unit tests written
 
-**Files to Create:**
+**Files Created:**
 
 ```
 src/Modules/Identity/UniHub.Identity.Application/
 ├── Commands/Register/
 │   ├── RegisterUserCommand.cs
 │   ├── RegisterUserCommandHandler.cs
-│   └── RegisterUserCommandValidator.cs
+│   ├── RegisterUserCommandValidator.cs
+│   └── UserErrors.cs
+├── Abstractions/
+│   ├── IUserRepository.cs
+│   ├── IRoleRepository.cs
+│   └── IPasswordHasher.cs
+
+src/Modules/Identity/UniHub.Identity.Infrastructure/
+├── Authentication/
+│   └── PasswordHasher.cs
+├── Persistence/Repositories/
+│   ├── UserRepository.cs
+│   └── RoleRepository.cs
+
+tests/Modules/Identity/UniHub.Identity.Application.Tests/
+├── Commands/Register/
+│   ├── RegisterUserCommandHandlerTests.cs (6 tests)
+│   └── RegisterUserCommandValidatorTests.cs (25 tests)
 ```
+
+**Implementation Details:**
+
+- Split FullName into firstName/lastName for UserProfile
+- BCrypt password hashing with workFactor 12
+- In-memory repositories with seeded roles (Student, Teacher, Admin)
+- Comprehensive validation: email format, password strength, field lengths
+- 31 unit tests added (388 total tests passing)
 
 **Commit Message:**
 
 ```
-feat(identity): implement user registration
+feat(identity): implement user registration - TASK-030
 
-- Add RegisterUserCommand
-- Add RegisterUserCommandHandler
-- Add validation with FluentValidation
-- Check email uniqueness
-- Hash password with BCrypt
-- Assign default "Student" role
-- Add unit tests
+- Add RegisterUserCommand, Handler, and Validator
+- Add IUserRepository, IRoleRepository, IPasswordHasher interfaces
+- Add UserRepository, RoleRepository with in-memory implementations
+- Add PasswordHasher with BCrypt (workFactor: 12)
+- Add 31 comprehensive unit tests (handler + validator)
+- Register services in DI container
+- All 388 tests passing (357 existing + 31 new)
 
 Refs: TASK-030
 ```
@@ -783,9 +808,9 @@ Refs: TASK-037
 
 - [x] TASK-026: Design User Aggregate
 - [x] TASK-027: Design Role & Permission Entities
-- [ ] TASK-028: Implement JWT Authentication
-- [ ] TASK-029: Implement Refresh Token Flow
-- [ ] TASK-030: Create Registration Flow
+- [x] TASK-028: Implement JWT Authentication
+- [x] TASK-029: Implement Refresh Token Flow
+- [x] TASK-030: Create Registration Flow
 - [ ] TASK-031: Create Login Flow
 - [ ] TASK-032: Implement Dynamic Role Management
 - [ ] TASK-033: Implement Permission Assignment
