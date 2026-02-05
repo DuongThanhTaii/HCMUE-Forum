@@ -1,0 +1,44 @@
+using UniHub.Forum.Domain.Posts;
+
+namespace UniHub.Forum.Application.Abstractions;
+
+/// <summary>
+/// Repository interface for managing posts
+/// </summary>
+public interface IPostRepository
+{
+    /// <summary>
+    /// Gets all posts
+    /// </summary>
+    Task<IReadOnlyList<Post>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets a post by its unique ID
+    /// </summary>
+    Task<Post?> GetByIdAsync(PostId postId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets a post by its slug
+    /// </summary>
+    Task<Post?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks if a slug is already in use
+    /// </summary>
+    Task<bool> IsSlugUniqueAsync(string slug, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Adds a new post
+    /// </summary>
+    Task AddAsync(Post post, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates an existing post
+    /// </summary>
+    Task UpdateAsync(Post post, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes a post
+    /// </summary>
+    Task DeleteAsync(Post post, CancellationToken cancellationToken = default);
+}

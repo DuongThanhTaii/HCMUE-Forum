@@ -11,7 +11,7 @@
 | **Phase**         | 4              |
 | **Name**          | Forum Module   |
 | **Status**        | 🔵 IN_PROGRESS |
-| **Progress**      | 4/12 tasks     |
+| **Progress**      | 5/12 tasks     |
 | **Est. Duration** | 2 weeks        |
 | **Dependencies**  | Phase 3        |
 
@@ -155,7 +155,7 @@ Refs: TASK-041
 | Property         | Value                        |
 | ---------------- | ---------------------------- |
 | **ID**           | TASK-042                     |
-| **Status**       | ⬜ NOT_STARTED               |
+| **Status**       | ✅ DONE                      |
 | **Priority**     | 🔴 Critical                  |
 | **Estimate**     | 4 hours                      |
 | **Branch**       | `feature/TASK-042-post-crud` |
@@ -163,12 +163,12 @@ Refs: TASK-041
 
 **Acceptance Criteria:**
 
-- [ ] CreatePostCommand
-- [ ] UpdatePostCommand
-- [ ] DeletePostCommand
-- [ ] PublishPostCommand
-- [ ] PinPostCommand
-- [ ] Unit tests written
+- [x] CreatePostCommand
+- [x] UpdatePostCommand
+- [x] DeletePostCommand
+- [x] PublishPostCommand
+- [x] PinPostCommand
+- [x] Unit tests written (25 tests passed)
 
 **Commit Message:**
 
