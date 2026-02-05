@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Infrastructure.Authentication;
+using UniHub.Identity.Infrastructure.Persistence.Repositories;
 
 namespace UniHub.Identity.Infrastructure;
 
@@ -14,6 +15,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddAuthentication(configuration);
+        services.AddRepositories();
         
         return services;
     }
@@ -36,6 +38,13 @@ public static class DependencyInjection
             .AddJwtBearer();
 
         services.ConfigureOptions<JwtBearerOptionsSetup>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         return services;
     }
@@ -72,6 +81,11 @@ public sealed class JwtSettingsValidation : IValidateOptions<JwtSettings>
         if (options.AccessTokenExpiryMinutes <= 0)
         {
             failures.Add("JWT AccessTokenExpiryMinutes must be greater than 0");
+        }
+
+        if (options.RefreshTokenExpiryDays <= 0)
+        {
+            failures.Add("JWT RefreshTokenExpiryDays must be greater than 0");
         }
 
         return failures.Count > 0
