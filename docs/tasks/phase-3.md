@@ -425,7 +425,7 @@ Refs: TASK-030
 | Property         | Value                        |
 | ---------------- | ---------------------------- |
 | **ID**           | TASK-031                     |
-| **Status**       | ⬜ NOT_STARTED               |
+| **Status**       | ✅ COMPLETED                 |
 | **Priority**     | 🔴 Critical                  |
 | **Estimate**     | 3 hours                      |
 | **Branch**       | `feature/TASK-031-login`     |
@@ -436,14 +436,14 @@ Implement login command và handler.
 
 **Acceptance Criteria:**
 
-- [ ] `LoginCommand` implemented
-- [ ] `LoginCommandHandler` implemented
-- [ ] Password verification
-- [ ] Generate JWT + Refresh Token
-- [ ] Return tokens in response
-- [ ] Unit tests written
+- [x] `LoginCommand` implemented
+- [x] `LoginCommandHandler` implemented
+- [x] Password verification
+- [x] Generate JWT + Refresh Token
+- [x] Return tokens in response
+- [x] Unit tests written
 
-**Files to Create:**
+**Files Created:**
 
 ```
 src/Modules/Identity/UniHub.Identity.Application/
@@ -451,12 +451,53 @@ src/Modules/Identity/UniHub.Identity.Application/
 │   ├── LoginCommand.cs
 │   ├── LoginCommandHandler.cs
 │   ├── LoginCommandValidator.cs
+│   ├── LoginErrors.cs
 │   └── LoginResponse.cs
+
+tests/Modules/Identity/UniHub.Identity.Application.Tests/
+├── Commands/Login/
+│   ├── LoginCommandHandlerTests.cs (6 tests)
+│   └── LoginCommandValidatorTests.cs (4 tests)
+```
+
+**Implementation Details:**
+
+- Email validation via Email value object
+- Password verification using BCrypt PasswordHasher
+- User account status check (Active required)
+- JWT access token generation (15-minute expiry)
+- Refresh token generation and persistence (7-day expiry)
+- Returns LoginResponse with both tokens and expiry times
+- Secure error messages (don't reveal which credential is wrong)
+- 10 unit tests added (405 total tests passing)
+
+**Commit Message:**
+
+```
+feat(identity): implement login flow - TASK-031
+
+- Add LoginCommand and LoginResponse
+- Add LoginCommandHandler with password verification
+- Add LoginCommandValidator for input validation
+- Generate both access and refresh tokens
+- Check user account status
+- Add 10 comprehensive unit tests
+- All 405 tests passing (388 existing + 17 new)
+
+Refs: TASK-031
+```
+
+│ ├── LoginCommand.cs
+│ ├── LoginCommandHandler.cs
+│ ├── LoginCommandValidator.cs
+│ └── LoginResponse.cs
+
 ```
 
 **Commit Message:**
 
 ```
+
 feat(identity): implement login flow
 
 - Add LoginCommand
@@ -467,6 +508,7 @@ feat(identity): implement login flow
 - Add unit tests
 
 Refs: TASK-031
+
 ```
 
 ---
@@ -497,18 +539,21 @@ Implement CRUD commands cho dynamic role management.
 **Files to Create:**
 
 ```
+
 src/Modules/Identity/UniHub.Identity.Application/
 ├── Commands/Roles/
-│   ├── CreateRole/
-│   ├── UpdateRole/
-│   ├── DeleteRole/
-│   ├── AssignPermission/
-│   └── RemovePermission/
+│ ├── CreateRole/
+│ ├── UpdateRole/
+│ ├── DeleteRole/
+│ ├── AssignPermission/
+│ └── RemovePermission/
+
 ```
 
 **Commit Message:**
 
 ```
+
 feat(identity): implement dynamic role management
 
 - Add CreateRoleCommand and handler
@@ -519,6 +564,7 @@ feat(identity): implement dynamic role management
 - Add unit tests
 
 Refs: TASK-032
+
 ```
 
 ---
@@ -548,17 +594,20 @@ Implement permission assignment cho users qua roles.
 **Files to Create:**
 
 ```
+
 src/Modules/Identity/UniHub.Identity.Application/
 ├── Commands/Users/
-│   ├── AssignRole/
-│   └── RemoveRole/
+│ ├── AssignRole/
+│ └── RemoveRole/
 ├── Queries/
-│   └── GetUserPermissions/
+│ └── GetUserPermissions/
+
 ```
 
 **Commit Message:**
 
 ```
+
 feat(identity): implement permission assignment
 
 - Add AssignRoleCommand and handler
@@ -568,7 +617,8 @@ feat(identity): implement permission assignment
 - Add unit tests
 
 Refs: TASK-033
-```
+
+````
 
 ---
 
@@ -605,7 +655,7 @@ public enum BadgeType
     Faculty,       // 🟣 Purple - Giảng viên
     Company        // 🟠 Orange - Doanh nghiệp đối tác
 }
-```
+````
 
 **Commit Message:**
 
