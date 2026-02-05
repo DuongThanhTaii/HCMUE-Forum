@@ -76,7 +76,7 @@ public class RolesController : ControllerBase
         [FromBody] CreateRoleRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new CreateRoleCommand(request.Name, request.Description);
+        var command = new CreateRoleCommand(request.Name, request.Description ?? string.Empty);
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
@@ -84,7 +84,15 @@ public class RolesController : ControllerBase
             return BadRequest(new { error = result.Error.Message });
         }
 
-        var response = MapToRoleResponse(result.Value);
+        // Fetch the created role to return full response
+        var role = await _roleRepository.GetByIdAsync(new RoleId(result.Value), cancellationToken);
+        if (role is null)
+        {
+            // Shouldn't happen, but handle gracefully
+            return CreatedAtAction(nameof(GetById), new { id = result.Value }, new { id = result.Value });
+        }
+
+        var response = MapToRoleResponse(role);
         return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 
@@ -104,7 +112,7 @@ public class RolesController : ControllerBase
         [FromBody] UpdateRoleRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new UpdateRoleCommand(id, request.Name, request.Description);
+        var command = new UpdateRoleCommand(id, request.Name, request.Description ?? string.Empty);
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)

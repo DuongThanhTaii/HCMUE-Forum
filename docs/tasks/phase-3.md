@@ -956,7 +956,7 @@ Refs: TASK-037
 - JWT secret PHẢI lưu trong environment variables, KHÔNG hardcode
 - Password hashing dùng BCrypt
 - Tất cả endpoints sensitive phải có rate limiting
-- **TASK-037 Note**: Controllers implemented but GET endpoints need Query handlers (CQRS pattern). 
+- **TASK-037 Note**: Controllers implemented but GET endpoints need Query handlers (CQRS pattern).
   Command endpoints (POST, PUT, DELETE) work correctly. Query implementation deferred to future phase.
 
 ---

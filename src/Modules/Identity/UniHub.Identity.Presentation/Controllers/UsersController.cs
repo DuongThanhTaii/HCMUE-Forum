@@ -119,8 +119,9 @@ public class UsersController : ControllerBase
         }
 
         var profileResult = Domain.Users.ValueObjects.UserProfile.Create(
-            request.FullName,
-            request.Bio);
+            request.FirstName,
+            request.LastName,
+            bio: request.Bio);
 
         if (profileResult.IsFailure)
         {
@@ -214,11 +215,16 @@ public class UsersController : ControllerBase
             return Unauthorized(new { error = "Invalid user token" });
         }
 
+        if (!Enum.TryParse<Domain.Users.ValueObjects.BadgeType>(request.BadgeType, ignoreCase: true, out var badgeType))
+        {
+            return BadRequest(new { error = "Invalid badge type. Valid values: Department, Club, BoardOfDirectors, Faculty, Company" });
+        }
+
         var command = new AssignBadgeCommand(
             id,
-            request.BadgeType,
+            badgeType,
             request.BadgeName,
-            verifierId,
+            verifierId.ToString(),
             request.Description);
 
         var result = await _sender.Send(command, cancellationToken);
@@ -264,7 +270,7 @@ public class UsersController : ControllerBase
                 user.Badge.Type.ToString(),
                 user.Badge.Name,
                 user.Badge.Description,
-                user.Badge.GetEmojiIndicator());
+                user.Badge.DisplayText);
         }
 
         return new UserResponse(

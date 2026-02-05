@@ -4,5 +4,6 @@ namespace UniHub.Identity.Presentation.DTOs.Users;
 /// Request to update user profile
 /// </summary>
 public sealed record UpdateProfileRequest(
-    string FullName,
+    string FirstName,
+    string LastName,
     string? Bio);
