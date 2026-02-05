@@ -11,7 +11,7 @@
 | **Phase**         | 4              |
 | **Name**          | Forum Module   |
 | **Status**        | 🔵 IN_PROGRESS |
-| **Progress**      | 1/12 tasks     |
+| **Progress**      | 2/12 tasks     |
 | **Est. Duration** | 2 weeks        |
 | **Dependencies**  | Phase 3        |
 
@@ -68,7 +68,7 @@ Refs: TASK-038
 | Property         | Value                             |
 | ---------------- | --------------------------------- |
 | **ID**           | TASK-039                          |
-| **Status**       | ⬜ NOT_STARTED                    |
+| **Status**       | ✅ DONE                           |
 | **Priority**     | 🔴 Critical                       |
 | **Estimate**     | 3 hours                           |
 | **Branch**       | `feature/TASK-039-comment-entity` |
@@ -76,11 +76,11 @@ Refs: TASK-038
 
 **Acceptance Criteria:**
 
-- [ ] `Comment` entity implemented
-- [ ] Nested comments support (ParentCommentId)
-- [ ] `IsAcceptedAnswer` for Q&A type
-- [ ] Comment votes
-- [ ] Unit tests written
+- [x] `Comment` entity implemented
+- [x] Nested comments support (ParentCommentId)
+- [x] `IsAcceptedAnswer` for Q&A type
+- [x] Comment votes (IncrementVoteScore/DecrementVoteScore)
+- [x] Unit tests written (29 tests passed)
 
 **Commit Message:**
 
@@ -415,7 +415,7 @@ Refs: TASK-049
 ## ✅ COMPLETION CHECKLIST
 
 - [x] TASK-038: Design Post Aggregate
-- [ ] TASK-039: Design Comment Entity
+- [x] TASK-039: Design Comment Entity
 - [ ] TASK-040: Design Category Aggregate
 - [ ] TASK-041: Design Vote Value Object
 - [ ] TASK-042: Implement Post CRUD Commands
