@@ -11,7 +11,7 @@
 | **Phase**         | 4              |
 | **Name**          | Forum Module   |
 | **Status**        | 🔵 IN_PROGRESS |
-| **Progress**      | 2/12 tasks     |
+| **Progress**      | 3/12 tasks     |
 | **Est. Duration** | 2 weeks        |
 | **Dependencies**  | Phase 3        |
 
@@ -97,7 +97,7 @@ Refs: TASK-039
 | Property         | Value                                 |
 | ---------------- | ------------------------------------- |
 | **ID**           | TASK-040                              |
-| **Status**       | ⬜ NOT_STARTED                        |
+| **Status**       | ✅ DONE                               |
 | **Priority**     | 🔴 Critical                           |
 | **Estimate**     | 2 hours                               |
 | **Branch**       | `feature/TASK-040-category-aggregate` |
@@ -105,11 +105,11 @@ Refs: TASK-039
 
 **Acceptance Criteria:**
 
-- [ ] `Category` aggregate root
-- [ ] Hierarchical categories (ParentCategoryId)
-- [ ] Slug generation
-- [ ] Moderator assignment
-- [ ] Unit tests written
+- [x] `Category` aggregate root
+- [x] Hierarchical categories (ParentCategoryId)
+- [x] Slug generation (reuses Slug value object)
+- [x] Moderator assignment (AssignModerator/RemoveModerator)
+- [x] Unit tests written (39 tests passed)
 
 **Commit Message:**
 
@@ -416,7 +416,7 @@ Refs: TASK-049
 
 - [x] TASK-038: Design Post Aggregate
 - [x] TASK-039: Design Comment Entity
-- [ ] TASK-040: Design Category Aggregate
+- [x] TASK-040: Design Category Aggregate
 - [ ] TASK-041: Design Vote Value Object
 - [ ] TASK-042: Implement Post CRUD Commands
 - [ ] TASK-043: Implement Comment Commands
