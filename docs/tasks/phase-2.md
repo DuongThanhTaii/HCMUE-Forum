@@ -743,12 +743,12 @@ Refs: TASK-024
 
 ---
 
-### TASK-025: Setup Global Exception Handling
+### TASK-025: Setup Global Exception Handling ✅
 
 | Property         | Value                                 |
 | ---------------- | ------------------------------------- |
 | **ID**           | TASK-025                              |
-| **Status**       | ⬜ NOT_STARTED                        |
+| **Status**       | ✅ COMPLETED                          |
 | **Priority**     | 🔴 Critical                           |
 | **Estimate**     | 2 hours                               |
 | **Branch**       | `feature/TASK-025-exception-handling` |
@@ -759,11 +759,11 @@ Implement global exception handling middleware.
 
 **Acceptance Criteria:**
 
-- [ ] `GlobalExceptionHandler` middleware created
-- [ ] Custom exception types defined
-- [ ] ProblemDetails response format
-- [ ] Error logging
-- [ ] Development vs Production error details
+- [x] `GlobalExceptionHandler` middleware created
+- [x] Custom exception types defined
+- [x] ProblemDetails response format
+- [x] Error logging
+- [x] Development vs Production error details
 
 **Files to Create:**
 
@@ -780,16 +780,47 @@ src/Shared/UniHub.SharedKernel/
 │   └── UnauthorizedException.cs
 ```
 
+**Implementation Details:**
+
+- **Custom Exception Types**:
+  - `DomainException`: For domain rule violations with optional name property
+  - `NotFoundException`: For entity not found errors with EntityName and Key properties
+  - `ValidationException`: For validation failures with structured error dictionary
+  - `UnauthorizedException`: For unauthorized access attempts
+- **GlobalExceptionHandler Middleware**:
+  - Implements `IExceptionHandler` interface
+  - Maps exceptions to appropriate HTTP status codes (400, 401, 404, 500)
+  - Returns RFC 9110 compliant ProblemDetails responses
+  - Includes trace ID and timestamp in all responses
+  - Logs all exceptions with structured logging
+  - Environment-aware error details:
+    - Production: Only status code, title, and trace ID
+    - Development: Includes exception message, type, and stack trace
+- **Exception Mapping**:
+  - ValidationException → 400 Bad Request
+  - DomainException → 400 Bad Request
+  - NotFoundException → 404 Not Found
+  - UnauthorizedException → 401 Unauthorized
+  - Other exceptions → 500 Internal Server Error
+- **Registration**:
+  - Added `AddExceptionHandler<GlobalExceptionHandler>()` to DI
+  - Added `AddProblemDetails()` for RFC compliance
+  - Added `UseExceptionHandler()` middleware in pipeline
+  - Added project reference from API to SharedKernel
+- **Unit Tests**: 15 tests for exception types (4 tests each for DomainException, NotFoundException, ValidationException, UnauthorizedException, plus constructors)
+
 **Commit Message:**
 
 ```
-feat(api): setup global exception handling
+feat: setup global exception handling (TASK-025)
 
-- Add GlobalExceptionHandler middleware
-- Add custom exception types
-- Configure ProblemDetails response
-- Add error logging
-- Handle dev vs prod error details
+- Add custom exception types: DomainException, NotFoundException, ValidationException, UnauthorizedException
+- Implement GlobalExceptionHandler middleware with ProblemDetails response
+- Add exception mapping to HTTP status codes
+- Add error logging with trace ID
+- Add environment-specific error details (dev vs production)
+- Register exception handler and ProblemDetails in DI
+- Add 15 unit tests for exception types (163 tests total passing)
 
 Refs: TASK-025
 ```
@@ -809,7 +840,7 @@ Refs: TASK-025
 - [x] TASK-022: Setup Redis Caching
 - [x] TASK-023: Implement Result Pattern
 - [x] TASK-024: Setup Serilog Logging
-- [ ] TASK-025: Setup Global Exception Handling
+- [x] TASK-025: Setup Global Exception Handling
 
 ---
 
