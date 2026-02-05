@@ -11,7 +11,7 @@
 | **Phase**         | 3                        |
 | **Name**          | Identity & Access Module |
 | **Status**        | 🔵 IN_PROGRESS           |
-| **Progress**      | 2/12 tasks               |
+| **Progress**      | 3/12 tasks               |
 | **Est. Duration** | 2 weeks                  |
 | **Dependencies**  | Phase 2                  |
 
@@ -21,7 +21,7 @@
 
 - [x] Implement User aggregate với value objects
 - [x] Implement Role và Permission entities
-- [ ] Implement JWT Authentication với Refresh Token
+- [x] Implement JWT Authentication với Refresh Token
 - [ ] Implement Dynamic Role Management
 - [ ] Implement Official Badge system
 - [ ] Implement Scoped Permissions
@@ -239,7 +239,7 @@ Refs: TASK-027
 | Property         | Value                       |
 | ---------------- | --------------------------- |
 | **ID**           | TASK-028                    |
-| **Status**       | 🔵 IN_PROGRESS              |
+| **Status**       | ✅ COMPLETED                |
 | **Priority**     | 🔴 Critical                 |
 | **Estimate**     | 4 hours                     |
 | **Branch**       | `feature/TASK-028-jwt-auth` |
@@ -250,12 +250,12 @@ Implement JWT token generation và validation.
 
 **Acceptance Criteria:**
 
-- [ ] `IJwtService` interface defined
-- [ ] `JwtService` implementation
-- [ ] Access token generation (15 min expiry)
-- [ ] Token validation middleware
-- [ ] JWT settings in configuration
-- [ ] Unit tests written
+- [x] `IJwtService` interface defined
+- [x] `JwtService` implementation
+- [x] Access token generation (15 min expiry)
+- [x] Token validation middleware
+- [x] JWT settings in configuration
+- [x] Unit tests written
 
 **Files to Create:**
 
