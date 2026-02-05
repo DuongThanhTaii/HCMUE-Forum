@@ -11,7 +11,7 @@
 | **Phase**         | 3                        |
 | **Name**          | Identity & Access Module |
 | **Status**        | 🔵 IN_PROGRESS           |
-| **Progress**      | 7/12 tasks               |
+| **Progress**      | 8/12 tasks               |
 | **Est. Duration** | 2 weeks                  |
 | **Dependencies**  | Phase 2                  |
 
@@ -23,6 +23,7 @@
 - [x] Implement Role và Permission entities
 - [x] Implement JWT Authentication với Refresh Token
 - [x] Implement Dynamic Role Management
+- [x] Implement Permission Assignment
 - [ ] Implement Official Badge system
 - [ ] Implement Scoped Permissions
 
@@ -569,12 +570,12 @@ Refs: TASK-032
 
 ---
 
-### TASK-033: Implement Permission Assignment
+### TASK-033: Implement Permission Assignment ✅
 
 | Property         | Value                                |
 | ---------------- | ------------------------------------ |
 | **ID**           | TASK-033                             |
-| **Status**       | ⬜ NOT_STARTED                       |
+| **Status**       | ✅ COMPLETED                         |
 | **Priority**     | 🔴 Critical                          |
 | **Estimate**     | 3 hours                              |
 | **Branch**       | `feature/TASK-033-permission-assign` |
@@ -585,10 +586,10 @@ Implement permission assignment cho users qua roles.
 
 **Acceptance Criteria:**
 
-- [ ] Assign Role to User command
-- [ ] Remove Role from User command
-- [ ] Get User Permissions query
-- [ ] Permission caching in Redis
+- [x] Assign Role to User command
+- [x] Remove Role from User command
+- [x] Get User Permissions query
+- [x] Permission caching in Redis
 - [ ] Unit tests written
 
 **Files to Create:**
@@ -863,7 +864,7 @@ Refs: TASK-037
 - [x] TASK-030: Create Registration Flow
 - [x] TASK-031: Create Login Flow
 - [x] TASK-032: Implement Dynamic Role Management
-- [ ] TASK-033: Implement Permission Assignment
+- [x] TASK-033: Implement Permission Assignment
 - [ ] TASK-034: Create Official Account System
 - [ ] TASK-035: Implement Scoped Permissions
 - [ ] TASK-036: Password Reset Flow
