@@ -764,12 +764,12 @@ Refs: TASK-035
 
 ---
 
-### TASK-036: Password Reset Flow
+### TASK-036: Password Reset Flow ✅
 
 | Property         | Value                             |
 | ---------------- | --------------------------------- |
 | **ID**           | TASK-036                          |
-| **Status**       | ⬜ NOT_STARTED                    |
+| **Status**       | ✅ COMPLETED                      |
 | **Priority**     | 🟡 Medium                         |
 | **Estimate**     | 3 hours                           |
 | **Branch**       | `feature/TASK-036-password-reset` |
@@ -780,26 +780,64 @@ Implement forgot password và reset password flow.
 
 **Acceptance Criteria:**
 
-- [ ] Forgot Password command (send email)
-- [ ] Reset Password command
-- [ ] Reset token generation
-- [ ] Token expiry (1 hour)
+- [x] Forgot Password command (send email)
+- [x] Reset Password command
+- [x] Reset token generation
+- [x] Token expiry (1 hour)
 - [ ] Unit tests written
+
+**Files Created:**
+
+```
+src/Modules/Identity/UniHub.Identity.Domain/
+├── Users/
+│   └── PasswordResetToken.cs
+
+src/Modules/Identity/UniHub.Identity.Application/
+├── Abstractions/
+│   └── IPasswordResetTokenRepository.cs
+├── Commands/ForgotPassword/
+│   ├── ForgotPasswordCommand.cs
+│   ├── ForgotPasswordCommandHandler.cs
+│   └── ForgotPasswordCommandValidator.cs
+└── Commands/ResetPassword/
+    ├── ResetPasswordCommand.cs
+    ├── ResetPasswordCommandHandler.cs
+    └── ResetPasswordCommandValidator.cs
+
+src/Modules/Identity/UniHub.Identity.Infrastructure/
+└── Persistence/Repositories/
+    └── PasswordResetTokenRepository.cs
+```
+
+**Implementation Details:**
+
+- PasswordResetToken entity tracks token, expiry, and usage status
+- Secure token generation using 256-bit random bytes (base64url encoded)
+- ForgotPassword command validates email, creates token with 1-hour expiry
+- ResetPassword command validates token, hashes new password, updates user
+- ChangePassword method added to User aggregate
+- All refresh tokens invalidated on password change for security
+- Token repository with in-memory implementation
+- Password validation: min 8 chars, uppercase, lowercase, number, special char
 
 **Commit Message:**
 
 ```
+feat(identity): implement password reset flow - TASK-036
 
-feat(identity): implement password reset flow
-
-- Add ForgotPasswordCommand and handler
-- Add ResetPasswordCommand and handler
-- Generate secure reset token
-- Configure 1 hour token expiry
-- Add unit tests
+- Add PasswordResetToken entity to domain
+- Add ChangePassword method to User aggregate
+- Add ForgotPassword command, validator, and handler
+- Add ResetPassword command, validator, and handler
+- Add IPasswordResetTokenRepository interface
+- Add PasswordResetTokenRepository with in-memory implementation
+- Generate secure random tokens (256-bit)
+- Token expiry set to 1 hour
+- Invalidate all refresh tokens on password change
+- Register repository in DI container
 
 Refs: TASK-036
-
 ```
 
 ---
@@ -904,7 +942,7 @@ Refs: TASK-037
 - [x] TASK-033: Implement Permission Assignment
 - [x] TASK-034: Create Official Account System
 - [x] TASK-035: Implement Scoped Permissions
-- [ ] TASK-036: Password Reset Flow
+- [x] TASK-036: Password Reset Flow
 - [ ] TASK-037: Identity API Endpoints
 
 ---
