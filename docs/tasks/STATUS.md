@@ -46,7 +46,7 @@ TOTAL:                              ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜  28%
 | 1     | Domain Discovery       | ✅ DONE        | 5/5      | 5     | 5    | 1 week    |
 | 2     | Core Infrastructure    | ✅ DONE        | 12/12    | 12    | 12   | 2 weeks   |
 | 3     | Identity Module        | ✅ DONE        | 12/12    | 12    | 12   | 2 weeks   |
-| 4     | Forum Module           | 🔵 IN_PROGRESS | 2/12     | 12    | 2    | 2 weeks   |
+| 4     | Forum Module           | 🔵 IN_PROGRESS | 3/12     | 12    | 3    | 2 weeks   |
 | 5     | Learning Module        | ⬜ NOT_STARTED | 0/12     | 12    | 0    | 2 weeks   |
 | 6     | Chat Module            | ⬜ NOT_STARTED | 0/12     | 12    | 0    | 2 weeks   |
 | 7     | Career Module          | ⬜ NOT_STARTED | 0/12     | 12    | 0    | 2 weeks   |
@@ -56,7 +56,7 @@ TOTAL:                              ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜  28%
 | 11    | Testing & Optimization | ⬜ NOT_STARTED | 0/7      | 7     | 0    | 1 week    |
 | 12    | Deployment             | ⬜ NOT_STARTED | 0/8      | 8     | 0    | 1 week    |
 
-**Total Tasks: 131 | Completed: 39 | Remaining: 92**
+**Total Tasks: 131 | Completed: 40 | Remaining: 91**
 
 ---
 
@@ -64,18 +64,19 @@ TOTAL:                              ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜  28%
 
 ### Active Phase: `Phase 4 - Forum Module`
 
-| Task ID  | Task Name                 | Status         | Assignee | Branch |
-| -------- | ------------------------- | -------------- | -------- | ------ |
-| TASK-040 | Design Category Aggregate | ⬜ NOT_STARTED | -        | -      |
-| TASK-041 | Design Vote Value Object  | ⬜ NOT_STARTED | -        | -      |
-| TASK-042 | Implement Post CRUD       | ⬜ NOT_STARTED | -        | -      |
+| Task ID  | Task Name                | Status         | Assignee | Branch |
+| -------- | ------------------------ | -------------- | -------- | ------ |
+| TASK-041 | Design Vote Value Object | ⬜ NOT_STARTED | -        | -      |
+| TASK-042 | Implement Post CRUD      | ⬜ NOT_STARTED | -        | -      |
+| TASK-043 | Implement Comment CRUD   | ⬜ NOT_STARTED | -        | -      |
 
 ### ✅ Recently Completed: `Phase 4 - Forum Module`
 
-| Task ID  | Task Name                 | Status         | Branch                          |
-| -------- | ------------------------- | -------------- | ------------------------------- | --- |
-| TASK-038 | Design Post Aggregate     | ✅ DONE        | feature/TASK-038-post-aggregate |
-| TASK-039 | Design Comment Entity     | ✅ DONE        | feature/TASK-039-comment-entity |
+| Task ID  | Task Name                 | Status  | Branch                              |
+| -------- | ------------------------- | ------- | ----------------------------------- |
+| TASK-038 | Design Post Aggregate     | ✅ DONE | feature/TASK-038-post-aggregate     |
+| TASK-039 | Design Comment Entity     | ✅ DONE | feature/TASK-039-comment-entity     |
+| TASK-040 | Design Category Aggregate | ✅ DONE | feature/TASK-040-category-aggregate |
 | TASK-040 | Design Category Entity    | ⬜ NOT_STARTED | -                               | -   |
 | TASK-041 | Implement Post Repository | ⬜ NOT_STARTED | -                               | -   |
 | TASK-042 | Create Post Commands      | ⬜ NOT_STARTED | -                               | -   |
