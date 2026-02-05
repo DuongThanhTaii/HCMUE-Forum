@@ -1,5 +1,6 @@
 using UniHub.Forum.Domain.Events;
 using UniHub.Forum.Domain.Posts.ValueObjects;
+using UniHub.Forum.Domain.Votes;
 using UniHub.SharedKernel.Domain;
 using UniHub.SharedKernel.Results;
 
@@ -8,6 +9,7 @@ namespace UniHub.Forum.Domain.Posts;
 public sealed class Post : AggregateRoot<PostId>
 {
     private readonly List<string> _tags = new();
+    private readonly List<Vote> _votes = new();
 
     public PostTitle Title { get; private set; }
     public PostContent Content { get; private set; }
@@ -25,6 +27,7 @@ public sealed class Post : AggregateRoot<PostId>
     public DateTime? UpdatedAt { get; private set; }
     public DateTime? PublishedAt { get; private set; }
     public IReadOnlyList<string> Tags => _tags.AsReadOnly();
+    public IReadOnlyList<Vote> Votes => _votes.AsReadOnly();
 
     // EF Core constructor
     private Post()
@@ -232,14 +235,82 @@ public sealed class Post : AggregateRoot<PostId>
         ViewCount++;
     }
 
-    public void IncrementVoteScore()
+    public Result AddVote(Guid userId, VoteType voteType)
     {
-        VoteScore++;
+        if (Status == PostStatus.Deleted)
+        {
+            return Result.Failure(new Error("Post.Deleted", "Cannot vote on a deleted post"));
+        }
+
+        var existingVote = _votes.FirstOrDefault(v => v.UserId == userId);
+        if (existingVote is not null)
+        {
+            return Result.Failure(new Error("Post.VoteAlreadyExists", "User has already voted on this post"));
+        }
+
+        var voteResult = Vote.Create(userId, voteType);
+        if (voteResult.IsFailure)
+        {
+            return Result.Failure(voteResult.Error);
+        }
+
+        _votes.Add(voteResult.Value);
+        VoteScore += voteResult.Value.GetScoreValue();
+
+        AddDomainEvent(new PostVoteAddedEvent(Id, userId, voteType));
+        return Result.Success();
     }
 
-    public void DecrementVoteScore()
+    public Result ChangeVote(Guid userId, VoteType newVoteType)
     {
-        VoteScore--;
+        if (Status == PostStatus.Deleted)
+        {
+            return Result.Failure(new Error("Post.Deleted", "Cannot change vote on a deleted post"));
+        }
+
+        var existingVote = _votes.FirstOrDefault(v => v.UserId == userId);
+        if (existingVote is null)
+        {
+            return Result.Failure(new Error("Post.VoteNotFound", "User has not voted on this post"));
+        }
+
+        var oldVoteType = existingVote.Type;
+        var changedVoteResult = existingVote.Change(newVoteType);
+        if (changedVoteResult.IsFailure)
+        {
+            return Result.Failure(changedVoteResult.Error);
+        }
+
+        // Remove old vote score and add new vote score
+        VoteScore -= existingVote.GetScoreValue();
+        VoteScore += changedVoteResult.Value.GetScoreValue();
+
+        // Replace the vote in the collection
+        _votes.Remove(existingVote);
+        _votes.Add(changedVoteResult.Value);
+
+        AddDomainEvent(new PostVoteChangedEvent(Id, userId, oldVoteType, newVoteType));
+        return Result.Success();
+    }
+
+    public Result RemoveVote(Guid userId)
+    {
+        if (Status == PostStatus.Deleted)
+        {
+            return Result.Failure(new Error("Post.Deleted", "Cannot remove vote from a deleted post"));
+        }
+
+        var existingVote = _votes.FirstOrDefault(v => v.UserId == userId);
+        if (existingVote is null)
+        {
+            return Result.Failure(new Error("Post.VoteNotFound", "User has not voted on this post"));
+        }
+
+        VoteScore -= existingVote.GetScoreValue();
+        _votes.Remove(existingVote);
+
+        AddDomainEvent(new PostVoteRemovedEvent(Id, userId, existingVote.Type));
+        return Result.Success();
     }
 
     public void IncrementCommentCount()

@@ -1,5 +1,6 @@
 using UniHub.Forum.Domain.Posts;
 using UniHub.Forum.Domain.Posts.ValueObjects;
+using UniHub.Forum.Domain.Votes;
 
 namespace UniHub.Forum.Domain.Tests.Posts;
 
@@ -278,36 +279,6 @@ public class PostTests
     }
 
     [Fact]
-    public void IncrementVoteScore_ShouldIncreaseVoteScore()
-    {
-        // Arrange
-        var title = PostTitle.Create("Valid Title").Value;
-        var content = PostContent.Create("Valid content with enough characters.").Value;
-        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
-
-        // Act
-        post.IncrementVoteScore();
-
-        // Assert
-        post.VoteScore.Should().Be(1);
-    }
-
-    [Fact]
-    public void DecrementVoteScore_ShouldDecreaseVoteScore()
-    {
-        // Arrange
-        var title = PostTitle.Create("Valid Title").Value;
-        var content = PostContent.Create("Valid content with enough characters.").Value;
-        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
-
-        // Act
-        post.DecrementVoteScore();
-
-        // Assert
-        post.VoteScore.Should().Be(-1);
-    }
-
-    [Fact]
     public void IncrementCommentCount_ShouldIncreaseCommentCount()
     {
         // Arrange
@@ -352,4 +323,261 @@ public class PostTests
         // Assert
         post.CommentCount.Should().Be(0);
     }
+
+    #region Voting Tests
+
+    [Fact]
+    public void AddVote_WithUpvote_ShouldIncreaseVoteScore()
+    {
+        // Arrange
+        var title = PostTitle.Create("Valid Title").Value;
+        var content = PostContent.Create("Valid content with enough characters.").Value;
+        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
+        post.Publish();
+        var userId = Guid.NewGuid();
+
+        // Act
+        var result = post.AddVote(userId, VoteType.Upvote);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        post.VoteScore.Should().Be(1);
+        post.Votes.Should().HaveCount(1);
+        post.Votes.First().UserId.Should().Be(userId);
+        post.Votes.First().Type.Should().Be(VoteType.Upvote);
+    }
+
+    [Fact]
+    public void AddVote_WithDownvote_ShouldDecreaseVoteScore()
+    {
+        // Arrange
+        var title = PostTitle.Create("Valid Title").Value;
+        var content = PostContent.Create("Valid content with enough characters.").Value;
+        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
+        post.Publish();
+        var userId = Guid.NewGuid();
+
+        // Act
+        var result = post.AddVote(userId, VoteType.Downvote);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        post.VoteScore.Should().Be(-1);
+        post.Votes.Should().HaveCount(1);
+        post.Votes.First().Type.Should().Be(VoteType.Downvote);
+    }
+
+    [Fact]
+    public void AddVote_MultipleUsers_ShouldAccumulateVoteScore()
+    {
+        // Arrange
+        var title = PostTitle.Create("Valid Title").Value;
+        var content = PostContent.Create("Valid content with enough characters.").Value;
+        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
+        post.Publish();
+
+        // Act
+        post.AddVote(Guid.NewGuid(), VoteType.Upvote);
+        post.AddVote(Guid.NewGuid(), VoteType.Upvote);
+        post.AddVote(Guid.NewGuid(), VoteType.Downvote);
+
+        // Assert
+        post.VoteScore.Should().Be(1); // 2 upvotes - 1 downvote = 1
+        post.Votes.Should().HaveCount(3);
+    }
+
+    [Fact]
+    public void AddVote_WhenUserAlreadyVoted_ShouldFail()
+    {
+        // Arrange
+        var title = PostTitle.Create("Valid Title").Value;
+        var content = PostContent.Create("Valid content with enough characters.").Value;
+        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
+        post.Publish();
+        var userId = Guid.NewGuid();
+        post.AddVote(userId, VoteType.Upvote);
+
+        // Act
+        var result = post.AddVote(userId, VoteType.Downvote);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Post.VoteAlreadyExists");
+        post.VoteScore.Should().Be(1);
+        post.Votes.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public void AddVote_OnDeletedPost_ShouldFail()
+    {
+        // Arrange
+        var title = PostTitle.Create("Valid Title").Value;
+        var content = PostContent.Create("Valid content with enough characters.").Value;
+        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
+        post.Delete();
+
+        // Act
+        var result = post.AddVote(Guid.NewGuid(), VoteType.Upvote);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Post.Deleted");
+    }
+
+    [Fact]
+    public void ChangeVote_FromUpvoteToDownvote_ShouldUpdateVoteScore()
+    {
+        // Arrange
+        var title = PostTitle.Create("Valid Title").Value;
+        var content = PostContent.Create("Valid content with enough characters.").Value;
+        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
+        post.Publish();
+        var userId = Guid.NewGuid();
+        post.AddVote(userId, VoteType.Upvote);
+
+        // Act
+        var result = post.ChangeVote(userId, VoteType.Downvote);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        post.VoteScore.Should().Be(-1); // Changed from +1 to -1
+        post.Votes.Should().HaveCount(1);
+        post.Votes.First().Type.Should().Be(VoteType.Downvote);
+    }
+
+    [Fact]
+    public void ChangeVote_FromDownvoteToUpvote_ShouldUpdateVoteScore()
+    {
+        // Arrange
+        var title = PostTitle.Create("Valid Title").Value;
+        var content = PostContent.Create("Valid content with enough characters.").Value;
+        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
+        post.Publish();
+        var userId = Guid.NewGuid();
+        post.AddVote(userId, VoteType.Downvote);
+
+        // Act
+        var result = post.ChangeVote(userId, VoteType.Upvote);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        post.VoteScore.Should().Be(1); // Changed from -1 to +1
+        post.Votes.First().Type.Should().Be(VoteType.Upvote);
+    }
+
+    [Fact]
+    public void ChangeVote_WhenUserHasNotVoted_ShouldFail()
+    {
+        // Arrange
+        var title = PostTitle.Create("Valid Title").Value;
+        var content = PostContent.Create("Valid content with enough characters.").Value;
+        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
+        post.Publish();
+
+        // Act
+        var result = post.ChangeVote(Guid.NewGuid(), VoteType.Downvote);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Post.VoteNotFound");
+    }
+
+    [Fact]
+    public void ChangeVote_OnDeletedPost_ShouldFail()
+    {
+        // Arrange
+        var title = PostTitle.Create("Valid Title").Value;
+        var content = PostContent.Create("Valid content with enough characters.").Value;
+        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
+        post.Publish();
+        var userId = Guid.NewGuid();
+        post.AddVote(userId, VoteType.Upvote);
+        post.Delete();
+
+        // Act
+        var result = post.ChangeVote(userId, VoteType.Downvote);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Post.Deleted");
+    }
+
+    [Fact]
+    public void RemoveVote_ShouldDecreaseVoteScoreAndRemoveVote()
+    {
+        // Arrange
+        var title = PostTitle.Create("Valid Title").Value;
+        var content = PostContent.Create("Valid content with enough characters.").Value;
+        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
+        post.Publish();
+        var userId = Guid.NewGuid();
+        post.AddVote(userId, VoteType.Upvote);
+
+        // Act
+        var result = post.RemoveVote(userId);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        post.VoteScore.Should().Be(0);
+        post.Votes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void RemoveVote_WithDownvote_ShouldIncreaseVoteScore()
+    {
+        // Arrange
+        var title = PostTitle.Create("Valid Title").Value;
+        var content = PostContent.Create("Valid content with enough characters.").Value;
+        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
+        post.Publish();
+        var userId = Guid.NewGuid();
+        post.AddVote(userId, VoteType.Downvote);
+
+        // Act
+        var result = post.RemoveVote(userId);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        post.VoteScore.Should().Be(0); // Removed -1, so back to 0
+        post.Votes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void RemoveVote_WhenUserHasNotVoted_ShouldFail()
+    {
+        // Arrange
+        var title = PostTitle.Create("Valid Title").Value;
+        var content = PostContent.Create("Valid content with enough characters.").Value;
+        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
+        post.Publish();
+
+        // Act
+        var result = post.RemoveVote(Guid.NewGuid());
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Post.VoteNotFound");
+    }
+
+    [Fact]
+    public void RemoveVote_OnDeletedPost_ShouldFail()
+    {
+        // Arrange
+        var title = PostTitle.Create("Valid Title").Value;
+        var content = PostContent.Create("Valid content with enough characters.").Value;
+        var post = Post.Create(title, content, PostType.Discussion, _authorId).Value;
+        post.Publish();
+        var userId = Guid.NewGuid();
+        post.AddVote(userId, VoteType.Upvote);
+        post.Delete();
+
+        // Act
+        var result = post.RemoveVote(userId);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Post.Deleted");
+    }
+
+    #endregion
 }
