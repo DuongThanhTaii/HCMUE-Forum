@@ -11,7 +11,7 @@
 | **Phase**         | 4              |
 | **Name**          | Forum Module   |
 | **Status**        | 🔵 IN_PROGRESS |
-| **Progress**      | 6/12 tasks     |
+| **Progress**      | 7/12 tasks     |
 | **Est. Duration** | 2 weeks        |
 | **Dependencies**  | Phase 3        |
 
@@ -214,7 +214,7 @@ Refs: TASK-043
 | Property         | Value                              |
 | ---------------- | ---------------------------------- |
 | **ID**           | TASK-044                           |
-| **Status**       | ⬜ NOT_STARTED                     |
+| **Status**       | ✅ DONE                            |
 | **Priority**     | 🟡 Medium                          |
 | **Estimate**     | 2 hours                            |
 | **Branch**       | `feature/TASK-044-voting-commands` |
@@ -222,10 +222,10 @@ Refs: TASK-043
 
 **Acceptance Criteria:**
 
-- [ ] VotePostCommand
-- [ ] VoteCommentCommand
-- [ ] Remove vote on re-vote same type
-- [ ] Unit tests written
+- [x] VotePostCommand
+- [x] VoteCommentCommand
+- [x] Remove vote on re-vote same type
+- [x] Unit tests written (14 tests passed)
 
 **Commit Message:**
 
@@ -417,9 +417,9 @@ Refs: TASK-049
 - [x] TASK-038: Design Post Aggregate
 - [x] TASK-039: Design Comment Entity
 - [x] TASK-040: Design Category Aggregate
-- [ ] TASK-041: Design Vote Value Object
-- [ ] TASK-042: Implement Post CRUD Commands
-- [ ] TASK-043: Implement Comment Commands
+- [x] TASK-041: Design Vote Value Object
+- [x] TASK-042: Implement Post CRUD Commands
+- [x] TASK-043: Implement Comment Commands
 - [ ] TASK-044: Implement Voting Commands
 - [ ] TASK-045: Implement Full-Text Search
 - [ ] TASK-046: Implement Tagging System
