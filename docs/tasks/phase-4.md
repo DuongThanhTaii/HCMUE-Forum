@@ -11,7 +11,7 @@
 | **Phase**         | 4              |
 | **Name**          | Forum Module   |
 | **Status**        | 🔵 IN_PROGRESS |
-| **Progress**      | 5/12 tasks     |
+| **Progress**      | 6/12 tasks     |
 | **Est. Duration** | 2 weeks        |
 | **Dependencies**  | Phase 3        |
 
@@ -185,7 +185,7 @@ Refs: TASK-042
 | Property         | Value                               |
 | ---------------- | ----------------------------------- |
 | **ID**           | TASK-043                            |
-| **Status**       | ⬜ NOT_STARTED                      |
+| **Status**       | ✅ DONE                             |
 | **Priority**     | 🔴 Critical                         |
 | **Estimate**     | 3 hours                             |
 | **Branch**       | `feature/TASK-043-comment-commands` |
@@ -193,11 +193,11 @@ Refs: TASK-042
 
 **Acceptance Criteria:**
 
-- [ ] AddCommentCommand
-- [ ] UpdateCommentCommand
-- [ ] DeleteCommentCommand
-- [ ] AcceptAnswerCommand (for Q&A)
-- [ ] Unit tests written
+- [x] AddCommentCommand
+- [x] UpdateCommentCommand
+- [x] DeleteCommentCommand
+- [x] AcceptAnswerCommand (for Q&A)
+- [x] Unit tests written (24 tests passed)
 
 **Commit Message:**
 
