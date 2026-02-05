@@ -861,7 +861,7 @@ Refs: TASK-037
 - [x] TASK-028: Implement JWT Authentication
 - [x] TASK-029: Implement Refresh Token Flow
 - [x] TASK-030: Create Registration Flow
-- [ ] TASK-031: Create Login Flow
+- [x] TASK-031: Create Login Flow
 - [ ] TASK-032: Implement Dynamic Role Management
 - [ ] TASK-033: Implement Permission Assignment
 - [ ] TASK-034: Create Official Account System
