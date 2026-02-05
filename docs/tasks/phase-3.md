@@ -755,9 +755,11 @@ feat(identity): implement scoped permissions - TASK-035
 
 Refs: TASK-035
 ```
+
 - Add unit tests
 
 Refs: TASK-035
+
 ```
 
 ---
@@ -787,6 +789,7 @@ Implement forgot password và reset password flow.
 **Commit Message:**
 
 ```
+
 feat(identity): implement password reset flow
 
 - Add ForgotPasswordCommand and handler
@@ -796,6 +799,7 @@ feat(identity): implement password reset flow
 - Add unit tests
 
 Refs: TASK-036
+
 ```
 
 ---
@@ -826,48 +830,53 @@ Create API controllers cho Identity module.
 **Files to Create:**
 
 ```
+
 src/Modules/Identity/UniHub.Identity.Presentation/
 ├── Controllers/
-│   ├── AuthController.cs
-│   ├── UsersController.cs
-│   └── RolesController.cs
+│ ├── AuthController.cs
+│ ├── UsersController.cs
+│ └── RolesController.cs
 ├── DTOs/
-│   ├── Requests/
-│   └── Responses/
+│ ├── Requests/
+│ └── Responses/
+
 ```
 
 **API Endpoints:**
 
 ```
-POST   /api/v1/auth/register
-POST   /api/v1/auth/login
-POST   /api/v1/auth/refresh-token
-POST   /api/v1/auth/logout
-POST   /api/v1/auth/forgot-password
-POST   /api/v1/auth/reset-password
 
-GET    /api/v1/users
-GET    /api/v1/users/{id}
-PUT    /api/v1/users/{id}
-GET    /api/v1/users/me
-PUT    /api/v1/users/me/profile
-POST   /api/v1/users/{id}/roles
+POST /api/v1/auth/register
+POST /api/v1/auth/login
+POST /api/v1/auth/refresh-token
+POST /api/v1/auth/logout
+POST /api/v1/auth/forgot-password
+POST /api/v1/auth/reset-password
+
+GET /api/v1/users
+GET /api/v1/users/{id}
+PUT /api/v1/users/{id}
+GET /api/v1/users/me
+PUT /api/v1/users/me/profile
+POST /api/v1/users/{id}/roles
 DELETE /api/v1/users/{id}/roles/{roleId}
 
-GET    /api/v1/roles
-POST   /api/v1/roles
-GET    /api/v1/roles/{id}
-PUT    /api/v1/roles/{id}
+GET /api/v1/roles
+POST /api/v1/roles
+GET /api/v1/roles/{id}
+PUT /api/v1/roles/{id}
 DELETE /api/v1/roles/{id}
-POST   /api/v1/roles/{id}/permissions
+POST /api/v1/roles/{id}/permissions
 DELETE /api/v1/roles/{id}/permissions/{permissionId}
 
-GET    /api/v1/permissions
+GET /api/v1/permissions
+
 ```
 
 **Commit Message:**
 
 ```
+
 feat(identity): create API endpoints
 
 - Add AuthController with auth endpoints
@@ -878,6 +887,7 @@ feat(identity): create API endpoints
 - Add integration tests
 
 Refs: TASK-037
+
 ```
 
 ---
@@ -908,3 +918,4 @@ Refs: TASK-037
 ---
 
 _Last Updated: 2026-02-04_
+```

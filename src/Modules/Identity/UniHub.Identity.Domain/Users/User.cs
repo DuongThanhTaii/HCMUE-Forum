@@ -162,4 +162,20 @@ public sealed class User : AggregateRoot<UserId>
     {
         return Status == UserStatus.Active;
     }
+
+    public Result ChangePassword(string newPasswordHash)
+    {
+        if (string.IsNullOrWhiteSpace(newPasswordHash))
+        {
+            return Result.Failure(new Error("User.PasswordHash.Empty", "Password hash cannot be empty"));
+        }
+
+        PasswordHash = newPasswordHash;
+        UpdatedAt = DateTime.UtcNow;
+
+        // Revoke all refresh tokens for security
+        RevokeAllRefreshTokens();
+
+        return Result.Success();
+    }
 }
