@@ -789,25 +789,27 @@ Implement forgot password và reset password flow.
 **Files Created:**
 
 ```
+
 src/Modules/Identity/UniHub.Identity.Domain/
 ├── Users/
-│   └── PasswordResetToken.cs
+│ └── PasswordResetToken.cs
 
 src/Modules/Identity/UniHub.Identity.Application/
 ├── Abstractions/
-│   └── IPasswordResetTokenRepository.cs
+│ └── IPasswordResetTokenRepository.cs
 ├── Commands/ForgotPassword/
-│   ├── ForgotPasswordCommand.cs
-│   ├── ForgotPasswordCommandHandler.cs
-│   └── ForgotPasswordCommandValidator.cs
+│ ├── ForgotPasswordCommand.cs
+│ ├── ForgotPasswordCommandHandler.cs
+│ └── ForgotPasswordCommandValidator.cs
 └── Commands/ResetPassword/
-    ├── ResetPasswordCommand.cs
-    ├── ResetPasswordCommandHandler.cs
-    └── ResetPasswordCommandValidator.cs
+├── ResetPasswordCommand.cs
+├── ResetPasswordCommandHandler.cs
+└── ResetPasswordCommandValidator.cs
 
 src/Modules/Identity/UniHub.Identity.Infrastructure/
 └── Persistence/Repositories/
-    └── PasswordResetTokenRepository.cs
+└── PasswordResetTokenRepository.cs
+
 ```
 
 **Implementation Details:**
@@ -824,6 +826,7 @@ src/Modules/Identity/UniHub.Identity.Infrastructure/
 **Commit Message:**
 
 ```
+
 feat(identity): implement password reset flow - TASK-036
 
 - Add PasswordResetToken entity to domain
@@ -838,6 +841,7 @@ feat(identity): implement password reset flow - TASK-036
 - Register repository in DI container
 
 Refs: TASK-036
+
 ```
 
 ---
