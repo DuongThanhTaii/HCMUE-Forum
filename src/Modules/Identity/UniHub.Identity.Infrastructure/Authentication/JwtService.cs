@@ -1,9 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using UniHub.Identity.Application.Abstractions;
+using UniHub.Identity.Domain.Tokens;
 using UniHub.Identity.Domain.Users;
 using UniHub.SharedKernel.Results;
 
@@ -19,6 +21,7 @@ public sealed class JwtService : IJwtService
     private readonly SigningCredentials _signingCredentials;
 
     public TimeSpan AccessTokenExpiry => TimeSpan.FromMinutes(_jwtSettings.AccessTokenExpiryMinutes);
+    public TimeSpan RefreshTokenExpiry => TimeSpan.FromDays(_jwtSettings.RefreshTokenExpiryDays);
 
     public JwtService(IOptions<JwtSettings> jwtOptions)
     {
@@ -132,5 +135,16 @@ public sealed class JwtService : IJwtService
                 new Error("JwtService.TokenValidation.Failed", 
                 $"Unexpected error during token validation: {ex.Message}"));
         }
+    }
+
+    public RefreshToken GenerateRefreshToken(UserId userId, string? ipAddress = null)
+    {
+        var randomBytes = new byte[64];
+        RandomNumberGenerator.Fill(randomBytes);
+        var token = Convert.ToBase64String(randomBytes);
+
+        var expiresAt = DateTime.UtcNow.Add(RefreshTokenExpiry);
+
+        return RefreshToken.Create(userId, token, expiresAt, ipAddress);
     }
 }

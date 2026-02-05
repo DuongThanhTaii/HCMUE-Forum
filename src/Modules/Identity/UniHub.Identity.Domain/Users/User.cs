@@ -137,9 +137,9 @@ public sealed class User : AggregateRoot<UserId>
         return Result.Success();
     }
 
-    public RefreshToken AddRefreshToken(string token, DateTime expires)
+    public RefreshToken AddRefreshToken(string token, DateTime expiresAt, string? ipAddress = null)
     {
-        var refreshToken = new RefreshToken(Id, token, expires);
+        var refreshToken = RefreshToken.Create(Id, token, expiresAt, ipAddress);
         _refreshTokens.Add(refreshToken);
         return refreshToken;
     }
@@ -147,7 +147,7 @@ public sealed class User : AggregateRoot<UserId>
     public void RevokeRefreshToken(string token, string? replacedByToken = null)
     {
         var refreshToken = _refreshTokens.FirstOrDefault(rt => rt.Token == token);
-        refreshToken?.Revoke(replacedByToken);
+        refreshToken?.Revoke(null, null, replacedByToken);
     }
 
     public void RevokeAllRefreshTokens()
