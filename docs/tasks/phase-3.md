@@ -11,7 +11,7 @@
 | **Phase**         | 3                        |
 | **Name**          | Identity & Access Module |
 | **Status**        | 🔵 IN_PROGRESS           |
-| **Progress**      | 1/12 tasks               |
+| **Progress**      | 2/12 tasks               |
 | **Est. Duration** | 2 weeks                  |
 | **Dependencies**  | Phase 2                  |
 
@@ -19,8 +19,8 @@
 
 ## 🎯 OBJECTIVES
 
-- [ ] Implement User aggregate với value objects
-- [ ] Implement Role và Permission entities
+- [x] Implement User aggregate với value objects
+- [x] Implement Role và Permission entities
 - [ ] Implement JWT Authentication với Refresh Token
 - [ ] Implement Dynamic Role Management
 - [ ] Implement Official Badge system
@@ -152,7 +152,7 @@ Refs: TASK-026
 | Property         | Value                              |
 | ---------------- | ---------------------------------- |
 | **ID**           | TASK-027                           |
-| **Status**       | ⬜ NOT_STARTED                     |
+| **Status**       | ✅ COMPLETED                       |
 | **Priority**     | 🔴 Critical                        |
 | **Estimate**     | 3 hours                            |
 | **Branch**       | `feature/TASK-027-role-permission` |
@@ -163,12 +163,12 @@ Implement Role aggregate và Permission entity cho dynamic RBAC.
 
 **Acceptance Criteria:**
 
-- [ ] `Role` aggregate root implemented
-- [ ] `Permission` entity implemented
-- [ ] `PermissionScope` value object created
-- [ ] Role-Permission relationship
-- [ ] Seed data for default roles
-- [ ] Unit tests written
+- [x] `Role` aggregate root implemented
+- [x] `Permission` entity implemented
+- [x] `PermissionScope` value object created
+- [x] Role-Permission relationship
+- [x] Seed data for default roles
+- [x] Unit tests written
 
 **Files to Create:**
 
@@ -239,7 +239,7 @@ Refs: TASK-027
 | Property         | Value                       |
 | ---------------- | --------------------------- |
 | **ID**           | TASK-028                    |
-| **Status**       | ⬜ NOT_STARTED              |
+| **Status**       | 🔵 IN_PROGRESS              |
 | **Priority**     | 🔴 Critical                 |
 | **Estimate**     | 4 hours                     |
 | **Branch**       | `feature/TASK-028-jwt-auth` |
@@ -782,7 +782,7 @@ Refs: TASK-037
 ## ✅ COMPLETION CHECKLIST
 
 - [x] TASK-026: Design User Aggregate
-- [ ] TASK-027: Design Role & Permission Entities
+- [x] TASK-027: Design Role & Permission Entities
 - [ ] TASK-028: Implement JWT Authentication
 - [ ] TASK-029: Implement Refresh Token Flow
 - [ ] TASK-030: Create Registration Flow

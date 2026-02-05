@@ -1,4 +1,5 @@
 using Serilog;
+using UniHub.Identity.Infrastructure;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -31,6 +32,9 @@ try
     // Add services to the container.
     // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
     builder.Services.AddOpenApi();
+
+    // Add Identity module
+    builder.Services.AddIdentityInfrastructure(builder.Configuration);
 
     // Add exception handler
     builder.Services.AddExceptionHandler<UniHub.API.Middlewares.GlobalExceptionHandler>();
@@ -65,8 +69,17 @@ try
 
     app.UseHttpsRedirection();
 
+    // Authentication & Authorization
+    app.UseAuthentication();
+    app.UseAuthorization();
+
 // Health check endpoint
 app.MapHealthChecks("/health");
+
+// JWT test endpoint
+app.MapGet("/auth/test", () => Results.Ok(new { Message = "JWT Authentication is working!", Timestamp = DateTime.UtcNow }))
+    .RequireAuthorization()
+    .WithName("TestJwtAuth");
 
 // Connection test endpoint
 app.MapGet("/health/connections", (IConfiguration config) =>
