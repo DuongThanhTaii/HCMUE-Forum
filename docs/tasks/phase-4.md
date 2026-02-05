@@ -11,7 +11,7 @@
 | **Phase**         | 4              |
 | **Name**          | Forum Module   |
 | **Status**        | 🔵 IN_PROGRESS |
-| **Progress**      | 3/12 tasks     |
+| **Progress**      | 4/12 tasks     |
 | **Est. Duration** | 2 weeks        |
 | **Dependencies**  | Phase 3        |
 
@@ -126,7 +126,7 @@ Refs: TASK-040
 | Property         | Value                          |
 | ---------------- | ------------------------------ |
 | **ID**           | TASK-041                       |
-| **Status**       | ⬜ NOT_STARTED                 |
+| **Status**       | ✅ DONE                        |
 | **Priority**     | 🟡 Medium                      |
 | **Estimate**     | 2 hours                        |
 | **Branch**       | `feature/TASK-041-vote-system` |
@@ -134,11 +134,11 @@ Refs: TASK-040
 
 **Acceptance Criteria:**
 
-- [ ] `Vote` value object
-- [ ] `VoteType` enum (Upvote, Downvote)
-- [ ] One vote per user per post
-- [ ] Vote score calculation
-- [ ] Unit tests written
+- [x] `Vote` value object
+- [x] `VoteType` enum (Upvote, Downvote)
+- [x] One vote per user per post
+- [x] Vote score calculation
+- [x] Unit tests written (21 vote tests + 30 voting integration tests = 51 new tests, 162 total)
 
 **Commit Message:**
 
