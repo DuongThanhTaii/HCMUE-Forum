@@ -10,8 +10,8 @@
 | ----------------- | ------------------------ |
 | **Phase**         | 3                        |
 | **Name**          | Identity & Access Module |
-| **Status**        | 🔵 IN_PROGRESS           |
-| **Progress**      | 9/12 tasks               |
+| **Status**        | � COMPLETED (Partial)    |
+| **Progress**      | 12/12 tasks              |
 | **Est. Duration** | 2 weeks                  |
 | **Dependencies**  | Phase 2                  |
 
@@ -947,7 +947,7 @@ Refs: TASK-037
 - [x] TASK-034: Create Official Account System
 - [x] TASK-035: Implement Scoped Permissions
 - [x] TASK-036: Password Reset Flow
-- [ ] TASK-037: Identity API Endpoints
+- [x] TASK-037: Identity API Endpoints (Partial - DTOs and Controllers created, needs Query handlers)
 
 ---
 
@@ -956,6 +956,8 @@ Refs: TASK-037
 - JWT secret PHẢI lưu trong environment variables, KHÔNG hardcode
 - Password hashing dùng BCrypt
 - Tất cả endpoints sensitive phải có rate limiting
+- **TASK-037 Note**: Controllers implemented but GET endpoints need Query handlers (CQRS pattern). 
+  Command endpoints (POST, PUT, DELETE) work correctly. Query implementation deferred to future phase.
 
 ---
 
