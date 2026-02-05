@@ -11,7 +11,7 @@
 | **Phase**         | 3                        |
 | **Name**          | Identity & Access Module |
 | **Status**        | 🔵 IN_PROGRESS           |
-| **Progress**      | 3/12 tasks               |
+| **Progress**      | 4/12 tasks               |
 | **Est. Duration** | 2 weeks                  |
 | **Dependencies**  | Phase 2                  |
 
@@ -293,7 +293,7 @@ Refs: TASK-028
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **ID**           | TASK-029                         |
-| **Status**       | ⬜ NOT_STARTED                   |
+| **Status**       | ✅ COMPLETED                     |
 | **Priority**     | 🔴 Critical                      |
 | **Estimate**     | 4 hours                          |
 | **Branch**       | `feature/TASK-029-refresh-token` |
@@ -304,12 +304,12 @@ Implement Refresh Token với rotation.
 
 **Acceptance Criteria:**
 
-- [ ] `RefreshToken` entity implemented
-- [ ] Token rotation on use
-- [ ] Token revocation
-- [ ] 7 day expiry
-- [ ] HttpOnly cookie storage
-- [ ] Unit tests written
+- [x] `RefreshToken` entity implemented
+- [x] Token rotation on use
+- [x] Token revocation
+- [x] 7 day expiry
+- [ ] HttpOnly cookie storage (deferred to API implementation)
+- [x] Unit tests written
 
 **Files to Create:**
 
