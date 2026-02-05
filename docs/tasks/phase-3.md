@@ -11,7 +11,7 @@
 | **Phase**         | 3                        |
 | **Name**          | Identity & Access Module |
 | **Status**        | 🔵 IN_PROGRESS           |
-| **Progress**      | 4/12 tasks               |
+| **Progress**      | 7/12 tasks               |
 | **Est. Duration** | 2 weeks                  |
 | **Dependencies**  | Phase 2                  |
 
@@ -22,7 +22,7 @@
 - [x] Implement User aggregate với value objects
 - [x] Implement Role và Permission entities
 - [x] Implement JWT Authentication với Refresh Token
-- [ ] Implement Dynamic Role Management
+- [x] Implement Dynamic Role Management
 - [ ] Implement Official Badge system
 - [ ] Implement Scoped Permissions
 
@@ -513,12 +513,12 @@ Refs: TASK-031
 
 ---
 
-### TASK-032: Implement Dynamic Role Management
+### TASK-032: Implement Dynamic Role Management ✅
 
 | Property         | Value                              |
 | ---------------- | ---------------------------------- |
 | **ID**           | TASK-032                           |
-| **Status**       | ⬜ NOT_STARTED                     |
+| **Status**       | ✅ COMPLETED                       |
 | **Priority**     | 🔴 Critical                        |
 | **Estimate**     | 4 hours                            |
 | **Branch**       | `feature/TASK-032-role-management` |
@@ -529,11 +529,11 @@ Implement CRUD commands cho dynamic role management.
 
 **Acceptance Criteria:**
 
-- [ ] Create Role command
-- [ ] Update Role command
-- [ ] Delete Role command
-- [ ] Assign Permission to Role command
-- [ ] Remove Permission from Role command
+- [x] Create Role command
+- [x] Update Role command
+- [x] Delete Role command
+- [x] Assign Permission to Role command
+- [x] Remove Permission from Role command
 - [ ] Unit tests written
 
 **Files to Create:**
@@ -862,7 +862,7 @@ Refs: TASK-037
 - [x] TASK-029: Implement Refresh Token Flow
 - [x] TASK-030: Create Registration Flow
 - [x] TASK-031: Create Login Flow
-- [ ] TASK-032: Implement Dynamic Role Management
+- [x] TASK-032: Implement Dynamic Role Management
 - [ ] TASK-033: Implement Permission Assignment
 - [ ] TASK-034: Create Official Account System
 - [ ] TASK-035: Implement Scoped Permissions
