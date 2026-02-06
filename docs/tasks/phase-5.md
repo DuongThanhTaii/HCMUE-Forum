@@ -11,7 +11,7 @@
 | **Phase**         | 5                         |
 | **Name**          | Learning Resources Module |
 | **Status**        | 🟡 IN_PROGRESS            |
-| **Progress**      | 6/12 tasks (50%)          |
+| **Progress**      | 7/12 tasks (58.3%)        |
 | **Est. Duration** | 2 weeks                   |
 | **Dependencies**  | Phase 3                   |
 
@@ -406,18 +406,21 @@ Refs: TASK-056
 | Property         | Value                                   |
 | ---------------- | --------------------------------------- |
 | **ID**           | TASK-057                                |
-| **Status**       | ⬜ NOT_STARTED                          |
+| **Status**       | ✅ COMPLETED                            |
 | **Priority**     | 🔴 Critical                             |
 | **Estimate**     | 3 hours                                 |
+| **Actual**       | 3 hours                                 |
 | **Branch**       | `feature/TASK-057-moderator-assignment` |
 | **Dependencies** | TASK-056                                |
+| **Completed**    | 2026-02-06                              |
 
 **Acceptance Criteria:**
 
-- [ ] AssignCourseModerator command
-- [ ] RemoveCourseModerator command
-- [ ] Check scoped permission (per course)
-- [ ] Unit tests written
+- [x] AssignCourseModeratorCommand
+- [x] RemoveCourseModeratorCommand
+- [x] IModeratorManagementPermissionService (scoped permission checking)
+- [x] Check permission before assign/remove operations
+- [x] Unit tests written (16 tests, 100% pass)
 
 **Commit Message:**
 
@@ -579,7 +582,7 @@ Refs: TASK-061
 - [x] TASK-054: Implement Document Upload ✅ (2026-02-06)
 - [x] TASK-055: Implement Approval Workflow ✅ (2026-02-06)
 - [x] TASK-056: Implement Course Management ✅ (2026-02-06)
-- [ ] TASK-057: Implement Moderator Assignment
+- [x] TASK-057: Implement Moderator Assignment ✅ (2026-02-06)
 - [ ] TASK-058: Implement Document Rating
 - [ ] TASK-059: Implement Document Search
 - [ ] TASK-060: Implement Download Tracking
@@ -591,8 +594,8 @@ Refs: TASK-061
 
 **Test Coverage:**
 
-- Total Tests: 449
-- Passing: 449 (100%)
+- Total Tests: 465
+- Passing: 465 (100%)
 - Failing: 0
 - Skipped: 0
 
@@ -605,16 +608,17 @@ Refs: TASK-061
 - Document Upload Application: 23 tests ✅ (12 validator + 6 handler + 5 execution)
 - Approval Workflow Application: 40 tests ✅ (24 validator + 16 handler)
 - Course Management Application: 44 tests ✅ (27 validator + 17 handler)
+- Moderator Assignment Application: 16 tests ✅ (8 validator + 8 handler)
 
 **Code Statistics:**
 
 - Domain Classes: 14 (Document, Course, Faculty + IDs + Status enums + Event Store)
-- Application Classes: 16 (8 commands, 8 validators, 8 handlers + 4 abstractions)
+- Application Classes: 21 (10 commands, 10 validators, 10 handlers + 5 abstractions)
 - Value Objects: 10
 - Domain Events: 16 (9 for Document + 7 for Course + 7 for Faculty - some shared)
 - Event Sourcing: 3 classes (IEventStore, StoredEvent, EventSourcingHelper)
-- Test Classes: 23 (13 domain + 10 application)
-- Lines of Code: ~12,000 (domain + application + tests)
+- Test Classes: 27 (13 domain + 14 application)
+- Lines of Code: ~14,000 (domain + application + tests)
 
 ---
 
