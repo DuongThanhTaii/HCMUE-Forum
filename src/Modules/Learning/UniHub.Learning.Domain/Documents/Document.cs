@@ -299,6 +299,124 @@ public sealed class Document : AggregateRoot<DocumentId>
     }
 
     /// <summary>
+    /// AI scan document để kiểm tra nội dung (automated check sau khi submit)
+    /// </summary>
+    public Result RecordAIScan(string scanResult, double confidence, List<string>? flaggedReasons = null)
+    {
+        if (string.IsNullOrWhiteSpace(scanResult))
+        {
+            return Result.Failure(new Error("Document.InvalidScanResult", "Scan result cannot be empty"));
+        }
+
+        if (confidence < 0 || confidence > 1)
+        {
+            return Result.Failure(new Error("Document.InvalidConfidence", 
+                "Confidence must be between 0 and 1"));
+        }
+
+        if (Status != DocumentStatus.PendingApproval)
+        {
+            return Result.Failure(new Error("Document.NotPending", 
+                "Only pending documents can be scanned"));
+        }
+
+        // Event Sourcing - ghi lại sự kiện AI scan
+        AddDomainEvent(new DocumentAIScannedEvent(
+            Id.Value,
+            scanResult,
+            confidence,
+            flaggedReasons,
+            DateTime.UtcNow));
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Moderator bắt đầu review document
+    /// </summary>
+    public Result StartReview(Guid reviewerId)
+    {
+        if (reviewerId == Guid.Empty)
+        {
+            return Result.Failure(new Error("Document.InvalidReviewer", "Reviewer ID cannot be empty"));
+        }
+
+        if (Status == DocumentStatus.Deleted)
+        {
+            return Result.Failure(new Error("Document.Deleted", "Cannot review a deleted document"));
+        }
+
+        if (Status != DocumentStatus.PendingApproval)
+        {
+            return Result.Failure(new Error("Document.NotPending", 
+                "Only pending documents can be reviewed"));
+        }
+
+        ReviewerId = reviewerId;
+        UpdatedAt = DateTime.UtcNow;
+
+        // Event Sourcing - ghi lại sự kiện bắt đầu review
+        AddDomainEvent(new DocumentReviewStartedEvent(
+            Id.Value,
+            reviewerId,
+            DateTime.UtcNow));
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Yêu cầu chỉnh sửa document (moderator không approve cũng không reject, yêu cầu author sửa)
+    /// </summary>
+    public Result RequestRevision(Guid requestedBy, string reason, string? notes = null)
+    {
+        if (requestedBy == Guid.Empty)
+        {
+            return Result.Failure(new Error("Document.InvalidRequester", "Requester ID cannot be empty"));
+        }
+
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Result.Failure(new Error("Document.MissingRevisionReason", 
+                "Revision reason is required"));
+        }
+
+        if (reason.Length < 10)
+        {
+            return Result.Failure(new Error("Document.RevisionReasonTooShort", 
+                "Revision reason must be at least 10 characters"));
+        }
+
+        if (Status == DocumentStatus.Deleted)
+        {
+            return Result.Failure(new Error("Document.Deleted", "Cannot request revision for a deleted document"));
+        }
+
+        if (Status != DocumentStatus.PendingApproval)
+        {
+            return Result.Failure(new Error("Document.NotPending", 
+                "Only pending documents can have revision requested"));
+        }
+
+        // Khi request revision, document quay về trạng thái Draft để author sửa
+        Status = DocumentStatus.Draft;
+        ReviewerId = requestedBy;
+        RejectionReason = reason.Trim();
+        ReviewComment = notes?.Trim();
+        ReviewedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+
+        // Event Sourcing - ghi lại sự kiện request revision
+        AddDomainEvent(new DocumentRevisionRequestedEvent(
+            Id.Value,
+            requestedBy,
+            reason.Trim(),
+            notes?.Trim(),
+            DateTime.UtcNow));
+
+        return Result.Success();
+    }
+
+    /// <summary>
     /// Xóa document (soft delete)
     /// </summary>
     public Result Delete(Guid deleterId)

@@ -942,4 +942,331 @@ public class DocumentTests
     }
 
     #endregion
+
+    #region AI Scan Tests
+
+    [Fact]
+    public void RecordAIScan_WithValidData_ShouldReturnSuccess()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.SubmitForApproval();
+        document.ClearDomainEvents();
+
+        // Act
+        var result = document.RecordAIScan("Pass", 0.95);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        var domainEvent = document.DomainEvents.OfType<DocumentAIScannedEvent>().SingleOrDefault();
+        domainEvent.Should().NotBeNull();
+        domainEvent!.DocumentId.Should().Be(document.Id.Value);
+        domainEvent.ScanResult.Should().Be("Pass");
+        domainEvent.Confidence.Should().Be(0.95);
+    }
+
+    [Fact]
+    public void RecordAIScan_WithFlaggedReasons_ShouldRecordReasons()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.SubmitForApproval();
+        document.ClearDomainEvents();
+        var flaggedReasons = new List<string> { "Potential plagiarism", "Inappropriate content" };
+
+        // Act
+        var result = document.RecordAIScan("Flagged", 0.75, flaggedReasons);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        var domainEvent = document.DomainEvents.OfType<DocumentAIScannedEvent>().SingleOrDefault();
+        domainEvent.Should().NotBeNull();
+        domainEvent!.FlaggedReasons.Should().BeEquivalentTo(flaggedReasons);
+    }
+
+    [Fact]
+    public void RecordAIScan_WithEmptyScanResult_ShouldReturnFailure()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.SubmitForApproval();
+
+        // Act
+        var result = document.RecordAIScan("", 0.95);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Document.InvalidScanResult");
+    }
+
+    [Fact]
+    public void RecordAIScan_WithInvalidConfidence_ShouldReturnFailure()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.SubmitForApproval();
+
+        // Act
+        var result = document.RecordAIScan("Pass", 1.5);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Document.InvalidConfidence");
+    }
+
+    [Fact]
+    public void RecordAIScan_OnDraftDocument_ShouldReturnFailure()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+
+        // Act
+        var result = document.RecordAIScan("Pass", 0.95);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Document.NotPending");
+    }
+
+    #endregion
+
+    #region Review Started Tests
+
+    [Fact]
+    public void StartReview_WithValidReviewer_ShouldReturnSuccess()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.SubmitForApproval();
+        document.ClearDomainEvents();
+
+        // Act
+        var result = document.StartReview(_reviewerId);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        document.ReviewerId.Should().Be(_reviewerId);
+        var domainEvent = document.DomainEvents.OfType<DocumentReviewStartedEvent>().SingleOrDefault();
+        domainEvent.Should().NotBeNull();
+        domainEvent!.DocumentId.Should().Be(document.Id.Value);
+        domainEvent.ReviewerId.Should().Be(_reviewerId);
+    }
+
+    [Fact]
+    public void StartReview_WithEmptyReviewerId_ShouldReturnFailure()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.SubmitForApproval();
+
+        // Act
+        var result = document.StartReview(Guid.Empty);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Document.InvalidReviewer");
+    }
+
+    [Fact]
+    public void StartReview_OnDraftDocument_ShouldReturnFailure()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+
+        // Act
+        var result = document.StartReview(_reviewerId);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Document.NotPending");
+    }
+
+    [Fact]
+    public void StartReview_OnDeletedDocument_ShouldReturnFailure()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.SubmitForApproval();
+        document.Delete(_uploaderId);
+
+        // Act
+        var result = document.StartReview(_reviewerId);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Document.Deleted");
+    }
+
+    #endregion
+
+    #region Request Revision Tests
+
+    [Fact]
+    public void RequestRevision_WithValidData_ShouldReturnToDraft()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.SubmitForApproval();
+        document.ClearDomainEvents();
+        var reason = "Please add more citations and references";
+        var notes = "Check pages 5-7";
+
+        // Act
+        var result = document.RequestRevision(_reviewerId, reason, notes);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        document.Status.Should().Be(DocumentStatus.Draft);
+        document.ReviewerId.Should().Be(_reviewerId);
+        document.RejectionReason.Should().Be(reason);
+        document.ReviewComment.Should().Be(notes);
+        
+        var domainEvent = document.DomainEvents.OfType<DocumentRevisionRequestedEvent>().SingleOrDefault();
+        domainEvent.Should().NotBeNull();
+        domainEvent!.DocumentId.Should().Be(document.Id.Value);
+        domainEvent.RequestedBy.Should().Be(_reviewerId);
+        domainEvent.RevisionReason.Should().Be(reason);
+        domainEvent.RevisionNotes.Should().Be(notes);
+    }
+
+    [Fact]
+    public void RequestRevision_WithEmptyRequesterId_ShouldReturnFailure()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.SubmitForApproval();
+
+        // Act
+        var result = document.RequestRevision(Guid.Empty, "Needs revision");
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Document.InvalidRequester");
+    }
+
+    [Fact]
+    public void RequestRevision_WithEmptyReason_ShouldReturnFailure()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.SubmitForApproval();
+
+        // Act
+        var result = document.RequestRevision(_reviewerId, "");
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Document.MissingRevisionReason");
+    }
+
+    [Fact]
+    public void RequestRevision_WithShortReason_ShouldReturnFailure()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.SubmitForApproval();
+
+        // Act
+        var result = document.RequestRevision(_reviewerId, "Too short");
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Document.RevisionReasonTooShort");
+    }
+
+    [Fact]
+    public void RequestRevision_OnDraftDocument_ShouldReturnFailure()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+
+        // Act
+        var result = document.RequestRevision(_reviewerId, "Please revise");
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Document.NotPending");
+    }
+
+    [Fact]
+    public void RequestRevision_OnDeletedDocument_ShouldReturnFailure()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.SubmitForApproval();
+        document.Delete(_uploaderId);
+
+        // Act
+        var result = document.RequestRevision(_reviewerId, "Please revise this document");
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Document.Deleted");
+    }
+
+    [Fact]
+    public void RequestRevision_AllowsResubmission_AfterRevision()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.SubmitForApproval();
+        document.RequestRevision(_reviewerId, "Needs more detail");
+
+        // Act - Author can resubmit after revision
+        var result = document.SubmitForApproval();
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        document.Status.Should().Be(DocumentStatus.PendingApproval);
+    }
+
+    #endregion
+
+    #region Complete Approval Workflow with AI and Review Tests
+
+    [Fact]
+    public void CompleteWorkflow_WithAIScanAndReview_ShouldHaveAllEvents()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.ClearDomainEvents();
+
+        // Act - Complete workflow: Submit → AI Scan → Review Start → Approve
+        document.SubmitForApproval();
+        document.RecordAIScan("Pass", 0.98);
+        document.StartReview(_reviewerId);
+        document.Approve(_reviewerId, "Looks good!");
+
+        // Assert
+        document.DomainEvents.Should().HaveCount(4);
+        document.DomainEvents.ElementAt(0).Should().BeOfType<DocumentSubmittedForApprovalEvent>();
+        document.DomainEvents.ElementAt(1).Should().BeOfType<DocumentAIScannedEvent>();
+        document.DomainEvents.ElementAt(2).Should().BeOfType<DocumentReviewStartedEvent>();
+        document.DomainEvents.ElementAt(3).Should().BeOfType<DocumentApprovedEvent>();
+    }
+
+    [Fact]
+    public void RevisionWorkflow_WithCompleteHistory_ShouldHaveAllEvents()
+    {
+        // Arrange
+        var document = CreateValidDocument();
+        document.ClearDomainEvents();
+
+        // Act - Complete revision workflow: Submit → Review → Request Revision → Resubmit → Approve
+        document.SubmitForApproval();
+        document.StartReview(_reviewerId);
+        document.RequestRevision(_reviewerId, "Please add references");
+        document.SubmitForApproval();
+        document.Approve(_reviewerId);
+
+        // Assert
+        document.DomainEvents.Should().HaveCount(5);
+        document.DomainEvents.ElementAt(0).Should().BeOfType<DocumentSubmittedForApprovalEvent>();
+        document.DomainEvents.ElementAt(1).Should().BeOfType<DocumentReviewStartedEvent>();
+        document.DomainEvents.ElementAt(2).Should().BeOfType<DocumentRevisionRequestedEvent>();
+        document.DomainEvents.ElementAt(3).Should().BeOfType<DocumentSubmittedForApprovalEvent>();
+        document.DomainEvents.ElementAt(4).Should().BeOfType<DocumentApprovedEvent>();
+    }
+
+    #endregion
 }

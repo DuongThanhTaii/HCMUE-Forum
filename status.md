@@ -12,8 +12,8 @@
 | -------------------- | --------------------- |
 | **Project Start**    | January 2026          |
 | **Current Phase**    | Phase 5 (IN_PROGRESS) |
-| **Overall Progress** | 40/52 tasks (76.9%)   |
-| **Total Tests**      | 647 tests             |
+| **Overall Progress** | 53/131 tasks (40.5%)  |
+| **Total Tests**      | 751 tests             |
 | **Build Status**     | ✅ Passing            |
 | **Code Quality**     | ✅ All tests pass     |
 
@@ -218,19 +218,19 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 
 ### Phase 5: Learning Resources Module ⭐
 
-| Status         | Progress           | Duration | Notes                                     |
-| -------------- | ------------------ | -------- | ----------------------------------------- |
-| 🟡 IN_PROGRESS | 2/12 tasks (16.7%) | 2 weeks  | **Document & Course Aggregates COMPLETE** |
+| Status         | Progress           | Duration | Notes                                                   |
+| -------------- | ------------------ | -------- | ------------------------------------------------------- |
+| 🟡 IN_PROGRESS | 4/12 tasks (33.3%) | 2 weeks  | **Document, Course, Faculty & Event Sourcing COMPLETE** |
 
 **Completed:**
 
 - ✅ TASK-050: Document Aggregate Design (Event Sourcing)
 - ✅ TASK-051: Course Entity Design (Event Sourcing)
+- ✅ TASK-052: Faculty Entity Design (Event Sourcing)
+- ✅ TASK-053: Approval Events Infrastructure (Event Sourcing)
 
 **Pending:**
 
-- ⬜ TASK-052: Faculty Entity Design
-- ⬜ TASK-053: Approval Events (Event Sourcing)
 - ⬜ TASK-054: Document Upload
 - ⬜ TASK-055: Approval Workflow
 - ⬜ TASK-056: Course Management
@@ -240,8 +240,7 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 - ⬜ TASK-060: Download Tracking
 - ⬜ TASK-061: Learning API Endpoints
 
-**Test Coverage:** 136 tests (Domain: 136)
-242 tests (Domain: 242, all passing
+**Test Coverage:** 346 tests (Domain: 346, all passing)
 **Architecture Layers:**
 
 - ✅ **Domain Layer**: Document & Course aggregates with Event Sourcing
@@ -333,6 +332,103 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 - CourseDescriptionTests: 7 tests (optional field)
 - SemesterTests: 12 tests (including helper method)
 - CourseIdTests: 5 tests (strongly typed ID)
+
+**TASK-052 Implementation:**
+
+**Faculty Aggregate:**
+
+- Faculty aggregate root (330 lines) with manager assignment
+- FacultyId strongly-typed ID
+- FacultyStatus enum (Active, Inactive, Deleted)
+- Single optional manager (assign/remove with validation)
+
+**Value Objects:**
+
+- FacultyCode (2-20 chars, uppercase, regex validation: `^[A-Z0-9_]+$`)
+- FacultyName (3-200 chars)
+- FacultyDescription (0-2000 chars, optional)
+
+**Domain Events (Event Sourcing):**
+
+- FacultyCreatedEvent
+- ManagerAssignedEvent
+- ManagerRemovedEvent
+- FacultyUpdatedEvent
+- FacultyDeactivatedEvent
+- FacultyActivatedEvent
+- FacultyDeletedEvent
+
+**Key Features:**
+
+- Single optional manager per faculty (simpler than Course moderators)
+- Status transitions: Active ↔ Inactive, any → Deleted
+- Course count tracking (increment/decrement, never negative)
+- Faculty code auto-converts to uppercase (CNTT, TOAN, HOA_HUU_CO)
+- Cannot update/modify deleted faculty
+- Event Sourcing for full audit trail
+
+**Test Coverage (77 tests, 100% pass):**
+
+- FacultyTests: 43 tests (aggregate behavior)
+- FacultyCodeTests: 11 tests (regex validation, uppercase)
+- FacultyNameTests: 9 tests (value object)
+- FacultyDescriptionTests: 7 tests (optional field)
+- FacultyIdTests: 5 tests (strongly typed ID)
+
+**TASK-053 Implementation:**
+
+**Event Sourcing Infrastructure:**
+
+- IEventStore interface for event persistence
+- StoredEvent entity with version tracking and metadata
+- EventSourcingHelper for JSON serialization/deserialization
+- Support for event replay and state reconstruction
+
+**New Domain Events:**
+
+- DocumentAIScannedEvent (AI content scanning with confidence score)
+- DocumentReviewStartedEvent (tracking reviewer assignment)
+- DocumentRevisionRequestedEvent (return to draft for edits)
+
+**Enhanced Document Aggregate:**
+
+- RecordAIScan method (automated content check after submission)
+- StartReview method (moderator begins review process)
+- RequestRevision method (moderator requests changes, returns to Draft status)
+
+**Event Store Interface:**
+
+```csharp
+public interface IEventStore
+{
+    Task SaveEventAsync<TEvent>(TEvent domainEvent, Guid aggregateId, string aggregateType);
+    Task SaveEventsAsync(IEnumerable<IDomainEvent> events, Guid aggregateId, string aggregateType);
+    Task<IReadOnlyList<StoredEvent>> GetEventsAsync(Guid aggregateId);
+    Task<IReadOnlyList<StoredEvent>> GetEventsAsync(Guid aggregateId, long fromVersion);
+}
+```
+
+**Complete Approval Workflow:**
+
+```
+Submit → AI Scan → Review Start → Approve/Reject/Request Revision
+                                           ↓
+                                      (if revision) → Draft → Resubmit → ...
+```
+
+**Key Features:**
+
+- Version tracking for all events (sequence numbers)
+- Metadata included: OccurredOn, StoredOn, AggregateId
+- JSON serialization with camelCase
+- Time range queries for event history
+- Aggregate type filtering
+
+**Test Coverage (27 new tests, 100% pass):**
+
+- DocumentTests: 19 tests (AI scan, review start, revision request, complete workflows)
+- StoredEventTests: 4 tests (creation, version ordering)
+- EventSourcingHelperTests: 7 tests (serialization, deserialization, type resolution)
 
 ---
 

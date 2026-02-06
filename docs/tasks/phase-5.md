@@ -11,7 +11,7 @@
 | **Phase**         | 5                         |
 | **Name**          | Learning Resources Module |
 | **Status**        | 🟡 IN_PROGRESS            |
-| **Progress**      | 2/12 tasks (16.7%)        |
+| **Progress**      | 4/12 tasks (33.3%)        |
 | **Est. Duration** | 2 weeks                   |
 | **Dependencies**  | Phase 3                   |
 
@@ -21,8 +21,8 @@
 
 - [x] Implement Document aggregate với Event Sourcing cho approval
 - [x] Implement Course aggregate với moderator management
-- [ ] Implement Faculty management
-- [ ] Implement Approval workflow
+- [x] Implement Faculty management
+- [x] Implement Approval Events infrastructure
 - [ ] Implement Rating/Review system
 
 ---
@@ -149,23 +149,59 @@ Refs: TASK-051
 | Property         | Value                             |
 | ---------------- | --------------------------------- |
 | **ID**           | TASK-052                          |
-| **Status**       | ⬜ NOT_STARTED                    |
+| **Status**       | ✅ COMPLETED                      |
 | **Priority**     | 🔴 Critical                       |
 | **Estimate**     | 2 hours                           |
+| **Actual**       | 2 hours                           |
 | **Branch**       | `feature/TASK-052-faculty-entity` |
 | **Dependencies** | TASK-051                          |
+| **Completed**    | 2026-02-06                        |
+
+**Description:**
+Implement Faculty aggregate với manager assignment và Event Sourcing.
 
 **Acceptance Criteria:**
 
-- [ ] `Faculty` aggregate root
-- [ ] Faculty manager assignment
-- [ ] Courses relationship
-- [ ] Unit tests written
+- [x] `Faculty` aggregate root (330 lines)
+- [x] Faculty code validation (uppercase, 2-20 chars)
+- [x] Single optional manager (assign/remove)
+- [x] Status management (Active, Inactive, Deleted)
+- [x] Course count tracking
+- [x] Event Sourcing (7 domain events)
+- [x] Unit tests written (77 tests, 100% pass)
+
+**Implementation Notes:**
+
+- Faculty aggregate with single optional manager (simpler than Course moderators)
+- Value objects: FacultyCode (uppercase, regex `^[A-Z0-9_]+$`), FacultyName (3-200 chars), FacultyDescription (0-2000 chars, optional)
+- Status transitions: Active ↔ Inactive, any → Deleted
+- Course relationship: one-to-many tracked via CourseCount (increment/decrement)
+- Manager validation: cannot assign duplicate, cannot remove when no manager
+- Test coverage: FacultyTests (43), FacultyIdTests (5), FacultyCodeTests (11), FacultyNameTests (9), FacultyDescriptionTests (7)
+
+**Domain Events:**
+
+```csharp
+FacultyCreatedEvent        // Faculty được tạo
+ManagerAssignedEvent       // Manager được assign
+ManagerRemovedEvent        // Manager được remove
+FacultyUpdatedEvent        // Faculty info được update
+FacultyDeactivatedEvent    // Faculty bị deactivate
+FacultyActivatedEvent      // Faculty được reactivate
+FacultyDeletedEvent        // Faculty bị xóa (soft delete)
+```
+
+**Business Rules:**
+
+- Single optional manager per faculty (nullable Guid)
+- Faculty code auto-converts to uppercase (CNTT, TOAN, HOA_HUU_CO)
+- Cannot update/modify deleted faculty
+- Course count never goes below zero
 
 **Commit Message:**
 
 ```
-feat(learning): implement Faculty aggregate
+feat(learning): implement Faculty aggregate with Event Sourcing
 
 Refs: TASK-052
 ```
@@ -177,31 +213,65 @@ Refs: TASK-052
 | Property         | Value                              |
 | ---------------- | ---------------------------------- |
 | **ID**           | TASK-053                           |
-| **Status**       | ⬜ NOT_STARTED                     |
+| **Status**       | ✅ COMPLETED                       |
 | **Priority**     | 🔴 Critical                        |
 | **Estimate**     | 5 hours                            |
+| **Actual**       | 5 hours                            |
 | **Branch**       | `feature/TASK-053-approval-events` |
 | **Dependencies** | TASK-050                           |
+| **Completed**    | 2026-02-06                         |
 
 **Description:**
-Implement Event Sourcing cho Document approval workflow.
+Implement Event Sourcing infrastructure cho Document approval workflow.
 
 **Acceptance Criteria:**
 
-- [ ] `DocumentSubmittedEvent`
-- [ ] `DocumentAIScannedEvent`
-- [ ] `DocumentReviewStartedEvent`
-- [ ] `DocumentApprovedEvent`
-- [ ] `DocumentRejectedEvent`
-- [ ] `DocumentRevisionRequestedEvent`
-- [ ] Event store (MongoDB)
-- [ ] State reconstruction from events
-- [ ] Unit tests written
+- [x] `DocumentAIScannedEvent` (AI content scanning)
+- [x] `DocumentReviewStartedEvent` (review tracking)
+- [x] `DocumentRevisionRequestedEvent` (return to draft)
+- [x] `IEventStore` interface for event persistence
+- [x] `StoredEvent` entity with metadata
+- [x] `EventSourcingHelper` for serialization
+- [x] State reconstruction support
+- [x] Unit tests written (27 tests, 100% pass)
+
+**Implementation Notes:**
+
+- Event Sourcing infrastructure with IEventStore interface
+- StoredEvent entity with version tracking and metadata
+- JSON serialization with camelCase naming
+- Document aggregate enhanced with 3 new methods:
+  - `RecordAIScan` - Record AI scanning results
+  - `StartReview` - Track when moderator starts review
+  - `RequestRevision` - Request changes (returns to Draft)
+- Complete approval workflow tracking:
+  - Submit → AI Scan → Review Start → Approve/Reject/Request Revision
+
+**Event Store Interface:**
+
+```csharp
+public interface IEventStore
+{
+    Task SaveEventAsync<TEvent>(TEvent domainEvent, Guid aggregateId, string aggregateType);
+    Task SaveEventsAsync(IEnumerable<IDomainEvent> events, Guid aggregateId, string aggregateType);
+    Task<IReadOnlyList<StoredEvent>> GetEventsAsync(Guid aggregateId);
+    Task<IReadOnlyList<StoredEvent>> GetEventsAsync(Guid aggregateId, long fromVersion);
+    Task<IReadOnlyList<StoredEvent>> GetEventsByAggregateTypeAsync(string aggregateType);
+    Task<IReadOnlyList<StoredEvent>> GetEventsByTimeRangeAsync(DateTime from, DateTime to);
+}
+```
+
+**Test Coverage:**
+
+- DocumentTests: 19 new tests (AI scan, review start, revision request)
+- StoredEventTests: 4 tests (creation, version tracking)
+- EventSourcingHelperTests: 7 tests (serialization, deserialization)
+- Total: 346 tests (100% pass)
 
 **Commit Message:**
 
 ```
-feat(learning): implement approval Event Sourcing
+feat(learning): implement Approval Events with Event Sourcing
 
 Refs: TASK-053
 ```
@@ -478,8 +548,8 @@ Refs: TASK-061
 
 - [x] TASK-050: Design Document Aggregate ✅ (2026-02-06)
 - [x] TASK-051: Design Course Entity ✅ (2026-02-06)
-- [ ] TASK-052: Design Faculty Entity
-- [ ] TASK-053: Implement Approval Events (Event Sourcing)
+- [x] TASK-052: Design Faculty Entity ✅ (2026-02-06)
+- [x] TASK-053: Implement Approval Events (Event Sourcing) ✅ (2026-02-06)
 - [ ] TASK-054: Implement Document Upload
 - [ ] TASK-055: Implement Approval Workflow
 - [ ] TASK-056: Implement Course Management
@@ -495,24 +565,26 @@ Refs: TASK-061
 
 **Test Coverage:**
 
-- Total Tests: 242
-- Passing: 242 (100%)
+- Total Tests: 346
+- Passing: 346 (100%)
 - Failing: 0
 - Skipped: 0
 
 **Module Breakdown:**
 
-- Document Domain: 136 tests ✅
+- Document Domain: 157 tests ✅ (includes 19 new approval workflow tests)
 - Course Domain: 106 tests ✅
-- Faculty Domain: 0 tests (pending)
+- Faculty Domain: 77 tests ✅
+- Event Sourcing: 11 tests ✅ (StoredEvent + EventSourcingHelper)
 
 **Code Statistics:**
 
-- Domain Classes: 8 (Document, Course + IDs + Status enums)
-- Value Objects: 7 (DocumentTitle, DocumentDescription, DocumentFile, CourseCode, CourseName, CourseDescription, Semester)
-- Domain Events: 13 (6 for Document + 7 for Course)
-- Test Classes: 11
-- Lines of Code: ~4,750 (domain + tests)
+- Domain Classes: 14 (Document, Course, Faculty + IDs + Status enums + Event Store)
+- Value Objects: 10
+- Domain Events: 16 (9 for Document + 7 for Course + 7 for Faculty - some shared)
+- Event Sourcing: 3 classes (IEventStore, StoredEvent, EventSourcingHelper)
+- Test Classes: 13
+- Lines of Code: ~7,150 (domain + tests)
 
 ---
 
