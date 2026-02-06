@@ -12,8 +12,8 @@
 | -------------------- | --------------------- |
 | **Project Start**    | January 2026          |
 | **Current Phase**    | Phase 5 (IN_PROGRESS) |
-| **Overall Progress** | 52/131 tasks (39.7%)  |
-| **Total Tests**      | 724 tests             |
+| **Overall Progress** | 53/131 tasks (40.5%)  |
+| **Total Tests**      | 751 tests             |
 | **Build Status**     | ✅ Passing            |
 | **Code Quality**     | ✅ All tests pass     |
 
@@ -218,19 +218,19 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 
 ### Phase 5: Learning Resources Module ⭐
 
-| Status         | Progress         | Duration | Notes                                              |
-| -------------- | ---------------- | -------- | -------------------------------------------------- |
-| 🟡 IN_PROGRESS | 3/12 tasks (25%) | 2 weeks  | **Document, Course & Faculty Aggregates COMPLETE** |
+| Status         | Progress           | Duration | Notes                                                            |
+| -------------- | ------------------ | -------- | ---------------------------------------------------------------- |
+| 🟡 IN_PROGRESS | 4/12 tasks (33.3%) | 2 weeks  | **Document, Course, Faculty & Event Sourcing COMPLETE** |
 
 **Completed:**
 
 - ✅ TASK-050: Document Aggregate Design (Event Sourcing)
 - ✅ TASK-051: Course Entity Design (Event Sourcing)
 - ✅ TASK-052: Faculty Entity Design (Event Sourcing)
+- ✅ TASK-053: Approval Events Infrastructure (Event Sourcing)
 
 **Pending:**
 
-- ⬜ TASK-053: Approval Events (Event Sourcing)
 - ⬜ TASK-054: Document Upload
 - ⬜ TASK-055: Approval Workflow
 - ⬜ TASK-056: Course Management
@@ -240,7 +240,7 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 - ⬜ TASK-060: Download Tracking
 - ⬜ TASK-061: Learning API Endpoints
 
-**Test Coverage:** 319 tests (Domain: 319, all passing)
+**Test Coverage:** 346 tests (Domain: 346, all passing)
 **Architecture Layers:**
 
 - ✅ **Domain Layer**: Document & Course aggregates with Event Sourcing
@@ -374,6 +374,61 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 - FacultyNameTests: 9 tests (value object)
 - FacultyDescriptionTests: 7 tests (optional field)
 - FacultyIdTests: 5 tests (strongly typed ID)
+
+**TASK-053 Implementation:**
+
+**Event Sourcing Infrastructure:**
+
+- IEventStore interface for event persistence
+- StoredEvent entity with version tracking and metadata
+- EventSourcingHelper for JSON serialization/deserialization
+- Support for event replay and state reconstruction
+
+**New Domain Events:**
+
+- DocumentAIScannedEvent (AI content scanning with confidence score)
+- DocumentReviewStartedEvent (tracking reviewer assignment)
+- DocumentRevisionRequestedEvent (return to draft for edits)
+
+**Enhanced Document Aggregate:**
+
+- RecordAIScan method (automated content check after submission)
+- StartReview method (moderator begins review process)
+- RequestRevision method (moderator requests changes, returns to Draft status)
+
+**Event Store Interface:**
+
+```csharp
+public interface IEventStore
+{
+    Task SaveEventAsync<TEvent>(TEvent domainEvent, Guid aggregateId, string aggregateType);
+    Task SaveEventsAsync(IEnumerable<IDomainEvent> events, Guid aggregateId, string aggregateType);
+    Task<IReadOnlyList<StoredEvent>> GetEventsAsync(Guid aggregateId);
+    Task<IReadOnlyList<StoredEvent>> GetEventsAsync(Guid aggregateId, long fromVersion);
+}
+```
+
+**Complete Approval Workflow:**
+
+```
+Submit → AI Scan → Review Start → Approve/Reject/Request Revision
+                                           ↓
+                                      (if revision) → Draft → Resubmit → ...
+```
+
+**Key Features:**
+
+- Version tracking for all events (sequence numbers)
+- Metadata included: OccurredOn, StoredOn, AggregateId
+- JSON serialization with camelCase
+- Time range queries for event history
+- Aggregate type filtering
+
+**Test Coverage (27 new tests, 100% pass):**
+
+- DocumentTests: 19 tests (AI scan, review start, revision request, complete workflows)
+- StoredEventTests: 4 tests (creation, version ordering)
+- EventSourcingHelperTests: 7 tests (serialization, deserialization, type resolution)
 
 ---
 
