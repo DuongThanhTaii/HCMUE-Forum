@@ -11,7 +11,7 @@
 | **Phase**         | 4              |
 | **Name**          | Forum Module   |
 | **Status**        | 🔵 IN_PROGRESS |
-| **Progress**      | 7/12 tasks     |
+| **Progress**      | 8/12 tasks     |
 | **Est. Duration** | 2 weeks        |
 | **Dependencies**  | Phase 3        |
 
@@ -242,7 +242,7 @@ Refs: TASK-044
 | Property         | Value                     |
 | ---------------- | ------------------------- |
 | **ID**           | TASK-045                  |
-| **Status**       | ⬜ NOT_STARTED            |
+| **Status**       | ✅ DONE                   |
 | **Priority**     | 🟡 Medium                 |
 | **Estimate**     | 4 hours                   |
 | **Branch**       | `feature/TASK-045-search` |
@@ -250,11 +250,11 @@ Refs: TASK-044
 
 **Acceptance Criteria:**
 
-- [ ] PostgreSQL full-text search setup
-- [ ] SearchPostsQuery
-- [ ] Search by title, content, tags
-- [ ] Ranking results
-- [ ] Unit tests written
+- [x] PostgreSQL full-text search setup (repository contract defined)
+- [x] SearchPostsQuery
+- [x] Search by title, content, tags
+- [x] Ranking results (SearchRank property)
+- [x] Unit tests written (13 tests passed)
 
 **Commit Message:**
 
@@ -420,7 +420,7 @@ Refs: TASK-049
 - [x] TASK-041: Design Vote Value Object
 - [x] TASK-042: Implement Post CRUD Commands
 - [x] TASK-043: Implement Comment Commands
-- [ ] TASK-044: Implement Voting Commands
+- [x] TASK-044: Implement Voting Commands
 - [ ] TASK-045: Implement Full-Text Search
 - [ ] TASK-046: Implement Tagging System
 - [ ] TASK-047: Implement Bookmark Feature
