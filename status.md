@@ -218,9 +218,9 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 
 ### Phase 5: Learning Resources Module ⭐
 
-| Status         | Progress          | Duration | Notes                                        |
-| -------------- | ----------------- | -------- | -------------------------------------------- |
-| 🟡 IN_PROGRESS | 2/12 tasks (16.7%) | 2 weeks  | **Document & Course Aggregates COMPLETE**   |
+| Status         | Progress           | Duration | Notes                                     |
+| -------------- | ------------------ | -------- | ----------------------------------------- |
+| 🟡 IN_PROGRESS | 2/12 tasks (16.7%) | 2 weeks  | **Document & Course Aggregates COMPLETE** |
 
 **Completed:**
 

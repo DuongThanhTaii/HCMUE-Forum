@@ -477,7 +477,7 @@ Refs: TASK-061
 ## ✅ COMPLETION CHECKLIST
 
 - [x] TASK-050: Design Document Aggregate ✅ (2026-02-06)
-- [ ] TASK-051: Design Course Entity
+- [x] TASK-051: Design Course Entity ✅ (2026-02-06)
 - [ ] TASK-052: Design Faculty Entity
 - [ ] TASK-053: Implement Approval Events (Event Sourcing)
 - [ ] TASK-054: Implement Document Upload
@@ -495,24 +495,24 @@ Refs: TASK-061
 
 **Test Coverage:**
 
-- Total Tests: 136
-- Passing: 136 (100%)
+- Total Tests: 242
+- Passing: 242 (100%)
 - Failing: 0
 - Skipped: 0
 
 **Module Breakdown:**
 
 - Document Domain: 136 tests ✅
-- Course Domain: 0 tests (pending)
+- Course Domain: 106 tests ✅
 - Faculty Domain: 0 tests (pending)
 
 **Code Statistics:**
 
-- Domain Classes: 4 (Document, DocumentId, DocumentType, DocumentStatus)
-- Value Objects: 3 (DocumentTitle, DocumentDescription, DocumentFile)
-- Domain Events: 6 (Event Sourcing)
-- Test Classes: 5
-- Lines of Code: ~2,265 (domain + tests)
+- Domain Classes: 8 (Document, Course + IDs + Status enums)
+- Value Objects: 7 (DocumentTitle, DocumentDescription, DocumentFile, CourseCode, CourseName, CourseDescription, Semester)
+- Domain Events: 13 (6 for Document + 7 for Course)
+- Test Classes: 11
+- Lines of Code: ~4,750 (domain + tests)
 
 ---
 
