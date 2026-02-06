@@ -64,17 +64,17 @@ TOTAL:                              ✅✅✅✅✅⬜⬜⬜⬜⬜  43%
 
 ### Active Phase: `Phase 5 - Learning Module`
 
-| Task ID  | Task Name                      | Status         | Assignee | Branch |
-| -------- | ------------------------------ | -------------- | -------- | ------ |
+| Task ID  | Task Name                 | Status         | Assignee | Branch |
+| -------- | ------------------------- | -------------- | -------- | ------ |
 | TASK-058 | Implement Document Rating | ⬜ NOT_STARTED | -        | -      |
 
 ### ✅ Recently Completed: `Phase 5 - Learning Module`
 
-| Task ID  | Task Name                   | Status  | Branch                             |
-| -------- | --------------------------- | ------- | ---------------------------------- |
-| TASK-054 | Implement Document Upload | ✅ DONE | feature/TASK-054-document-upload    |
-| TASK-055 | Implement Approval Workflow | ✅ DONE | feature/TASK-055-approval-workflow |
-| TASK-056 | Implement Course Management | ✅ DONE | feature/TASK-056-course-management |
+| Task ID  | Task Name                      | Status  | Branch                                |
+| -------- | ------------------------------ | ------- | ------------------------------------- |
+| TASK-054 | Implement Document Upload      | ✅ DONE | feature/TASK-054-document-upload      |
+| TASK-055 | Implement Approval Workflow    | ✅ DONE | feature/TASK-055-approval-workflow    |
+| TASK-056 | Implement Course Management    | ✅ DONE | feature/TASK-056-course-management    |
 | TASK-057 | Implement Moderator Assignment | ✅ DONE | feature/TASK-057-moderator-assignment |
 
 ### ✅ Recently Completed: `Phase 4 - Forum Module`
