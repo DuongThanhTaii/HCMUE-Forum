@@ -12,8 +12,8 @@
 | -------------------- | --------------------- |
 | **Project Start**    | January 2026          |
 | **Current Phase**    | Phase 5 (IN_PROGRESS) |
-| **Overall Progress** | 53/131 tasks (40.5%)  |
-| **Total Tests**      | 751 tests             |
+| **Overall Progress** | 54/131 tasks (41.2%)  |
+| **Total Tests**      | 774 tests             |
 | **Build Status**     | ✅ Passing            |
 | **Code Quality**     | ✅ All tests pass     |
 
@@ -218,9 +218,9 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 
 ### Phase 5: Learning Resources Module ⭐
 
-| Status         | Progress           | Duration | Notes                                                   |
-| -------------- | ------------------ | -------- | ------------------------------------------------------- |
-| 🟡 IN_PROGRESS | 4/12 tasks (33.3%) | 2 weeks  | **Document, Course, Faculty & Event Sourcing COMPLETE** |
+| Status         | Progress           | Duration | Notes                                                         |
+| -------------- | ------------------ | -------- | ------------------------------------------------------------- |
+| 🟡 IN_PROGRESS | 5/12 tasks (41.7%) | 2 weeks  | **Domain + Event Sourcing + Document Upload (CQRS) COMPLETE** |
 
 **Completed:**
 
@@ -228,10 +228,10 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 - ✅ TASK-051: Course Entity Design (Event Sourcing)
 - ✅ TASK-052: Faculty Entity Design (Event Sourcing)
 - ✅ TASK-053: Approval Events Infrastructure (Event Sourcing)
+- ✅ TASK-054: Document Upload (CQRS with FluentValidation)
 
 **Pending:**
 
-- ⬜ TASK-054: Document Upload
 - ⬜ TASK-055: Approval Workflow
 - ⬜ TASK-056: Course Management
 - ⬜ TASK-057: Moderator Assignment
@@ -240,13 +240,24 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 - ⬜ TASK-060: Download Tracking
 - ⬜ TASK-061: Learning API Endpoints
 
-**Test Coverage:** 346 tests (Domain: 346, all passing)
+**Test Coverage:** 369 tests (Domain: 346, Application: 23, all passing)
 **Architecture Layers:**
 
-- ✅ **Domain Layer**: Document & Course aggregates with Event Sourcing
-- ⬜ **Application Layer**: Pending (CQRS commands/queries)
+- ✅ **Domain Layer**: Document, Course, Faculty aggregates with Event Sourcing
+- 🟡 **Application Layer**: UploadDocumentCommand implemented (1/12 commands done)
 - ⬜ **Presentation Layer**: Pending (API controllers)
 - ⬜ **Infrastructure Layer**: Pending (repositories + MongoDB event store)
+
+**Document Upload Features (TASK-054):**
+
+- UploadDocumentCommand with DocumentType enum
+- FluentValidation (50MB limit, content type whitelist: PDF, DOCX, PPTX, ZIP, MP4, TXT, JPEG, PNG)
+- IFileStorageService abstraction for file operations
+- IVirusScanService abstraction for malware detection
+- IDocumentRepository abstraction for persistence
+- File cleanup on failure pattern (prevents orphaned files)
+- Handler workflow: Virus scan → Upload → Validate → Create aggregate → Save
+- 23 comprehensive unit tests (12 validator + 6 handler + 5 execution tests)
 
 **TASK-050 Implementation:**
 
