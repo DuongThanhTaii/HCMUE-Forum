@@ -11,7 +11,7 @@
 | **Phase**         | 5                         |
 | **Name**          | Learning Resources Module |
 | **Status**        | 🟡 IN_PROGRESS            |
-| **Progress**      | 1/12 tasks (8.3%)         |
+| **Progress**      | 2/12 tasks (16.7%)        |
 | **Est. Duration** | 2 weeks                   |
 | **Dependencies**  | Phase 3                   |
 
@@ -20,9 +20,9 @@
 ## 🎯 OBJECTIVES
 
 - [x] Implement Document aggregate với Event Sourcing cho approval
-- [ ] Implement Course/Faculty management
+- [x] Implement Course aggregate với moderator management
+- [ ] Implement Faculty management
 - [ ] Implement Approval workflow
-- [ ] Implement Moderator assignment per course
 - [ ] Implement Rating/Review system
 
 ---
@@ -55,6 +55,7 @@ Implement Document aggregate với Event Sourcing cho approval history.
 - [x] Unit tests written (136 tests, 100% pass)
 
 **Implementation Notes:**
+
 - Complete approval workflow: Draft → PendingApproval → Approved/Rejected
 - Event Sourcing with 6 domain events for full audit trail
 - Rating system (1-5 stars), view count, download count
@@ -90,24 +91,53 @@ Refs: TASK-050
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **ID**           | TASK-051                         |
-| **Status**       | ⬜ NOT_STARTED                   |
+| **Status**       | ✅ COMPLETED                     |
 | **Priority**     | 🔴 Critical                      |
 | **Estimate**     | 3 hours                          |
+| **Actual**       | 3 hours                          |
 | **Branch**       | `feature/TASK-051-course-entity` |
 | **Dependencies** | TASK-050                         |
+| **Completed**    | 2026-02-06                       |
+
+**Description:**
+Implement Course aggregate với moderator management và Event Sourcing.
 
 **Acceptance Criteria:**
 
-- [ ] `Course` aggregate root
-- [ ] Course code (CS101, etc.)
-- [ ] Moderator list per course
-- [ ] Semester info
-- [ ] Unit tests written
+- [x] `Course` aggregate root (406 lines)
+- [x] Course code validation (CS101, MATH201 format)
+- [x] Moderator assignment/removal per course
+- [x] Semester info with helper methods
+- [x] Status management (Active, Completed, Archived, Deleted)
+- [x] Event Sourcing (7 domain events)
+- [x] Unit tests written (106 tests, 100% pass)
+
+**Implementation Notes:**
+
+- Course aggregate with moderator list management (assign/remove)
+- Value objects: CourseCode (regex validation), CourseName (3-200 chars), CourseDescription (0-2000 chars), Semester (format helper)
+- Status transitions: Active ↔ Archived, Active → Completed, any → Deleted
+- Credits validation: 1-10 range
+- Document/Enrollment counters
+- Faculty association (optional)
+- Test coverage: CourseTests (76), CourseIdTests (5), CourseCodeTests (11), CourseNameTests (9), CourseDescriptionTests (7), SemesterTests (12)
+
+**Domain Events:**
+
+```csharp
+CourseCreatedEvent          // Course được tạo
+ModeratorAssignedEvent      // Moderator được assign
+ModeratorRemovedEvent       // Moderator được remove
+CourseUpdatedEvent          // Course info được update
+CourseArchivedEvent         // Course được archive
+CourseActivatedEvent        // Course được reactivate
+CourseDeletedEvent          // Course bị xóa (soft delete)
+```
 
 **Commit Message:**
 
 ```
-feat(learning): implement Course aggregate
+feat(learning): implement Course aggregate with Event Sourcing
 
 Refs: TASK-051
 ```
@@ -447,7 +477,7 @@ Refs: TASK-061
 ## ✅ COMPLETION CHECKLIST
 
 - [x] TASK-050: Design Document Aggregate ✅ (2026-02-06)
-- [ ] TASK-051: Design Course Entity
+- [x] TASK-051: Design Course Entity ✅ (2026-02-06)
 - [ ] TASK-052: Design Faculty Entity
 - [ ] TASK-053: Implement Approval Events (Event Sourcing)
 - [ ] TASK-054: Implement Document Upload
@@ -464,22 +494,25 @@ Refs: TASK-061
 ## 📊 PHASE 5 STATISTICS
 
 **Test Coverage:**
-- Total Tests: 136
-- Passing: 136 (100%)
+
+- Total Tests: 242
+- Passing: 242 (100%)
 - Failing: 0
 - Skipped: 0
 
 **Module Breakdown:**
+
 - Document Domain: 136 tests ✅
-- Course Domain: 0 tests (pending)
+- Course Domain: 106 tests ✅
 - Faculty Domain: 0 tests (pending)
 
 **Code Statistics:**
-- Domain Classes: 4 (Document, DocumentId, DocumentType, DocumentStatus)
-- Value Objects: 3 (DocumentTitle, DocumentDescription, DocumentFile)
-- Domain Events: 6 (Event Sourcing)
-- Test Classes: 5
-- Lines of Code: ~2,265 (domain + tests)
+
+- Domain Classes: 8 (Document, Course + IDs + Status enums)
+- Value Objects: 7 (DocumentTitle, DocumentDescription, DocumentFile, CourseCode, CourseName, CourseDescription, Semester)
+- Domain Events: 13 (6 for Document + 7 for Course)
+- Test Classes: 11
+- Lines of Code: ~4,750 (domain + tests)
 
 ---
 
