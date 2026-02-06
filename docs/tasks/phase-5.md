@@ -11,7 +11,7 @@
 | **Phase**         | 5                         |
 | **Name**          | Learning Resources Module |
 | **Status**        | 🟡 IN_PROGRESS            |
-| **Progress**      | 7/12 tasks (58.3%)        |
+| **Progress**      | 8/12 tasks (66.7%)        |
 | **Est. Duration** | 2 weeks                   |
 | **Dependencies**  | Phase 3                   |
 
@@ -437,18 +437,21 @@ Refs: TASK-057
 | Property         | Value                              |
 | ---------------- | ---------------------------------- |
 | **ID**           | TASK-058                           |
-| **Status**       | ⬜ NOT_STARTED                     |
+| **Status**       | ✅ COMPLETED                       |
 | **Priority**     | 🟡 Medium                          |
 | **Estimate**     | 3 hours                            |
+| **Actual**       | 3 hours                            |
 | **Branch**       | `feature/TASK-058-document-rating` |
 | **Dependencies** | TASK-050                           |
+| **Completed**    | 2026-02-06                         |
 
 **Acceptance Criteria:**
 
-- [ ] RateDocumentCommand
-- [ ] Average rating calculation
-- [ ] One rating per user per document
-- [ ] Unit tests written
+- [x] RateDocumentCommand (1-5 stars)
+- [x] IUserRatingService for tracking user ratings
+- [x] Average rating calculation (automatic)
+- [x] One rating per user per document (application layer enforcement)
+- [x] Unit tests written (22 tests, 100% pass)
 
 **Commit Message:**
 
@@ -583,7 +586,7 @@ Refs: TASK-061
 - [x] TASK-055: Implement Approval Workflow ✅ (2026-02-06)
 - [x] TASK-056: Implement Course Management ✅ (2026-02-06)
 - [x] TASK-057: Implement Moderator Assignment ✅ (2026-02-06)
-- [ ] TASK-058: Implement Document Rating
+- [x] TASK-058: Implement Document Rating ✅ (2026-02-06)
 - [ ] TASK-059: Implement Document Search
 - [ ] TASK-060: Implement Download Tracking
 - [ ] TASK-061: Learning API Endpoints
@@ -594,8 +597,8 @@ Refs: TASK-061
 
 **Test Coverage:**
 
-- Total Tests: 465
-- Passing: 465 (100%)
+- Total Tests: 487
+- Passing: 487 (100%)
 - Failing: 0
 - Skipped: 0
 
@@ -609,16 +612,17 @@ Refs: TASK-061
 - Approval Workflow Application: 40 tests ✅ (24 validator + 16 handler)
 - Course Management Application: 44 tests ✅ (27 validator + 17 handler)
 - Moderator Assignment Application: 16 tests ✅ (8 validator + 8 handler)
+- Document Rating Application: 22 tests ✅ (9 validator + 13 handler)
 
 **Code Statistics:**
 
 - Domain Classes: 14 (Document, Course, Faculty + IDs + Status enums + Event Store)
-- Application Classes: 21 (10 commands, 10 validators, 10 handlers + 5 abstractions)
+- Application Classes: 25 (12 commands, 12 validators, 12 handlers + 6 abstractions)
 - Value Objects: 10
 - Domain Events: 16 (9 for Document + 7 for Course + 7 for Faculty - some shared)
 - Event Sourcing: 3 classes (IEventStore, StoredEvent, EventSourcingHelper)
-- Test Classes: 27 (13 domain + 14 application)
-- Lines of Code: ~14,000 (domain + application + tests)
+- Test Classes: 31 (13 domain + 18 application)
+- Lines of Code: ~16,000 (domain + application + tests)
 
 ---
 
