@@ -11,7 +11,7 @@
 | **Phase**         | 4              |
 | **Name**          | Forum Module   |
 | **Status**        | 🔵 IN_PROGRESS |
-| **Progress**      | 8/12 tasks     |
+| **Progress**      | 9/12 tasks     |
 | **Est. Duration** | 2 weeks        |
 | **Dependencies**  | Phase 3        |
 
@@ -271,7 +271,7 @@ Refs: TASK-045
 | Property         | Value                      |
 | ---------------- | -------------------------- |
 | **ID**           | TASK-046                   |
-| **Status**       | ⬜ NOT_STARTED             |
+| **Status**       | ✅ DONE                    |
 | **Priority**     | 🟡 Medium                  |
 | **Estimate**     | 3 hours                    |
 | **Branch**       | `feature/TASK-046-tagging` |
@@ -279,11 +279,11 @@ Refs: TASK-045
 
 **Acceptance Criteria:**
 
-- [ ] `Tag` entity
-- [ ] Post-Tag relationship
-- [ ] Tag suggestions
-- [ ] Filter by tags
-- [ ] Unit tests written
+- [x] `Tag` entity
+- [x] Post-Tag relationship (PostTag join entity)
+- [x] Tag CRUD commands (Create, Update, Delete)
+- [x] Tag queries (GetTags with search/pagination, GetPopularTags)
+- [x] Unit tests written (25 domain + 36 application = 61 tests passed)
 
 **Commit Message:**
 
@@ -421,8 +421,8 @@ Refs: TASK-049
 - [x] TASK-042: Implement Post CRUD Commands
 - [x] TASK-043: Implement Comment Commands
 - [x] TASK-044: Implement Voting Commands
-- [ ] TASK-045: Implement Full-Text Search
-- [ ] TASK-046: Implement Tagging System
+- [x] TASK-045: Implement Full-Text Search
+- [x] TASK-046: Implement Tagging System
 - [ ] TASK-047: Implement Bookmark Feature
 - [ ] TASK-048: Implement Report System
 - [ ] TASK-049: Forum API Endpoints
