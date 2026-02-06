@@ -11,7 +11,7 @@
 | **Phase**         | 5                         |
 | **Name**          | Learning Resources Module |
 | **Status**        | 🟡 IN_PROGRESS            |
-| **Progress**      | 5/12 tasks (41.7%)        |
+| **Progress**      | 6/12 tasks (50%)          |
 | **Est. Duration** | 2 weeks                   |
 | **Dependencies**  | Phase 3                   |
 
@@ -335,20 +335,22 @@ Refs: TASK-054
 | Property         | Value                                |
 | ---------------- | ------------------------------------ |
 | **ID**           | TASK-055                             |
-| **Status**       | ⬜ NOT_STARTED                       |
+| **Status**       | ✅ COMPLETED                         |
 | **Priority**     | 🔴 Critical                          |
 | **Estimate**     | 4 hours                              |
+| **Actual**       | 4 hours                              |
 | **Branch**       | `feature/TASK-055-approval-workflow` |
 | **Dependencies** | TASK-053                             |
+| **Completed**    | 2026-02-06                           |
 
 **Acceptance Criteria:**
 
-- [ ] StartReviewCommand
-- [ ] ApproveDocumentCommand
-- [ ] RejectDocumentCommand
-- [ ] RequestRevisionCommand
-- [ ] Check moderator permission
-- [ ] Unit tests written
+- [x] StartReviewCommand
+- [x] ApproveDocumentCommand
+- [x] RejectDocumentCommand
+- [x] RequestRevisionCommand
+- [x] Check moderator permission (IModeratorPermissionService)
+- [x] Unit tests written (40 tests, 100% pass)
 
 **Workflow:**
 
@@ -373,19 +375,21 @@ Refs: TASK-055
 | Property         | Value                                |
 | ---------------- | ------------------------------------ |
 | **ID**           | TASK-056                             |
-| **Status**       | ⬜ NOT_STARTED                       |
+| **Status**       | ✅ COMPLETED                         |
 | **Priority**     | 🟡 Medium                            |
 | **Estimate**     | 3 hours                              |
+| **Actual**       | 3 hours                              |
 | **Branch**       | `feature/TASK-056-course-management` |
 | **Dependencies** | TASK-051                             |
+| **Completed**    | 2026-02-06                           |
 
 **Acceptance Criteria:**
 
-- [ ] CreateCourseCommand
-- [ ] UpdateCourseCommand
-- [ ] DeleteCourseCommand
-- [ ] AssignModeratorCommand
-- [ ] Unit tests written
+- [x] CreateCourseCommand (with code uniqueness check)
+- [x] UpdateCourseCommand (respecting deleted status)
+- [x] DeleteCourseCommand (soft delete pattern)
+- [x] ICourseRepository abstraction (9 methods)
+- [x] Unit tests written (44 tests, 100% pass)
 
 **Commit Message:**
 
@@ -573,8 +577,8 @@ Refs: TASK-061
 - [x] TASK-052: Design Faculty Entity ✅ (2026-02-06)
 - [x] TASK-053: Implement Approval Events (Event Sourcing) ✅ (2026-02-06)
 - [x] TASK-054: Implement Document Upload ✅ (2026-02-06)
-- [x] TASK-055: Implement Approval Workflow
-- [ ] TASK-056: Implement Course Management
+- [x] TASK-055: Implement Approval Workflow ✅ (2026-02-06)
+- [x] TASK-056: Implement Course Management ✅ (2026-02-06)
 - [ ] TASK-057: Implement Moderator Assignment
 - [ ] TASK-058: Implement Document Rating
 - [ ] TASK-059: Implement Document Search
@@ -587,8 +591,8 @@ Refs: TASK-061
 
 **Test Coverage:**
 
-- Total Tests: 369
-- Passing: 369 (100%)
+- Total Tests: 449
+- Passing: 449 (100%)
 - Failing: 0
 - Skipped: 0
 
@@ -599,16 +603,18 @@ Refs: TASK-061
 - Faculty Domain: 77 tests ✅
 - Event Sourcing: 11 tests ✅ (StoredEvent + EventSourcingHelper)
 - Document Upload Application: 23 tests ✅ (12 validator + 6 handler + 5 execution)
+- Approval Workflow Application: 40 tests ✅ (24 validator + 16 handler)
+- Course Management Application: 44 tests ✅ (27 validator + 17 handler)
 
 **Code Statistics:**
 
 - Domain Classes: 14 (Document, Course, Faculty + IDs + Status enums + Event Store)
-- Application Classes: 6 (Command, Validator, Handler + 3 abstractions)
+- Application Classes: 16 (8 commands, 8 validators, 8 handlers + 4 abstractions)
 - Value Objects: 10
 - Domain Events: 16 (9 for Document + 7 for Course + 7 for Faculty - some shared)
 - Event Sourcing: 3 classes (IEventStore, StoredEvent, EventSourcingHelper)
-- Test Classes: 15 (13 domain + 2 application)
-- Lines of Code: ~8,000 (domain + application + tests)
+- Test Classes: 23 (13 domain + 10 application)
+- Lines of Code: ~12,000 (domain + application + tests)
 
 ---
 
