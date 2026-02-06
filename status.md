@@ -218,8 +218,8 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 
 ### Phase 5: Learning Resources Module ⭐
 
-| Status         | Progress           | Duration | Notes                                                            |
-| -------------- | ------------------ | -------- | ---------------------------------------------------------------- |
+| Status         | Progress           | Duration | Notes                                                   |
+| -------------- | ------------------ | -------- | ------------------------------------------------------- |
 | 🟡 IN_PROGRESS | 4/12 tasks (33.3%) | 2 weeks  | **Document, Course, Faculty & Event Sourcing COMPLETE** |
 
 **Completed:**

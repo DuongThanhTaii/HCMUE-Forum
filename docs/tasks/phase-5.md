@@ -548,8 +548,8 @@ Refs: TASK-061
 
 - [x] TASK-050: Design Document Aggregate ✅ (2026-02-06)
 - [x] TASK-051: Design Course Entity ✅ (2026-02-06)
-- [ ] TASK-052: Design Faculty Entity
-- [ ] TASK-053: Implement Approval Events (Event Sourcing)
+- [x] TASK-052: Design Faculty Entity ✅ (2026-02-06)
+- [x] TASK-053: Implement Approval Events (Event Sourcing) ✅ (2026-02-06)
 - [ ] TASK-054: Implement Document Upload
 - [ ] TASK-055: Implement Approval Workflow
 - [ ] TASK-056: Implement Course Management
@@ -565,24 +565,26 @@ Refs: TASK-061
 
 **Test Coverage:**
 
-- Total Tests: 242
-- Passing: 242 (100%)
+- Total Tests: 346
+- Passing: 346 (100%)
 - Failing: 0
 - Skipped: 0
 
 **Module Breakdown:**
 
-- Document Domain: 136 tests ✅
+- Document Domain: 157 tests ✅ (includes 19 new approval workflow tests)
 - Course Domain: 106 tests ✅
-- Faculty Domain: 0 tests (pending)
+- Faculty Domain: 77 tests ✅
+- Event Sourcing: 11 tests ✅ (StoredEvent + EventSourcingHelper)
 
 **Code Statistics:**
 
-- Domain Classes: 8 (Document, Course + IDs + Status enums)
-- Value Objects: 7 (DocumentTitle, DocumentDescription, DocumentFile, CourseCode, CourseName, CourseDescription, Semester)
-- Domain Events: 13 (6 for Document + 7 for Course)
-- Test Classes: 11
-- Lines of Code: ~4,750 (domain + tests)
+- Domain Classes: 14 (Document, Course, Faculty + IDs + Status enums + Event Store)
+- Value Objects: 10
+- Domain Events: 16 (9 for Document + 7 for Course + 7 for Faculty - some shared)
+- Event Sourcing: 3 classes (IEventStore, StoredEvent, EventSourcingHelper)
+- Test Classes: 13
+- Lines of Code: ~7,150 (domain + tests)
 
 ---
 
