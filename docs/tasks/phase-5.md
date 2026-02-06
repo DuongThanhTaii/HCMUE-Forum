@@ -11,7 +11,7 @@
 | **Phase**         | 5                         |
 | **Name**          | Learning Resources Module |
 | **Status**        | 🟡 IN_PROGRESS            |
-| **Progress**      | 2/12 tasks (16.7%)        |
+| **Progress**      | 3/12 tasks (25%)          |
 | **Est. Duration** | 2 weeks                   |
 | **Dependencies**  | Phase 3                   |
 
@@ -21,7 +21,7 @@
 
 - [x] Implement Document aggregate với Event Sourcing cho approval
 - [x] Implement Course aggregate với moderator management
-- [ ] Implement Faculty management
+- [x] Implement Faculty management
 - [ ] Implement Approval workflow
 - [ ] Implement Rating/Review system
 
@@ -149,23 +149,59 @@ Refs: TASK-051
 | Property         | Value                             |
 | ---------------- | --------------------------------- |
 | **ID**           | TASK-052                          |
-| **Status**       | ⬜ NOT_STARTED                    |
+| **Status**       | ✅ COMPLETED                      |
 | **Priority**     | 🔴 Critical                       |
 | **Estimate**     | 2 hours                           |
+| **Actual**       | 2 hours                           |
 | **Branch**       | `feature/TASK-052-faculty-entity` |
 | **Dependencies** | TASK-051                          |
+| **Completed**    | 2026-02-06                        |
+
+**Description:**
+Implement Faculty aggregate với manager assignment và Event Sourcing.
 
 **Acceptance Criteria:**
 
-- [ ] `Faculty` aggregate root
-- [ ] Faculty manager assignment
-- [ ] Courses relationship
-- [ ] Unit tests written
+- [x] `Faculty` aggregate root (330 lines)
+- [x] Faculty code validation (uppercase, 2-20 chars)
+- [x] Single optional manager (assign/remove)
+- [x] Status management (Active, Inactive, Deleted)
+- [x] Course count tracking
+- [x] Event Sourcing (7 domain events)
+- [x] Unit tests written (77 tests, 100% pass)
+
+**Implementation Notes:**
+
+- Faculty aggregate with single optional manager (simpler than Course moderators)
+- Value objects: FacultyCode (uppercase, regex `^[A-Z0-9_]+$`), FacultyName (3-200 chars), FacultyDescription (0-2000 chars, optional)
+- Status transitions: Active ↔ Inactive, any → Deleted
+- Course relationship: one-to-many tracked via CourseCount (increment/decrement)
+- Manager validation: cannot assign duplicate, cannot remove when no manager
+- Test coverage: FacultyTests (43), FacultyIdTests (5), FacultyCodeTests (11), FacultyNameTests (9), FacultyDescriptionTests (7)
+
+**Domain Events:**
+
+```csharp
+FacultyCreatedEvent        // Faculty được tạo
+ManagerAssignedEvent       // Manager được assign
+ManagerRemovedEvent        // Manager được remove
+FacultyUpdatedEvent        // Faculty info được update
+FacultyDeactivatedEvent    // Faculty bị deactivate
+FacultyActivatedEvent      // Faculty được reactivate
+FacultyDeletedEvent        // Faculty bị xóa (soft delete)
+```
+
+**Business Rules:**
+
+- Single optional manager per faculty (nullable Guid)
+- Faculty code auto-converts to uppercase (CNTT, TOAN, HOA_HUU_CO)
+- Cannot update/modify deleted faculty
+- Course count never goes below zero
 
 **Commit Message:**
 
 ```
-feat(learning): implement Faculty aggregate
+feat(learning): implement Faculty aggregate with Event Sourcing
 
 Refs: TASK-052
 ```
