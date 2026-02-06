@@ -11,7 +11,7 @@
 | **Phase**         | 5                         |
 | **Name**          | Learning Resources Module |
 | **Status**        | 🟡 IN_PROGRESS            |
-| **Progress**      | 1/12 tasks (8.3%)         |
+| **Progress**      | 2/12 tasks (16.7%)        |
 | **Est. Duration** | 2 weeks                   |
 | **Dependencies**  | Phase 3                   |
 
@@ -20,9 +20,9 @@
 ## 🎯 OBJECTIVES
 
 - [x] Implement Document aggregate với Event Sourcing cho approval
-- [ ] Implement Course/Faculty management
+- [x] Implement Course aggregate với moderator management
+- [ ] Implement Faculty management
 - [ ] Implement Approval workflow
-- [ ] Implement Moderator assignment per course
 - [ ] Implement Rating/Review system
 
 ---
@@ -91,24 +91,53 @@ Refs: TASK-050
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **ID**           | TASK-051                         |
-| **Status**       | ⬜ NOT_STARTED                   |
+| **Status**       | ✅ COMPLETED                     |
 | **Priority**     | 🔴 Critical                      |
 | **Estimate**     | 3 hours                          |
+| **Actual**       | 3 hours                          |
 | **Branch**       | `feature/TASK-051-course-entity` |
 | **Dependencies** | TASK-050                         |
+| **Completed**    | 2026-02-06                       |
+
+**Description:**
+Implement Course aggregate với moderator management và Event Sourcing.
 
 **Acceptance Criteria:**
 
-- [ ] `Course` aggregate root
-- [ ] Course code (CS101, etc.)
-- [ ] Moderator list per course
-- [ ] Semester info
-- [ ] Unit tests written
+- [x] `Course` aggregate root (406 lines)
+- [x] Course code validation (CS101, MATH201 format)
+- [x] Moderator assignment/removal per course
+- [x] Semester info with helper methods
+- [x] Status management (Active, Completed, Archived, Deleted)
+- [x] Event Sourcing (7 domain events)
+- [x] Unit tests written (106 tests, 100% pass)
+
+**Implementation Notes:**
+
+- Course aggregate with moderator list management (assign/remove)
+- Value objects: CourseCode (regex validation), CourseName (3-200 chars), CourseDescription (0-2000 chars), Semester (format helper)
+- Status transitions: Active ↔ Archived, Active → Completed, any → Deleted
+- Credits validation: 1-10 range
+- Document/Enrollment counters
+- Faculty association (optional)
+- Test coverage: CourseTests (76), CourseIdTests (5), CourseCodeTests (11), CourseNameTests (9), CourseDescriptionTests (7), SemesterTests (12)
+
+**Domain Events:**
+
+```csharp
+CourseCreatedEvent          // Course được tạo
+ModeratorAssignedEvent      // Moderator được assign
+ModeratorRemovedEvent       // Moderator được remove
+CourseUpdatedEvent          // Course info được update
+CourseArchivedEvent         // Course được archive
+CourseActivatedEvent        // Course được reactivate
+CourseDeletedEvent          // Course bị xóa (soft delete)
+```
 
 **Commit Message:**
 
 ```
-feat(learning): implement Course aggregate
+feat(learning): implement Course aggregate with Event Sourcing
 
 Refs: TASK-051
 ```

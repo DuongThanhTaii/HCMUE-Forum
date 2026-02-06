@@ -12,8 +12,8 @@
 | -------------------- | --------------------- |
 | **Project Start**    | January 2026          |
 | **Current Phase**    | Phase 5 (IN_PROGRESS) |
-| **Overall Progress** | 39/52 tasks (75.0%)   |
-| **Total Tests**      | 541 tests             |
+| **Overall Progress** | 40/52 tasks (76.9%)   |
+| **Total Tests**      | 647 tests             |
 | **Build Status**     | ✅ Passing            |
 | **Code Quality**     | ✅ All tests pass     |
 
@@ -218,17 +218,17 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 
 ### Phase 5: Learning Resources Module ⭐
 
-| Status         | Progress        | Duration | Notes                           |
-| -------------- | --------------- | -------- | ------------------------------- |
-| 🟡 IN_PROGRESS | 1/12 tasks (8%) | 2 weeks  | **Document Aggregate COMPLETE** |
+| Status         | Progress          | Duration | Notes                                        |
+| -------------- | ----------------- | -------- | -------------------------------------------- |
+| 🟡 IN_PROGRESS | 2/12 tasks (16.7%) | 2 weeks  | **Document & Course Aggregates COMPLETE**   |
 
 **Completed:**
 
 - ✅ TASK-050: Document Aggregate Design (Event Sourcing)
+- ✅ TASK-051: Course Entity Design (Event Sourcing)
 
 **Pending:**
 
-- ⬜ TASK-051: Course Entity Design
 - ⬜ TASK-052: Faculty Entity Design
 - ⬜ TASK-053: Approval Events (Event Sourcing)
 - ⬜ TASK-054: Document Upload
@@ -241,10 +241,10 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 - ⬜ TASK-061: Learning API Endpoints
 
 **Test Coverage:** 136 tests (Domain: 136)
-
+242 tests (Domain: 242, all passing
 **Architecture Layers:**
 
-- ✅ **Domain Layer**: Document aggregate with approval workflow
+- ✅ **Domain Layer**: Document & Course aggregates with Event Sourcing
 - ⬜ **Application Layer**: Pending (CQRS commands/queries)
 - ⬜ **Presentation Layer**: Pending (API controllers)
 - ⬜ **Infrastructure Layer**: Pending (repositories + MongoDB event store)
@@ -289,6 +289,50 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 - DocumentTitleTests: 10 tests (value object)
 - DocumentDescriptionTests: 7 tests (value object)
 - DocumentIdTests: 5 tests (strongly typed ID)
+
+**TASK-051 Implementation:**
+
+**Course Aggregate:**
+
+- Course aggregate root (406 lines) with moderator management
+- CourseId strongly-typed ID
+- CourseStatus enum (Active, Completed, Archived, Deleted)
+- Moderator list management (assign/remove with validation)
+
+**Value Objects:**
+
+- CourseCode (3-20 chars, uppercase, regex validation: `^[A-Z0-9\-]+$`)
+- CourseName (3-200 chars)
+- CourseDescription (0-2000 chars, optional)
+- Semester (4-50 chars, helper: CreateFromYearAndTerm)
+
+**Domain Events (Event Sourcing):**
+
+- CourseCreatedEvent
+- ModeratorAssignedEvent
+- ModeratorRemovedEvent
+- CourseUpdatedEvent
+- CourseArchivedEvent
+- CourseActivatedEvent
+- CourseDeletedEvent
+
+**Key Features:**
+
+- Moderator assignment/removal per course
+- Status transitions: Active ↔ Archived, Active → Completed, any → Deleted
+- Credits validation: 1-10 range
+- Document count & enrollment count tracking
+- Faculty association (optional)
+- Event Sourcing for full audit trail
+
+**Test Coverage (106 tests, 100% pass):**
+
+- CourseTests: 76 tests (aggregate behavior)
+- CourseCodeTests: 11 tests (regex validation, uppercase)
+- CourseNameTests: 9 tests (value object)
+- CourseDescriptionTests: 7 tests (optional field)
+- SemesterTests: 12 tests (including helper method)
+- CourseIdTests: 5 tests (strongly typed ID)
 
 ---
 
