@@ -7,7 +7,7 @@ namespace UniHub.Forum.Application.Queries.SearchPosts;
 /// </summary>
 public sealed record SearchPostsQuery(
     string SearchTerm,
-    int? CategoryId = null,
+    Guid? CategoryId = null,
     int? PostType = null,
     IEnumerable<string>? Tags = null,
     int PageNumber = 1,
