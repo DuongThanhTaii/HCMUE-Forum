@@ -1,3 +1,4 @@
+using UniHub.Forum.Application.Queries.SearchPosts;
 using UniHub.Forum.Domain.Posts;
 
 namespace UniHub.Forum.Application.Abstractions;
@@ -41,4 +42,16 @@ public interface IPostRepository
     /// Deletes a post
     /// </summary>
     Task DeleteAsync(Post post, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Searches posts using full-text search
+    /// </summary>
+    Task<SearchPostsResult> SearchAsync(
+        string searchTerm,
+        int? categoryId = null,
+        int? postType = null,
+        IEnumerable<string>? tags = null,
+        int pageNumber = 1,
+        int pageSize = 20,
+        CancellationToken cancellationToken = default);
 }
