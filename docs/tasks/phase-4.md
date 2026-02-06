@@ -11,7 +11,7 @@
 | **Phase**         | 4              |
 | **Name**          | Forum Module   |
 | **Status**        | 🔵 IN_PROGRESS |
-| **Progress**      | 9/12 tasks     |
+| **Progress**      | 10/12 tasks    |
 | **Est. Duration** | 2 weeks        |
 | **Dependencies**  | Phase 3        |
 
@@ -300,7 +300,7 @@ Refs: TASK-046
 | Property         | Value                        |
 | ---------------- | ---------------------------- |
 | **ID**           | TASK-047                     |
-| **Status**       | ⬜ NOT_STARTED               |
+| **Status**       | ✅ DONE                      |
 | **Priority**     | 🟢 Low                       |
 | **Estimate**     | 2 hours                      |
 | **Branch**       | `feature/TASK-047-bookmarks` |
@@ -308,10 +308,12 @@ Refs: TASK-046
 
 **Acceptance Criteria:**
 
-- [ ] BookmarkPostCommand
-- [ ] UnbookmarkPostCommand
-- [ ] GetBookmarkedPostsQuery
-- [ ] Unit tests written
+- [x] Bookmark entity (PostId, UserId, CreatedAt)
+- [x] BookmarkPostCommand
+- [x] UnbookmarkPostCommand
+- [x] GetBookmarkedPostsQuery with pagination
+- [x] IBookmarkRepository interface
+- [x] Unit tests written (22 tests passed)
 
 **Commit Message:**
 
@@ -423,7 +425,7 @@ Refs: TASK-049
 - [x] TASK-044: Implement Voting Commands
 - [x] TASK-045: Implement Full-Text Search
 - [x] TASK-046: Implement Tagging System
-- [ ] TASK-047: Implement Bookmark Feature
+- [x] TASK-047: Implement Bookmark Feature
 - [ ] TASK-048: Implement Report System
 - [ ] TASK-049: Forum API Endpoints
 
