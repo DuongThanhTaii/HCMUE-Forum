@@ -55,6 +55,7 @@ Implement Document aggregate với Event Sourcing cho approval history.
 - [x] Unit tests written (136 tests, 100% pass)
 
 **Implementation Notes:**
+
 - Complete approval workflow: Draft → PendingApproval → Approved/Rejected
 - Event Sourcing with 6 domain events for full audit trail
 - Rating system (1-5 stars), view count, download count
@@ -464,17 +465,20 @@ Refs: TASK-061
 ## 📊 PHASE 5 STATISTICS
 
 **Test Coverage:**
+
 - Total Tests: 136
 - Passing: 136 (100%)
 - Failing: 0
 - Skipped: 0
 
 **Module Breakdown:**
+
 - Document Domain: 136 tests ✅
 - Course Domain: 0 tests (pending)
 - Faculty Domain: 0 tests (pending)
 
 **Code Statistics:**
+
 - Domain Classes: 4 (Document, DocumentId, DocumentType, DocumentStatus)
 - Value Objects: 3 (DocumentTitle, DocumentDescription, DocumentFile)
 - Domain Events: 6 (Event Sourcing)
