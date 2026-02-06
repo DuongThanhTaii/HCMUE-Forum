@@ -10,8 +10,8 @@
 | ----------------- | ------------------------- |
 | **Phase**         | 5                         |
 | **Name**          | Learning Resources Module |
-| **Status**        | ⬜ NOT_STARTED            |
-| **Progress**      | 0/12 tasks                |
+| **Status**        | 🟡 IN_PROGRESS            |
+| **Progress**      | 1/12 tasks (8.3%)         |
 | **Est. Duration** | 2 weeks                   |
 | **Dependencies**  | Phase 3                   |
 
@@ -19,7 +19,7 @@
 
 ## 🎯 OBJECTIVES
 
-- [ ] Implement Document aggregate với Event Sourcing cho approval
+- [x] Implement Document aggregate với Event Sourcing cho approval
 - [ ] Implement Course/Faculty management
 - [ ] Implement Approval workflow
 - [ ] Implement Moderator assignment per course
@@ -34,23 +34,32 @@
 | Property         | Value                                 |
 | ---------------- | ------------------------------------- |
 | **ID**           | TASK-050                              |
-| **Status**       | ⬜ NOT_STARTED                        |
+| **Status**       | ✅ COMPLETED                          |
 | **Priority**     | 🔴 Critical                           |
 | **Estimate**     | 4 hours                               |
+| **Actual**       | 4 hours                               |
 | **Branch**       | `feature/TASK-050-document-aggregate` |
 | **Dependencies** | Phase 3                               |
+| **Completed**    | 2026-02-06                            |
 
 **Description:**
 Implement Document aggregate với Event Sourcing cho approval history.
 
 **Acceptance Criteria:**
 
-- [ ] `Document` aggregate root
-- [ ] `DocumentFile` value object
-- [ ] `DocumentType` enum
-- [ ] `DocumentStatus` enum
-- [ ] Event Sourcing cho approval history
-- [ ] Unit tests written
+- [x] `Document` aggregate root (398 lines)
+- [x] `DocumentFile` value object (max 50MB, file validation)
+- [x] `DocumentType` enum (Slide, Exam, Summary, SourceCode, Video, Other)
+- [x] `DocumentStatus` enum (Draft, PendingApproval, Approved, Rejected, Deleted)
+- [x] Event Sourcing cho approval history (6 domain events)
+- [x] Unit tests written (136 tests, 100% pass)
+
+**Implementation Notes:**
+- Complete approval workflow: Draft → PendingApproval → Approved/Rejected
+- Event Sourcing with 6 domain events for full audit trail
+- Rating system (1-5 stars), view count, download count
+- Value objects: DocumentTitle (5-200 chars), DocumentDescription (0-1000 chars)
+- Test coverage: DocumentTests (78), DocumentFileTests (36), DocumentTitleTests (10), DocumentDescriptionTests (7), DocumentIdTests (5)
 
 **Document Types:**
 
@@ -437,7 +446,7 @@ Refs: TASK-061
 
 ## ✅ COMPLETION CHECKLIST
 
-- [ ] TASK-050: Design Document Aggregate
+- [x] TASK-050: Design Document Aggregate ✅ (2026-02-06)
 - [ ] TASK-051: Design Course Entity
 - [ ] TASK-052: Design Faculty Entity
 - [ ] TASK-053: Implement Approval Events (Event Sourcing)
@@ -452,4 +461,26 @@ Refs: TASK-061
 
 ---
 
-_Last Updated: 2026-02-04_
+## 📊 PHASE 5 STATISTICS
+
+**Test Coverage:**
+- Total Tests: 136
+- Passing: 136 (100%)
+- Failing: 0
+- Skipped: 0
+
+**Module Breakdown:**
+- Document Domain: 136 tests ✅
+- Course Domain: 0 tests (pending)
+- Faculty Domain: 0 tests (pending)
+
+**Code Statistics:**
+- Domain Classes: 4 (Document, DocumentId, DocumentType, DocumentStatus)
+- Value Objects: 3 (DocumentTitle, DocumentDescription, DocumentFile)
+- Domain Events: 6 (Event Sourcing)
+- Test Classes: 5
+- Lines of Code: ~2,265 (domain + tests)
+
+---
+
+_Last Updated: 2026-02-06_

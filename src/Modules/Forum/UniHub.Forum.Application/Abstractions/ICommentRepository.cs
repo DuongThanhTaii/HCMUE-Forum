@@ -1,3 +1,4 @@
+using UniHub.Forum.Application.Queries;
 using UniHub.Forum.Domain.Comments;
 using UniHub.Forum.Domain.Posts;
 
@@ -32,4 +33,13 @@ public interface ICommentRepository
     /// Deletes a comment
     /// </summary>
     Task DeleteAsync(Comment comment, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets paginated comments for a specific post
+    /// </summary>
+    Task<Queries.GetComments.GetCommentsResult> GetCommentsByPostIdAsync(
+        PostId postId,
+        int pageNumber = 1,
+        int pageSize = 20,
+        CancellationToken cancellationToken = default);
 }

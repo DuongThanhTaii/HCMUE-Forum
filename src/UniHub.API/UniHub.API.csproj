@@ -19,7 +19,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shared\UniHub.SharedKernel\UniHub.SharedKernel.csproj" />
+    <ProjectReference Include="..\Shared\UniHub.Infrastructure\UniHub.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Identity\UniHub.Identity.Infrastructure\UniHub.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Forum\UniHub.Forum.Infrastructure\UniHub.Forum.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
