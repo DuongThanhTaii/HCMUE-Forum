@@ -1,5 +1,7 @@
 using Serilog;
 using UniHub.Identity.Infrastructure;
+using UniHub.Infrastructure;
+using UniHub.Forum.Infrastructure;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -33,8 +35,21 @@ try
     // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
     builder.Services.AddOpenApi();
 
+    // Add MediatR for CQRS
+    builder.Services.AddMediatR(cfg =>
+    {
+        cfg.RegisterServicesFromAssemblyContaining<UniHub.Identity.Application.Commands.Register.RegisterUserCommand>();
+        cfg.RegisterServicesFromAssemblyContaining<UniHub.Forum.Application.Commands.CreatePost.CreatePostCommand>();
+    });
+
+    // Add Infrastructure (PostgreSQL, MongoDB, Redis)
+    builder.Services.AddInfrastructure(builder.Configuration);
+
     // Add Identity module
     builder.Services.AddIdentityInfrastructure(builder.Configuration);
+
+    // Add Forum module
+    builder.Services.AddForumInfrastructure();
 
     // Add exception handler
     builder.Services.AddExceptionHandler<UniHub.API.Middlewares.GlobalExceptionHandler>();
