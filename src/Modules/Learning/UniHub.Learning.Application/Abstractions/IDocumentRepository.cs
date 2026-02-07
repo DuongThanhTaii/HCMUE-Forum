@@ -1,3 +1,4 @@
+using UniHub.Learning.Application.Queries.DocumentSearch;
 using UniHub.Learning.Domain.Documents;
 
 namespace UniHub.Learning.Application.Abstractions;
@@ -41,4 +42,19 @@ public interface IDocumentRepository
     /// Get documents by uploader ID
     /// </summary>
     Task<IReadOnlyList<Document>> GetByUploaderIdAsync(Guid uploaderId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Search documents with filtering, sorting, and pagination
+    /// </summary>
+    Task<(IReadOnlyList<Document> Documents, int TotalCount)> SearchAsync(
+        string? searchTerm,
+        Guid? courseId,
+        Guid? facultyId,
+        int? documentType,
+        int? status,
+        DocumentSortBy sortBy,
+        bool sortDescending,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }
