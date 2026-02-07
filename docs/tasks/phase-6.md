@@ -82,10 +82,26 @@
 | Property     | Value                             |
 | ------------ | --------------------------------- |
 | **ID**       | TASK-064                          |
-| **Status**   | ⬜ NOT_STARTED                    |
+| **Status**   | ✅ COMPLETED                      |
 | **Priority** | 🔴 Critical                       |
 | **Estimate** | 3 hours                           |
 | **Branch**   | `feature/TASK-064-channel-entity` |
+
+**Deliverables:**
+
+- ✅ Channel aggregate root with ownership hierarchy (Owner → Moderators → Members)
+  - ChannelId strongly-typed ID
+  - ChannelType enum (Public/Private)
+  - Create factory with auto-add owner as member+moderator
+  - Join/Leave operations (owner cannot leave)
+  - AddModerator/RemoveModerator (owner-only operations)
+  - UpdateInfo (moderator-level permission)
+  - Archive (moderator-level permission)
+  - Permission helpers: IsMember, IsModerator, IsOwner
+- ✅ 6 domain events (ChannelCreated, MemberJoined, MemberLeft, ModeratorAdded, ModeratorRemoved, ChannelUpdated, ChannelArchived)
+- ✅ 56 unit tests (100% passing)
+  - 48 ChannelTests (Create, Join, Leave, AddModerator, RemoveModerator, UpdateInfo, Archive, Helpers)
+  - 8 ChannelIdTests
 
 ---
 
