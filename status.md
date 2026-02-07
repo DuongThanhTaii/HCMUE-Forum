@@ -218,9 +218,9 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 
 ### Phase 5: Learning Resources Module ⭐
 
-| Status         | Progress         | Duration | Notes                                                         |
-| -------------- | ---------------- | -------- | ------------------------------------------------------------- |
-| 🟡 IN_PROGRESS | 9/12 tasks (75%) | 2 weeks  | **Domain + Event Sourcing + Document Upload (CQRS) COMPLETE** |
+| Status         | Progress            | Duration | Notes                                                         |
+| -------------- | ------------------- | -------- | ------------------------------------------------------------- |
+| 🟡 IN_PROGRESS | 10/12 tasks (83.3%) | 2 weeks  | **Domain + Event Sourcing + Document Upload (CQRS) COMPLETE** |
 
 **Completed:**
 
@@ -234,17 +234,17 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 - ✅ TASK-057: Moderator Assignment (Commands: Assign, Remove with scoped permissions)
 - ✅ TASK-058: Document Rating (Command: Rate with one-per-user enforcement)
 - ✅ TASK-059: Document Search (Query: Search with filtering, sorting, pagination)
+- ✅ TASK-060: Download Tracking (Command: Download with one-per-user counting)
 
 **Pending:**
 
-- ⬜ TASK-060: Download Tracking
 - ⬜ TASK-061: Learning API Endpoints
 
-**Test Coverage:** 506 tests (Domain: 346, Application: 160, all passing)
+**Test Coverage:** 519 tests (Domain: 346, Application: 173, all passing)
 **Architecture Layers:**
 
 - ✅ **Domain Layer**: Document, Course, Faculty aggregates with Event Sourcing
-- 🟡 **Application Layer**: 10/12 commands + 1 query implemented (91% complete)
+- 🟡 **Application Layer**: 11/12 commands + 1 query implemented (91.7% complete)
 - ⬜ **Presentation Layer**: Pending (API controllers)
 - ⬜ **Infrastructure Layer**: Pending (repositories + MongoDB event store)
 
