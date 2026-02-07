@@ -28,6 +28,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IConversationRepository, ConversationRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
+        services.AddScoped<IChannelRepository, ChannelRepository>();
 
         return services;
     }
