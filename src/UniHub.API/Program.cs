@@ -3,6 +3,8 @@ using UniHub.Identity.Infrastructure;
 using UniHub.Infrastructure;
 using UniHub.Forum.Infrastructure;
 using UniHub.Learning.Infrastructure;
+using UniHub.Chat.Presentation;
+using UniHub.Chat.Presentation.Hubs;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -42,6 +44,18 @@ try
         .AddApplicationPart(typeof(UniHub.Forum.Presentation.Controllers.PostsController).Assembly)
         .AddApplicationPart(typeof(UniHub.Learning.Presentation.Controllers.DocumentsController).Assembly);
 
+    // Add CORS for SignalR (configure domains in production)
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("ChatCorsPolicy", policy =>
+        {
+            policy.WithOrigins("http://localhost:3000", "http://localhost:5173") // Frontend origins
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials(); // Required for SignalR
+        });
+    });
+
     // Add MediatR for CQRS
     builder.Services.AddMediatR(cfg =>
     {
@@ -61,6 +75,9 @@ try
 
     // Add Learning module
     builder.Services.AddLearningInfrastructure();
+
+    // Add Chat module (SignalR)
+    builder.Services.AddChatPresentation();
 
     // Add exception handler
     builder.Services.AddExceptionHandler<UniHub.API.Middlewares.GlobalExceptionHandler>();
@@ -95,12 +112,18 @@ try
 
     app.UseHttpsRedirection();
 
+    // Use CORS for SignalR
+    app.UseCors("ChatCorsPolicy");
+
     // Authentication & Authorization
     app.UseAuthentication();
     app.UseAuthorization();
 
     // Map API controllers
     app.MapControllers();
+
+    // Map SignalR ChatHub
+    app.MapHub<ChatHub>("/hubs/chat");
 
 // Health check endpoint
 app.MapHealthChecks("/health");
