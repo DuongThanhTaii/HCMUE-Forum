@@ -26,6 +26,7 @@
     <ProjectReference Include="..\Modules\Forum\UniHub.Forum.Presentation\UniHub.Forum.Presentation.csproj" />
     <ProjectReference Include="..\Modules\Learning\UniHub.Learning.Infrastructure\UniHub.Learning.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Learning\UniHub.Learning.Presentation\UniHub.Learning.Presentation.csproj" />
+    <ProjectReference Include="..\Modules\Chat\UniHub.Chat.Infrastructure\UniHub.Chat.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Chat\UniHub.Chat.Presentation\UniHub.Chat.Presentation.csproj" />
   </ItemGroup>
 

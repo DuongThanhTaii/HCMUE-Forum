@@ -185,10 +185,25 @@
 | Property     | Value                          |
 | ------------ | ------------------------------ |
 | **ID**       | TASK-067                       |
-| **Status**   | ⬜ NOT_STARTED                 |
+| **Status**   | ✅ COMPLETED                   |
 | **Priority** | 🔴 Critical                    |
 | **Estimate** | 4 hours                        |
 | **Branch**   | `feature/TASK-067-direct-chat` |
+
+**Deliverables:**
+
+- ✅ IConversationRepository interface (6 methods: GetById, GetByUserId, GetDirectConversation, Exists, Add, Update)
+- ✅ IMessageRepository interface (5 methods: GetById, GetByConversationId with pagination, Add, Update, CountByConversationId)
+- ✅ CreateDirectConversationCommand/Handler/Validator (idempotent, prevents duplicate conversations)
+- ✅ SendMessageCommand/Handler/Validator (validates participation, supports reply-to)
+- ✅ GetConversationsQuery/Handler (lists user's conversations ordered by last message time)
+- ✅ GetMessagesQuery/Handler (paginated messages, default 50 per page)
+- ✅ ConversationRepository in-memory implementation (thread-safe with lock)
+- ✅ MessageRepository in-memory implementation (thread-safe with lock)
+- ✅ ConversationsController (GET /api/v1/chat/conversations, POST /api/v1/chat/conversations/direct)
+- ✅ MessagesController (GET /api/v1/chat/messages?conversationId=xxx, POST /api/v1/chat/messages)
+- ✅ DependencyInjection for Chat.Infrastructure (AddChatInfrastructure)
+- ✅ Program.cs integration (MediatR registration, AddChatInfrastructure)
 
 ---
 

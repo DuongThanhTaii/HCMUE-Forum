@@ -5,6 +5,10 @@
     <ProjectReference Include="..\..\..\Shared\UniHub.SharedKernel\UniHub.SharedKernel.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

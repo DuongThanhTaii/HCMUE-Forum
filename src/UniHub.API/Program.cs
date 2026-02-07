@@ -3,6 +3,7 @@ using UniHub.Identity.Infrastructure;
 using UniHub.Infrastructure;
 using UniHub.Forum.Infrastructure;
 using UniHub.Learning.Infrastructure;
+using UniHub.Chat.Infrastructure;
 using UniHub.Chat.Presentation;
 using UniHub.Chat.Presentation.Hubs;
 
@@ -62,6 +63,7 @@ try
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Identity.Application.Commands.Register.RegisterUserCommand>();
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Forum.Application.Commands.CreatePost.CreatePostCommand>();
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Learning.Application.Commands.UploadDocument.UploadDocumentCommand>();
+        cfg.RegisterServicesFromAssemblyContaining<UniHub.Chat.Application.Commands.CreateDirectConversation.CreateDirectConversationCommand>();
     });
 
     // Add Infrastructure (PostgreSQL, MongoDB, Redis)
@@ -76,7 +78,8 @@ try
     // Add Learning module
     builder.Services.AddLearningInfrastructure();
 
-    // Add Chat module (SignalR with Redis backplane)
+    // Add Chat module (repositories + SignalR with Redis backplane)
+    builder.Services.AddChatInfrastructure();
     builder.Services.AddChatPresentation(builder.Configuration);
 
     // Add exception handler
