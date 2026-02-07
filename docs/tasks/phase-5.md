@@ -664,7 +664,7 @@ Refs: TASK-061
 - [x] TASK-058: Implement Document Rating ✅ (2026-02-06)
 - [x] TASK-059: Implement Document Search ✅ (2026-02-06)
 - [x] TASK-060: Implement Download Tracking ✅ (2026-02-07)
-- [ ] TASK-061: Learning API Endpoints
+- [x] TASK-061: Learning API Endpoints ✅ (2026-02-07)
 
 ---
 
@@ -672,8 +672,8 @@ Refs: TASK-061
 
 **Test Coverage:**
 
-- Total Tests: 487
-- Passing: 487 (100%)
+- Total Tests: 519
+- Passing: 519 (100%)
 - Failing: 0
 - Skipped: 0
 
@@ -688,17 +688,27 @@ Refs: TASK-061
 - Course Management Application: 44 tests ✅ (27 validator + 17 handler)
 - Moderator Assignment Application: 16 tests ✅ (8 validator + 8 handler)
 - Document Rating Application: 22 tests ✅ (9 validator + 13 handler)
+- Document Search Application: 19 tests ✅ (12 validator + 7 handler)
+- Download Tracking Application: 13 tests ✅ (4 validator + 9 handler)
 
 **Code Statistics:**
 
 - Domain Classes: 14 (Document, Course, Faculty + IDs + Status enums + Event Store)
-- Application Classes: 25 (12 commands, 12 validators, 12 handlers + 6 abstractions)
+- Application Classes: 28 (12 commands + 1 query + 13 validators + 13 handlers + 7 abstractions)
+- Presentation Classes: 6 (3 controllers + 3 DTO files with 15 DTOs)
 - Value Objects: 10
 - Domain Events: 16 (9 for Document + 7 for Course + 7 for Faculty - some shared)
 - Event Sourcing: 3 classes (IEventStore, StoredEvent, EventSourcingHelper)
-- Test Classes: 31 (13 domain + 18 application)
-- Lines of Code: ~16,000 (domain + application + tests)
+- Test Classes: 33 (13 domain + 20 application)
+- Lines of Code: ~17,500 (domain + application + presentation + tests)
+
+**API Endpoints:**
+
+- Total Endpoints: 14
+- DocumentsController: 7 endpoints (Search, Upload, Rate, Download, Approve, Reject, RequestRevision)
+- CoursesController: 5 endpoints (Create, Update, Delete, AssignModerator, RemoveModerator)
+- FacultiesController: 2 endpoints (List, Create - placeholders returning 501)
 
 ---
 
-_Last Updated: 2026-02-06_
+_Last Updated: 2026-02-07_
