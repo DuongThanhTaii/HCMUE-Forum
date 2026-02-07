@@ -212,10 +212,21 @@
 | Property     | Value                         |
 | ------------ | ----------------------------- |
 | **ID**       | TASK-068                      |
-| **Status**   | ⬜ NOT_STARTED                |
+| **Status**   | ✅ COMPLETED                  |
 | **Priority** | 🔴 Critical                   |
 | **Estimate** | 4 hours                       |
 | **Branch**   | `feature/TASK-068-group-chat` |
+
+**Deliverables:**
+
+- ✅ CreateGroupConversationCommand/Handler/Validator (creates group with title and participant list)
+- ✅ AddParticipantCommand/Handler/Validator (adds user to group, validates participation)
+- ✅ RemoveParticipantCommand/Handler/Validator (removes user from group, enforces minimum 2 participants)
+- ✅ Extended ConversationsController with group endpoints:
+  - POST /api/v1/chat/conversations/group (create group conversation)
+  - POST /api/v1/chat/conversations/{id}/participants (add participant)
+  - DELETE /api/v1/chat/conversations/{id}/participants/{userId} (remove participant)
+- ✅ Request/Response DTOs (CreateGroupConversationRequest/Response, AddParticipantRequest)
 
 ---
 
