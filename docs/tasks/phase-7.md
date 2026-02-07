@@ -11,7 +11,7 @@
 | **Phase**         | 7                 |
 | **Name**          | Career Hub Module |
 | **Status**        | 🔵 IN_PROGRESS    |
-| **Progress**      | 4/12 tasks        |
+| **Progress**      | 5/12 tasks        |
 | **Est. Duration** | 2 weeks           |
 | **Dependencies**  | Phase 3           |
 
@@ -273,8 +273,53 @@
 | Property   | Value                       |
 | ---------- | --------------------------- |
 | **ID**     | TASK-078                    |
-| **Status** | ⬜ NOT_STARTED              |
+| **Status** | ✅ COMPLETED                |
 | **Branch** | `feature/TASK-078-job-crud` |
+
+**Deliverables:**
+
+✅ **Commands** (4 commands with handlers & validators):
+
+- [CreateJobPostingCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/JobPostings/CreateJobPosting/CreateJobPostingCommand.cs): Create job posting in Draft status
+- [UpdateJobPostingCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/JobPostings/UpdateJobPosting/UpdateJobPostingCommand.cs): Update job posting (Draft/Paused only)
+- [PublishJobPostingCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/JobPostings/PublishJobPosting/PublishJobPostingCommand.cs): Publish job posting
+- [CloseJobPostingCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/JobPostings/CloseJobPosting/CloseJobPostingCommand.cs): Close job posting with reason
+
+✅ **Queries** (2 queries with handlers):
+
+- [GetJobPostingByIdQuery.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobPostings/GetJobPostingById/GetJobPostingByIdQuery.cs): Retrieve single job posting
+- [GetJobPostingsQuery.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobPostings/GetJobPostings/GetJobPostingsQuery.cs): Paginated list with filters (company, type, level, status, city, remote, search)
+
+✅ **Repository Interface**:
+
+- [IJobPostingRepository.cs](../../src/Modules/Career/UniHub.Career.Application/Abstractions/IJobPostingRepository.cs): 8 methods (Add, Update, GetById, GetAll, GetByCompany, GetPublished, Delete, Exists)
+
+✅ **Response DTOs**:
+
+- [JobPostingResponse.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/JobPostings/CreateJobPosting/JobPostingResponse.cs): Full job posting details
+- [JobPostingListResponse.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobPostings/GetJobPostings/GetJobPostingsQuery.cs): Paginated list response
+- [JobPostingSummary.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobPostings/GetJobPostings/GetJobPostingsQuery.cs): Summary for list views
+
+✅ **Unit Tests** (27 tests - ALL PASSING):
+
+- [CreateJobPostingCommandHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Commands/JobPostings/CreateJobPostingCommandHandlerTests.cs): 7 tests
+- [UpdateJobPostingCommandHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Commands/JobPostings/UpdateJobPostingCommandHandlerTests.cs): 4 tests
+- [PublishJobPostingCommandHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Commands/JobPostings/PublishJobPostingCommandHandlerTests.cs): 4 tests
+- [CloseJobPostingCommandHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Commands/JobPostings/CloseJobPostingCommandHandlerTests.cs): 4 tests
+- [GetJobPostingByIdQueryHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Queries/JobPostings/GetJobPostingByIdQueryHandlerTests.cs): 3 tests
+- [GetJobPostingsQueryHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Queries/JobPostings/GetJobPostingsQueryHandlerTests.cs): 5 tests
+
+**Key Features**:
+
+- Full job posting lifecycle: Create → Update → Publish → Close
+- FluentValidation for all command inputs
+- Domain validation via JobPosting aggregate
+- Repository pattern for data access abstraction
+- Pagination support with configurable page size
+- Advanced filtering: company, type, experience level, status, city, remote flag, search term
+- Response DTOs separate from domain models
+
+**Commit**: `0cf3e65` - Build: 0 errors, 0 warnings - Tests: 351/351 passing (317 domain + 34 application)
 
 ---
 
@@ -340,7 +385,7 @@
 
 ### TASK-085: Career API Endpoints
 
-| Property   | Value                         |
+| Pxoperty   | Value                         |
 | ---------- | ----------------------------- |
 | **ID**     | TASK-085                      |
 | **Status** | ⬜ NOT_STARTED                |
