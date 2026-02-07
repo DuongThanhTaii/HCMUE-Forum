@@ -11,7 +11,7 @@
 | **Phase**         | 7                 |
 | **Name**          | Career Hub Module |
 | **Status**        | 🔵 IN_PROGRESS    |
-| **Progress**      | 5/12 tasks        |
+| **Progress**      | 6/12 tasks        |
 | **Est. Duration** | 2 weeks           |
 | **Dependencies**  | Phase 3           |
 
@@ -328,8 +328,41 @@
 | Property   | Value                         |
 | ---------- | ----------------------------- |
 | **ID**     | TASK-079                      |
-| **Status** | ⬜ NOT_STARTED                |
+| **Status** | ✅ COMPLETED                  |
 | **Branch** | `feature/TASK-079-job-search` |
+
+**Deliverables:**
+
+✅ **Query** (1 query with handler & validator):
+
+- [SearchJobPostingsQuery.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobPostings/SearchJobPostings/SearchJobPostingsQuery.cs): Advanced search with 18 parameters (keywords, salary range, skills, tags, date range, sorting, pagination)
+- [SearchJobPostingsQueryHandler.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobPostings/SearchJobPostings/SearchJobPostingsQueryHandler.cs): Intelligent relevance scoring algorithm
+- [SearchJobPostingsQueryValidator.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobPostings/SearchJobPostings/SearchJobPostingsQueryValidator.cs): 15 FluentValidation rules
+
+✅ **Repository Interface**:
+
+- [IJobPostingRepository.cs](../../src/Modules/Career/UniHub.Career.Application/Abstractions/IJobPostingRepository.cs): Added SearchAsync method with 14 parameters
+
+✅ **Response DTOs**:
+
+- [JobPostingSearchResponse.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobPostings/SearchJobPostings/SearchJobPostingsQuery.cs): Paginated search results with metadata
+- [JobPostingSearchResult.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobPostings/SearchJobPostings/SearchJobPostingsQuery.cs): Search result with relevance score
+- [SearchMetadata.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobPostings/SearchJobPostings/SearchJobPostingsQuery.cs): Search performance metrics
+
+✅ **Unit Tests** (5 tests - ALL PASSING):
+
+- [SearchJobPostingsQueryHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Queries/JobPostings/SearchJobPostingsQueryHandlerTests.cs): keyword matching, pagination, sorting, empty results, metadata
+
+**Key Features**:
+
+- Relevance scoring algorithm (0-100 scale): keyword matching in title/description, skill matching, tag matching, recency boost, popularity boost, remote bonus
+- Multiple sort options: relevance, date, salary, view count, application count
+- Advanced filters: keywords, company, type, level, status, city, remote, salary range, skills, tags, date range
+- Search metadata: keywords, filters applied, average relevance score, search duration
+- Pagination support with total pages calculation
+- Response DTOs optimized for search results
+
+**Commit**: `bf22ac3` - Build: 0 errors, 0 warnings - Tests: 356/356 passing (317 domain + 39 application)
 
 ---
 
@@ -424,8 +457,8 @@ PUT    /api/v1/applications/{id}/status
 - [x] TASK-075: Design Company Aggregate
 - [x] TASK-076: Design Application Entity
 - [x] TASK-077: Implement Company Registration
-- [ ] TASK-078: Implement Job Posting CRUD
-- [ ] TASK-079: Implement Job Search
+- [x] TASK-078: Implement Job Posting CRUD
+- [x] TASK-079: Implement Job Search
 - [ ] TASK-080: Implement Application Flow
 - [ ] TASK-081: Implement Saved Jobs
 - [ ] TASK-082: Implement Company Dashboard
