@@ -6,14 +6,14 @@
 
 ## 📋 PHASE INFO
 
-| Property          | Value            |
-| ----------------- | ---------------- |
-| **Phase**         | 6                |
-| **Name**          | Chat Module      |
-| **Status**        | 🔵 IN_PROGRESS   |
-| **Progress**      | 9/12 tasks (75%) |
-| **Est. Duration** | 2 weeks          |
-| **Dependencies**  | Phase 3          |
+| Property          | Value             |
+| ----------------- | ----------------- |
+| **Phase**         | 6                 |
+| **Name**          | Chat Module       |
+| **Status**        | 🔵 IN_PROGRESS    |
+| **Progress**      | 10/12 tasks (83%) |
+| **Est. Duration** | 2 weeks           |
+| **Dependencies**  | Phase 3           |
 
 ---
 
@@ -294,10 +294,21 @@
 | Property     | Value                        |
 | ------------ | ---------------------------- |
 | **ID**       | TASK-071                     |
-| **Status**   | ⬜ NOT_STARTED               |
+| **Status**   | ✅ COMPLETED                 |
 | **Priority** | 🟢 Low                       |
 | **Estimate** | 2 hours                      |
 | **Branch**   | `feature/TASK-071-reactions` |
+
+**Deliverables:**
+
+- ✅ AddReactionCommand/Handler/Validator (20 supported emojis)
+- ✅ RemoveReactionCommand/Handler/Validator
+- ✅ MessagesController with 2 new endpoints:
+  - POST /api/v1/chat/messages/{messageId}/reactions (add reaction)
+  - DELETE /api/v1/chat/messages/{messageId}/reactions/{emoji} (remove reaction)
+- ✅ Emoji validation (👍 👎 ❤️ 😂 😮 😢 😡 🎉 🔥 👏 ✅ ❌ ⭐ 💯 🙏 💪 👀 🤔 😍 🥳)
+- ✅ Integration with domain Reaction value object
+- ✅ Message not found error handling
 
 ---
 
