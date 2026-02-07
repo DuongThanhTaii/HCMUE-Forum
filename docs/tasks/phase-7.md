@@ -10,8 +10,8 @@
 | ----------------- | ----------------- |
 | **Phase**         | 7                 |
 | **Name**          | Career Hub Module |
-| **Status**        | ⬜ NOT_STARTED    |
-| **Progress**      | 0/12 tasks        |
+| **Status**        | 🔵 IN_PROGRESS    |
+| **Progress**      | 1/12 tasks        |
 | **Est. Duration** | 2 weeks           |
 | **Dependencies**  | Phase 3           |
 
@@ -24,8 +24,59 @@
 | Property   | Value                            |
 | ---------- | -------------------------------- |
 | **ID**     | TASK-074                         |
-| **Status** | ⬜ NOT_STARTED                   |
+| **Status** | ✅ COMPLETED                     |
 | **Branch** | `feature/TASK-074-job-aggregate` |
+
+**Deliverables:**
+
+✅ **JobPosting Aggregate Root** ([JobPosting.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/JobPosting.cs)):
+- Full lifecycle management: Draft → Published → Paused → Closed/Expired
+- Create job postings with comprehensive validation
+- Publish/pause/close/expire state transitions
+- Update details (only when Draft/Paused)
+- Manage requirements (skills) collection with duplicate detection
+- Manage tags collection with normalization
+- Track view count and application count
+- `IsAcceptingApplications()` guard
+- `CheckAndExpire()` auto-expiration logic
+
+✅ **Value Objects**:
+- [SalaryRange.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/SalaryRange.cs): Min/max amounts, 7 supported currencies (VND, USD, EUR, GBP, JPY, SGD, AUD), 5 periods (hour, day, week, month, year)
+- [WorkLocation.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/WorkLocation.cs): City/district/address, remote flag, formatted display
+- [JobRequirement.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/JobRequirement.cs): Skill name, required/preferred flag
+
+✅ **Domain Events** (5 events):
+- [JobPostingCreatedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/Events/JobPostingCreatedEvent.cs)
+- [JobPostingPublishedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/Events/JobPostingPublishedEvent.cs)
+- [JobPostingUpdatedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/Events/JobPostingUpdatedEvent.cs)
+- [JobPostingClosedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/Events/JobPostingClosedEvent.cs)
+- [JobPostingExpiredEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/Events/JobPostingExpiredEvent.cs)
+
+✅ **Enumerations**:
+- [JobType.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/JobType.cs): FullTime, PartTime, Internship, Freelance, Remote, Temporary
+- [JobPostingStatus.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/JobPostingStatus.cs): Draft, Published, Paused, Closed, Expired
+- [ExperienceLevel.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/ExperienceLevel.cs): Entry, Junior, Mid, Senior, Lead, Executive
+
+✅ **Domain Infrastructure**:
+- [JobPostingId.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/JobPostingId.cs): Strongly-typed ID using GuidId pattern
+- [JobPostingErrors.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/JobPostingErrors.cs): 20+ error definitions
+
+✅ **Unit Tests** ([tests/Modules/Career/UniHub.Career.Domain.Tests/](../../tests/Modules/Career/UniHub.Career.Domain.Tests/)):
+- [JobPostingTests.cs](../../tests/Modules/Career/UniHub.Career.Domain.Tests/JobPostings/JobPostingTests.cs): 84 tests covering aggregate lifecycle, state transitions, validation, requirements, tags
+- [SalaryRangeTests.cs](../../tests/Modules/Career/UniHub.Career.Domain.Tests/JobPostings/SalaryRangeTests.cs): 18 tests covering value object validation
+- [WorkLocationTests.cs](../../tests/Modules/Career/UniHub.Career.Domain.Tests/JobPostings/WorkLocationTests.cs): 14 tests covering location logic
+- [JobRequirementTests.cs](../../tests/Modules/Career/UniHub.Career.Domain.Tests/JobPostings/JobRequirementTests.cs): 10 tests covering skill requirements
+- **Total: 126 tests - ALL PASSING** ✅
+
+**Key Design Patterns**:
+- Factory pattern with `Result<T>` return type
+- All validation in factory methods before object construction
+- Domain events raised via `AddDomainEvent()`
+- Private collections exposed as `IReadOnlyList<T>`
+- Idempotent operations where applicable
+- Guard methods prevent invalid state transitions
+
+**Commit**: `a224a25` - Build: 0 errors, 0 warnings
 
 ---
 
@@ -166,8 +217,19 @@ PUT    /api/v1/applications/{id}/status
 
 ## ✅ COMPLETION CHECKLIST
 
-- [ ] TASK-074 - TASK-085
+- [x] TASK-074: Design JobPosting Aggregate
+- [ ] TASK-075: Design Company Aggregate
+- [ ] TASK-076: Design Application Entity
+- [ ] TASK-077: Implement Company Registration
+- [ ] TASK-078: Implement Job Posting CRUD
+- [ ] TASK-079: Implement Job Search
+- [ ] TASK-080: Implement Application Flow
+- [ ] TASK-081: Implement Saved Jobs
+- [ ] TASK-082: Implement Company Dashboard
+- [ ] TASK-083: Implement Job Matching
+- [ ] TASK-084: Implement Recruiter Role
+- [ ] TASK-085: Career API Endpoints
 
 ---
 
-_Last Updated: 2026-02-04_
+_Last Updated: 2026-02-07_
