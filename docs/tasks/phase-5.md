@@ -11,7 +11,7 @@
 | **Phase**         | 5                         |
 | **Name**          | Learning Resources Module |
 | **Status**        | 🟡 IN_PROGRESS            |
-| **Progress**      | 9/12 tasks (75%)          |
+| **Progress**      | 10/12 tasks (83.3%)       |
 | **Est. Duration** | 2 weeks                   |
 | **Dependencies**  | Phase 3                   |
 
@@ -532,23 +532,62 @@ Refs: TASK-059
 | Property         | Value                                |
 | ---------------- | ------------------------------------ |
 | **ID**           | TASK-060                             |
-| **Status**       | ⬜ NOT_STARTED                       |
+| **Status**       | ✅ COMPLETED                       |
 | **Priority**     | 🟢 Low                               |
 | **Estimate**     | 2 hours                              |
+| **Actual**       | 2 hours                              |
 | **Branch**       | `feature/TASK-060-download-tracking` |
 | **Dependencies** | TASK-054                             |
+| **Completed**    | 2026-02-07                           |
+
+**Description:**
+Implement document download tracking with user-based download counting.
 
 **Acceptance Criteria:**
 
-- [ ] DownloadDocumentCommand
-- [ ] Track download count
-- [ ] Track downloads per user
-- [ ] Unit tests written
+- [x] DownloadDocumentCommand (DocumentId, UserId)
+- [x] IUserDownloadService abstraction for tracking downloads per user
+- [x] One download per user per document enforcement
+- [x] Track download count using Document.IncrementDownloadCount()
+- [x] Only allow downloading approved documents
+- [x] Unit tests written (13 tests: 4 validator + 9 handler)
+
+**Implementation Notes:**
+
+- DownloadDocumentCommand with two parameters: DocumentId and UserId
+- IUserDownloadService: HasUserDownloadedDocumentAsync, RecordUserDownloadAsync
+- Handler workflow: Check already downloaded → Get document → Verify approved status → Increment count → Save → Record
+- Only approved documents can be downloaded (prevents downloading drafts, rejected, or deleted documents)
+- Download count never decreases (increment only)
+- Test coverage: 4 validator tests (valid command, empty IDs), 9 handler tests (success, already downloaded, not found, not approved, Theory for all non-approved statuses, increment verification, call order)
+
+**Files Created:**
+
+```
+src/Modules/Learning/UniHub.Learning.Application/Abstractions/
+  ├── IUserDownloadService.cs
+
+src/Modules/Learning/UniHub.Learning.Application/Commands/DocumentDownload/
+  ├── DownloadDocumentCommand.cs (9 lines)
+  ├── DownloadDocumentCommandValidator.cs (16 lines)
+  └── DownloadDocumentCommandHandler.cs (64 lines)
+
+tests/Modules/Learning/UniHub.Learning.Application.Tests/Commands/DocumentDownload/
+  ├── DownloadDocumentCommandValidatorTests.cs (79 lines, 4 tests)
+  └── DownloadDocumentCommandHandlerTests.cs (334 lines, 9 tests)
+```
+
+**Bug Fixes:**
+
+- Fixed SearchDocumentsQueryHandler: cast AverageRating to decimal, handle nullable UpdatedAt
+- Fixed Result.Failure calls to use Error constructor
+
+**Commit:** 313001e
 
 **Commit Message:**
 
 ```
-feat(learning): implement download tracking
+feat(learning): implement download tracking (TASK-060)
 
 Refs: TASK-060
 ```
@@ -624,7 +663,7 @@ Refs: TASK-061
 - [x] TASK-057: Implement Moderator Assignment ✅ (2026-02-06)
 - [x] TASK-058: Implement Document Rating ✅ (2026-02-06)
 - [x] TASK-059: Implement Document Search ✅ (2026-02-06)
-- [ ] TASK-060: Implement Download Tracking
+- [x] TASK-060: Implement Download Tracking ✅ (2026-02-07)
 - [ ] TASK-061: Learning API Endpoints
 
 ---
