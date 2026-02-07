@@ -1,6 +1,5 @@
 using UniHub.Learning.Application.Abstractions;
 using UniHub.Learning.Domain.Courses;
-using UniHub.SharedKernel;
 using UniHub.SharedKernel.CQRS;
 using UniHub.SharedKernel.Results;
 

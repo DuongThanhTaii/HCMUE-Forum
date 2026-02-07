@@ -33,7 +33,7 @@ public sealed class DownloadDocumentCommandHandler : ICommandHandler<DownloadDoc
 
         // Get document
         var document = await _documentRepository.GetByIdAsync(
-            new DocumentId(request.DocumentId),
+            DocumentId.Create(request.DocumentId),
             cancellationToken);
 
         if (document is null)

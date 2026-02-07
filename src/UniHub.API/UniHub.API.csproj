@@ -21,7 +21,11 @@
     <ProjectReference Include="..\Shared\UniHub.SharedKernel\UniHub.SharedKernel.csproj" />
     <ProjectReference Include="..\Shared\UniHub.Infrastructure\UniHub.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Identity\UniHub.Identity.Infrastructure\UniHub.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Identity\UniHub.Identity.Presentation\UniHub.Identity.Presentation.csproj" />
     <ProjectReference Include="..\Modules\Forum\UniHub.Forum.Infrastructure\UniHub.Forum.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Forum\UniHub.Forum.Presentation\UniHub.Forum.Presentation.csproj" />
+    <ProjectReference Include="..\Modules\Learning\UniHub.Learning.Infrastructure\UniHub.Learning.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Learning\UniHub.Learning.Presentation\UniHub.Learning.Presentation.csproj" />
   </ItemGroup>
 
 </Project>
