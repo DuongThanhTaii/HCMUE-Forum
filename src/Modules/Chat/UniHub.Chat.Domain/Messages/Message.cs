@@ -12,6 +12,7 @@ public sealed class Message : Entity<MessageId>
 {
     private readonly List<Attachment> _attachments = new();
     private readonly List<Reaction> _reactions = new();
+    private readonly List<ReadReceipt> _readReceipts = new();
 
     /// <summary>
     /// Conversation ID mà message này thuộc về
@@ -67,6 +68,11 @@ public sealed class Message : Entity<MessageId>
     /// Danh sách reactions (emojis)
     /// </summary>
     public IReadOnlyList<Reaction> Reactions => _reactions.AsReadOnly();
+
+    /// <summary>
+    /// Danh sách read receipts (who read this message)
+    /// </summary>
+    public IReadOnlyList<ReadReceipt> ReadReceipts => _readReceipts.AsReadOnly();
 
     private Message() { } // EF Core
 
@@ -414,6 +420,40 @@ public sealed class Message : Entity<MessageId>
             ConversationId.Value,
             userId,
             emoji,
+            DateTime.UtcNow));
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Mark message as read by a user
+    /// </summary>
+    public Result MarkAsRead(Guid userId)
+    {
+        if (userId == Guid.Empty)
+        {
+            return Result.Failure(new Error("Message.InvalidUserId", "User ID cannot be empty"));
+        }
+
+        // Check if user already read this message
+        if (_readReceipts.Any(r => r.UserId == userId))
+        {
+            return Result.Success(); // Already read, idempotent
+        }
+
+        // Create read receipt
+        var readReceiptResult = ReadReceipt.Create(userId);
+        if (readReceiptResult.IsFailure)
+        {
+            return Result.Failure(readReceiptResult.Error);
+        }
+
+        _readReceipts.Add(readReceiptResult.Value);
+
+        // Raise domain event
+        AddDomainEvent(new MessageReadDomainEvent(
+            Id,
+            userId,
             DateTime.UtcNow));
 
         return Result.Success();

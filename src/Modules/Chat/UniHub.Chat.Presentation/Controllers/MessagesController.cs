@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using UniHub.Chat.Application.Commands.AddReaction;
+using UniHub.Chat.Application.Commands.MarkMessageAsRead;
 using UniHub.Chat.Application.Commands.RemoveReaction;
 using UniHub.Chat.Application.Commands.SendMessage;
 using UniHub.Chat.Application.Commands.SendMessageWithAttachments;
 using UniHub.Chat.Application.Commands.UploadFile;
+using UniHub.Chat.Application.Queries.GetMessageReadReceipts;
 using UniHub.Chat.Application.Queries.GetMessages;
 
 namespace UniHub.Chat.Presentation.Controllers;
@@ -271,6 +273,63 @@ public class MessagesController : ControllerBase
         }
 
         return Ok(new { success = true });
+    }
+
+    /// <summary>
+    /// Mark a message as read
+    /// </summary>
+    [HttpPost("{messageId}/read")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> MarkMessageAsRead(
+        Guid messageId,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetUserId();
+        var command = new MarkMessageAsReadCommand(messageId, userId);
+        var result = await _sender.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error.Code == "Message.NotFound")
+            {
+                return NotFound(new { error = result.Error.Message });
+            }
+
+            return BadRequest(new { error = result.Error.Message });
+        }
+
+        return Ok(new { success = true });
+    }
+
+    /// <summary>
+    /// Get read receipts for a message
+    /// </summary>
+    [HttpGet("{messageId}/read-receipts")]
+    [ProducesResponseType(typeof(List<ReadReceiptResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetReadReceipts(
+        Guid messageId,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetMessageReadReceiptsQuery(messageId);
+        var result = await _sender.Send(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error.Code == "Message.NotFound")
+            {
+                return NotFound(new { error = result.Error.Message });
+            }
+
+            return BadRequest(new { error = result.Error.Message });
+        }
+
+        return Ok(result.Value);
     }
 
     private Guid GetUserId()
