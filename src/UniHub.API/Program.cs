@@ -2,6 +2,10 @@ using Serilog;
 using UniHub.Identity.Infrastructure;
 using UniHub.Infrastructure;
 using UniHub.Forum.Infrastructure;
+using UniHub.Learning.Infrastructure;
+using UniHub.Chat.Infrastructure;
+using UniHub.Chat.Presentation;
+using UniHub.Chat.Presentation.Hubs;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -35,11 +39,32 @@ try
     // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
     builder.Services.AddOpenApi();
 
+    // Add Controllers (for module API endpoints)
+    builder.Services.AddControllers()
+        .AddApplicationPart(typeof(UniHub.Identity.Presentation.Controllers.AuthController).Assembly)
+        .AddApplicationPart(typeof(UniHub.Forum.Presentation.Controllers.PostsController).Assembly)
+        .AddApplicationPart(typeof(UniHub.Learning.Presentation.Controllers.DocumentsController).Assembly)
+        .AddApplicationPart(typeof(UniHub.Chat.Presentation.Controllers.ConversationsController).Assembly);
+
+    // Add CORS for SignalR (configure domains in production)
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("ChatCorsPolicy", policy =>
+        {
+            policy.WithOrigins("http://localhost:3000", "http://localhost:5173") // Frontend origins
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials(); // Required for SignalR
+        });
+    });
+
     // Add MediatR for CQRS
     builder.Services.AddMediatR(cfg =>
     {
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Identity.Application.Commands.Register.RegisterUserCommand>();
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Forum.Application.Commands.CreatePost.CreatePostCommand>();
+        cfg.RegisterServicesFromAssemblyContaining<UniHub.Learning.Application.Commands.UploadDocument.UploadDocumentCommand>();
+        cfg.RegisterServicesFromAssemblyContaining<UniHub.Chat.Application.Commands.CreateDirectConversation.CreateDirectConversationCommand>();
     });
 
     // Add Infrastructure (PostgreSQL, MongoDB, Redis)
@@ -50,6 +75,13 @@ try
 
     // Add Forum module
     builder.Services.AddForumInfrastructure();
+
+    // Add Learning module
+    builder.Services.AddLearningInfrastructure();
+
+    // Add Chat module (repositories + SignalR with Redis backplane)
+    builder.Services.AddChatInfrastructure();
+    builder.Services.AddChatPresentation(builder.Configuration);
 
     // Add exception handler
     builder.Services.AddExceptionHandler<UniHub.API.Middlewares.GlobalExceptionHandler>();
@@ -84,9 +116,18 @@ try
 
     app.UseHttpsRedirection();
 
+    // Use CORS for SignalR
+    app.UseCors("ChatCorsPolicy");
+
     // Authentication & Authorization
     app.UseAuthentication();
     app.UseAuthorization();
+
+    // Map API controllers
+    app.MapControllers();
+
+    // Map SignalR ChatHub
+    app.MapHub<ChatHub>("/hubs/chat");
 
 // Health check endpoint
 app.MapHealthChecks("/health");

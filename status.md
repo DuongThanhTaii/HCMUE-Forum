@@ -12,8 +12,8 @@
 | -------------------- | --------------------- |
 | **Project Start**    | January 2026          |
 | **Current Phase**    | Phase 5 (IN_PROGRESS) |
-| **Overall Progress** | 54/131 tasks (41.2%)  |
-| **Total Tests**      | 774 tests             |
+| **Overall Progress** | 59/131 tasks (45.0%)  |
+| **Total Tests**      | 806 tests             |
 | **Build Status**     | ✅ Passing            |
 | **Code Quality**     | ✅ All tests pass     |
 
@@ -218,9 +218,9 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 
 ### Phase 5: Learning Resources Module ⭐
 
-| Status         | Progress           | Duration | Notes                                                         |
-| -------------- | ------------------ | -------- | ------------------------------------------------------------- |
-| 🟡 IN_PROGRESS | 5/12 tasks (41.7%) | 2 weeks  | **Domain + Event Sourcing + Document Upload (CQRS) COMPLETE** |
+| Status         | Progress            | Duration | Notes                                                         |
+| -------------- | ------------------- | -------- | ------------------------------------------------------------- |
+| 🟡 IN_PROGRESS | 10/12 tasks (83.3%) | 2 weeks  | **Domain + Event Sourcing + Document Upload (CQRS) COMPLETE** |
 
 **Completed:**
 
@@ -229,22 +229,22 @@ GET    /api/v1/search?q={query}           - Full-text search posts
 - ✅ TASK-052: Faculty Entity Design (Event Sourcing)
 - ✅ TASK-053: Approval Events Infrastructure (Event Sourcing)
 - ✅ TASK-054: Document Upload (CQRS with FluentValidation)
+- ✅ TASK-055: Approval Workflow (Commands: Submit, Approve, Reject, RequestRevision)
+- ✅ TASK-056: Course Management (Commands: Create, Update, Archive, Activate, Delete)
+- ✅ TASK-057: Moderator Assignment (Commands: Assign, Remove with scoped permissions)
+- ✅ TASK-058: Document Rating (Command: Rate with one-per-user enforcement)
+- ✅ TASK-059: Document Search (Query: Search with filtering, sorting, pagination)
+- ✅ TASK-060: Download Tracking (Command: Download with one-per-user counting)
 
 **Pending:**
 
-- ⬜ TASK-055: Approval Workflow
-- ⬜ TASK-056: Course Management
-- ⬜ TASK-057: Moderator Assignment
-- ⬜ TASK-058: Document Rating
-- ⬜ TASK-059: Document Search
-- ⬜ TASK-060: Download Tracking
 - ⬜ TASK-061: Learning API Endpoints
 
-**Test Coverage:** 369 tests (Domain: 346, Application: 23, all passing)
+**Test Coverage:** 519 tests (Domain: 346, Application: 173, all passing)
 **Architecture Layers:**
 
 - ✅ **Domain Layer**: Document, Course, Faculty aggregates with Event Sourcing
-- 🟡 **Application Layer**: UploadDocumentCommand implemented (1/12 commands done)
+- 🟡 **Application Layer**: 11/12 commands + 1 query implemented (91.7% complete)
 - ⬜ **Presentation Layer**: Pending (API controllers)
 - ⬜ **Infrastructure Layer**: Pending (repositories + MongoDB event store)
 
