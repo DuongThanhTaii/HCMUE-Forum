@@ -11,7 +11,7 @@
 | **Phase**         | 6              |
 | **Name**          | Chat Module    |
 | **Status**        | 🔵 IN_PROGRESS |
-| **Progress**      | 1/12 tasks     |
+| **Progress**      | 2/12 tasks     |
 | **Est. Duration** | 2 weeks        |
 | **Dependencies**  | Phase 3        |
 
@@ -50,10 +50,30 @@
 | Property     | Value                             |
 | ------------ | --------------------------------- |
 | **ID**       | TASK-063                          |
-| **Status**   | ⬜ NOT_STARTED                    |
+| **Status**   | ✅ COMPLETED (2026-02-07)         |
 | **Priority** | 🔴 Critical                       |
 | **Estimate** | 3 hours                           |
 | **Branch**   | `feature/TASK-063-message-entity` |
+
+**Deliverables:**
+
+- ✅ Message entity với business logic
+  - CreateText: Plain text messages với reply support
+  - CreateWithAttachments: File/Image/Video messages (max 10 attachments)
+  - CreateSystem: System messages (user joined, left, etc.)
+  - Edit: Only sender can edit (not System messages)
+  - Delete: Soft delete by sender only
+  - AddReaction/RemoveReaction: Emoji reactions
+- ✅ MessageId (strongly-typed ID)
+- ✅ MessageType enum (Text, File, Image, Video, System)
+- ✅ Attachment value object (filename, URL, size, MIME type, thumbnail)
+- ✅ Reaction value object (userId, emoji, timestamp)
+- ✅ 5 domain events (Sent, Edited, Deleted, ReactionAdded, ReactionRemoved)
+- ✅ 67 unit tests (100% passing)
+  - 46 MessageTests (Create, Edit, Delete, Reactions)
+  - 13 AttachmentTests (validation, file size limits)
+  - 8 MessageIdTests
+  - 10 ReactionTests
 
 ---
 
