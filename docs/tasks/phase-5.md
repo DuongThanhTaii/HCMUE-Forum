@@ -11,7 +11,7 @@
 | **Phase**         | 5                         |
 | **Name**          | Learning Resources Module |
 | **Status**        | 🟡 IN_PROGRESS            |
-| **Progress**      | 8/12 tasks (66.7%)        |
+| **Progress**      | 9/12 tasks (75%)          |
 | **Est. Duration** | 2 weeks                   |
 | **Dependencies**  | Phase 3                   |
 
@@ -468,23 +468,59 @@ Refs: TASK-058
 | Property         | Value                              |
 | ---------------- | ---------------------------------- |
 | **ID**           | TASK-059                           |
-| **Status**       | ⬜ NOT_STARTED                     |
+| **Status**       | ✅ COMPLETED                       |
 | **Priority**     | 🟡 Medium                          |
 | **Estimate**     | 3 hours                            |
+| **Actual**       | 3 hours                            |
 | **Branch**       | `feature/TASK-059-document-search` |
 | **Dependencies** | TASK-050                           |
+| **Completed**    | 2026-02-06                         |
+
+**Description:**
+Implement comprehensive document search with filtering, sorting, and pagination.
 
 **Acceptance Criteria:**
 
-- [ ] SearchDocumentsQuery
-- [ ] Filter by course, faculty, type
-- [ ] Sort by rating, downloads, date
-- [ ] Unit tests written
+- [x] SearchDocumentsQuery with 9 parameters
+- [x] Optional filters: SearchTerm, CourseId, FacultyId, DocumentType (0-5), Status (0-4)
+- [x] Sorting: DocumentSortBy enum (CreatedDate, Title, Rating, Downloads, ViewCount)
+- [x] Pagination: PageNumber (>0), PageSize (1-100)
+- [x] SearchDocumentsResult with pagination metadata
+- [x] DocumentSearchDto with 16 properties
+- [x] Repository SearchAsync method returning tuple (Documents, TotalCount)
+- [x] Unit tests written (19 tests: 12 validator + 7 handler)
+
+**Implementation Notes:**
+
+- Query pattern (read-only operation) vs Command pattern
+- Repository returns tuple for efficient pagination without separate count queries
+- All filters are optional (nullable parameters) for flexible searching
+- Default sort: CreatedDate descending (most recent first)
+- PageSize constrained 1-100 to prevent excessive load
+- DocumentSearchDto includes all document metadata (16 properties)
+- Handler calculates TotalPages for client-side pagination UI
+- Test coverage: 12 validator tests (including Theory tests for ranges), 7 handler tests (including filtering, sorting, pagination scenarios)
+
+**Files Created:**
+
+```
+src/Modules/Learning/UniHub.Learning.Application/Queries/DocumentSearch/
+  ├── SearchDocumentsQuery.cs (31 lines)
+  ├── SearchDocumentsResult.cs (25 lines)
+  ├── SearchDocumentsQueryValidator.cs (23 lines)
+  └── SearchDocumentsQueryHandler.cs (66 lines)
+
+tests/Modules/Learning/UniHub.Learning.Application.Tests/Queries/DocumentSearch/
+  ├── SearchDocumentsQueryValidatorTests.cs (210 lines, 12 tests)
+  └── SearchDocumentsQueryHandlerTests.cs (258 lines, 7 tests)
+```
+
+**Commit:** aa07dc7
 
 **Commit Message:**
 
 ```
-feat(learning): implement document search
+feat(learning): implement document search with filtering, sorting, and pagination (TASK-059)
 
 Refs: TASK-059
 ```
@@ -587,7 +623,7 @@ Refs: TASK-061
 - [x] TASK-056: Implement Course Management ✅ (2026-02-06)
 - [x] TASK-057: Implement Moderator Assignment ✅ (2026-02-06)
 - [x] TASK-058: Implement Document Rating ✅ (2026-02-06)
-- [ ] TASK-059: Implement Document Search
+- [x] TASK-059: Implement Document Search ✅ (2026-02-06)
 - [ ] TASK-060: Implement Download Tracking
 - [ ] TASK-061: Learning API Endpoints
 
