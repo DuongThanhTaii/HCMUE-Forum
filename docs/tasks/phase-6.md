@@ -11,7 +11,7 @@
 | **Phase**         | 6                 |
 | **Name**          | Chat Module       |
 | **Status**        | 🔵 IN_PROGRESS    |
-| **Progress**      | 10/12 tasks (83%) |
+| **Progress**      | 11/12 tasks (92%) |
 | **Est. Duration** | 2 weeks           |
 | **Dependencies**  | Phase 3           |
 
@@ -317,10 +317,26 @@
 | Property     | Value                            |
 | ------------ | -------------------------------- |
 | **ID**       | TASK-072                         |
-| **Status**   | ⬜ NOT_STARTED                   |
+| **Status**   | ✅ COMPLETED                     |
 | **Priority** | 🟡 Medium                        |
 | **Estimate** | 2 hours                          |
 | **Branch**   | `feature/TASK-072-read-receipts` |
+
+**Deliverables:**
+
+- ✅ ReadReceipt value object (userId, readAt timestamp)
+- ✅ MessageReadDomainEvent
+- ✅ Update Message entity with read receipt tracking:
+  - _readReceipts list and ReadReceipts property
+  - MarkAsRead method (idempotent operation)
+- ✅ MarkMessageAsReadCommand/Handler/Validator
+- ✅ GetMessageReadReceiptsQuery/Handler/Validator
+- ✅ MessagesController with 2 new endpoints:
+  - POST /api/v1/chat/messages/{messageId}/read (mark as read)
+  - GET /api/v1/chat/messages/{messageId}/read-receipts (get receipts)
+- ✅ Validation: deleted messages cannot be marked as read
+- ✅ Returns ordered list of read receipts by timestamp
+- ✅ Idempotent marking (same user marking same message multiple times has no effect)
 
 ---
 
