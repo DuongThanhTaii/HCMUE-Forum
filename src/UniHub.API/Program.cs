@@ -76,8 +76,8 @@ try
     // Add Learning module
     builder.Services.AddLearningInfrastructure();
 
-    // Add Chat module (SignalR)
-    builder.Services.AddChatPresentation();
+    // Add Chat module (SignalR with Redis backplane)
+    builder.Services.AddChatPresentation(builder.Configuration);
 
     // Add exception handler
     builder.Services.AddExceptionHandler<UniHub.API.Middlewares.GlobalExceptionHandler>();
