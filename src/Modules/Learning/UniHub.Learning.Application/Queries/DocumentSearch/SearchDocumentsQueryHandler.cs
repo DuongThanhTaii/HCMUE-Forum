@@ -40,14 +40,14 @@ public sealed class SearchDocumentsQueryHandler : IQueryHandler<SearchDocumentsQ
             d.File.FileName,
             d.File.FileSize,
             d.File.ContentType,
-            d.AverageRating,
+            (decimal)d.AverageRating,
             d.RatingCount,
             d.ViewCount,
             d.DownloadCount,
             d.UploaderId,
             d.CourseId,
             d.CreatedAt,
-            d.UpdatedAt)).ToList();
+            d.UpdatedAt ?? d.CreatedAt)).ToList();
 
         // Calculate total pages
         var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
