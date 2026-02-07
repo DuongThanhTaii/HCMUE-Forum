@@ -6,14 +6,14 @@
 
 ## 📋 PHASE INFO
 
-| Property          | Value          |
-| ----------------- | -------------- |
-| **Phase**         | 6              |
-| **Name**          | Chat Module    |
-| **Status**        | 🔵 IN_PROGRESS |
+| Property          | Value            |
+| ----------------- | ---------------- |
+| **Phase**         | 6                |
+| **Name**          | Chat Module      |
+| **Status**        | 🔵 IN_PROGRESS   |
 | **Progress**      | 8/12 tasks (67%) |
-| **Est. Duration** | 2 weeks        |
-| **Dependencies**  | Phase 3        |
+| **Est. Duration** | 2 weeks          |
+| **Dependencies**  | Phase 3          |
 
 ---
 
