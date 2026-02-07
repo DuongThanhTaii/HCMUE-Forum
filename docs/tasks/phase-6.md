@@ -10,8 +10,8 @@
 | ----------------- | -------------- |
 | **Phase**         | 6              |
 | **Name**          | Chat Module    |
-| **Status**        | ⬜ NOT_STARTED |
-| **Progress**      | 0/12 tasks     |
+| **Status**        | 🔵 IN_PROGRESS |
+| **Progress**      | 1/12 tasks     |
 | **Est. Duration** | 2 weeks        |
 | **Dependencies**  | Phase 3        |
 
@@ -24,10 +24,24 @@
 | Property     | Value                                     |
 | ------------ | ----------------------------------------- |
 | **ID**       | TASK-062                                  |
-| **Status**   | ⬜ NOT_STARTED                            |
+| **Status**   | ✅ COMPLETED (2026-02-07)                 |
 | **Priority** | 🔴 Critical                               |
 | **Estimate** | 4 hours                                   |
 | **Branch**   | `feature/TASK-062-conversation-aggregate` |
+
+**Deliverables:**
+
+- ✅ Conversation aggregate với business logic
+  - CreateDirect (1:1 chat, exactly 2 participants)
+  - CreateGroup (2+ participants, optional title)
+  - AddParticipant/RemoveParticipant (Group only)
+  - Archive/Unarchive
+- ✅ ConversationId (strongly-typed ID)
+- ✅ ConversationType enum (Direct, Group)
+- ✅ 5 domain events (Created, ParticipantAdded, ParticipantRemoved, Archived, Unarchived)
+- ✅ 55 unit tests (100% passing)
+  - 47 ConversationTests (Create, Add/RemoveParticipant, Archive/Unarchive)
+  - 8 ConversationIdTests (equality, hashing)
 
 ---
 
