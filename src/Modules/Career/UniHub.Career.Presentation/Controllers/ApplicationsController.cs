@@ -18,6 +18,7 @@ namespace UniHub.Career.Presentation.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/applications")]
+[Produces("application/json")]
 [Authorize]
 public class ApplicationsController : ControllerBase
 {
@@ -32,13 +33,16 @@ public class ApplicationsController : ControllerBase
     /// Submit a new job application
     /// </summary>
     /// <param name="command">Application submission details</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The created application</returns>
     [HttpPost]
     [ProducesResponseType(typeof(ApplicationResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> SubmitApplication([FromBody] SubmitApplicationCommand command)
+    public async Task<IActionResult> SubmitApplication(
+        [FromBody] SubmitApplicationCommand command,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _sender.Send(command);
+        var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -56,13 +60,15 @@ public class ApplicationsController : ControllerBase
     /// </summary>
     /// <param name="page">Page number</param>
     /// <param name="pageSize">Page size</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of user's applications</returns>
     [HttpGet]
     [ProducesResponseType(typeof(ApplicationListResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetMyApplications(
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20)
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
         // In a real application, get userId from ClaimsPrincipal
         // For now, this would need to be passed or extracted from auth context
@@ -72,7 +78,7 @@ public class ApplicationsController : ControllerBase
             Page: page,
             PageSize: pageSize);
 
-        var result = await _sender.Send(query);
+        var result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -86,16 +92,17 @@ public class ApplicationsController : ControllerBase
     /// Get a specific application by ID
     /// </summary>
     /// <param name="id">Application ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Application details</returns>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(ApplicationResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetApplicationById(Guid id)
+    public async Task<IActionResult> GetApplicationById(Guid id, CancellationToken cancellationToken = default)
     {
         var query = new GetApplicationByIdQuery(id);
 
-        var result = await _sender.Send(query);
+        var result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -110,19 +117,23 @@ public class ApplicationsController : ControllerBase
     /// </summary>
     /// <param name="id">Application ID</param>
     /// <param name="command">Status update details</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPut("{id:guid}/status")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateApplicationStatus(Guid id, [FromBody] UpdateApplicationStatusCommand command)
+    public async Task<IActionResult> UpdateApplicationStatus(
+        Guid id,
+        [FromBody] UpdateApplicationStatusCommand command,
+        CancellationToken cancellationToken = default)
     {
         if (id != command.ApplicationId)
         {
             return BadRequest(new { error = "Application ID in route does not match the one in request body" });
         }
 
-        var result = await _sender.Send(command);
+        var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -137,19 +148,23 @@ public class ApplicationsController : ControllerBase
     /// </summary>
     /// <param name="id">Application ID</param>
     /// <param name="command">Withdrawal details</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPost("{id:guid}/withdraw")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> WithdrawApplication(Guid id, [FromBody] WithdrawApplicationCommand command)
+    public async Task<IActionResult> WithdrawApplication(
+        Guid id,
+        [FromBody] WithdrawApplicationCommand command,
+        CancellationToken cancellationToken = default)
     {
         if (id != command.ApplicationId)
         {
             return BadRequest(new { error = "Application ID in route does not match the one in request body" });
         }
 
-        var result = await _sender.Send(command);
+        var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -164,19 +179,23 @@ public class ApplicationsController : ControllerBase
     /// </summary>
     /// <param name="id">Application ID</param>
     /// <param name="command">Acceptance details</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPost("{id:guid}/accept")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AcceptApplication(Guid id, [FromBody] AcceptApplicationCommand command)
+    public async Task<IActionResult> AcceptApplication(
+        Guid id,
+        [FromBody] AcceptApplicationCommand command,
+        CancellationToken cancellationToken = default)
     {
         if (id != command.ApplicationId)
         {
             return BadRequest(new { error = "Application ID in route does not match the one in request body" });
         }
 
-        var result = await _sender.Send(command);
+        var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -191,19 +210,23 @@ public class ApplicationsController : ControllerBase
     /// </summary>
     /// <param name="id">Application ID</param>
     /// <param name="command">Rejection details</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPost("{id:guid}/reject")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> RejectApplication(Guid id, [FromBody] RejectApplicationCommand command)
+    public async Task<IActionResult> RejectApplication(
+        Guid id,
+        [FromBody] RejectApplicationCommand command,
+        CancellationToken cancellationToken = default)
     {
         if (id != command.ApplicationId)
         {
             return BadRequest(new { error = "Application ID in route does not match the one in request body" });
         }
 
-        var result = await _sender.Send(command);
+        var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -219,6 +242,7 @@ public class ApplicationsController : ControllerBase
     /// <param name="jobId">Job posting ID</param>
     /// <param name="page">Page number</param>
     /// <param name="pageSize">Page size</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of applications for the job</returns>
     [HttpGet("jobs/{jobId:guid}")]
     [ProducesResponseType(typeof(ApplicationListResponse), StatusCodes.Status200OK)]
@@ -226,7 +250,8 @@ public class ApplicationsController : ControllerBase
     public async Task<IActionResult> GetApplicationsByJob(
         Guid jobId,
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20)
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
         var query = new GetApplicationsByJobQuery(
             JobPostingId: jobId,
@@ -234,7 +259,7 @@ public class ApplicationsController : ControllerBase
             Page: page,
             PageSize: pageSize);
 
-        var result = await _sender.Send(query);
+        var result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {

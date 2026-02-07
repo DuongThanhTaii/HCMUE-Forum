@@ -6,6 +6,7 @@ using UniHub.Learning.Infrastructure;
 using UniHub.Chat.Infrastructure;
 using UniHub.Chat.Presentation;
 using UniHub.Chat.Presentation.Hubs;
+using UniHub.Career.Infrastructure;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -44,7 +45,8 @@ try
         .AddApplicationPart(typeof(UniHub.Identity.Presentation.Controllers.AuthController).Assembly)
         .AddApplicationPart(typeof(UniHub.Forum.Presentation.Controllers.PostsController).Assembly)
         .AddApplicationPart(typeof(UniHub.Learning.Presentation.Controllers.DocumentsController).Assembly)
-        .AddApplicationPart(typeof(UniHub.Chat.Presentation.Controllers.ConversationsController).Assembly);
+        .AddApplicationPart(typeof(UniHub.Chat.Presentation.Controllers.ConversationsController).Assembly)
+        .AddApplicationPart(typeof(UniHub.Career.Presentation.Controllers.JobPostingsController).Assembly);
 
     // Add CORS for SignalR (configure domains in production)
     builder.Services.AddCors(options =>
@@ -65,6 +67,7 @@ try
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Forum.Application.Commands.CreatePost.CreatePostCommand>();
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Learning.Application.Commands.UploadDocument.UploadDocumentCommand>();
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Chat.Application.Commands.CreateDirectConversation.CreateDirectConversationCommand>();
+        cfg.RegisterServicesFromAssemblyContaining<UniHub.Career.Application.Commands.JobPostings.CreateJobPosting.CreateJobPostingCommand>();
     });
 
     // Add Infrastructure (PostgreSQL, MongoDB, Redis)
@@ -82,6 +85,9 @@ try
     // Add Chat module (repositories + SignalR with Redis backplane)
     builder.Services.AddChatInfrastructure();
     builder.Services.AddChatPresentation(builder.Configuration);
+
+    // Add Career module
+    builder.Services.AddCareerInfrastructure();
 
     // Add exception handler
     builder.Services.AddExceptionHandler<UniHub.API.Middlewares.GlobalExceptionHandler>();

@@ -854,6 +854,7 @@ typeNotInPreferences = 0 points
 **Implemented Controllers:**
 
 **JobPostingsController** (12 endpoints):
+
 ```
 GET    /api/v1/jobs                    - Get all jobs (paginated, filtered) [AllowAnonymous]
 GET    /api/v1/jobs/search             - Advanced search with sorting [AllowAnonymous]
@@ -869,6 +870,7 @@ GET    /api/v1/jobs/{id}/saved         - Check if job is saved [Authorize]
 ```
 
 **CompaniesController** (5 endpoints):
+
 ```
 POST   /api/v1/companies                       - Register company [Authorize]
 GET    /api/v1/companies/{id}                  - Get company by ID [AllowAnonymous] (501 Not Implemented)
@@ -878,6 +880,7 @@ GET    /api/v1/companies/{id}/applications     - Get recent applications [Author
 ```
 
 **ApplicationsController** (8 endpoints):
+
 ```
 POST   /api/v1/applications                  - Submit application [Authorize]
 GET    /api/v1/applications                  - Get user's applications [Authorize]
@@ -890,6 +893,7 @@ GET    /api/v1/applications/jobs/{jobId}     - Get applications for job [Authori
 ```
 
 **RecruitersController** (6 endpoints):
+
 ```
 POST   /api/v1/recruiters                           - Add recruiter [Authorize]
 GET    /api/v1/recruiters/companies/{companyId}     - Get company recruiters [Authorize]
@@ -902,6 +906,7 @@ POST   /api/v1/recruiters/{id}/reactivate           - Reactivate recruiter [Auth
 **Total:** 4 controllers, 31 endpoints, ~1000+ lines of code
 
 **Features:**
+
 - MediatR integration for CQRS pattern
 - Result<T> pattern for error handling
 - XML documentation for Swagger

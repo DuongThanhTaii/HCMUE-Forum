@@ -16,6 +16,7 @@ namespace UniHub.Career.Presentation.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/recruiters")]
+[Produces("application/json")]
 [Authorize]
 public class RecruitersController : ControllerBase
 {
@@ -30,13 +31,16 @@ public class RecruitersController : ControllerBase
     /// Add a new recruiter to a company
     /// </summary>
     /// <param name="command">Recruiter details</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The created recruiter</returns>
     [HttpPost]
     [ProducesResponseType(typeof(RecruiterResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> AddRecruiter([FromBody] AddRecruiterCommand command)
+    public async Task<IActionResult> AddRecruiter(
+        [FromBody] AddRecruiterCommand command,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _sender.Send(command);
+        var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -54,19 +58,21 @@ public class RecruitersController : ControllerBase
     /// </summary>
     /// <param name="companyId">Company ID</param>
     /// <param name="activeOnly">Filter for active recruiters only</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of recruiters</returns>
     [HttpGet("companies/{companyId:guid}")]
     [ProducesResponseType(typeof(RecruitersResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetRecruitersForCompany(
         Guid companyId,
-        [FromQuery] bool activeOnly = false)
+        [FromQuery] bool activeOnly = false,
+        CancellationToken cancellationToken = default)
     {
         var query = new GetRecruitersForCompanyQuery(
             CompanyId: companyId,
             ActiveOnly: activeOnly);
 
-        var result = await _sender.Send(query);
+        var result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -81,15 +87,19 @@ public class RecruitersController : ControllerBase
     /// </summary>
     /// <param name="userId">User ID to check</param>
     /// <param name="companyId">Company ID to check</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Boolean indicating if user is a recruiter</returns>
     [HttpGet("check")]
     [ProducesResponseType(typeof(IsRecruiterResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CheckIsRecruiter([FromQuery] Guid userId, [FromQuery] Guid companyId)
+    public async Task<IActionResult> CheckIsRecruiter(
+        [FromQuery] Guid userId,
+        [FromQuery] Guid companyId,
+        CancellationToken cancellationToken = default)
     {
         var query = new IsUserRecruiterQuery(userId, companyId);
 
-        var result = await _sender.Send(query);
+        var result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -104,19 +114,23 @@ public class RecruitersController : ControllerBase
     /// </summary>
     /// <param name="id">Recruiter ID</param>
     /// <param name="command">Updated permissions</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPut("{id:guid}/permissions")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdatePermissions(Guid id, [FromBody] UpdateRecruiterPermissionsCommand command)
+    public async Task<IActionResult> UpdatePermissions(
+        Guid id,
+        [FromBody] UpdateRecruiterPermissionsCommand command,
+        CancellationToken cancellationToken = default)
     {
         if (id != command.RecruiterId)
         {
             return BadRequest(new { error = "Recruiter ID in route does not match the one in request body" });
         }
 
-        var result = await _sender.Send(command);
+        var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -131,19 +145,23 @@ public class RecruitersController : ControllerBase
     /// </summary>
     /// <param name="id">Recruiter ID</param>
     /// <param name="command">Deactivation details</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPost("{id:guid}/deactivate")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeactivateRecruiter(Guid id, [FromBody] DeactivateRecruiterCommand command)
+    public async Task<IActionResult> DeactivateRecruiter(
+        Guid id,
+        [FromBody] DeactivateRecruiterCommand command,
+        CancellationToken cancellationToken = default)
     {
         if (id != command.RecruiterId)
         {
             return BadRequest(new { error = "Recruiter ID in route does not match the one in request body" });
         }
 
-        var result = await _sender.Send(command);
+        var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -158,19 +176,23 @@ public class RecruitersController : ControllerBase
     /// </summary>
     /// <param name="id">Recruiter ID</param>
     /// <param name="command">Reactivation details</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPost("{id:guid}/reactivate")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ReactivateRecruiter(Guid id, [FromBody] ReactivateRecruiterCommand command)
+    public async Task<IActionResult> ReactivateRecruiter(
+        Guid id,
+        [FromBody] ReactivateRecruiterCommand command,
+        CancellationToken cancellationToken = default)
     {
         if (id != command.RecruiterId)
         {
             return BadRequest(new { error = "Recruiter ID in route does not match the one in request body" });
         }
 
-        var result = await _sender.Send(command);
+        var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
