@@ -30,6 +30,7 @@
 **Deliverables:**
 
 ✅ **JobPosting Aggregate Root** ([JobPosting.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/JobPosting.cs)):
+
 - Full lifecycle management: Draft → Published → Paused → Closed/Expired
 - Create job postings with comprehensive validation
 - Publish/pause/close/expire state transitions
@@ -41,11 +42,13 @@
 - `CheckAndExpire()` auto-expiration logic
 
 ✅ **Value Objects**:
+
 - [SalaryRange.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/SalaryRange.cs): Min/max amounts, 7 supported currencies (VND, USD, EUR, GBP, JPY, SGD, AUD), 5 periods (hour, day, week, month, year)
 - [WorkLocation.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/WorkLocation.cs): City/district/address, remote flag, formatted display
 - [JobRequirement.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/JobRequirement.cs): Skill name, required/preferred flag
 
 ✅ **Domain Events** (5 events):
+
 - [JobPostingCreatedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/Events/JobPostingCreatedEvent.cs)
 - [JobPostingPublishedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/Events/JobPostingPublishedEvent.cs)
 - [JobPostingUpdatedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/Events/JobPostingUpdatedEvent.cs)
@@ -53,15 +56,18 @@
 - [JobPostingExpiredEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/Events/JobPostingExpiredEvent.cs)
 
 ✅ **Enumerations**:
+
 - [JobType.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/JobType.cs): FullTime, PartTime, Internship, Freelance, Remote, Temporary
 - [JobPostingStatus.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/JobPostingStatus.cs): Draft, Published, Paused, Closed, Expired
 - [ExperienceLevel.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/ExperienceLevel.cs): Entry, Junior, Mid, Senior, Lead, Executive
 
 ✅ **Domain Infrastructure**:
+
 - [JobPostingId.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/JobPostingId.cs): Strongly-typed ID using GuidId pattern
 - [JobPostingErrors.cs](../../src/Modules/Career/UniHub.Career.Domain/JobPostings/JobPostingErrors.cs): 20+ error definitions
 
 ✅ **Unit Tests** ([tests/Modules/Career/UniHub.Career.Domain.Tests/](../../tests/Modules/Career/UniHub.Career.Domain.Tests/)):
+
 - [JobPostingTests.cs](../../tests/Modules/Career/UniHub.Career.Domain.Tests/JobPostings/JobPostingTests.cs): 84 tests covering aggregate lifecycle, state transitions, validation, requirements, tags
 - [SalaryRangeTests.cs](../../tests/Modules/Career/UniHub.Career.Domain.Tests/JobPostings/SalaryRangeTests.cs): 18 tests covering value object validation
 - [WorkLocationTests.cs](../../tests/Modules/Career/UniHub.Career.Domain.Tests/JobPostings/WorkLocationTests.cs): 14 tests covering location logic
@@ -69,6 +75,7 @@
 - **Total: 126 tests - ALL PASSING** ✅
 
 **Key Design Patterns**:
+
 - Factory pattern with `Result<T>` return type
 - All validation in factory methods before object construction
 - Domain events raised via `AddDomainEvent()`
