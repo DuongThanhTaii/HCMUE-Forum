@@ -43,7 +43,8 @@ try
     builder.Services.AddControllers()
         .AddApplicationPart(typeof(UniHub.Identity.Presentation.Controllers.AuthController).Assembly)
         .AddApplicationPart(typeof(UniHub.Forum.Presentation.Controllers.PostsController).Assembly)
-        .AddApplicationPart(typeof(UniHub.Learning.Presentation.Controllers.DocumentsController).Assembly);
+        .AddApplicationPart(typeof(UniHub.Learning.Presentation.Controllers.DocumentsController).Assembly)
+        .AddApplicationPart(typeof(UniHub.Chat.Presentation.Controllers.ConversationsController).Assembly);
 
     // Add CORS for SignalR (configure domains in production)
     builder.Services.AddCors(options =>

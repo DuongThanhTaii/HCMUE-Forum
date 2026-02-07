@@ -38,6 +38,7 @@ Get all conversations for the authenticated user, ordered by last message time.
 **Query Parameters:** None
 
 **Response:** `200 OK`
+
 ```json
 [
   {
@@ -52,6 +53,7 @@ Get all conversations for the authenticated user, ordered by last message time.
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized` - Missing or invalid authentication token
 
 ---
@@ -65,6 +67,7 @@ Create a 1:1 conversation with another user. Idempotent - returns existing conve
 **Authentication:** Required
 
 **Request Body:**
+
 ```json
 {
   "otherUserId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
@@ -72,6 +75,7 @@ Create a 1:1 conversation with another user. Idempotent - returns existing conve
 ```
 
 **Response:** `201 Created`
+
 ```json
 {
   "conversationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
@@ -79,6 +83,7 @@ Create a 1:1 conversation with another user. Idempotent - returns existing conve
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Invalid user ID or validation error
 - `401 Unauthorized` - Missing or invalid authentication token
 
@@ -93,6 +98,7 @@ Create a group conversation with multiple participants.
 **Authentication:** Required
 
 **Request Body:**
+
 ```json
 {
   "title": "Project Team Chat",
@@ -104,11 +110,13 @@ Create a group conversation with multiple participants.
 ```
 
 **Validation:**
+
 - Title: optional, max 200 characters
 - Participants: minimum 2 participants required
 - Creator is automatically added as participant
 
 **Response:** `201 Created`
+
 ```json
 {
   "conversationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
@@ -116,6 +124,7 @@ Create a group conversation with multiple participants.
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Validation error (insufficient participants, invalid title)
 - `401 Unauthorized` - Missing or invalid authentication token
 
@@ -130,9 +139,11 @@ Add a new participant to an existing group conversation.
 **Authentication:** Required
 
 **Path Parameters:**
+
 - `id` (UUID) - Conversation ID
 
 **Request Body:**
+
 ```json
 {
   "participantId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
@@ -140,6 +151,7 @@ Add a new participant to an existing group conversation.
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "message": "Participant added successfully"
@@ -147,6 +159,7 @@ Add a new participant to an existing group conversation.
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Not a group conversation, participant already exists
 - `401 Unauthorized` - Missing or invalid authentication token
 - `404 Not Found` - Conversation not found
@@ -162,10 +175,12 @@ Remove a participant from a group conversation. Minimum 2 participants must rema
 **Authentication:** Required
 
 **Path Parameters:**
+
 - `id` (UUID) - Conversation ID
 - `participantId` (UUID) - Participant ID to remove
 
 **Response:** `200 OK`
+
 ```json
 {
   "message": "Participant removed successfully"
@@ -173,6 +188,7 @@ Remove a participant from a group conversation. Minimum 2 participants must rema
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Not a group conversation, would leave < 2 participants
 - `401 Unauthorized` - Missing or invalid authentication token
 - `404 Not Found` - Conversation not found
@@ -190,11 +206,13 @@ Get paginated messages for a conversation, ordered by sent time (newest first).
 **Authentication:** Required
 
 **Query Parameters:**
+
 - `conversationId` (UUID, required) - Conversation ID
 - `page` (integer, optional, default: 1) - Page number
 - `pageSize` (integer, optional, default: 50, max: 100) - Items per page
 
 **Response:** `200 OK`
+
 ```json
 {
   "items": [
@@ -220,6 +238,7 @@ Get paginated messages for a conversation, ordered by sent time (newest first).
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Invalid pagination parameters
 - `401 Unauthorized` - Missing or invalid authentication token
 - `404 Not Found` - Conversation not found
@@ -235,6 +254,7 @@ Send a text message to a conversation.
 **Authentication:** Required
 
 **Request Body:**
+
 ```json
 {
   "conversationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -244,10 +264,12 @@ Send a text message to a conversation.
 ```
 
 **Validation:**
+
 - Content: required, max 2000 characters
 - ReplyToMessageId: optional, must exist in same conversation
 
 **Response:** `201 Created`
+
 ```json
 {
   "messageId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -256,6 +278,7 @@ Send a text message to a conversation.
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Validation error (empty content, invalid reply)
 - `401 Unauthorized` - Missing or invalid authentication token
 - `403 Forbidden` - User is not a participant in the conversation
@@ -272,14 +295,17 @@ Upload a file for use in chat messages. Returns a file URL for later use in send
 **Authentication:** Required
 
 **Request:** `multipart/form-data`
+
 - `file` (file, required) - File to upload
 
 **Validation:**
+
 - Max file size: 50 MB
 - Allowed types: images, documents, videos, audio, archives (25+ MIME types)
 - File name: max 255 characters
 
 **Response:** `200 OK`
+
 ```json
 {
   "fileName": "document.pdf",
@@ -290,6 +316,7 @@ Upload a file for use in chat messages. Returns a file URL for later use in send
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - No file provided, file too large, unsupported type
 - `401 Unauthorized` - Missing or invalid authentication token
 
@@ -304,6 +331,7 @@ Send a message with file attachments (images, documents, videos).
 **Authentication:** Required
 
 **Request Body:**
+
 ```json
 {
   "conversationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -322,12 +350,14 @@ Send a message with file attachments (images, documents, videos).
 ```
 
 **Validation:**
+
 - Content: optional (can send attachments without text)
 - Attachments: required, max 10 attachments per message
 - Each attachment: fileName, fileUrl, fileSize > 0, mimeType required
 - Message type auto-detected from MIME type (Image/Video/File)
 
 **Response:** `201 Created`
+
 ```json
 {
   "messageId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -336,6 +366,7 @@ Send a message with file attachments (images, documents, videos).
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Validation error (max attachments exceeded, invalid file data)
 - `401 Unauthorized` - Missing or invalid authentication token
 - `403 Forbidden` - User is not a participant in the conversation
@@ -352,9 +383,11 @@ Add an emoji reaction to a message.
 **Authentication:** Required
 
 **Path Parameters:**
+
 - `messageId` (UUID) - Message ID
 
 **Request Body:**
+
 ```json
 {
   "emoji": "👍"
@@ -362,10 +395,12 @@ Add an emoji reaction to a message.
 ```
 
 **Supported Emojis (20 total):**
+
 - 👍 👎 ❤️ 😂 😮 😢 😡 🎉 🔥 👏
 - ✅ ❌ ⭐ 💯 🙏 💪 👀 🤔 😍 🥳
 
 **Response:** `200 OK`
+
 ```json
 {
   "success": true
@@ -373,6 +408,7 @@ Add an emoji reaction to a message.
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Invalid emoji (not in supported list)
 - `401 Unauthorized` - Missing or invalid authentication token
 - `404 Not Found` - Message not found
@@ -388,10 +424,12 @@ Remove an emoji reaction from a message.
 **Authentication:** Required
 
 **Path Parameters:**
+
 - `messageId` (UUID) - Message ID
 - `emoji` (string) - URL-encoded emoji to remove (e.g., `%F0%9F%91%8D` for 👍)
 
 **Response:** `200 OK`
+
 ```json
 {
   "success": true
@@ -399,6 +437,7 @@ Remove an emoji reaction from a message.
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Reaction not found for this user
 - `401 Unauthorized` - Missing or invalid authentication token
 - `404 Not Found` - Message not found
@@ -414,11 +453,13 @@ Mark a message as read by the authenticated user. Idempotent operation.
 **Authentication:** Required
 
 **Path Parameters:**
+
 - `messageId` (UUID) - Message ID
 
 **Request Body:** None (empty body)
 
 **Response:** `200 OK`
+
 ```json
 {
   "success": true
@@ -426,6 +467,7 @@ Mark a message as read by the authenticated user. Idempotent operation.
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Message is deleted
 - `401 Unauthorized` - Missing or invalid authentication token
 - `404 Not Found` - Message not found
@@ -441,9 +483,11 @@ Get list of users who have read a message, with timestamps.
 **Authentication:** Required
 
 **Path Parameters:**
+
 - `messageId` (UUID) - Message ID
 
 **Response:** `200 OK`
+
 ```json
 [
   {
@@ -460,6 +504,7 @@ Get list of users who have read a message, with timestamps.
 **Note:** Results are ordered by `readAt` timestamp (oldest first).
 
 **Error Responses:**
+
 - `401 Unauthorized` - Missing or invalid authentication token
 - `404 Not Found` - Message not found
 
@@ -478,6 +523,7 @@ Discover all public channels available for joining.
 **Query Parameters:** None
 
 **Response:** `200 OK`
+
 ```json
 [
   {
@@ -494,6 +540,7 @@ Discover all public channels available for joining.
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized` - Missing or invalid authentication token
 
 ---
@@ -509,6 +556,7 @@ Get all channels where the authenticated user is a member.
 **Query Parameters:** None
 
 **Response:** `200 OK`
+
 ```json
 [
   {
@@ -527,6 +575,7 @@ Get all channels where the authenticated user is a member.
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized` - Missing or invalid authentication token
 
 ---
@@ -540,6 +589,7 @@ Create a new public or private channel. Creator is automatically added as owner,
 **Authentication:** Required
 
 **Request Body:**
+
 ```json
 {
   "name": "Study Group",
@@ -549,11 +599,13 @@ Create a new public or private channel. Creator is automatically added as owner,
 ```
 
 **Validation:**
+
 - Name: required, 3-100 characters
 - Description: optional, max 500 characters
 - IsPublic: required (true = public, false = private)
 
 **Response:** `201 Created`
+
 ```json
 {
   "channelId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
@@ -561,6 +613,7 @@ Create a new public or private channel. Creator is automatically added as owner,
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Validation error (invalid name length, etc.)
 - `401 Unauthorized` - Missing or invalid authentication token
 
@@ -575,11 +628,13 @@ Join a public channel or private channel (requires invitation/permission).
 **Authentication:** Required
 
 **Path Parameters:**
+
 - `id` (UUID) - Channel ID
 
 **Request Body:** None (empty body)
 
 **Response:** `200 OK`
+
 ```json
 {
   "message": "Successfully joined channel"
@@ -587,6 +642,7 @@ Join a public channel or private channel (requires invitation/permission).
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Already a member, private channel without permission
 - `401 Unauthorized` - Missing or invalid authentication token
 - `404 Not Found` - Channel not found
@@ -602,11 +658,13 @@ Leave a channel. Owner cannot leave their own channel.
 **Authentication:** Required
 
 **Path Parameters:**
+
 - `id` (UUID) - Channel ID
 
 **Request Body:** None (empty body)
 
 **Response:** `200 OK`
+
 ```json
 {
   "message": "Successfully left channel"
@@ -614,6 +672,7 @@ Leave a channel. Owner cannot leave their own channel.
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Not a member, or owner attempting to leave
 - `401 Unauthorized` - Missing or invalid authentication token
 - `404 Not Found` - Channel not found
@@ -629,9 +688,11 @@ Promote a channel member to moderator. Only channel owner can perform this actio
 **Authentication:** Required
 
 **Path Parameters:**
+
 - `id` (UUID) - Channel ID
 
 **Request Body:**
+
 ```json
 {
   "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
@@ -639,6 +700,7 @@ Promote a channel member to moderator. Only channel owner can perform this actio
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "message": "Moderator added successfully"
@@ -646,6 +708,7 @@ Promote a channel member to moderator. Only channel owner can perform this actio
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - User not a member, already a moderator
 - `401 Unauthorized` - Missing or invalid authentication token
 - `403 Forbidden` - Requester is not the channel owner
@@ -662,10 +725,12 @@ Demote a moderator to regular member. Only channel owner can perform this action
 **Authentication:** Required
 
 **Path Parameters:**
+
 - `id` (UUID) - Channel ID
 - `moderatorId` (UUID) - User ID to demote
 
 **Response:** `200 OK`
+
 ```json
 {
   "message": "Moderator removed successfully"
@@ -673,6 +738,7 @@ Demote a moderator to regular member. Only channel owner can perform this action
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - User is not a moderator
 - `401 Unauthorized` - Missing or invalid authentication token
 - `403 Forbidden` - Requester is not the channel owner
@@ -689,9 +755,11 @@ Update channel name and/or description. Only moderators and owner can perform th
 **Authentication:** Required
 
 **Path Parameters:**
+
 - `id` (UUID) - Channel ID
 
 **Request Body:**
+
 ```json
 {
   "name": "Updated Channel Name",
@@ -700,10 +768,12 @@ Update channel name and/or description. Only moderators and owner can perform th
 ```
 
 **Validation:**
+
 - Name: optional, 3-100 characters if provided
 - Description: optional, max 500 characters if provided
 
 **Response:** `200 OK`
+
 ```json
 {
   "message": "Channel updated successfully"
@@ -711,6 +781,7 @@ Update channel name and/or description. Only moderators and owner can perform th
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Validation error (invalid name length, etc.)
 - `401 Unauthorized` - Missing or invalid authentication token
 - `403 Forbidden` - Requester is not a moderator or owner
@@ -723,6 +794,7 @@ Update channel name and/or description. Only moderators and owner can perform th
 All endpoints follow consistent error response format:
 
 ### General Error Format
+
 ```json
 {
   "error": "Human-readable error message"
@@ -731,15 +803,15 @@ All endpoints follow consistent error response format:
 
 ### Common HTTP Status Codes
 
-| Status Code | Description |
-|-------------|-------------|
-| `200 OK` | Request successful |
-| `201 Created` | Resource created successfully |
-| `400 Bad Request` | Validation error or invalid input |
-| `401 Unauthorized` | Missing or invalid authentication token |
-| `403 Forbidden` | User lacks permission for this action |
-| `404 Not Found` | Resource not found |
-| `500 Internal Server Error` | Server error (contact support) |
+| Status Code                 | Description                             |
+| --------------------------- | --------------------------------------- |
+| `200 OK`                    | Request successful                      |
+| `201 Created`               | Resource created successfully           |
+| `400 Bad Request`           | Validation error or invalid input       |
+| `401 Unauthorized`          | Missing or invalid authentication token |
+| `403 Forbidden`             | User lacks permission for this action   |
+| `404 Not Found`             | Resource not found                      |
+| `500 Internal Server Error` | Server error (contact support)          |
 
 ---
 
@@ -748,11 +820,13 @@ All endpoints follow consistent error response format:
 All endpoints require JWT Bearer token authentication.
 
 **Header Format:**
+
 ```http
 Authorization: Bearer <your-jwt-token>
 ```
 
 **Token Claims:**
+
 - `sub` or `nameid` - User ID (extracted for operations)
 - Token must be valid and not expired
 
@@ -766,6 +840,7 @@ Tokens are obtained through the Identity Module's authentication endpoints (see 
 **Current Status:** No rate limiting implemented
 
 **Future Plans:**
+
 - 100 requests per minute per user for message endpoints
 - 20 requests per minute for file upload endpoints
 - 200 requests per minute for read-only endpoints
@@ -779,6 +854,7 @@ While this document covers REST APIs, the Chat Module also provides real-time me
 **SignalR Hub Endpoint:** `/hubs/chat`
 
 **Features:**
+
 - Real-time message delivery
 - Typing indicators
 - User presence (online/offline)
@@ -796,6 +872,7 @@ A Postman collection with all endpoints and example requests is available:
 **Location:** `docs/api/postman/UniHub-Chat-API.postman_collection.json`
 
 **Import Steps:**
+
 1. Open Postman
 2. Click Import → Upload Files
 3. Select the JSON file
@@ -806,6 +883,7 @@ A Postman collection with all endpoints and example requests is available:
 ## 🆕 Changelog
 
 ### Version 1.0.0 (2026-02-07)
+
 - ✅ Initial release with all 21 endpoints
 - ✅ Conversations API (5 endpoints)
 - ✅ Messages API (8 endpoints)
@@ -820,6 +898,7 @@ A Postman collection with all endpoints and example requests is available:
 ## 📞 Support
 
 For API issues or questions:
+
 - **Documentation:** [GitHub Wiki](https://github.com/your-org/unihub/wiki)
 - **Issues:** [GitHub Issues](https://github.com/your-org/unihub/issues)
 - **Contact:** dev@unihub.edu

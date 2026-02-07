@@ -6,14 +6,14 @@
 
 ## 📋 PHASE INFO
 
-| Property          | Value               |
-| ----------------- | ------------------- |
-| **Phase**         | 6                   |
-| **Name**          | Chat Module         |
-| **Status**        | ✅ COMPLETED        |
-| **Progress**      | 12/12 tasks (100%)  |
-| **Est. Duration** | 2 weeks             |
-| **Dependencies**  | Phase 3             |
+| Property          | Value              |
+| ----------------- | ------------------ |
+| **Phase**         | 6                  |
+| **Name**          | Chat Module        |
+| **Status**        | ✅ COMPLETED       |
+| **Progress**      | 12/12 tasks (100%) |
+| **Est. Duration** | 2 weeks            |
+| **Dependencies**  | Phase 3            |
 
 ---
 

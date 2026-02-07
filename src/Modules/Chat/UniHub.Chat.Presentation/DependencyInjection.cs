@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using UniHub.Chat.Presentation.Options;
 using UniHub.Chat.Presentation.Services;
 
@@ -29,11 +28,15 @@ public static class DependencyInjection
             .GetSection(RedisBackplaneOptions.SectionName)
             .Get<RedisBackplaneOptions>();
 
+        // Determine if we're in development environment
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+        var isDevelopment = environment.Equals("Development", StringComparison.OrdinalIgnoreCase);
+
         // Register SignalR
         var signalRBuilder = services.AddSignalR(options =>
         {
-            // Enable detailed errors in development
-            options.EnableDetailedErrors = true;
+            // Enable detailed errors only in development
+            options.EnableDetailedErrors = isDevelopment;
             
             // Configure keep-alive interval (default is 15 seconds)
             options.KeepAliveInterval = TimeSpan.FromSeconds(15);
@@ -54,49 +57,11 @@ public static class DependencyInjection
                 options.Configuration.SyncTimeout = redisOptions.SyncTimeoutMs;
                 options.Configuration.AbortOnConnectFail = redisOptions.AbortOnConnectFail;
             });
-
-            // Log Redis backplane status
-            var serviceProvider = services.BuildServiceProvider();
-            var logger = serviceProvider.GetService<ILogger<RedisBackplaneOptions>>();
-            logger?.LogInformation(
-                "SignalR Redis backplane enabled with connection: {Connection} (Prefix: {Prefix})",
-                MaskConnectionString(redisOptions.ConnectionString!),
-                redisOptions.KeyPrefix);
-        }
-        else
-        {
-            // Log in-memory mode
-            var serviceProvider = services.BuildServiceProvider();
-            var logger = serviceProvider.GetService<ILogger<RedisBackplaneOptions>>();
-            logger?.LogWarning(
-                "SignalR Redis backplane is DISABLED. Running in single-server in-memory mode. " +
-                "For production with multiple servers, enable Redis backplane in configuration.");
         }
 
         // Register connection manager
         services.AddSingleton<IConnectionManager, ConnectionManager>();
 
         return services;
-    }
-
-    /// <summary>
-    /// Masks sensitive information in connection string for logging
-    /// </summary>
-    private static string MaskConnectionString(string connectionString)
-    {
-        if (string.IsNullOrWhiteSpace(connectionString))
-            return "[empty]";
-
-        // Mask password in connection string
-        var parts = connectionString.Split(',');
-        for (int i = 0; i < parts.Length; i++)
-        {
-            if (parts[i].Contains("password=", StringComparison.OrdinalIgnoreCase))
-            {
-                parts[i] = "password=***";
-            }
-        }
-
-        return string.Join(",", parts);
     }
 }
