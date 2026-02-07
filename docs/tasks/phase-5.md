@@ -532,7 +532,7 @@ Refs: TASK-059
 | Property         | Value                                |
 | ---------------- | ------------------------------------ |
 | **ID**           | TASK-060                             |
-| **Status**       | ✅ COMPLETED                       |
+| **Status**       | ✅ COMPLETED                         |
 | **Priority**     | 🟢 Low                               |
 | **Estimate**     | 2 hours                              |
 | **Actual**       | 2 hours                              |
