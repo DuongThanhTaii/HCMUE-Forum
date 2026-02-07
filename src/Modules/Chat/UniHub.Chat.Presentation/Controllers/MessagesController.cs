@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using UniHub.Chat.Application.Commands.AddReaction;
+using UniHub.Chat.Application.Commands.RemoveReaction;
 using UniHub.Chat.Application.Commands.SendMessage;
 using UniHub.Chat.Application.Commands.SendMessageWithAttachments;
 using UniHub.Chat.Application.Commands.UploadFile;
@@ -211,6 +213,66 @@ public class MessagesController : ControllerBase
             response);
     }
 
+    /// <summary>
+    /// Add an emoji reaction to a message
+    /// </summary>
+    [HttpPost("{messageId}/reactions")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AddReaction(
+        Guid messageId,
+        [FromBody] AddReactionRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetUserId();
+        var command = new AddReactionCommand(messageId, userId, request.Emoji);
+        var result = await _sender.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error.Code == "Message.NotFound")
+            {
+                return NotFound(new { error = result.Error.Message });
+            }
+
+            return BadRequest(new { error = result.Error.Message });
+        }
+
+        return Ok(new { success = true });
+    }
+
+    /// <summary>
+    /// Remove an emoji reaction from a message
+    /// </summary>
+    [HttpDelete("{messageId}/reactions/{emoji}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RemoveReaction(
+        Guid messageId,
+        string emoji,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetUserId();
+        var command = new RemoveReactionCommand(messageId, userId, emoji);
+        var result = await _sender.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error.Code == "Message.NotFound")
+            {
+                return NotFound(new { error = result.Error.Message });
+            }
+
+            return BadRequest(new { error = result.Error.Message });
+        }
+
+        return Ok(new { success = true });
+    }
+
     private Guid GetUserId()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -264,3 +326,8 @@ public record UploadFileResponse
     public long FileSize { get; init; }
     public string ContentType { get; init; } = string.Empty;
 }
+
+/// <summary>
+/// Request to add a reaction to a message
+/// </summary>
+public record AddReactionRequest(string Emoji);
