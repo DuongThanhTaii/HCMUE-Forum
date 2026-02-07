@@ -57,4 +57,25 @@ public interface IJobPostingRepository
     /// Checks if a job posting exists.
     /// </summary>
     Task<bool> ExistsAsync(JobPostingId id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Performs advanced search on job postings with multiple filters and returns results without pagination applied.
+    /// The handler will apply scoring, sorting, and pagination logic.
+    /// </summary>
+    Task<(List<JobPosting> JobPostings, int TotalCount)> SearchAsync(
+        string? keywords = null,
+        Guid? companyId = null,
+        JobType? jobType = null,
+        ExperienceLevel? experienceLevel = null,
+        JobPostingStatus? status = null,
+        string? city = null,
+        bool? isRemote = null,
+        decimal? minSalary = null,
+        decimal? maxSalary = null,
+        string? currency = null,
+        List<string>? requiredSkills = null,
+        List<string>? tags = null,
+        DateTime? postedAfter = null,
+        DateTime? postedBefore = null,
+        CancellationToken cancellationToken = default);
 }
