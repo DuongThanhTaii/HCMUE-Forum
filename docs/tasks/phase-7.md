@@ -11,7 +11,7 @@
 | **Phase**         | 7                 |
 | **Name**          | Career Hub Module |
 | **Status**        | 🔵 IN_PROGRESS    |
-| **Progress**      | 10/12 tasks       |
+| **Progress**      | 11/12 tasks       |
 | **Est. Duration** | 2 weeks           |
 | **Dependencies**  | Phase 3           |
 
@@ -622,6 +622,7 @@
 ✅ **Response DTOs** (11 DTOs):
 
 **Job Matching Response**:
+
 - [JobMatchingResponse.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobMatching/GetMatchingJobsForUser/GetMatchingJobsForUserQuery.cs): Paginated matches with metadata
 - [JobMatchDto.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobMatching/GetMatchingJobsForUser/GetMatchingJobsForUserQuery.cs): Match percentage, breakdown, skills analysis
 - [MatchBreakdown.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobMatching/GetMatchingJobsForUser/GetMatchingJobsForUserQuery.cs): Score breakdown by category
@@ -629,6 +630,7 @@
 - [MatchingMetadata.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobMatching/GetMatchingJobsForUser/GetMatchingJobsForUserQuery.cs): Processing metrics
 
 **Candidate Matching Response**:
+
 - [CandidateMatchingResponse.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobMatching/GetMatchingCandidatesForJob/GetMatchingCandidatesForJobQuery.cs): Paginated candidate matches
 - [CandidateMatchDto.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobMatching/GetMatchingCandidatesForJob/GetMatchingCandidatesForJobQuery.cs): Match score, application details
 - [CandidateMatchBreakdown.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/JobMatching/GetMatchingCandidatesForJob/GetMatchingCandidatesForJobQuery.cs): Score breakdown
@@ -637,6 +639,7 @@
 **Key Features:**
 
 **Job Matching (User Perspective)**:
+
 - **Multi-Factor Matching Algorithm**: Weighted scoring across 6 dimensions (skills 40%, experience 20%, location 15%, salary 15%, job type 5%, recency 5%)
 - **Skills Analysis**: Exact skill matching with lowercase normalization, identifies matching skills and missing skills
 - **Experience Level Matching**: Full match or partial match (50%) for adjacent levels
@@ -650,6 +653,7 @@
 - **Performance Metrics**: Processing time, average match percentage, total jobs evaluated
 
 **Candidate Matching (Recruiter Perspective)**:
+
 - **Application Status-Based Scoring**: Higher scores for advanced application statuses (Accepted 100%, Offered 90%, Interviewed 80%, etc.)
 - **Quality Assessment**: Bonus points for cover letter (+10%) and resume (+10%)
 - **Early Applicant Bonus**: Reward candidates who applied early (within 1 day = 10%, within 7 days = 7%, etc.)
@@ -676,23 +680,27 @@
 **Matching Algorithm Details:**
 
 **Skills Score Calculation**:
+
 ```
 skillsScore = (matchingSkillsCount / requiredSkillsCount) * 40
 ```
 
 **Experience Level Score**:
+
 ```
 exactMatch = 20 points
 noMatch = 10 points (50% partial credit)
 ```
 
 **Location Score**:
+
 ```
-remoteMatch OR cityMatch = 15 points  
+remoteMatch OR cityMatch = 15 points
 differentCity = 5 points (33% partial credit)
 ```
 
 **Salary Score**:
+
 ```
 jobSalary >= userExpectations = 15 points
 rangeOverlap = 7.5 points (50% partial credit)
@@ -700,15 +708,17 @@ noOverlap = 0 points
 ```
 
 **Job Type Score**:
+
 ```
 typeInUserPreferences = 5 points
 typeNotInPreferences = 0 points
 ```
 
 **Recency Score**:
+
 ```
 ≤7 days = 5 points
-≤30 days = 3.3 points  
+≤30 days = 3.3 points
 ≤90 days = 1.7 points
 >90 days = 0 points
 ```
@@ -718,6 +728,7 @@ typeNotInPreferences = 0 points
 **Commit**: `pending` - Build: 0 errors, 0 warnings - Tests: Pending (to be added in future iteration)
 
 **Note**: Unit tests temporarily omitted due to domain model API signature complexity. Feature functionality validated through:
+
 - Successful compilation with 0 errors
 - Comprehensive FluentValidation rules
 - Algorithm logic review
@@ -730,8 +741,99 @@ typeNotInPreferences = 0 points
 | Property   | Value                             |
 | ---------- | --------------------------------- |
 | **ID**     | TASK-084                          |
-| **Status** | ⬜ NOT_STARTED                    |
+| **Status** | ✅ COMPLETED                      |
 | **Branch** | `feature/TASK-084-recruiter-role` |
+
+**Deliverables:**
+
+✅ **Domain Layer** ([src/Modules/Career/UniHub.Career.Domain/Recruiters/](../../src/Modules/Career/UniHub.Career.Domain/Recruiters/)):
+
+- [Recruiter.cs](../../src/Modules/Career/UniHub.Career.Domain/Recruiters/Recruiter.cs): Aggregate root linking users to companies with permissions
+- [RecruiterId.cs](../../src/Modules/Career/UniHub.Career.Domain/Recruiters/RecruiterId.cs): Strongly-typed ID
+- [RecruiterStatus.cs](../../src/Modules/Career/UniHub.Career.Domain/Recruiters/RecruiterStatus.cs): Active/Inactive enumeration
+- [RecruiterPermissions.cs](../../src/Modules/Career/UniHub.Career.Domain/Recruiters/RecruiterPermissions.cs): Value object with 4 permission flags
+- [RecruiterErrors.cs](../../src/Modules/Career/UniHub.Career.Domain/Recruiters/RecruiterErrors.cs): 9 error definitions
+
+✅ **Domain Events** (5 events):
+
+- [RecruiterAddedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/Recruiters/Events/RecruiterAddedEvent.cs)
+- [RecruiterPermissionsUpdatedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/Recruiters/Events/RecruiterPermissionsUpdatedEvent.cs)
+- [RecruiterDeactivatedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/Recruiters/Events/RecruiterDeactivatedEvent.cs)
+- [RecruiterReactivatedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/Recruiters/Events/RecruiterReactivatedEvent.cs)
+- [RecruiterRemovedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/Recruiters/Events/RecruiterRemovedEvent.cs)
+
+✅ **Application Layer - Commands** (4 commands with handlers):
+
+- [AddRecruiterCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/Recruiters/AddRecruiter/AddRecruiterCommand.cs): Add recruiter to company with permissions
+- [UpdateRecruiterPermissionsCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/Recruiters/UpdatePermissions/UpdateRecruiterPermissionsCommand.cs): Modify recruiter permissions
+- [DeactivateRecruiterCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/Recruiters/DeactivateRecruiter/DeactivateRecruiterCommand.cs): Deactivate recruiter (self-deactivation prevented)
+- [ReactivateRecruiterCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/Recruiters/ReactivateRecruiter/ReactivateRecruiterCommand.cs): Reactivate inactive recruiter
+
+✅ **Application Layer - Queries** (2 queries with handlers):
+
+- [GetRecruitersForCompanyQuery.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/Recruiters/GetRecruitersForCompany/GetRecruitersForCompanyQuery.cs): List all/active recruiters for company
+- [IsUserRecruiterQuery.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/Recruiters/IsUserRecruiter/IsUserRecruiterQuery.cs): Check if user is recruiter with permissions
+
+✅ **Repository Interface**:
+
+- [IRecruiterRepository.cs](../../src/Modules/Career/UniHub.Career.Application/Abstractions/IRecruiterRepository.cs): 8 methods (Add, Update, GetById, GetByUserAndCompany, GetByCompany, GetActiveByCompany, Exists, GetActiveCount)
+
+✅ **Unit Tests**:
+
+- **Domain Tests** ([tests/Modules/Career/UniHub.Career.Domain.Tests/Recruiters/](../../tests/Modules/Career/UniHub.Career.Domain.Tests/Recruiters/)):
+  - [RecruiterTests.cs](../../tests/Modules/Career/UniHub.Career.Domain.Tests/Recruiters/RecruiterTests.cs): 23 tests covering Add factory, UpdatePermissions, Deactivate, Reactivate, IsActive, HasPermission
+  - [RecruiterPermissionsTests.cs](../../tests/Modules/Career/UniHub.Career.Domain.Tests/Recruiters/RecruiterPermissionsTests.cs): 7 tests covering permissions value object
+  - **Total: 30 tests - ALL PASSING** ✅
+
+- **Application Tests** ([tests/Modules/Career/UniHub.Career.Application.Tests/](../../tests/Modules/Career/UniHub.Career.Application.Tests/)):
+  - [AddRecruiterCommandHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Commands/Recruiters/AddRecruiterCommandHandlerTests.cs): 4 tests
+  - [GetRecruitersForCompanyQueryHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Queries/Recruiters/GetRecruitersForCompanyQueryHandlerTests.cs): 3 tests
+  - [IsUserRecruiterQueryHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Queries/Recruiters/IsUserRecruiterQueryHandlerTests.cs): 3 tests
+  - **Total: 10 tests - ALL PASSING** ✅
+
+**Key Features:**
+
+**Domain Model**:
+- **Recruiter Aggregate**: Links User (via Guid) to Company with role-based permissions
+- **Four Permission Flags**: CanManageJobPostings, CanReviewApplications, CanUpdateApplicationStatus, CanInviteRecruiters
+- **Two Status States**: Active (can perform actions), Inactive (cannot perform actions)
+- **Permission Presets**: Default() (standard recruiter), Admin() (all permissions)
+- **Self-Protection Rules**: Recruiters cannot deactivate themselves
+- **Permission Validation**: At least one permission must be granted
+
+**Commands**:
+- **AddRecruiter**: Company existence validation, duplicate check (user already recruiter), permission creation
+- **UpdatePermissions**: Only active recruiters, validates new permissions
+- **Deactivate**: Prevents self-deactivation, guards against double-deactivation
+- **Reactivate**: Guards against double-reactivation
+
+**Queries**:
+- **GetRecruitersForCompany**: Supports filtering (all vs active only), returns full permission details
+- **IsUserRecruiter**: Fast authorization check, returns active status and permissions (used for access control)
+
+**Permission System**:
+- **CanManageJobPostings**: Create, update, publish, close job postings
+- **CanReviewApplications**: View applications, read candidate details
+- **CanUpdateApplicationStatus**: Move applications through pipeline (Reviewing → Shortlisted → Interviewed → Offered)
+- **CanInviteRecruiters**: Add other recruiters to company (admin privilege)
+
+**Technical Notes**:
+- Recruiter is separate aggregate from Company (loose coupling)
+- UserId links to User identity system (Guid reference, not entity relationship)
+- Permissions stored as value object (equality by value, immutable)
+- Domain events track all recruiter lifecycle actions
+- Repository supports multiple query patterns (by ID, by user+company, by company, active only)
+- HasPermission() method accepts lambda for flexible permission checks
+- Active status required for all actions (enforced in domain methods)
+
+**Use Cases**:
+1. **Company Owner**: Invites recruiters, assigns permissions, manages team
+2. **Admin Recruiter**: Full permissions, can invite other recruiters
+3. **Standard Recruiter**: Manage jobs and applications, cannot invite others
+4. **Deactivated Recruiter**: Temporarily suspended, can be reactivated
+5. **Authorization**: IsUserRecruiter query used in API middleware/policies
+
+**Commit**: `pending` - Build: 0 errors, 0 warnings - Tests: 430/430 passing (347 domain + 83 application)
 
 ---
 
@@ -778,11 +880,11 @@ PUT    /api/v1/applications/{id}/status
 - [x] TASK-077: Implement Company Registration
 - [x] TASK-078: Implement Job Posting CRUD
 - [x] TASK-079: Implement Job Search
-- [ ] TASK-080: Implement Application Flow
-- [ ] TASK-081: Implement Saved Jobs
-- [ ] TASK-082: Implement Company Dashboard
-- [ ] TASK-083: Implement Job Matching
-- [ ] TASK-084: Implement Recruiter Role
+- [x] TASK-080: Implement Application Flow
+- [x] TASK-081: Implement Saved Jobs
+- [x] TASK-082: Implement Company Dashboard
+- [x] TASK-083: Implement Job Matching
+- [x] TASK-084: Implement Recruiter Role
 - [ ] TASK-085: Career API Endpoints
 
 ---
