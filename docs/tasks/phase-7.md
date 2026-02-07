@@ -11,7 +11,7 @@
 | **Phase**         | 7                 |
 | **Name**          | Career Hub Module |
 | **Status**        | 🔵 IN_PROGRESS    |
-| **Progress**      | 2/12 tasks        |
+| **Progress**      | 3/12 tasks        |
 | **Est. Duration** | 2 weeks           |
 | **Dependencies**  | Phase 3           |
 
@@ -158,8 +158,60 @@
 | Property   | Value                                 |
 | ---------- | ------------------------------------- |
 | **ID**     | TASK-076                              |
-| **Status** | ⬜ NOT_STARTED                        |
+| **Status** | ✅ COMPLETED                          |
 | **Branch** | `feature/TASK-076-application-entity` |
+
+**Deliverables:**
+
+✅ **Application Aggregate Root** ([Application.cs](../../src/Modules/Career/UniHub.Career.Domain/Applications/Application.cs)):
+
+- Full lifecycle management: Pending → Reviewing → Shortlisted → Interviewed → Offered → Accepted/Rejected/Withdrawn
+- Submit applications with resume and optional cover letter
+- State transitions: MoveToReviewing, Shortlist, MarkAsInterviewed, Offer, Accept, Reject, Withdraw
+- Permission checks: Only applicant can withdraw/accept
+- Review notes tracking throughout lifecycle
+- Guard methods: `IsActive()`, `IsFinal()`, `CanBeReviewed()`
+
+✅ **Value Objects**:
+
+- [Resume.cs](../../src/Modules/Career/UniHub.Career.Domain/Applications/Resume.cs): FileName, FileUrl, FileSizeBytes (max 10MB), ContentType (PDF/DOC/DOCX only)
+- [CoverLetter.cs](../../src/Modules/Career/UniHub.Career.Domain/Applications/CoverLetter.cs): Content (50-5000 chars), optional via CreateOptional()
+
+✅ **Domain Events** (6 events):
+
+- [ApplicationSubmittedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/Applications/Events/ApplicationSubmittedEvent.cs)
+- [ApplicationStatusChangedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/Applications/Events/ApplicationStatusChangedEvent.cs)
+- [ApplicationWithdrawnEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/Applications/Events/ApplicationWithdrawnEvent.cs)
+- [ApplicationRejectedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/Applications/Events/ApplicationRejectedEvent.cs)
+- [ApplicationOfferedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/Applications/Events/ApplicationOfferedEvent.cs)
+- [ApplicationAcceptedEvent.cs](../../src/Modules/Career/UniHub.Career.Domain/Applications/Events/ApplicationAcceptedEvent.cs)
+
+✅ **Enumerations**:
+
+- [ApplicationStatus.cs](../../src/Modules/Career/UniHub.Career.Domain/Applications/ApplicationStatus.cs): 8 states (Pending, Reviewing, Shortlisted, Interviewed, Offered, Accepted, Rejected, Withdrawn)
+
+✅ **Domain Infrastructure**:
+
+- [ApplicationId.cs](../../src/Modules/Career/UniHub.Career.Domain/Applications/ApplicationId.cs): Strongly-typed ID using GuidId pattern
+- [ApplicationErrors.cs](../../src/Modules/Career/UniHub.Career.Domain/Applications/ApplicationErrors.cs): 14 error definitions
+
+✅ **Unit Tests** ([tests/Modules/Career/UniHub.Career.Domain.Tests/Applications/](../../tests/Modules/Career/UniHub.Career.Domain.Tests/Applications/)):
+
+- [ApplicationTests.cs](../../tests/Modules/Career/UniHub.Career.Domain.Tests/Applications/ApplicationTests.cs): 77 tests covering Submit factory, all state transitions, permission checks, guards, lifecycle flows
+- [CoverLetterTests.cs](../../tests/Modules/Career/UniHub.Career.Domain.Tests/Applications/CoverLetterTests.cs): 11 tests covering value object validation
+- [ResumeTests.cs](../../tests/Modules/Career/UniHub.Career.Domain.Tests/Applications/ResumeTests.cs): 17 tests covering file validation
+- **Total: 105 tests (95 Application + 10 value objects) - ALL PASSING** ✅
+
+**Key Design Patterns**:
+
+- Factory pattern with `Result<T>` return type
+- All validation in factory methods before object construction
+- Domain events raised via `AddDomainEvent()`
+- State machine with 8 distinct application states
+- Permission checks for applicant-specific actions
+- Guard methods prevent invalid state transitions
+
+**Commit**: `a1d1aad` - Build: 0 errors, 0 warnings - Tests: 317/317 passing
 
 ---
 
@@ -282,7 +334,7 @@ PUT    /api/v1/applications/{id}/status
 
 - [x] TASK-074: Design JobPosting Aggregate
 - [x] TASK-075: Design Company Aggregate
-- [ ] TASK-076: Design Application Entity
+- [x] TASK-076: Design Application Entity
 - [ ] TASK-077: Implement Company Registration
 - [ ] TASK-078: Implement Job Posting CRUD
 - [ ] TASK-079: Implement Job Search
