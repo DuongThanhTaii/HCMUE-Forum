@@ -10,8 +10,8 @@
 | ----------------- | ------------------- |
 | **Phase**         | 8                   |
 | **Name**          | Notification Module |
-| **Status**        | ⬜ NOT_STARTED      |
-| **Progress**      | 0/8 tasks           |
+| **Status**        | 🟡 IN_PROGRESS      |
+| **Progress**      | 1/8 tasks           |
 | **Est. Duration** | 1 week              |
 | **Dependencies**  | Phase 3             |
 
@@ -34,8 +34,21 @@
 | Property   | Value                                    |
 | ---------- | ---------------------------------------- |
 | **ID**     | TASK-087                                 |
-| **Status** | ⬜ NOT_STARTED                           |
+| **Status** | ✅ COMPLETED                             |
 | **Branch** | `feature/TASK-087-notification-template` |
+
+**Implementation Summary:**
+
+- **Entity**: NotificationTemplate aggregate root (Draft → Active → Archived lifecycle)
+- **Value Objects**: EmailTemplateContent, PushTemplateContent, InAppTemplateContent, TemplateVariable
+- **Enums**: NotificationChannel, NotificationTemplateStatus, NotificationCategory
+- **Errors**: NotificationTemplateErrors (16 domain error definitions)
+- **Events**: NotificationTemplateCreatedEvent, ActivatedEvent, ArchivedEvent, UpdatedEvent
+- **Behaviors**: Create(), Activate(), Archive(), UpdateContent(), AddVariable(), RemoveVariable()
+- **Tests**: 110 comprehensive unit tests covering all value objects and aggregate behaviors
+- **Test Coverage**: EmailTemplateContent (20 tests), PushTemplateContent (12 tests), InAppTemplateContent (12 tests), TemplateVariable (15 tests), NotificationTemplate (51 tests)
+- **Build**: 0 errors, 0 warnings
+- **Total Tests**: 1123 (110 new Notification.Domain tests)
 
 ---
 
@@ -123,7 +136,8 @@ POST   /api/v1/notifications/subscribe-push
 
 ## ✅ COMPLETION CHECKLIST
 
-- [ ] TASK-086 - TASK-093
+- [x] TASK-087: Design NotificationTemplate Entity
+- [ ] TASK-086, TASK-088 - TASK-093
 
 ---
 
