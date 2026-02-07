@@ -11,7 +11,7 @@
 | **Phase**         | 7                 |
 | **Name**          | Career Hub Module |
 | **Status**        | 🔵 IN_PROGRESS    |
-| **Progress**      | 7/12 tasks        |
+| **Progress**      | 8/12 tasks        |
 | **Est. Duration** | 2 weeks           |
 | **Dependencies**  | Phase 3           |
 
@@ -439,8 +439,59 @@
 | Property   | Value                         |
 | ---------- | ----------------------------- |
 | **ID**     | TASK-081                      |
-| **Status** | ⬜ NOT_STARTED                |
+| **Status** | ✅ COMPLETED                  |
 | **Branch** | `feature/TASK-081-saved-jobs` |
+
+**Deliverables:**
+
+✅ **Commands** (2 commands with handlers & validators):
+
+- [SaveJobCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/SavedJobs/SaveJob/SaveJobCommand.cs): Save job posting to user's favorites
+- [UnsaveJobCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/SavedJobs/UnsaveJob/UnsaveJobCommand.cs): Remove job posting from saved list
+
+✅ **Queries** (2 queries with handlers):
+
+- [GetSavedJobsQuery.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/SavedJobs/GetSavedJobs/GetSavedJobsQuery.cs): Get user's saved jobs with pagination (enriched with job & company details)
+- [IsJobSavedQuery.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/SavedJobs/IsSaved/IsJobSavedQuery.cs): Check if specific job is saved by user
+
+✅ **Repository Interface**:
+
+- [ISavedJobRepository.cs](../../src/Modules/Career/UniHub.Career.Application/Abstractions/ISavedJobRepository.cs): 5 methods (SaveJob, UnsaveJob, GetSavedJobsByUser, IsSaved, GetSavedCount)
+
+✅ **Response DTOs**:
+
+- [SavedJobsResponse.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/SavedJobs/GetSavedJobs/GetSavedJobsQuery.cs): Paginated saved jobs list
+- [SavedJobDto.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/SavedJobs/GetSavedJobs/GetSavedJobsQuery.cs): Enriched saved job with job posting & company details
+- [LocationDto.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/SavedJobs/GetSavedJobs/GetSavedJobsQuery.cs): Location information
+- [SalaryDto.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/SavedJobs/GetSavedJobs/GetSavedJobsQuery.cs): Salary information
+
+✅ **Unit Tests** (10 tests - ALL PASSING):
+
+- [SaveJobCommandHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Commands/SavedJobs/SaveJobCommandHandlerTests.cs): 3 tests
+- [UnsaveJobCommandHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Commands/SavedJobs/UnsaveJobCommandHandlerTests.cs): 2 tests
+- [GetSavedJobsQueryHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Queries/SavedJobs/GetSavedJobsQueryHandlerTests.cs): 3 tests
+- [IsJobSavedQueryHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Queries/SavedJobs/IsJobSavedQueryHandlerTests.cs): 2 tests
+
+**Key Features**:
+
+- Simple bookmark/favorite feature for job postings
+- Duplicate prevention (cannot save same job twice)
+- Job posting existence validation before saving
+- Data enrichment in saved jobs list (job title, company name, location, salary)
+- Pagination support for saved jobs list
+- Quick saved status check for UI indicators
+- FluentValidation for all commands & queries
+- SavedJob model represents many-to-many relationship between User and JobPosting
+
+**Technical Notes**:
+
+- SavedJob is not a domain aggregate - simple data model for user-jobposting relationship
+- Repository manages the many-to-many relationship persistence
+- GetSavedJobsQuery enriches data with JobPosting and Company details for better UX
+- N+1 query pattern acceptable for personal saved lists (typically small result sets)
+- Saved timestamp (SavedAt) tracked for potential "Recently Saved" features
+
+**Commit**: `pending` - Build: 0 errors, 0 warnings - Tests: 382/382 passing (317 domain + 65 application)
 
 ---
 
