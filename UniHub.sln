@@ -119,6 +119,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniHub.Career.Domain.Tests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniHub.Career.Application.Tests", "tests\Modules\Career\UniHub.Career.Application.Tests\UniHub.Career.Application.Tests.csproj", "{A733B60C-1B78-4085-A915-9E4D697D7EC6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notification", "Notification", "{FEEC8149-E702-6786-4132-737DC77F0F7B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniHub.Notification.Domain.Tests", "tests\Modules\Notification\UniHub.Notification.Domain.Tests\UniHub.Notification.Domain.Tests.csproj", "{8394BD2E-1319-4CC5-880F-10947E5921C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -633,6 +637,18 @@ Global
 		{A733B60C-1B78-4085-A915-9E4D697D7EC6}.Release|x64.Build.0 = Release|Any CPU
 		{A733B60C-1B78-4085-A915-9E4D697D7EC6}.Release|x86.ActiveCfg = Release|Any CPU
 		{A733B60C-1B78-4085-A915-9E4D697D7EC6}.Release|x86.Build.0 = Release|Any CPU
+		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Debug|x64.Build.0 = Debug|Any CPU
+		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Debug|x86.Build.0 = Debug|Any CPU
+		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Release|x64.ActiveCfg = Release|Any CPU
+		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Release|x64.Build.0 = Release|Any CPU
+		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Release|x86.ActiveCfg = Release|Any CPU
+		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -694,5 +710,7 @@ Global
 		{BCD831DE-2269-7333-BFB6-CA0F2DFB26D7} = {D7DC9B74-6BC4-2470-2038-1E57C2DCB73B}
 		{B3142DA8-FD44-45CA-A1FD-0E11014499EC} = {BCD831DE-2269-7333-BFB6-CA0F2DFB26D7}
 		{A733B60C-1B78-4085-A915-9E4D697D7EC6} = {BCD831DE-2269-7333-BFB6-CA0F2DFB26D7}
+		{FEEC8149-E702-6786-4132-737DC77F0F7B} = {D7DC9B74-6BC4-2470-2038-1E57C2DCB73B}
+		{8394BD2E-1319-4CC5-880F-10947E5921C2} = {FEEC8149-E702-6786-4132-737DC77F0F7B}
 	EndGlobalSection
 EndGlobal
