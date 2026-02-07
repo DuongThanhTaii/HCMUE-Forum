@@ -11,7 +11,7 @@
 | **Phase**         | 7                 |
 | **Name**          | Career Hub Module |
 | **Status**        | 🔵 IN_PROGRESS    |
-| **Progress**      | 6/12 tasks        |
+| **Progress**      | 7/12 tasks        |
 | **Est. Duration** | 2 weeks           |
 | **Dependencies**  | Phase 3           |
 
@@ -371,8 +371,66 @@
 | Property   | Value                               |
 | ---------- | ----------------------------------- |
 | **ID**     | TASK-080                            |
-| **Status** | ⬜ NOT_STARTED                      |
+| **Status** | ✅ COMPLETED                        |
 | **Branch** | `feature/TASK-080-application-flow` |
+
+**Deliverables:**
+
+✅ **Commands** (5 commands with handlers & validators):
+
+- [SubmitApplicationCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/Applications/SubmitApplication/SubmitApplicationCommand.cs): Submit job application with resume (PDF/DOC/DOCX, max 10MB) and optional cover letter
+- [WithdrawApplicationCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/Applications/WithdrawApplication/WithdrawApplicationCommand.cs): Applicant withdraws own application with optional reason
+- [UpdateApplicationStatusCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/Applications/UpdateApplicationStatus/UpdateApplicationStatusCommand.cs): Recruiter moves application through pipeline (Reviewing, Shortlisted, Interviewed, Offered)
+- [RejectApplicationCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/Applications/RejectApplication/RejectApplicationCommand.cs): Recruiter rejects application at any stage
+- [AcceptApplicationCommand.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/Applications/AcceptApplication/AcceptApplicationCommand.cs): Applicant accepts job offer
+
+✅ **Queries** (3 queries with handlers):
+
+- [GetApplicationByIdQuery.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/Applications/GetApplicationById/GetApplicationByIdQuery.cs): Retrieve single application with full details
+- [GetApplicationsByJobQuery.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/Applications/GetApplicationsByJob/GetApplicationsByJobQuery.cs): Recruiter view - paginated list with status filter
+- [GetApplicationsByApplicantQuery.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/Applications/GetApplicationsByApplicant/GetApplicationsByApplicantQuery.cs): Applicant view - enriched with job title & company name
+
+✅ **Repository Interface**:
+
+- [IApplicationRepository.cs](../../src/Modules/Career/UniHub.Career.Application/Abstractions/IApplicationRepository.cs): 8 methods (Add, Update, GetById, GetByJobAndApplicant, GetByJobPosting, GetByApplicant, GetByCompany, Exists)
+
+✅ **Response DTOs**:
+
+- [ApplicationResponse.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/Applications/SubmitApplication/ApplicationResponse.cs): Full application details with resume/cover letter
+- [ApplicationListResponse.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/Applications/GetApplicationsByJob/ApplicationListResponse.cs): Paginated application list
+- [ApplicationSummary.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/Applications/GetApplicationsByJob/ApplicationSummary.cs): Summary for recruiter list views
+- [ApplicationsByApplicantResponse.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/Applications/GetApplicationsByApplicant/ApplicationsByApplicantResponse.cs): Applicant-specific response
+- [ApplicantApplicationSummary.cs](../../src/Modules/Career/UniHub.Career.Application/Queries/Applications/GetApplicationsByApplicant/ApplicantApplicationSummary.cs): Enriched summary with job/company info
+- [ResumeDto.cs](../../src/Modules/Career/UniHub.Career.Application/Commands/Applications/SubmitApplication/ResumeDto.cs): Resume file details
+
+✅ **Unit Tests** (16 tests - ALL PASSING):
+
+- [SubmitApplicationCommandHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Commands/Applications/SubmitApplicationCommandHandlerTests.cs): 2 tests
+- [WithdrawApplicationCommandHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Commands/Applications/WithdrawApplicationCommandHandlerTests.cs): 5 tests
+- [UpdateApplicationStatusCommandHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Commands/Applications/UpdateApplicationStatusCommandHandlerTests.cs): 6 tests
+- [GetApplicationsByJobQueryHandlerTests.cs](../../tests/Modules/Career/UniHub.Career.Application.Tests/Queries/Applications/GetApplicationsByJobQueryHandlerTests.cs): 3 tests
+
+**Key Features**:
+
+- Complete hiring pipeline workflow (8 application states: Pending → Reviewing → Shortlisted → Interviewed → Offered → Accepted/Rejected/Withdrawn)
+- Role-based permission enforcement (applicant vs recruiter actions)
+- Duplicate application prevention via GetByJobAndApplicantAsync
+- Job posting state validation (IsAcceptingApplications guard)
+- Cross-aggregate coordination (increment/decrement job posting application count)
+- Data enrichment in applicant queries (fetches related job & company data)
+- Resume file validation (size ≤10MB, PDF/DOC/DOCX only)
+- FluentValidation for all commands & queries
+- Domain validation integration (Application.Withdraw, Application.Accept permission checks)
+- Type alias pattern to resolve .NET 10 System.ApplicationId namespace collision
+
+**Technical Notes**:
+
+- Used type aliases throughout (`DomainApplication`, `DomainApplicationId`) to avoid .NET 10 System.ApplicationId collision
+- Error handling via `new Error(code, message)` constructor pattern
+- JobPosting.CompanyId (Guid) wrapped in CompanyId.Create() for cross-aggregate queries
+- GetApplicationsByApplicant uses N+1 query pattern (acceptable for small result sets, can optimize with batch repository methods)
+
+**Commit**: `pending` - Build: 0 errors, 0 warnings - Tests: 372/372 passing (317 domain + 55 application)
 
 ---
 
