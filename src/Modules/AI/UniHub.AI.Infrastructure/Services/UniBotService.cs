@@ -2,8 +2,7 @@ using UniHub.AI.Application.Abstractions;
 using UniHub.AI.Application.DTOs;
 using UniHub.AI.Application.Services;
 using UniHub.AI.Domain.Entities;
-using UniHub.AI.Infrastructure.Abstractions;
-using UniHub.AI.Infrastructure.Models;
+using UniHub.AI.Infrastructure.Providers;
 
 namespace UniHub.AI.Infrastructure.Services;
 
@@ -228,7 +227,7 @@ public class UniBotService : IUniBotService
         return prompt;
     }
 
-    private async Task<List<ConversationHistoryItem>?> BuildConversationHistoryAsync(
+    private async Task<List<ChatMessage>?> BuildConversationHistoryAsync(
         Conversation conversation, int maxMessages)
     {
         if (conversation.Messages.Count == 0)
@@ -238,7 +237,7 @@ public class UniBotService : IUniBotService
             .OrderByDescending(m => m.SentAt)
             .Take(maxMessages)
             .OrderBy(m => m.SentAt)
-            .Select(m => new ConversationHistoryItem
+            .Select(m => new ChatMessage
             {
                 Role = m.Role.ToString().ToLowerInvariant(),
                 Content = m.Content
