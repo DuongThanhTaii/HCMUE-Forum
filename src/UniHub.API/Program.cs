@@ -7,6 +7,7 @@ using UniHub.Chat.Infrastructure;
 using UniHub.Chat.Presentation;
 using UniHub.Chat.Presentation.Hubs;
 using UniHub.Career.Infrastructure;
+using UniHub.Notification.Infrastructure;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -68,6 +69,7 @@ try
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Learning.Application.Commands.UploadDocument.UploadDocumentCommand>();
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Chat.Application.Commands.CreateDirectConversation.CreateDirectConversationCommand>();
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Career.Application.Commands.JobPostings.CreateJobPosting.CreateJobPostingCommand>();
+        cfg.RegisterServicesFromAssemblyContaining<UniHub.Notification.Application.EventHandlers.UserRegisteredEventHandler>();
     });
 
     // Add Infrastructure (PostgreSQL, MongoDB, Redis)
