@@ -29,6 +29,10 @@ public static class DependencyInjection
         // Configure AI provider settings
         services.Configure<AIProvidersSettings>(
             configuration.GetSection(AIProvidersSettings.SectionName));
+        
+        // Configure moderation settings
+        services.Configure<ModerationSettings>(
+            configuration.GetSection(ModerationSettings.SectionName));
 
         // Register HttpClient for AI providers
         services.AddHttpClient();
@@ -47,6 +51,7 @@ public static class DependencyInjection
         services.AddScoped<IFAQService, FAQService>();
         services.AddScoped<IConversationService, ConversationService>();
         services.AddScoped<IUniBotService, UniBotService>();
+        services.AddScoped<IContentModerationService, ContentModerationService>();
 
         return services;
     }
