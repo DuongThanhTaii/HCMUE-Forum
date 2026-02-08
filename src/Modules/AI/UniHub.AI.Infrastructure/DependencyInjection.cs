@@ -33,6 +33,10 @@ public static class DependencyInjection
         // Configure moderation settings
         services.Configure<ModerationSettings>(
             configuration.GetSection(ModerationSettings.SectionName));
+        
+        // Configure summarization settings
+        services.Configure<SummarizationSettings>(
+            configuration.GetSection(SummarizationSettings.SectionName));
 
         // Register HttpClient for AI providers
         services.AddHttpClient();
@@ -46,12 +50,14 @@ public static class DependencyInjection
         // Register repositories
         services.AddSingleton<IFAQRepository, InMemoryFAQRepository>();
         services.AddSingleton<IConversationRepository, InMemoryConversationRepository>();
+        services.AddSingleton<ISummaryCacheRepository, InMemorySummaryCacheRepository>();
         
         // Register services
         services.AddScoped<IFAQService, FAQService>();
         services.AddScoped<IConversationService, ConversationService>();
         services.AddScoped<IUniBotService, UniBotService>();
         services.AddScoped<IContentModerationService, ContentModerationService>();
+        services.AddScoped<IDocumentSummarizationService, DocumentSummarizationService>();
 
         return services;
     }

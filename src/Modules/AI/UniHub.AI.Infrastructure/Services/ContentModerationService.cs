@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Options;
+using UniHub.AI.Application.Abstractions;
 using UniHub.AI.Application.DTOs;
 using UniHub.AI.Application.Services;
-using UniHub.AI.Infrastructure.Abstractions;
 using UniHub.AI.Infrastructure.Configuration;
-using UniHub.AI.Infrastructure.Models;
+using UniHub.AI.Infrastructure.Providers;
 using System.Text.RegularExpressions;
 
 namespace UniHub.AI.Infrastructure.Services;
