@@ -24,6 +24,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UniHub.SharedKernel\UniHub.SharedKernel.csproj" />
+    <!-- Module Domain References (for entity types in ApplicationDbContext) -->
+    <ProjectReference Include="..\..\Modules\Identity\UniHub.Identity.Domain\UniHub.Identity.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Forum\UniHub.Forum.Domain\UniHub.Forum.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Learning\UniHub.Learning.Domain\UniHub.Learning.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Chat\UniHub.Chat.Domain\UniHub.Chat.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Career\UniHub.Career.Domain\UniHub.Career.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Notification\UniHub.Notification.Domain\UniHub.Notification.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,293 @@
+# 🔧 PHASE 9.5: BACKEND CONSOLIDATION & DATABASE INTEGRATION
+
+> **Khắc phục điểm yếu Infrastructure, kết nối database thật, hoàn thiện API**
+
+---
+
+## 📋 PHASE INFO
+
+| Property          | Value                                        |
+| ----------------- | -------------------------------------------- |
+| **Phase**         | 9.5                                          |
+| **Name**          | Backend Consolidation & Database Integration |
+| **Status**        | 🔵 IN_PROGRESS                               |
+| **Progress**      | 0/7 tasks (0%)                               |
+| **Est. Duration** | 1 week                                       |
+| **Dependencies**  | Phase 0-9                                    |
+
+---
+
+## 🎯 MỤC TIÊU
+
+Phase này khắc phục toàn bộ điểm yếu của Infrastructure layer để backend sẵn sàng cho Frontend (Phase 10) và Testing (Phase 11):
+
+1. **Kết nối database thật** — Neon.tech PostgreSQL thay vì in-memory stubs
+2. **Tạo schema database** — EF Core Entity Configurations cho tất cả entities
+3. **Hoàn thiện modules còn thiếu** — Learning & Career repositories
+4. **Sửa lỗi bảo mật** — Auth, userId extraction, error handling
+5. **Implement endpoints còn thiếu** — RefreshToken, GetCompanyById, Faculties
+6. **Sửa bugs** — SearchController, AI error handling, warnings
+7. **Migration & Seed Data** — Tạo bảng và dữ liệu mẫu
+
+---
+
+## 📝 TASKS
+
+### TASK-101: EF Core Entity Configurations
+
+| Property       | Value                                |
+| -------------- | ------------------------------------ |
+| **ID**         | TASK-101                             |
+| **Status**     | ⬜ NOT_STARTED                       |
+| **Branch**     | `feature/TASK-101-ef-configurations` |
+| **Priority**   | P0 - Bắt buộc                        |
+| **Est. Lines** | ~400 lines                           |
+| **Depends On** | None                                 |
+
+**Mô tả:**
+Tạo `IEntityTypeConfiguration<T>` cho mọi domain entity, đăng ký DbSet trong ApplicationDbContext. Đây là bước đầu tiên để EF Core biết cách map entities vào database tables.
+
+**Acceptance Criteria:**
+
+- [ ] Identity module: UserConfiguration, RoleConfiguration, PermissionConfiguration, RefreshTokenConfiguration, PasswordResetTokenConfiguration
+- [ ] Forum module: PostConfiguration, CommentConfiguration, CategoryConfiguration, TagConfiguration, VoteConfiguration, BookmarkConfiguration, ReportConfiguration
+- [ ] Learning module: CourseConfiguration, DocumentConfiguration, FacultyConfiguration
+- [ ] Chat module: ConversationConfiguration, MessageConfiguration, ChannelConfiguration
+- [ ] Career module: JobPostingConfiguration, CompanyConfiguration, ApplicationConfiguration, RecruiterConfiguration
+- [ ] Notification module: NotificationConfiguration, NotificationPreferenceConfiguration, NotificationTemplateConfiguration
+- [ ] ApplicationDbContext cập nhật với tất cả DbSet<T>
+- [ ] Build thành công, không errors
+
+**Files cần tạo:**
+
+```
+src/Modules/Identity/UniHub.Identity.Infrastructure/Persistence/Configurations/
+  ├── UserConfiguration.cs
+  ├── RoleConfiguration.cs
+  ├── PermissionConfiguration.cs
+  ├── RefreshTokenConfiguration.cs
+  └── PasswordResetTokenConfiguration.cs
+
+src/Modules/Forum/UniHub.Forum.Infrastructure/Persistence/Configurations/
+  ├── PostConfiguration.cs
+  ├── CommentConfiguration.cs
+  ├── CategoryConfiguration.cs
+  ├── TagConfiguration.cs
+  ├── VoteConfiguration.cs
+  ├── BookmarkConfiguration.cs
+  └── ReportConfiguration.cs
+
+src/Modules/Learning/UniHub.Learning.Infrastructure/Persistence/Configurations/
+  ├── CourseConfiguration.cs
+  ├── DocumentConfiguration.cs
+  └── FacultyConfiguration.cs
+
+src/Modules/Chat/UniHub.Chat.Infrastructure/Persistence/Configurations/
+  ├── ConversationConfiguration.cs
+  ├── MessageConfiguration.cs
+  └── ChannelConfiguration.cs
+
+src/Modules/Career/UniHub.Career.Infrastructure/Persistence/Configurations/
+  ├── JobPostingConfiguration.cs
+  ├── CompanyConfiguration.cs
+  ├── ApplicationConfiguration.cs
+  └── RecruiterConfiguration.cs
+
+src/Modules/Notification/UniHub.Notification.Infrastructure/Persistence/Configurations/
+  ├── NotificationConfiguration.cs
+  ├── NotificationPreferenceConfiguration.cs
+  └── NotificationTemplateConfiguration.cs
+```
+
+---
+
+### TASK-102: Replace In-Memory Repositories with EF Core
+
+| Property       | Value                              |
+| -------------- | ---------------------------------- |
+| **ID**         | TASK-102                           |
+| **Status**     | ⬜ NOT_STARTED                     |
+| **Branch**     | `feature/TASK-102-ef-repositories` |
+| **Priority**   | P0 - Bắt buộc                      |
+| **Est. Lines** | ~800 lines                         |
+| **Depends On** | TASK-101                           |
+
+**Mô tả:**
+Viết lại tất cả 19 repositories hiện có từ `static List<T>` sang sử dụng EF Core DbContext. Dữ liệu sẽ được lưu thật vào Neon.tech PostgreSQL.
+
+**Acceptance Criteria:**
+
+- [ ] Identity: 5 repositories (User, Role, Permission, RefreshToken, PasswordResetToken)
+- [ ] Forum: 6 repositories (Post, Comment, Category, Tag, Bookmark, Report)
+- [ ] Chat: 3 repositories (Conversation, Message, Channel)
+- [ ] Notification: 2 repositories (Notification, NotificationPreference)
+- [ ] AI: 3 repositories (Conversation, FAQ, SummaryCache) — giữ in-memory hoặc chuyển MongoDB
+- [ ] Tất cả CRUD operations hoạt động với database thật
+- [ ] Unit of Work pattern hoạt động đúng
+- [ ] Build thành công
+
+---
+
+### TASK-103: Learning & Career Infrastructure (Missing Repos)
+
+| Property       | Value                                     |
+| -------------- | ----------------------------------------- |
+| **ID**         | TASK-103                                  |
+| **Status**     | ⬜ NOT_STARTED                            |
+| **Branch**     | `feature/TASK-103-missing-infrastructure` |
+| **Priority**   | P0 - Bắt buộc                             |
+| **Est. Lines** | ~600 lines                                |
+| **Depends On** | TASK-101                                  |
+
+**Mô tả:**
+Tạo repository implementations còn thiếu cho Learning module (9 interfaces) và Career module (5 interfaces). Hiện tại 2 module này không có repo nào → app crash khi gọi API.
+
+**Acceptance Criteria:**
+
+- [ ] Learning: CourseRepository, DocumentRepository
+- [ ] Learning: FileStorageService (local hoặc cloud)
+- [ ] Learning: VirusScanService (stub hoặc ClamAV)
+- [ ] Learning: UserRatingService, UserDownloadService
+- [ ] Learning: ModeratorPermissionService, ModeratorManagementPermissionService
+- [ ] Learning: EventStore implementation
+- [ ] Career: CompanyRepository, JobPostingRepository, ApplicationRepository, RecruiterRepository, SavedJobRepository
+- [ ] DependencyInjection.cs cập nhật cho cả 2 module
+- [ ] Build thành công, không runtime DI errors
+
+---
+
+### TASK-104: Fix Controller Auth & UserId Extraction
+
+| Property       | Value                       |
+| -------------- | --------------------------- |
+| **ID**         | TASK-104                    |
+| **Status**     | ⬜ NOT_STARTED              |
+| **Branch**     | `feature/TASK-104-fix-auth` |
+| **Priority**   | P1 - Quan trọng             |
+| **Est. Lines** | ~200 lines                  |
+| **Depends On** | None                        |
+
+**Mô tả:**
+Sửa tất cả controllers đang dùng `Guid.NewGuid()` placeholder cho userId. Thêm `[Authorize]` cho các endpoints còn thiếu. Tham khảo Chat controllers (đã implement đúng).
+
+**Acceptance Criteria:**
+
+- [ ] Forum PostsController: Thay 10 chỗ `Guid.NewGuid()` → lấy từ JWT claims
+- [ ] Forum CommentsController: Thay 7 chỗ `Guid.NewGuid()` → lấy từ JWT claims
+- [ ] Career ApplicationsController: Fix `Guid.Empty` → lấy từ JWT claims
+- [ ] Career JobPostingsController: Fix SaveJob/UnsaveJob userId
+- [ ] AI controllers (4 files): Thêm `[Authorize]` attribute
+- [ ] Learning controllers (3 files): Thêm `[Authorize]` trên write endpoints
+- [ ] Identity RolesController: Thêm `[Authorize(Roles = "Admin")]` cho admin-only endpoints
+- [ ] Tạo helper method `GetCurrentUserId()` trong base controller hoặc extension
+
+---
+
+### TASK-105: Implement Missing Endpoints
+
+| Property       | Value                                |
+| -------------- | ------------------------------------ |
+| **ID**         | TASK-105                             |
+| **Status**     | ⬜ NOT_STARTED                       |
+| **Branch**     | `feature/TASK-105-missing-endpoints` |
+| **Priority**   | P1 - Quan trọng                      |
+| **Est. Lines** | ~300 lines                           |
+| **Depends On** | TASK-102, TASK-103                   |
+
+**Mô tả:**
+Implement các API endpoints đang trả về 501 hoặc bị comment out.
+
+**Acceptance Criteria:**
+
+- [ ] AuthController: Implement RefreshToken endpoint (POST /api/v1/auth/refresh)
+- [ ] AuthController: Implement Logout thật (revoke refresh token)
+- [ ] CompaniesController: Implement GetById (GET /api/v1/companies/{id})
+- [ ] FacultiesController: Implement GetAll và Create thật (thay vì 501)
+- [ ] CoursesController: Thêm GET endpoint (GET /api/v1/courses, GET /api/v1/courses/{id})
+- [ ] Tất cả endpoints trả về response đúng format
+
+---
+
+### TASK-106: Fix Bugs & Code Quality
+
+| Property       | Value                     |
+| -------------- | ------------------------- |
+| **ID**         | TASK-106                  |
+| **Status**     | ⬜ NOT_STARTED            |
+| **Branch**     | `feature/TASK-106-bugfix` |
+| **Priority**   | P2 - Nên làm              |
+| **Est. Lines** | ~150 lines                |
+| **Depends On** | None                      |
+
+**Mô tả:**
+Sửa các bugs đã phát hiện và cải thiện code quality.
+
+**Acceptance Criteria:**
+
+- [ ] Fix SearchController: `int? categoryId` → `Guid? categoryId`
+- [ ] Fix AI controllers: Bỏ try/catch, throw domain exceptions để GlobalExceptionHandler xử lý
+- [ ] Update Newtonsoft.Json package (khắc phục vulnerability NU1903)
+- [ ] Xóa tất cả `Class1.cs` placeholder files
+- [ ] Fix 27 compiler warnings (nullable, XML doc, xUnit)
+- [ ] Thêm route constraint `{id:guid}` cho các controller thiếu
+- [ ] Fix `DeleteCourse` — bỏ `[FromBody]` trên DELETE method
+
+---
+
+### TASK-107: Database Migration & Seed Data
+
+| Property       | Value                             |
+| -------------- | --------------------------------- |
+| **ID**         | TASK-107                          |
+| **Status**     | ⬜ NOT_STARTED                    |
+| **Branch**     | `feature/TASK-107-migration-seed` |
+| **Priority**   | P0 - Bắt buộc                     |
+| **Est. Lines** | ~300 lines                        |
+| **Depends On** | TASK-101, TASK-102, TASK-103      |
+
+**Mô tả:**
+Chạy EF Core migrations để tạo database schema trên Neon.tech PostgreSQL. Tạo seed data cho development/testing.
+
+**Acceptance Criteria:**
+
+- [ ] Chạy `dotnet ef migrations add InitialCreate` thành công
+- [ ] Chạy `dotnet ef database update` tạo tables trên Neon.tech
+- [ ] Seed Admin account (admin@unihub.edu.vn / Admin@123)
+- [ ] Seed Default Roles (Admin, Moderator, Student, Lecturer)
+- [ ] Seed Default Permissions
+- [ ] Seed Sample Categories (Forum)
+- [ ] Seed Sample Faculties & Courses (Learning)
+- [ ] Seed FAQ Items (AI UniBot)
+- [ ] App khởi động và kết nối database thành công
+- [ ] Test CRUD operations end-to-end
+
+---
+
+## 📊 DEPENDENCY GRAPH
+
+```
+TASK-101 (Entity Config)
+    ├── TASK-102 (Replace Repos)  ──┐
+    ├── TASK-103 (Missing Repos)  ──┤
+    │                               ├── TASK-107 (Migration & Seed)
+    │                               │
+TASK-104 (Auth Fix) ────────────────┘
+TASK-105 (Missing Endpoints) ───────┘
+TASK-106 (Bug Fix) ── independent
+```
+
+---
+
+## ✅ COMPLETION CHECKLIST
+
+- [ ] TASK-101
+- [ ] TASK-102
+- [ ] TASK-103
+- [ ] TASK-104
+- [ ] TASK-105
+- [ ] TASK-106
+- [ ] TASK-107
+
+---
+
+_Last Updated: 2026-02-08_
