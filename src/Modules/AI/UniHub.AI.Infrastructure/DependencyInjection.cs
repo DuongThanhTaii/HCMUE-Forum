@@ -2,9 +2,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using UniHub.AI.Application.Abstractions;
+using UniHub.AI.Application.Services;
 using UniHub.AI.Domain.AIProviders;
 using UniHub.AI.Infrastructure.Configuration;
 using UniHub.AI.Infrastructure.Providers;
+using UniHub.AI.Infrastructure.Repositories;
+using UniHub.AI.Infrastructure.Services;
 
 namespace UniHub.AI.Infrastructure;
 
@@ -32,6 +35,15 @@ public static class DependencyInjection
 
         // Register provider factory
         services.AddSingleton<IAIProviderFactory, AIProviderFactory>();
+        
+        // Register repositories
+        services.AddSingleton<IFAQRepository, InMemoryFAQRepository>();
+        services.AddSingleton<IConversationRepository, InMemoryConversationRepository>();
+        
+        // Register services
+        services.AddScoped<IFAQService, FAQService>();
+        services.AddScoped<IConversationService, ConversationService>();
+        services.AddScoped<IUniBotService, UniBotService>();
 
         return services;
     }
