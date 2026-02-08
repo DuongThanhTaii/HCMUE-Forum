@@ -7,6 +7,8 @@ using UniHub.Chat.Infrastructure;
 using UniHub.Chat.Presentation;
 using UniHub.Chat.Presentation.Hubs;
 using UniHub.Career.Infrastructure;
+using UniHub.Notification.Infrastructure;
+using UniHub.Notification.Presentation.Controllers;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -46,7 +48,8 @@ try
         .AddApplicationPart(typeof(UniHub.Forum.Presentation.Controllers.PostsController).Assembly)
         .AddApplicationPart(typeof(UniHub.Learning.Presentation.Controllers.DocumentsController).Assembly)
         .AddApplicationPart(typeof(UniHub.Chat.Presentation.Controllers.ConversationsController).Assembly)
-        .AddApplicationPart(typeof(UniHub.Career.Presentation.Controllers.JobPostingsController).Assembly);
+        .AddApplicationPart(typeof(UniHub.Career.Presentation.Controllers.JobPostingsController).Assembly)
+        .AddApplicationPart(typeof(UniHub.Notification.Presentation.Controllers.NotificationsController).Assembly);
 
     // Add CORS for SignalR (configure domains in production)
     builder.Services.AddCors(options =>
@@ -68,6 +71,7 @@ try
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Learning.Application.Commands.UploadDocument.UploadDocumentCommand>();
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Chat.Application.Commands.CreateDirectConversation.CreateDirectConversationCommand>();
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Career.Application.Commands.JobPostings.CreateJobPosting.CreateJobPostingCommand>();
+        cfg.RegisterServicesFromAssemblyContaining<UniHub.Notification.Application.EventHandlers.UserRegisteredEventHandler>();
     });
 
     // Add Infrastructure (PostgreSQL, MongoDB, Redis)
@@ -88,6 +92,9 @@ try
 
     // Add Career module
     builder.Services.AddCareerInfrastructure();
+
+    // Add Notification module
+    builder.Services.AddNotificationInfrastructure(builder.Configuration);
 
     // Add exception handler
     builder.Services.AddExceptionHandler<UniHub.API.Middlewares.GlobalExceptionHandler>();

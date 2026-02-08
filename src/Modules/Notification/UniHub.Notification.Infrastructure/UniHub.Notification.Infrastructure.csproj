@@ -5,6 +5,11 @@
     <ProjectReference Include="..\..\..\Shared\UniHub.Infrastructure\UniHub.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="WebPush" />
+    <PackageReference Include="MailKit" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
