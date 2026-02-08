@@ -1,6 +1,7 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
+using UniHub.Notification.Application.Abstractions;
 using UniHub.Notification.Domain.NotificationPreferences;
+using UniHub.SharedKernel.CQRS;
 using UniHub.SharedKernel.Results;
 
 namespace UniHub.Notification.Application.Queries.GetNotificationPreferences;
@@ -8,7 +9,7 @@ namespace UniHub.Notification.Application.Queries.GetNotificationPreferences;
 /// <summary>
 /// Handler for getting notification preferences.
 /// </summary>
-public sealed class GetNotificationPreferencesQueryHandler : IRequestHandler<GetNotificationPreferencesQuery, Result<NotificationPreferencesDto>>
+public sealed class GetNotificationPreferencesQueryHandler : IQueryHandler<GetNotificationPreferencesQuery, NotificationPreferencesDto>
 {
     private readonly INotificationPreferenceRepository _preferenceRepository;
     private readonly ILogger<GetNotificationPreferencesQueryHandler> _logger;

@@ -1,5 +1,4 @@
-using MediatR;
-using UniHub.SharedKernel.Results;
+using UniHub.SharedKernel.CQRS;
 
 namespace UniHub.Notification.Application.Queries.GetNotifications;
 
@@ -9,4 +8,4 @@ namespace UniHub.Notification.Application.Queries.GetNotifications;
 public sealed record GetNotificationsQuery(
     Guid UserId,
     int PageNumber = 1,
-    int PageSize = 20) : IRequest<Result<GetNotificationsResponse>>;
+    int PageSize = 20) : IQuery<GetNotificationsResponse>;

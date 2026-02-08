@@ -1,16 +1,16 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
 using UniHub.Identity.Domain.Events;
 using UniHub.Notification.Application.Abstractions.Notifications;
 using UniHub.Notification.Domain.Notifications;
 using UniHub.Notification.Domain.NotificationTemplates;
+using UniHub.SharedKernel.Domain;
 
 namespace UniHub.Notification.Application.EventHandlers;
 
 /// <summary>
 /// Handles UserRegisteredEvent by sending a welcome email to the new user.
 /// </summary>
-public sealed class UserRegisteredEventHandler : INotificationHandler<UserRegisteredEvent>
+public sealed class UserRegisteredEventHandler : IDomainEventHandler<UserRegisteredEvent>
 {
     private readonly IEmailNotificationService _emailNotificationService;
     private readonly ILogger<UserRegisteredEventHandler> _logger;

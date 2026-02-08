@@ -1,6 +1,7 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
+using UniHub.Notification.Application.Abstractions;
 using UniHub.Notification.Domain.Notifications;
+using UniHub.SharedKernel.CQRS;
 using UniHub.SharedKernel.Results;
 
 namespace UniHub.Notification.Application.Queries.GetNotifications;
@@ -8,7 +9,7 @@ namespace UniHub.Notification.Application.Queries.GetNotifications;
 /// <summary>
 /// Handler for getting paginated notifications.
 /// </summary>
-public sealed class GetNotificationsQueryHandler : IRequestHandler<GetNotificationsQuery, Result<GetNotificationsResponse>>
+public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotificationsQuery, GetNotificationsResponse>
 {
     private readonly INotificationRepository _notificationRepository;
     private readonly ILogger<GetNotificationsQueryHandler> _logger;

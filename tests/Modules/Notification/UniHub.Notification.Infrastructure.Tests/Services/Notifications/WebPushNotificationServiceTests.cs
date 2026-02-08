@@ -3,7 +3,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using UniHub.Notification.Domain.Notifications;
+using UniHub.Notification.Domain.NotificationTemplates;
 using UniHub.Notification.Infrastructure.Services.Notifications;
+using Xunit;
 
 namespace UniHub.Notification.Infrastructure.Tests.Services.Notifications;
 
@@ -104,7 +106,7 @@ public class WebPushNotificationServiceTests
         // Assert
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("WebPush.NotImplemented");
-        result.Error.Description.Should().Contain("Push subscription repository not yet implemented");
+        result.Error.Message.Should().Contain("Push subscription repository not yet implemented");
     }
 
     // TODO: Add integration tests with actual WebPush subscriptions

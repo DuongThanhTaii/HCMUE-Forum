@@ -1,6 +1,7 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
+using UniHub.Notification.Application.Abstractions;
 using UniHub.Notification.Domain.Notifications;
+using UniHub.SharedKernel.CQRS;
 using UniHub.SharedKernel.Results;
 
 namespace UniHub.Notification.Application.Commands.DeleteNotification;
@@ -8,7 +9,7 @@ namespace UniHub.Notification.Application.Commands.DeleteNotification;
 /// <summary>
 /// Handler for deleting a notification.
 /// </summary>
-public sealed class DeleteNotificationCommandHandler : IRequestHandler<DeleteNotificationCommand, Result>
+public sealed class DeleteNotificationCommandHandler : ICommandHandler<DeleteNotificationCommand>
 {
     private readonly INotificationRepository _notificationRepository;
     private readonly ILogger<DeleteNotificationCommandHandler> _logger;

@@ -1,16 +1,16 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
 using UniHub.Learning.Domain.Documents.Events;
 using UniHub.Notification.Application.Abstractions.Notifications;
 using UniHub.Notification.Domain.Notifications;
 using UniHub.Notification.Domain.NotificationTemplates;
+using UniHub.SharedKernel.Domain;
 
 namespace UniHub.Notification.Application.EventHandlers;
 
 /// <summary>
 /// Handles DocumentApprovedEvent by notifying the document uploader.
 /// </summary>
-public sealed class DocumentApprovedEventHandler : INotificationHandler<DocumentApprovedEvent>
+public sealed class DocumentApprovedEventHandler : IDomainEventHandler<DocumentApprovedEvent>
 {
     private readonly IEmailNotificationService _emailNotificationService;
     private readonly IInAppNotificationService _inAppNotificationService;

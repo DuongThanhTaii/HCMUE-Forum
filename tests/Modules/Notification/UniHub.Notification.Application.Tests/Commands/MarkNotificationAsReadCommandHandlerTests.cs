@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using UniHub.Notification.Application.Abstractions;
 using UniHub.Notification.Application.Commands.MarkNotificationAsRead;
 using UniHub.Notification.Domain.Notifications;
 using UniHub.Notification.Domain.NotificationTemplates;

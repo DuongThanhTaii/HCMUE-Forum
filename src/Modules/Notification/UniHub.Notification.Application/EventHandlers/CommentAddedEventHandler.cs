@@ -1,16 +1,16 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
 using UniHub.Forum.Domain.Events;
 using UniHub.Notification.Application.Abstractions.Notifications;
 using UniHub.Notification.Domain.Notifications;
 using UniHub.Notification.Domain.NotificationTemplates;
+using UniHub.SharedKernel.Domain;
 
 namespace UniHub.Notification.Application.EventHandlers;
 
 /// <summary>
 /// Handles CommentAddedEvent by notifying the post author.
 /// </summary>
-public sealed class CommentAddedEventHandler : INotificationHandler<CommentAddedEvent>
+public sealed class CommentAddedEventHandler : IDomainEventHandler<CommentAddedEvent>
 {
     private readonly IInAppNotificationService _inAppNotificationService;
     private readonly IPushNotificationService _pushNotificationService;

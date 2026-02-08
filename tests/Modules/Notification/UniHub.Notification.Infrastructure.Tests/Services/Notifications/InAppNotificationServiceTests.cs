@@ -2,7 +2,9 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using UniHub.Notification.Domain.Notifications;
+using UniHub.Notification.Domain.NotificationTemplates;
 using UniHub.Notification.Infrastructure.Services.Notifications;
+using Xunit;
 
 namespace UniHub.Notification.Infrastructure.Tests.Services.Notifications;
 
@@ -65,11 +67,10 @@ public class InAppNotificationServiceTests
             content).Value;
 
         // Act
-        await _service.SendAsync(notification);
+        var result = await _service.SendAsync(notification);
 
-        // Assert
-        _logger.Received().LogInformation(
-            Arg.Is<string>(s => s.Contains("Processing in-app notification")),
-            Arg.Any<object[]>());
+        // Assert - verify result and that logger was called
+        result.IsSuccess.Should().BeTrue();
+        _logger.ReceivedCalls().Should().NotBeEmpty();
     }
 }

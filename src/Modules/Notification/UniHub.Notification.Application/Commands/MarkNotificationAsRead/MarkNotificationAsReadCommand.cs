@@ -1,9 +1,8 @@
-using MediatR;
-using UniHub.SharedKernel.Results;
+using UniHub.SharedKernel.CQRS;
 
 namespace UniHub.Notification.Application.Commands.MarkNotificationAsRead;
 
 /// <summary>
 /// Command to mark a notification as read.
 /// </summary>
-public sealed record MarkNotificationAsReadCommand(Guid NotificationId, Guid UserId) : IRequest<Result>;
+public sealed record MarkNotificationAsReadCommand(Guid NotificationId, Guid UserId) : ICommand;

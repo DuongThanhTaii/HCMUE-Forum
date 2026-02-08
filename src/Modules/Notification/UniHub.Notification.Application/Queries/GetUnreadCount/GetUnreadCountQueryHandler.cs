@@ -1,6 +1,6 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
-using UniHub.Notification.Domain.Notifications;
+using UniHub.Notification.Application.Abstractions;
+using UniHub.SharedKernel.CQRS;
 using UniHub.SharedKernel.Results;
 
 namespace UniHub.Notification.Application.Queries.GetUnreadCount;
@@ -8,7 +8,7 @@ namespace UniHub.Notification.Application.Queries.GetUnreadCount;
 /// <summary>
 /// Handler for getting unread notification count.
 /// </summary>
-public sealed class GetUnreadCountQueryHandler : IRequestHandler<GetUnreadCountQuery, Result<int>>
+public sealed class GetUnreadCountQueryHandler : IQueryHandler<GetUnreadCountQuery, int>
 {
     private readonly INotificationRepository _notificationRepository;
     private readonly ILogger<GetUnreadCountQueryHandler> _logger;

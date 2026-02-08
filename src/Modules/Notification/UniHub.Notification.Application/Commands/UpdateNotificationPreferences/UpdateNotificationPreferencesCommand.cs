@@ -1,5 +1,4 @@
-using MediatR;
-using UniHub.SharedKernel.Results;
+using UniHub.SharedKernel.CQRS;
 
 namespace UniHub.Notification.Application.Commands.UpdateNotificationPreferences;
 
@@ -10,4 +9,4 @@ public sealed record UpdateNotificationPreferencesCommand(
     Guid UserId,
     bool EmailEnabled,
     bool PushEnabled,
-    bool InAppEnabled) : IRequest<Result>;
+    bool InAppEnabled) : ICommand;

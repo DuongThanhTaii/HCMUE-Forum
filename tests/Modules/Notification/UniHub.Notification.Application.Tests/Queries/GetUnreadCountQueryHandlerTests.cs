@@ -1,8 +1,8 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using UniHub.Notification.Application.Abstractions;
 using UniHub.Notification.Application.Queries.GetUnreadCount;
-using UniHub.Notification.Domain.Notifications;
 using Xunit;
 
 namespace UniHub.Notification.Application.Tests.Queries;

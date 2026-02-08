@@ -44,8 +44,8 @@ public class UserRegisteredEventHandlerTests
             .Received(1)
             .SendAsync(
                 Arg.Is<Domain.Notifications.Notification>(n =>
-                    n.Subject.Contains("Welcome") &&
-                    n.Body.Contains(email.Value)),
+                    n.Content.Subject.Contains("Welcome") &&
+                    n.Content.Body.Contains(email.Value)),
                 Arg.Any<CancellationToken>());
     }
 

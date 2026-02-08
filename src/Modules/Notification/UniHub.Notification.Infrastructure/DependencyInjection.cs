@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using UniHub.Notification.Application.Abstractions;
 using UniHub.Notification.Application.Abstractions.Notifications;
+using UniHub.Notification.Infrastructure.Persistence.Repositories;
 using UniHub.Notification.Infrastructure.Services.Notifications;
 
 namespace UniHub.Notification.Infrastructure;
@@ -20,8 +22,19 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddRepositories();
         services.AddNotificationServices(configuration);
 
+        return services;
+    }
+
+    /// <summary>
+    /// Registers all Notification repositories.
+    /// </summary>
+    private static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
         return services;
     }
 

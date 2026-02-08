@@ -1,6 +1,7 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
+using UniHub.Notification.Application.Abstractions;
 using UniHub.Notification.Domain.Notifications;
+using UniHub.SharedKernel.CQRS;
 using UniHub.SharedKernel.Results;
 
 namespace UniHub.Notification.Application.Commands.MarkNotificationAsRead;
@@ -8,7 +9,7 @@ namespace UniHub.Notification.Application.Commands.MarkNotificationAsRead;
 /// <summary>
 /// Handler for marking a notification as read.
 /// </summary>
-public sealed class MarkNotificationAsReadCommandHandler : IRequestHandler<MarkNotificationAsReadCommand, Result>
+public sealed class MarkNotificationAsReadCommandHandler : ICommandHandler<MarkNotificationAsReadCommand>
 {
     private readonly INotificationRepository _notificationRepository;
     private readonly ILogger<MarkNotificationAsReadCommandHandler> _logger;

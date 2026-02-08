@@ -1,16 +1,16 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
 using UniHub.Career.Domain.JobPostings.Events;
 using UniHub.Notification.Application.Abstractions.Notifications;
 using UniHub.Notification.Domain.Notifications;
 using UniHub.Notification.Domain.NotificationTemplates;
+using UniHub.SharedKernel.Domain;
 
 namespace UniHub.Notification.Application.EventHandlers;
 
 /// <summary>
 /// Handles JobPostingPublishedEvent by notifying job seekers with matching profiles.
 /// </summary>
-public sealed class JobPostingPublishedEventHandler : INotificationHandler<JobPostingPublishedEvent>
+public sealed class JobPostingPublishedEventHandler : IDomainEventHandler<JobPostingPublishedEvent>
 {
     private readonly IEmailNotificationService _emailNotificationService;
     private readonly ILogger<JobPostingPublishedEventHandler> _logger;

@@ -1,16 +1,16 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
 using UniHub.Chat.Domain.Messages.Events;
 using UniHub.Notification.Application.Abstractions.Notifications;
 using UniHub.Notification.Domain.Notifications;
 using UniHub.Notification.Domain.NotificationTemplates;
+using UniHub.SharedKernel.Domain;
 
 namespace UniHub.Notification.Application.EventHandlers;
 
 /// <summary>
 /// Handles MessageSentEvent by sending push notification to recipient.
 /// </summary>
-public sealed class MessageSentEventHandler : INotificationHandler<MessageSentEvent>
+public sealed class MessageSentEventHandler : IDomainEventHandler<MessageSentEvent>
 {
     private readonly IPushNotificationService _pushNotificationService;
     private readonly IInAppNotificationService _inAppNotificationService;

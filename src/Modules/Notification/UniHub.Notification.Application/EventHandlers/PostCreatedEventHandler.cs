@@ -1,16 +1,16 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
 using UniHub.Forum.Domain.Events;
 using UniHub.Notification.Application.Abstractions.Notifications;
 using UniHub.Notification.Domain.Notifications;
 using UniHub.Notification.Domain.NotificationTemplates;
+using UniHub.SharedKernel.Domain;
 
 namespace UniHub.Notification.Application.EventHandlers;
 
 /// <summary>
 /// Handles PostCreatedEvent by notifying followers of the post author.
 /// </summary>
-public sealed class PostCreatedEventHandler : INotificationHandler<PostCreatedEvent>
+public sealed class PostCreatedEventHandler : IDomainEventHandler<PostCreatedEvent>
 {
     private readonly IInAppNotificationService _inAppNotificationService;
     private readonly ILogger<PostCreatedEventHandler> _logger;
