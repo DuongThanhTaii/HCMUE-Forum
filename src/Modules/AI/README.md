@@ -7,6 +7,7 @@ UniHub AI Module supports multiple AI providers with automatic fallback based on
 ## Supported Providers
 
 ### 1. Groq (Primary - Priority 1)
+
 - **Fast inference** with free tier
 - **OpenAI-compatible API**
 - **Model**: `llama-3.1-70b-versatile`
@@ -14,6 +15,7 @@ UniHub AI Module supports multiple AI providers with automatic fallback based on
 - **Get API Key**: https://console.groq.com/keys
 
 ### 2. Google Gemini (Secondary - Priority 2)
+
 - **Google's generative AI**
 - **Gemini API format**
 - **Model**: `gemini-pro`
@@ -21,6 +23,7 @@ UniHub AI Module supports multiple AI providers with automatic fallback based on
 - **Get API Key**: https://makersuite.google.com/app/apikey
 
 ### 3. OpenRouter (Tertiary - Priority 3)
+
 - **Unified API** for multiple models
 - **OpenAI-compatible API**
 - **Model**: `meta-llama/llama-3.1-8b-instruct:free`
@@ -30,11 +33,13 @@ UniHub AI Module supports multiple AI providers with automatic fallback based on
 ## Configuration
 
 ### 1. Copy example config
+
 ```bash
 cp appsettings.AI.example.json appsettings.AI.json
 ```
 
 ### 2. Add API keys
+
 Edit `appsettings.AI.json` and replace placeholders with your actual API keys:
 
 ```json
@@ -57,6 +62,7 @@ Edit `appsettings.AI.json` and replace placeholders with your actual API keys:
 ```
 
 ### 3. Merge into appsettings.json
+
 Add the AIProviders section to your main `appsettings.json` or `appsettings.Development.json`.
 
 ## How Provider Rotation Works
@@ -68,13 +74,13 @@ Add the AIProviders section to your main `appsettings.json` or `appsettings.Deve
 
 ## Provider Features
 
-| Feature | Groq | Gemini | OpenRouter |
-|---------|------|--------|------------|
-| Speed | ⚡ Very Fast | 🐢 Medium | 🐇 Fast |
-| Free Tier | ✅ 30 req/min | ✅ 60 req/min | ✅ 20 req/min |
-| Max Tokens | 8000 | 4096 | 4096 |
-| API Format | OpenAI | Gemini | OpenAI |
-| Models | Llama 3.1 | Gemini Pro | Multiple |
+| Feature    | Groq          | Gemini        | OpenRouter    |
+| ---------- | ------------- | ------------- | ------------- |
+| Speed      | ⚡ Very Fast  | 🐢 Medium     | 🐇 Fast       |
+| Free Tier  | ✅ 30 req/min | ✅ 60 req/min | ✅ 20 req/min |
+| Max Tokens | 8000          | 4096          | 4096          |
+| API Format | OpenAI        | Gemini        | OpenAI        |
+| Models     | Llama 3.1     | Gemini Pro    | Multiple      |
 
 ## Configuration Options
 
@@ -92,6 +98,7 @@ Add the AIProviders section to your main `appsettings.json` or `appsettings.Deve
 ### Disable a Provider
 
 Set `IsEnabled` to `false`:
+
 ```json
 {
   "Groq": {
@@ -104,6 +111,7 @@ Set `IsEnabled` to `false`:
 ### Change Priority
 
 Adjust `Priority` values to change fallback order:
+
 ```json
 {
   "Gemini": {
@@ -136,7 +144,7 @@ public class MyChatService
     {
         // Get best available provider (automatic fallback)
         var provider = await _providerFactory.GetAvailableProviderAsync();
-        
+
         if (provider == null)
         {
             return "All AI providers are unavailable";
@@ -177,18 +185,22 @@ curl -X POST "http://localhost:5000/api/v1/ai/chat" \
 ## Troubleshooting
 
 ### "Rate limit exceeded"
+
 - Wait 1 minute for quota to reset
 - Or disable the provider and use fallback
 
 ### "API error (401)"
+
 - Check your API key is correct
 - Ensure no extra spaces in config
 
 ### "Empty response"
+
 - Check the model name is correct
 - Try a different provider
 
 ### "Request timeout"
+
 - Increase TimeoutSeconds in config
 - Check your internet connection
 
