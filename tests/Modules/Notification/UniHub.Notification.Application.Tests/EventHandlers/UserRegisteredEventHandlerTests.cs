@@ -7,6 +7,7 @@ using UniHub.Identity.Domain.Users.ValueObjects;
 using UniHub.Notification.Application.Abstractions.Notifications;
 using UniHub.Notification.Application.EventHandlers;
 using UniHub.SharedKernel.Results;
+using Xunit;
 
 namespace UniHub.Notification.Application.Tests.EventHandlers;
 

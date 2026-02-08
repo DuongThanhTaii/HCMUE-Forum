@@ -5,6 +5,7 @@ using UniHub.Chat.Domain.Messages;
 using UniHub.Chat.Domain.Messages.Events;
 using UniHub.Notification.Application.Abstractions.Notifications;
 using UniHub.Notification.Application.EventHandlers;
+using Xunit;
 
 namespace UniHub.Notification.Application.Tests.EventHandlers;
 
