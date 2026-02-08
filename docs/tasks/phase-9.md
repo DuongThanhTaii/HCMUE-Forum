@@ -70,15 +70,15 @@ Implement automatic fallback khi provider hết quota.
 | Property   | Value                     |
 | ---------- | ------------------------- |
 | **ID**     | TASK-096                  |
-| **Status** | ⬜ NOT_STARTED            |
+| **Status** | ✅ DONE (2026-02-08)      |
 | **Branch** | `feature/TASK-096-unibot` |
 
 **Acceptance Criteria:**
 
-- [ ] FAQ knowledge base
-- [ ] Context-aware responses
-- [ ] Conversation history
-- [ ] Handoff to human support
+- [x] FAQ knowledge base
+- [x] Context-aware responses
+- [x] Conversation history
+- [x] Handoff to human support
 
 ---
 
@@ -159,7 +159,7 @@ GET    /api/v1/ai/search?q=
 
 - [x] TASK-094
 - [ ] TASK-095
-- [ ] TASK-096
+- [x] TASK-096
 - [ ] TASK-097
 - [ ] TASK-098
 - [ ] TASK-099
