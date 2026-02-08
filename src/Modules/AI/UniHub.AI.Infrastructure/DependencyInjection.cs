@@ -27,6 +27,9 @@ public static class DependencyInjection
         services.Configure<AIProvidersSettings>(
             configuration.GetSection(AIProvidersSettings.SectionName));
 
+        // Register HttpClient for AI providers
+        services.AddHttpClient();
+
         // Register AI providers
         services.AddAIProviders();
 
@@ -45,6 +48,7 @@ public static class DependencyInjection
         services.AddSingleton<IAIProvider>(sp =>
         {
             var settings = sp.GetRequiredService<IOptions<AIProvidersSettings>>().Value;
+            var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
             var config = new AIProviderConfiguration
             {
                 ProviderType = AIProviderType.Groq,
@@ -57,13 +61,14 @@ public static class DependencyInjection
                 Priority = settings.Groq.Priority,
                 TimeoutSeconds = settings.Groq.TimeoutSeconds
             };
-            return new GroqProvider(config);
+            return new GroqProvider(config, httpClientFactory);
         });
 
         // Register Gemini provider
         services.AddSingleton<IAIProvider>(sp =>
         {
             var settings = sp.GetRequiredService<IOptions<AIProvidersSettings>>().Value;
+            var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
             var config = new AIProviderConfiguration
             {
                 ProviderType = AIProviderType.Gemini,
@@ -76,13 +81,14 @@ public static class DependencyInjection
                 Priority = settings.Gemini.Priority,
                 TimeoutSeconds = settings.Gemini.TimeoutSeconds
             };
-            return new GeminiProvider(config);
+            return new GeminiProvider(config, httpClientFactory);
         });
 
         // Register OpenRouter provider
         services.AddSingleton<IAIProvider>(sp =>
         {
             var settings = sp.GetRequiredService<IOptions<AIProvidersSettings>>().Value;
+            var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
             var config = new AIProviderConfiguration
             {
                 ProviderType = AIProviderType.OpenRouter,
@@ -95,7 +101,7 @@ public static class DependencyInjection
                 Priority = settings.OpenRouter.Priority,
                 TimeoutSeconds = settings.OpenRouter.TimeoutSeconds
             };
-            return new OpenRouterProvider(config);
+            return new OpenRouterProvider(config, httpClientFactory);
         });
 
         return services;
