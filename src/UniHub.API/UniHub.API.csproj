@@ -32,6 +32,8 @@
     <ProjectReference Include="..\Modules\Career\UniHub.Career.Presentation\UniHub.Career.Presentation.csproj" />
     <ProjectReference Include="..\Modules\Notification\UniHub.Notification.Infrastructure\UniHub.Notification.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Notification\UniHub.Notification.Presentation\UniHub.Notification.Presentation.csproj" />
+    <ProjectReference Include="..\Modules\AI\UniHub.AI.Infrastructure\UniHub.AI.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\AI\UniHub.AI.Presentation\UniHub.AI.Presentation.csproj" />
   </ItemGroup>
 
 </Project>
