@@ -67,10 +67,10 @@ TOTAL:                              ✅✅✅✅✅✅✅✅⬜⬜  73%
 | Task ID  | Task Name                      | Status               | Assignee | Branch                              |
 | -------- | ------------------------------ | -------------------- | -------- | ----------------------------------- |
 | TASK-094 | Design AI Provider Abstraction | ✅ DONE (2026-02-08) | -        | feature/TASK-094-ai-abstraction     |
-| TASK-095 | Implement Provider Rotation    | ⬜ NOT_STARTED       | -        | feature/TASK-095-provider-rotation  |
-| TASK-096 | Implement UniBot Chatbot       | ⬜ NOT_STARTED       | -        | feature/TASK-096-unibot             |
-| TASK-097 | Implement Content Moderation   | ⬜ NOT_STARTED       | -        | feature/TASK-097-content-moderation |
-| TASK-098 | Implement Document Summary     | ⬜ NOT_STARTED       | -        | feature/TASK-098-summarization      |
+| TASK-095 | Implement Provider Rotation    | ✅ DONE (2026-02-08) | -        | feature/TASK-095-provider-rotation  |
+| TASK-096 | Implement UniBot Chatbot       | ✅ DONE (2026-02-08) | -        | feature/TASK-096-unibot             |
+| TASK-097 | Implement Content Moderation   | ✅ DONE (2026-02-08) | -        | feature/TASK-097-content-moderation |
+| TASK-098 | Implement Document Summary     | ✅ DONE (2026-02-08) | -        | feature/TASK-098-summarization      |
 | TASK-099 | Implement Smart Search         | ⬜ NOT_STARTED       | -        | feature/TASK-099-smart-search       |
 | TASK-100 | AI API Endpoints               | ⬜ NOT_STARTED       | -        | feature/TASK-100-ai-api             |
 
