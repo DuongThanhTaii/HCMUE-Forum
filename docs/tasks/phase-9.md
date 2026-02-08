@@ -11,7 +11,7 @@
 | **Phase**         | 9                     |
 | **Name**          | AI Integration Module |
 | **Status**        | 🔵 IN_PROGRESS        |
-| **Progress**      | 2/7 tasks (29%)       |
+| **Progress**      | 3/7 tasks (43%)       |
 | **Est. Duration** | 1 week                |
 | **Dependencies**  | Phase 3               |
 
@@ -87,15 +87,15 @@ Implement automatic fallback khi provider hết quota.
 | Property   | Value                                 |
 | ---------- | ------------------------------------- |
 | **ID**     | TASK-097                              |
-| **Status** | ⬜ NOT_STARTED                        |
+| **Status** | ✅ DONE (2026-02-08)                  |
 | **Branch** | `feature/TASK-097-content-moderation` |
 
 **Acceptance Criteria:**
 
-- [ ] Toxic content detection
-- [ ] Spam detection
-- [ ] Auto-flag for review
-- [ ] Configurable thresholds
+- [x] Toxic content detection
+- [x] Spam detection
+- [x] Auto-flag for review
+- [x] Configurable thresholds
 
 ---
 
@@ -158,9 +158,9 @@ GET    /api/v1/ai/search?q=
 ## ✅ COMPLETION CHECKLIST
 
 - [x] TASK-094
-- [ ] TASK-095
+- [x] TASK-095
 - [x] TASK-096
-- [ ] TASK-097
+- [x] TASK-097
 - [ ] TASK-098
 - [ ] TASK-099
 - [ ] TASK-100
