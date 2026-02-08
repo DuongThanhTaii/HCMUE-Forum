@@ -37,6 +37,10 @@ public static class DependencyInjection
         // Configure summarization settings
         services.Configure<SummarizationSettings>(
             configuration.GetSection(SummarizationSettings.SectionName));
+        
+        // Configure smart search settings
+        services.Configure<SmartSearchSettings>(
+            configuration.GetSection(SmartSearchSettings.SectionName));
 
         // Register HttpClient for AI providers
         services.AddHttpClient();
@@ -58,6 +62,7 @@ public static class DependencyInjection
         services.AddScoped<IUniBotService, UniBotService>();
         services.AddScoped<IContentModerationService, ContentModerationService>();
         services.AddScoped<IDocumentSummarizationService, DocumentSummarizationService>();
+        services.AddScoped<ISmartSearchService, SmartSearchService>();
 
         return services;
     }
