@@ -89,6 +89,9 @@ try
     // Add Career module
     builder.Services.AddCareerInfrastructure();
 
+    // Add Notification module
+    builder.Services.AddNotificationInfrastructure(builder.Configuration);
+
     // Add exception handler
     builder.Services.AddExceptionHandler<UniHub.API.Middlewares.GlobalExceptionHandler>();
     builder.Services.AddProblemDetails();

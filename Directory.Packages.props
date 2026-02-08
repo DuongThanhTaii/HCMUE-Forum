@@ -63,5 +63,8 @@
     <PackageVersion Include="Mapster" Version="7.4.0" />
     <PackageVersion Include="Mapster.DependencyInjection" Version="1.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0" />
+    <!-- Notifications -->
+    <PackageVersion Include="WebPush" Version="1.0.12" />
+    <PackageVersion Include="MailKit" Version="4.9.0" />
   </ItemGroup>
 </Project>

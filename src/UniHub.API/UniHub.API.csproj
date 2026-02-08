@@ -30,6 +30,7 @@
     <ProjectReference Include="..\Modules\Chat\UniHub.Chat.Presentation\UniHub.Chat.Presentation.csproj" />
     <ProjectReference Include="..\Modules\Career\UniHub.Career.Infrastructure\UniHub.Career.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Career\UniHub.Career.Presentation\UniHub.Career.Presentation.csproj" />
+    <ProjectReference Include="..\Modules\Notification\UniHub.Notification.Infrastructure\UniHub.Notification.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

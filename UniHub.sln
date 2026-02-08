@@ -123,6 +123,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notification", "Notificatio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniHub.Notification.Domain.Tests", "tests\Modules\Notification\UniHub.Notification.Domain.Tests\UniHub.Notification.Domain.Tests.csproj", "{8394BD2E-1319-4CC5-880F-10947E5921C2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniHub.Notification.Infrastructure.Tests", "tests\Modules\Notification\UniHub.Notification.Infrastructure.Tests\UniHub.Notification.Infrastructure.Tests.csproj", "{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -649,6 +651,18 @@ Global
 		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Release|x64.Build.0 = Release|Any CPU
 		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Release|x86.ActiveCfg = Release|Any CPU
 		{8394BD2E-1319-4CC5-880F-10947E5921C2}.Release|x86.Build.0 = Release|Any CPU
+		{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A}.Debug|x64.Build.0 = Debug|Any CPU
+		{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A}.Debug|x86.Build.0 = Debug|Any CPU
+		{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A}.Release|x64.ActiveCfg = Release|Any CPU
+		{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A}.Release|x64.Build.0 = Release|Any CPU
+		{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A}.Release|x86.ActiveCfg = Release|Any CPU
+		{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -712,5 +726,6 @@ Global
 		{A733B60C-1B78-4085-A915-9E4D697D7EC6} = {BCD831DE-2269-7333-BFB6-CA0F2DFB26D7}
 		{FEEC8149-E702-6786-4132-737DC77F0F7B} = {D7DC9B74-6BC4-2470-2038-1E57C2DCB73B}
 		{8394BD2E-1319-4CC5-880F-10947E5921C2} = {FEEC8149-E702-6786-4132-737DC77F0F7B}
+		{D9B5F3A1-2C4E-4F8B-9A1D-8E7F3C6D2B5A} = {FEEC8149-E702-6786-4132-737DC77F0F7B}
 	EndGlobalSection
 EndGlobal
