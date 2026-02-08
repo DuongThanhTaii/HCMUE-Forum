@@ -9,6 +9,7 @@ using UniHub.Chat.Presentation.Hubs;
 using UniHub.Career.Infrastructure;
 using UniHub.Notification.Infrastructure;
 using UniHub.Notification.Presentation.Controllers;
+using UniHub.AI.Infrastructure;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -49,7 +50,8 @@ try
         .AddApplicationPart(typeof(UniHub.Learning.Presentation.Controllers.DocumentsController).Assembly)
         .AddApplicationPart(typeof(UniHub.Chat.Presentation.Controllers.ConversationsController).Assembly)
         .AddApplicationPart(typeof(UniHub.Career.Presentation.Controllers.JobPostingsController).Assembly)
-        .AddApplicationPart(typeof(UniHub.Notification.Presentation.Controllers.NotificationsController).Assembly);
+        .AddApplicationPart(typeof(UniHub.Notification.Presentation.Controllers.NotificationsController).Assembly)
+        .AddApplicationPart(typeof(UniHub.AI.Presentation.Controllers.AIChatController).Assembly);
 
     // Add CORS for SignalR (configure domains in production)
     builder.Services.AddCors(options =>
@@ -95,6 +97,9 @@ try
 
     // Add Notification module
     builder.Services.AddNotificationInfrastructure(builder.Configuration);
+
+    // Add AI module
+    builder.Services.AddAIInfrastructure(builder.Configuration);
 
     // Add exception handler
     builder.Services.AddExceptionHandler<UniHub.API.Middlewares.GlobalExceptionHandler>();
