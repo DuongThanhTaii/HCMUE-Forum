@@ -2,9 +2,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using UniHub.AI.Application.Abstractions;
+using UniHub.AI.Application.Services;
 using UniHub.AI.Domain.AIProviders;
 using UniHub.AI.Infrastructure.Configuration;
 using UniHub.AI.Infrastructure.Providers;
+using UniHub.AI.Infrastructure.Repositories;
+using UniHub.AI.Infrastructure.Services;
 
 namespace UniHub.AI.Infrastructure;
 
@@ -26,12 +29,35 @@ public static class DependencyInjection
         // Configure AI provider settings
         services.Configure<AIProvidersSettings>(
             configuration.GetSection(AIProvidersSettings.SectionName));
+        
+        // Configure moderation settings
+        services.Configure<ModerationSettings>(
+            configuration.GetSection(ModerationSettings.SectionName));
+        
+        // Configure summarization settings
+        services.Configure<SummarizationSettings>(
+            configuration.GetSection(SummarizationSettings.SectionName));
+
+        // Register HttpClient for AI providers
+        services.AddHttpClient();
 
         // Register AI providers
         services.AddAIProviders();
 
         // Register provider factory
         services.AddSingleton<IAIProviderFactory, AIProviderFactory>();
+        
+        // Register repositories
+        services.AddSingleton<IFAQRepository, InMemoryFAQRepository>();
+        services.AddSingleton<IConversationRepository, InMemoryConversationRepository>();
+        services.AddSingleton<ISummaryCacheRepository, InMemorySummaryCacheRepository>();
+        
+        // Register services
+        services.AddScoped<IFAQService, FAQService>();
+        services.AddScoped<IConversationService, ConversationService>();
+        services.AddScoped<IUniBotService, UniBotService>();
+        services.AddScoped<IContentModerationService, ContentModerationService>();
+        services.AddScoped<IDocumentSummarizationService, DocumentSummarizationService>();
 
         return services;
     }
@@ -45,6 +71,7 @@ public static class DependencyInjection
         services.AddSingleton<IAIProvider>(sp =>
         {
             var settings = sp.GetRequiredService<IOptions<AIProvidersSettings>>().Value;
+            var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
             var config = new AIProviderConfiguration
             {
                 ProviderType = AIProviderType.Groq,
@@ -57,13 +84,14 @@ public static class DependencyInjection
                 Priority = settings.Groq.Priority,
                 TimeoutSeconds = settings.Groq.TimeoutSeconds
             };
-            return new GroqProvider(config);
+            return new GroqProvider(config, httpClientFactory);
         });
 
         // Register Gemini provider
         services.AddSingleton<IAIProvider>(sp =>
         {
             var settings = sp.GetRequiredService<IOptions<AIProvidersSettings>>().Value;
+            var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
             var config = new AIProviderConfiguration
             {
                 ProviderType = AIProviderType.Gemini,
@@ -76,13 +104,14 @@ public static class DependencyInjection
                 Priority = settings.Gemini.Priority,
                 TimeoutSeconds = settings.Gemini.TimeoutSeconds
             };
-            return new GeminiProvider(config);
+            return new GeminiProvider(config, httpClientFactory);
         });
 
         // Register OpenRouter provider
         services.AddSingleton<IAIProvider>(sp =>
         {
             var settings = sp.GetRequiredService<IOptions<AIProvidersSettings>>().Value;
+            var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
             var config = new AIProviderConfiguration
             {
                 ProviderType = AIProviderType.OpenRouter,
@@ -95,7 +124,7 @@ public static class DependencyInjection
                 Priority = settings.OpenRouter.Priority,
                 TimeoutSeconds = settings.OpenRouter.TimeoutSeconds
             };
-            return new OpenRouterProvider(config);
+            return new OpenRouterProvider(config, httpClientFactory);
         });
 
         return services;
