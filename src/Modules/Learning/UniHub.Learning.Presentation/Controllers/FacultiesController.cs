@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using UniHub.Contracts;
 using UniHub.Learning.Application.Commands.FacultyManagement.CreateFaculty;
 using UniHub.Learning.Application.Queries.Faculties.GetFaculties;
+using UniHub.Learning.Application.Queries.Faculties.GetFacultyById;
 using UniHub.Learning.Presentation.DTOs.Faculties;
 
 namespace UniHub.Learning.Presentation.Controllers;
@@ -34,6 +35,27 @@ public class FacultiesController : BaseApiController
         if (result.IsFailure)
         {
             return BadRequest(new { error = result.Error.Message });
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Get a faculty by its ID
+    /// </summary>
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(FacultyDetailResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetFacultyById(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetFacultyByIdQuery(id);
+        var result = await _sender.Send(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return NotFound(new { error = result.Error.Message });
         }
 
         return Ok(result.Value);

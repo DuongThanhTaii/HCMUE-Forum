@@ -250,7 +250,7 @@ public class PostsController : BaseApiController
     /// Pin or unpin a post
     /// </summary>
     [HttpPost("{id:guid}/pin")]
-    [Authorize] // TODO: Add moderator/admin role requirement
+    [Authorize(Roles = "Admin,Moderator")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
