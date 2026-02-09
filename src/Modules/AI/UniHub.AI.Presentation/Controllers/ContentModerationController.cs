@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using UniHub.AI.Application.DTOs;
 using UniHub.AI.Application.Services;
 
@@ -13,6 +14,7 @@ namespace UniHub.AI.Presentation.Controllers;
 [Route("api/v1/ai")]
 [Produces("application/json")]
 [Authorize]
+[EnableRateLimiting("ai")]
 public class ContentModerationController : ControllerBase
 {
     private readonly IContentModerationService _moderationService;
