@@ -47,21 +47,15 @@ public class ChannelConfiguration : IEntityTypeConfiguration<Channel>
         builder.Property(c => c.ArchivedAt)
             .HasColumnName("archived_at");
 
-        // Primitive collection: Members (List<Guid>) - stored as JSON
+        //Primitive collection: Members (List<Guid>) - stored as JSON
         builder.Property("_members")
             .HasColumnName("members")
             .HasColumnType("jsonb");
-
-        builder.Navigation(c => c.Members)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         // Primitive collection: Moderators (List<Guid>) - stored as JSON
         builder.Property("_moderators")
             .HasColumnName("moderators")
             .HasColumnType("jsonb");
-
-        builder.Navigation(c => c.Moderators)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         // Indexes
         builder.HasIndex(c => c.Name);

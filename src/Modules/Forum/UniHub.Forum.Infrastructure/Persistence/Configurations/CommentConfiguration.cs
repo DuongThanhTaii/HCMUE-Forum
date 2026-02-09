@@ -73,6 +73,11 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
         {
             vote.ToTable("comment_votes", "forum");
 
+            // Define shadow property for foreign key FIRST
+            vote.Property<Guid>("comment_id")
+                .HasColumnName("comment_id")
+                .IsRequired();
+
             vote.Property(v => v.UserId)
                 .HasColumnName("user_id")
                 .IsRequired();
@@ -89,8 +94,9 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
             vote.Property(v => v.UpdatedAt)
                 .HasColumnName("updated_at");
 
+            // Configure composite primary key and foreign key
             vote.WithOwner().HasForeignKey("comment_id");
-            vote.HasKey("comment_id", "user_id");
+            vote.HasKey("comment_id", nameof(Vote.UserId));
         });
 
         // Indexes

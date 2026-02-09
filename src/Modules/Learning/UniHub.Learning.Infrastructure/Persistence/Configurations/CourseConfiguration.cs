@@ -93,9 +93,6 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
             .HasColumnName("moderator_ids")
             .HasColumnType("jsonb");
 
-        builder.Navigation(c => c.ModeratorIds)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
         // Indexes
         builder.HasIndex(c => c.FacultyId);
         builder.HasIndex(c => c.Status);

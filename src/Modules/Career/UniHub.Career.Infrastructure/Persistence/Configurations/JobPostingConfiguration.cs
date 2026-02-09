@@ -145,9 +145,6 @@ public class JobPostingConfiguration : IEntityTypeConfiguration<JobPosting>
             .HasColumnName("tags")
             .HasColumnType("jsonb");
 
-        builder.Navigation(j => j.Tags)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
         // Indexes
         builder.HasIndex(j => j.CompanyId);
         builder.HasIndex(j => j.PostedBy);

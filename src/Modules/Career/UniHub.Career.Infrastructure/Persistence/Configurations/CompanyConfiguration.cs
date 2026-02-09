@@ -121,9 +121,6 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
             .HasColumnName("benefits")
             .HasColumnType("jsonb");
 
-        builder.Navigation(c => c.Benefits)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
         // Indexes
         builder.HasIndex(c => c.Name);
         builder.HasIndex(c => c.Industry);

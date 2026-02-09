@@ -258,7 +258,7 @@ Sửa các bugs đã phát hiện và cải thiện code quality.
 | Property       | Value                             |
 | -------------- | --------------------------------- |
 | **ID**         | TASK-107                          |
-| **Status**     | ⬜ NOT_STARTED                    |
+| **Status**     | 🔵 IN_PROGRESS                    |
 | **Branch**     | `feature/TASK-107-migration-seed` |
 | **Priority**   | P0 - Bắt buộc                     |
 | **Est. Lines** | ~300 lines                        |

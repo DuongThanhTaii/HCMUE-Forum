@@ -67,6 +67,11 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
         {
             attachment.ToTable("message_attachments", "chat");
 
+            // Define shadow property for foreign key FIRST
+            attachment.Property<Guid>("message_id")
+                .HasColumnName("message_id")
+                .IsRequired();
+
             attachment.Property(a => a.FileName)
                 .HasColumnName("file_name")
                 .HasMaxLength(255)
@@ -91,7 +96,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
                 .HasMaxLength(2000);
 
             attachment.WithOwner().HasForeignKey("message_id");
-            attachment.HasKey("message_id", "file_name");
+            attachment.HasKey("message_id", nameof(Attachment.FileName));
         });
 
         // Owned collection: Reactions
