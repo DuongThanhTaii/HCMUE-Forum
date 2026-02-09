@@ -104,41 +104,22 @@ public class AIChatController : ControllerBase
     /// <param name="id">Conversation ID.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Conversation details.</returns>
-    [HttpGet("conversations/{id}")]
+    [HttpGet("conversations/{id:guid}")]
     [ProducesResponseType(typeof(Conversation), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetConversation(
-        string id,
+        Guid id,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(id))
+        var conversation = await _conversationService.GetByIdAsync(id, cancellationToken);
+        
+        if (conversation == null)
         {
-            return BadRequest(new { error = "Conversation ID is required." });
+            return NotFound(new { error = $"Conversation with ID '{id}' not found." });
         }
 
-        if (!Guid.TryParse(id, out var conversationId))
-        {
-            return BadRequest(new { error = "Invalid conversation ID format." });
-        }
-
-        try
-        {
-            var conversation = await _conversationService.GetByIdAsync(conversationId, cancellationToken);
-            
-            if (conversation == null)
-            {
-                return NotFound(new { error = $"Conversation with ID '{id}' not found." });
-            }
-
-            return Ok(conversation);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while retrieving the conversation.", details = ex.Message });
-        }
+        return Ok(conversation);
     }
 
     /// <summary>
@@ -147,40 +128,20 @@ public class AIChatController : ControllerBase
     /// <param name="id">Conversation ID to close.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>No content on success.</returns>
-    [HttpDelete("conversations/{id}")]
+    [HttpDelete("conversations/{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteConversation(
-        string id,
+        Guid id,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(id))
+        var closed = await _conversationService.CloseConversationAsync(id, cancellationToken);
+        
+        if (!closed)
         {
-            return BadRequest(new { error = "Conversation ID is required." });
+            return NotFound(new { error = $"Conversation with ID '{id}' not found." });
         }
 
-        if (!Guid.TryParse(id, out var conversationId))
-        {
-            return BadRequest(new { error = "Invalid conversation ID format." });
-        }
-
-        try
-        {
-            var closed = await _conversationService.CloseConversationAsync(conversationId, cancellationToken);
-            
-            if (!closed)
-            {
-                return NotFound(new { error = $"Conversation with ID '{id}' not found." });
-            }
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while closing the conversation.", details = ex.Message });
-        }
+        return NoContent();
     }
 }

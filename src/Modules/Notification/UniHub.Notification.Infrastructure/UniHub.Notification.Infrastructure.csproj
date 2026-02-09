@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="WebPush" />
     <PackageReference Include="MailKit" />
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 
   <PropertyGroup>

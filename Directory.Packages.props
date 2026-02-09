@@ -67,5 +67,6 @@
     <!-- Notifications -->
     <PackageVersion Include="WebPush" Version="1.0.12" />
     <PackageVersion Include="MailKit" Version="4.9.0" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 </Project>
