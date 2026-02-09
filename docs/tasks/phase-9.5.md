@@ -11,7 +11,7 @@
 | **Phase**         | 9.5                                          |
 | **Name**          | Backend Consolidation & Database Integration |
 | **Status**        | 🔵 IN_PROGRESS                               |
-| **Progress**      | 3/7 tasks (43%)                              |
+| **Progress**      | 4/7 tasks (57%)                              |
 | **Est. Duration** | 1 week                                       |
 | **Dependencies**  | Phase 0-9                                    |
 
@@ -161,7 +161,7 @@ Tạo repository implementations còn thiếu cho Learning module (9 interfaces)
 | Property       | Value                       |
 | -------------- | --------------------------- |
 | **ID**         | TASK-104                    |
-| **Status**     | 🔵 IN_PROGRESS              |
+| **Status**     | ✅ COMPLETED                |
 | **Branch**     | `feature/TASK-104-fix-auth` |
 | **Priority**   | P1 - Quan trọng             |
 | **Est. Lines** | ~200 lines                  |
@@ -172,14 +172,14 @@ Sửa tất cả controllers đang dùng `Guid.NewGuid()` placeholder cho userId
 
 **Acceptance Criteria:**
 
-- [ ] Forum PostsController: Thay 10 chỗ `Guid.NewGuid()` → lấy từ JWT claims
-- [ ] Forum CommentsController: Thay 7 chỗ `Guid.NewGuid()` → lấy từ JWT claims
-- [ ] Career ApplicationsController: Fix `Guid.Empty` → lấy từ JWT claims
-- [ ] Career JobPostingsController: Fix SaveJob/UnsaveJob userId
-- [ ] AI controllers (4 files): Thêm `[Authorize]` attribute
-- [ ] Learning controllers (3 files): Thêm `[Authorize]` trên write endpoints
-- [ ] Identity RolesController: Thêm `[Authorize(Roles = "Admin")]` cho admin-only endpoints
-- [ ] Tạo helper method `GetCurrentUserId()` trong base controller hoặc extension
+- [x] Forum PostsController: Thay 9 chỗ `Guid.NewGuid()` → lấy từ JWT claims
+- [x] Forum CommentsController: Thay 6 chỗ `Guid.NewGuid()` → lấy từ JWT claims
+- [x] Career ApplicationsController: Fix `Guid.Empty` → lấy từ JWT claims
+- [x] Career JobPostingsController: Fix SaveJob/UnsaveJob userId
+- [x] AI controllers (4 files): Thêm `[Authorize]` attribute
+- [x] Learning controllers (3 files): Thêm `[Authorize]` trên write endpoints
+- [x] Identity RolesController: Thêm `[Authorize(Roles = "Admin")]` cho admin-only endpoints
+- [x] Tạo helper method `GetCurrentUserId()` trong base controller (BaseApiController)
 
 ---
 
@@ -283,7 +283,7 @@ TASK-106 (Bug Fix) ── independent
 - [x] TASK-101
 - [x] TASK-102
 - [x] TASK-103
-- [ ] TASK-104
+- [x] TASK-104
 - [ ] TASK-105
 - [ ] TASK-106
 - [ ] TASK-107
