@@ -7,6 +7,7 @@ using UniHub.Learning.Application.Commands.DocumentRating;
 using UniHub.Learning.Application.Commands.UploadDocument;
 using UniHub.Learning.Application.Commands.ApprovalWorkflow;
 using UniHub.Learning.Application.Queries.DocumentSearch;
+using UniHub.Learning.Application.Queries.Documents.GetDocumentById;
 using UniHub.Learning.Domain.Documents;
 using UniHub.Learning.Presentation.DTOs.Documents;
 
@@ -50,6 +51,28 @@ public class DocumentsController : ControllerBase
         if (result.IsFailure)
         {
             return BadRequest(new { error = result.Error.Message });
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Get a document by its ID
+    /// </summary>
+    [HttpGet("{id:guid}")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(DocumentDetailResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetDocumentById(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetDocumentByIdQuery(id);
+        var result = await _sender.Send(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return NotFound(new { error = result.Error.Message });
         }
 
         return Ok(result.Value);

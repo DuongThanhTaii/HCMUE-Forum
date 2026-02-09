@@ -41,8 +41,8 @@ internal static class IdentitySeed
         // 3. Seed Admin User
         var adminEmail = Email.Create("admin@unihub.edu.vn").Value;
         var adminProfile = UserProfile.Create("Admin", "UniHub").Value;
-        // Pre-computed BCrypt hash for "Admin@123456"
-        var passwordHash = "$2a$12$LJ3m5Jx5Z0v5J5W5X5Y5Ze5W5X5Y5Z0v5J5W5X5Y5Ze5W5X5Y5Z0";
+        // Pre-computed BCrypt hash for "Admin@123456" (workFactor: 12)
+        var passwordHash = "$2a$12$k312te0PvwsBFoDQ0i9y2ufy5.gzcWlsZDVh5JqVzyrHPgH5bNGbK";
         var adminUser = User.Create(adminEmail, passwordHash, adminProfile).Value;
 
         context.Users.Add(adminUser);
