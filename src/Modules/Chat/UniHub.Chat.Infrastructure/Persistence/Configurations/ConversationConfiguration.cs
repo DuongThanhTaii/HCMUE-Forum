@@ -49,9 +49,6 @@ public class ConversationConfiguration : IEntityTypeConfiguration<Conversation>
             .HasColumnName("participants")
             .HasColumnType("jsonb");
 
-        builder.Navigation(c => c.Participants)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
         // Indexes
         builder.HasIndex(c => c.CreatedBy);
         builder.HasIndex(c => c.Type);

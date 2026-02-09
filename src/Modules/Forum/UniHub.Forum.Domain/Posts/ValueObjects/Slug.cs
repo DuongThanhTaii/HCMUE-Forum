@@ -11,6 +11,9 @@ public sealed partial class Slug : ValueObject
 
     public string Value { get; private set; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private Slug() { Value = string.Empty; }
+
     private Slug(string value)
     {
         Value = value;

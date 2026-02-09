@@ -9,6 +9,9 @@ public sealed class TagDescription : ValueObject
 
     public string Value { get; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private TagDescription() { Value = string.Empty; }
+
     private TagDescription(string value)
     {
         Value = value;

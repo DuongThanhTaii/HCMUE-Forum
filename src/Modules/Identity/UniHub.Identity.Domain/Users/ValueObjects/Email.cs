@@ -7,6 +7,9 @@ public sealed class Email : ValueObject
 {
     public string Value { get; private set; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private Email() { Value = string.Empty; }
+
     private Email(string value)
     {
         Value = value;

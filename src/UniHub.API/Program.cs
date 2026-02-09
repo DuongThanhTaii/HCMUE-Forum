@@ -193,6 +193,12 @@ var summaries = new[]
     })
     .WithName("GetWeatherForecast");
 
+    // Seed database in development
+    if (app.Environment.IsDevelopment())
+    {
+        await UniHub.Infrastructure.Persistence.Seeding.DatabaseSeeder.SeedAsync(app.Services);
+    }
+
     app.Run();
 }
 catch (Exception ex)

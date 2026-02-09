@@ -102,9 +102,6 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
             .HasColumnName("tags")
             .HasColumnType("jsonb");
 
-        builder.Navigation(p => p.Tags)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
         // Owned collection: Votes
         builder.OwnsMany(p => p.Votes, vote =>
         {
@@ -126,8 +123,9 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
             vote.Property(v => v.UpdatedAt)
                 .HasColumnName("updated_at");
 
+            // Configure composite primary key and foreign key
             vote.WithOwner().HasForeignKey("post_id");
-            vote.HasKey("post_id", "user_id");
+            vote.HasKey("post_id", nameof(Vote.UserId));
         });
 
         // Indexes

@@ -132,9 +132,6 @@ public class NotificationTemplateConfiguration : IEntityTypeConfiguration<Notifi
             .HasColumnName("channels")
             .HasColumnType("jsonb");
 
-        builder.Navigation(nt => nt.Channels)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
         // Owned collection: Variables (TemplateVariable value objects)
         builder.OwnsMany(nt => nt.Variables, variable =>
         {
@@ -155,7 +152,7 @@ public class NotificationTemplateConfiguration : IEntityTypeConfiguration<Notifi
                 .HasMaxLength(200);
 
             variable.WithOwner().HasForeignKey("template_id");
-            variable.HasKey("template_id", "name");
+            variable.HasKey("template_id", nameof(TemplateVariable.Name));
         });
 
         // Unique constraint: template name must be unique

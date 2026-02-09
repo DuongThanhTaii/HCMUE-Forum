@@ -81,9 +81,6 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
             .HasColumnName("moderator_ids")
             .HasColumnType("jsonb");
 
-        builder.Navigation(c => c.ModeratorIds)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
         // Indexes
         builder.HasIndex(c => c.ParentCategoryId);
         builder.HasIndex(c => c.DisplayOrder);

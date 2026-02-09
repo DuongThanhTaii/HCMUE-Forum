@@ -10,6 +10,9 @@ public sealed class PostContent : ValueObject
 
     public string Value { get; private set; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private PostContent() { Value = string.Empty; }
+
     private PostContent(string value)
     {
         Value = value;

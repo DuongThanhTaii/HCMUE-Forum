@@ -11,6 +11,9 @@ namespace UniHub.Career.Domain.Applications;
 /// </summary>
 public sealed class Application : AggregateRoot<ApplicationId>
 {
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private Application() { }
+
     private Application(ApplicationId id) : base(id) { }
 
     /// <summary>The job posting being applied to.</summary>

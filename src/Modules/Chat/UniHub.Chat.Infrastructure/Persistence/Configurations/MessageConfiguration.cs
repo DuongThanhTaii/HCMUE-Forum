@@ -91,7 +91,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
                 .HasMaxLength(2000);
 
             attachment.WithOwner().HasForeignKey("message_id");
-            attachment.HasKey("message_id", "file_name");
+            attachment.HasKey("message_id", nameof(Attachment.FileName));
         });
 
         // Owned collection: Reactions
@@ -113,7 +113,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
                 .IsRequired();
 
             reaction.WithOwner().HasForeignKey("message_id");
-            reaction.HasKey("message_id", "user_id", "emoji");
+            reaction.HasKey("message_id", nameof(Reaction.UserId), nameof(Reaction.Emoji));
         });
 
         // Owned collection: ReadReceipts
@@ -130,7 +130,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
                 .IsRequired();
 
             receipt.WithOwner().HasForeignKey("message_id");
-            receipt.HasKey("message_id", "user_id");
+            receipt.HasKey("message_id", nameof(ReadReceipt.UserId));
         });
 
         // Indexes
