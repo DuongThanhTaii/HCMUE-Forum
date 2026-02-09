@@ -207,6 +207,7 @@ Implement các API endpoints đang trả về 501 hoặc bị comment out.
 - [x] Tất cả endpoints trả về response đúng format
 
 **Implementation Details:**
+
 - **Identity.Application**: 4 files (RefreshTokenCommand/Handler, RevokeRefreshTokenCommand/Handler) - 161 lines
 - **Career.Application**: 2 files (GetCompanyByIdQuery/Handler) - 84 lines
 - **Learning.Application**: 8 files + IFacultyRepository (GetCourses, GetCourseById, GetFaculties, CreateFaculty) - 327 lines
