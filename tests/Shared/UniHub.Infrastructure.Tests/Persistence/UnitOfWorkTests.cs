@@ -11,17 +11,17 @@ namespace UniHub.Infrastructure.Tests.Persistence;
 public class UnitOfWorkTests
 {
     private readonly Mock<IPublisher> _publisherMock;
-    private readonly ApplicationDbContext _context;
+    private readonly TestDbContext _context;
     private readonly UnitOfWork _unitOfWork;
 
     public UnitOfWorkTests()
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+        var options = new DbContextOptionsBuilder<TestDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
 
-        _context = new ApplicationDbContext(options);
+        _context = new TestDbContext(options);
         _publisherMock = new Mock<IPublisher>();
         _unitOfWork = new UnitOfWork(_context, _publisherMock.Object);
     }

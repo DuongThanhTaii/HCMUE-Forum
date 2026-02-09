@@ -12,6 +12,9 @@ public sealed record DocumentDescription
 
     public string Value { get; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private DocumentDescription() { Value = string.Empty; }
+
     private DocumentDescription(string value)
     {
         Value = value;

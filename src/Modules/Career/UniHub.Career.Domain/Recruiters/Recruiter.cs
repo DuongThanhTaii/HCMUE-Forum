@@ -31,7 +31,7 @@ public sealed class Recruiter : AggregateRoot<RecruiterId>
     }
 
     // For EF Core
-    private Recruiter() : base(RecruiterId.CreateUnique())
+    private Recruiter()
     {
         CompanyId = null!;
         Permissions = null!;

@@ -73,6 +73,9 @@ public static class DependencyInjection
             }
         });
 
+        // Register DbContext base class for UnitOfWork
+        services.AddScoped<DbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
+
         // Register Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

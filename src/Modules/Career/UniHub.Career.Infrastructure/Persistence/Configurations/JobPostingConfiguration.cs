@@ -137,7 +137,7 @@ public class JobPostingConfiguration : IEntityTypeConfiguration<JobPosting>
                 .HasDefaultValue(true);
 
             requirement.WithOwner().HasForeignKey("job_posting_id");
-            requirement.HasKey("job_posting_id", "skill");
+            requirement.HasKey("job_posting_id", nameof(JobRequirement.Skill));
         });
 
         // Primitive collection: Tags (List<string>) - stored as JSON

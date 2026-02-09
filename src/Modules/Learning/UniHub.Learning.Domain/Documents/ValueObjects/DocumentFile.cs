@@ -26,6 +26,14 @@ public sealed record DocumentFile
     public string ContentType { get; }
     public string? FileExtension { get; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private DocumentFile()
+    {
+        FileName = string.Empty;
+        FilePath = string.Empty;
+        ContentType = string.Empty;
+    }
+
     private DocumentFile(string fileName, string filePath, long fileSize, string contentType)
     {
         FileName = fileName;

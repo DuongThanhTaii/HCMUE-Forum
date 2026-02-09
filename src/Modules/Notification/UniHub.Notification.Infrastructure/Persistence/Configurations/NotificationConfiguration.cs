@@ -90,9 +90,6 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Domain.Notific
             metadata.Property("_data")
                 .HasColumnName("metadata")
                 .HasColumnType("jsonb");
-
-            metadata.Navigation(m => m.Data)
-                .UsePropertyAccessMode(PropertyAccessMode.Field);
         });
 
         // Indexes

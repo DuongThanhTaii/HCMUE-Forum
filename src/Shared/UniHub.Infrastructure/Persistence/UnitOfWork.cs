@@ -12,11 +12,11 @@ namespace UniHub.Infrastructure.Persistence;
 /// </summary>
 public class UnitOfWork : IUnitOfWork
 {
-    private readonly ApplicationDbContext _context;
+    private readonly DbContext _context;
     private readonly IPublisher _publisher;
     private IDbContextTransaction? _currentTransaction;
 
-    public UnitOfWork(ApplicationDbContext context, IPublisher publisher)
+    public UnitOfWork(DbContext context, IPublisher publisher)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _publisher = publisher ?? throw new ArgumentNullException(nameof(publisher));

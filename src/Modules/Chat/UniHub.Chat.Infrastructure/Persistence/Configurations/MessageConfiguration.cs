@@ -67,11 +67,6 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
         {
             attachment.ToTable("message_attachments", "chat");
 
-            // Define shadow property for foreign key FIRST
-            attachment.Property<Guid>("message_id")
-                .HasColumnName("message_id")
-                .IsRequired();
-
             attachment.Property(a => a.FileName)
                 .HasColumnName("file_name")
                 .HasMaxLength(255)
@@ -118,7 +113,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
                 .IsRequired();
 
             reaction.WithOwner().HasForeignKey("message_id");
-            reaction.HasKey("message_id", "user_id", "emoji");
+            reaction.HasKey("message_id", nameof(Reaction.UserId), nameof(Reaction.Emoji));
         });
 
         // Owned collection: ReadReceipts
@@ -135,7 +130,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
                 .IsRequired();
 
             receipt.WithOwner().HasForeignKey("message_id");
-            receipt.HasKey("message_id", "user_id");
+            receipt.HasKey("message_id", nameof(ReadReceipt.UserId));
         });
 
         // Indexes

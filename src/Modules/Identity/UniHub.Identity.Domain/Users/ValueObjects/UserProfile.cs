@@ -12,6 +12,13 @@ public sealed class UserProfile : ValueObject
     public string? Phone { get; private set; }
     public DateTime? DateOfBirth { get; private set; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private UserProfile()
+    {
+        FirstName = string.Empty;
+        LastName = string.Empty;
+    }
+
     private UserProfile(string firstName, string lastName, string? avatar, string? bio, string? phone, DateTime? dateOfBirth)
     {
         FirstName = firstName;

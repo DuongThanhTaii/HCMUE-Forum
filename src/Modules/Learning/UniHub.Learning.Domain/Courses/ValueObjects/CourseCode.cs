@@ -14,6 +14,9 @@ public sealed record CourseCode
 
     public string Value { get; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private CourseCode() { Value = string.Empty; }
+
     private CourseCode(string value)
     {
         Value = value;

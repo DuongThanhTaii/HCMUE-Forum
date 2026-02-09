@@ -14,6 +14,9 @@ public sealed record Semester
 
     public string Value { get; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private Semester() { Value = string.Empty; }
+
     private Semester(string value)
     {
         Value = value;

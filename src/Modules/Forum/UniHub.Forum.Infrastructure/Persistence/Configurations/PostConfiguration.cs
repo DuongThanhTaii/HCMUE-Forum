@@ -107,11 +107,6 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
         {
             vote.ToTable("post_votes", "forum");
 
-            // Define shadow property for foreign key FIRST
-            vote.Property<Guid>("post_id")
-                .HasColumnName("post_id")
-                .IsRequired();
-
             vote.Property(v => v.UserId)
                 .HasColumnName("user_id")
                 .IsRequired();
