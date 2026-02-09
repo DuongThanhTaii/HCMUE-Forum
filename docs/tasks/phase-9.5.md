@@ -11,7 +11,7 @@
 | **Phase**         | 9.5                                          |
 | **Name**          | Backend Consolidation & Database Integration |
 | **Status**        | 🔵 IN_PROGRESS                               |
-| **Progress**      | 2/7 tasks (29%)                              |
+| **Progress**      | 3/7 tasks (43%)                              |
 | **Est. Duration** | 1 week                                       |
 | **Dependencies**  | Phase 0-9                                    |
 
@@ -133,10 +133,10 @@ Viết lại tất cả 19 repositories hiện có từ `static List<T>` sang s�
 | Property       | Value                                     |
 | -------------- | ----------------------------------------- |
 | **ID**         | TASK-103                                  |
-| **Status**     | 🔵 IN_PROGRESS                            |
+| **Status**     | ✅ COMPLETED                              |
 | **Branch**     | `feature/TASK-103-missing-infrastructure` |
 | **Priority**   | P0 - Bắt buộc                             |
-| **Est. Lines** | ~600 lines                                |
+| **Est. Lines** | ~1073 lines (actual)                      |
 | **Depends On** | TASK-101                                  |
 
 **Mô tả:**
@@ -144,15 +144,15 @@ Tạo repository implementations còn thiếu cho Learning module (9 interfaces)
 
 **Acceptance Criteria:**
 
-- [ ] Learning: CourseRepository, DocumentRepository
-- [ ] Learning: FileStorageService (local hoặc cloud)
-- [ ] Learning: VirusScanService (stub hoặc ClamAV)
-- [ ] Learning: UserRatingService, UserDownloadService
-- [ ] Learning: ModeratorPermissionService, ModeratorManagementPermissionService
-- [ ] Learning: EventStore implementation
-- [ ] Career: CompanyRepository, JobPostingRepository, ApplicationRepository, RecruiterRepository, SavedJobRepository
-- [ ] DependencyInjection.cs cập nhật cho cả 2 module
-- [ ] Build thành công, không runtime DI errors
+- [x] Learning: CourseRepository, DocumentRepository
+- [x] Learning: FileStorageService (local filesystem)
+- [x] Learning: VirusScanService (stub implementation)
+- [x] Learning: UserRatingService, UserDownloadService
+- [x] Learning: ModeratorPermissionService, ModeratorManagementPermissionService
+- [ ] Learning: EventStore implementation — DEFERRED (not required for MVP)
+- [x] Career: CompanyRepository, JobPostingRepository, ApplicationRepository, RecruiterRepository, SavedJobRepository
+- [x] DependencyInjection.cs cập nhật cho cả 2 module
+- [x] Build thành công, không runtime DI errors
 
 ---
 
