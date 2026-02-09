@@ -32,6 +32,7 @@ public class FacultiesController : ControllerBase
     /// Create a new faculty
     /// </summary>
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(typeof(CreateFacultyResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult CreateFaculty([FromBody] CreateFacultyRequest request)

@@ -24,6 +24,7 @@ public class CoursesController : ControllerBase
     /// Create a new course
     /// </summary>
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(typeof(CreateCourseResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateCourse(
@@ -55,6 +56,7 @@ public class CoursesController : ControllerBase
     /// Update course information
     /// </summary>
     [HttpPut("{id}")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateCourse(
@@ -83,6 +85,7 @@ public class CoursesController : ControllerBase
     /// Delete a course (soft delete)
     /// </summary>
     [HttpDelete("{id}")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeleteCourse(
@@ -105,6 +108,7 @@ public class CoursesController : ControllerBase
     /// Assign a moderator to a course
     /// </summary>
     [HttpPost("{id}/moderators")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AssignModerator(
@@ -127,6 +131,7 @@ public class CoursesController : ControllerBase
     /// Remove a moderator from a course
     /// </summary>
     [HttpDelete("{id}/moderators/{moderatorId}")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RemoveModerator(

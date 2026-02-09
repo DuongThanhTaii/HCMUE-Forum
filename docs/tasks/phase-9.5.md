@@ -161,7 +161,7 @@ Tạo repository implementations còn thiếu cho Learning module (9 interfaces)
 | Property       | Value                       |
 | -------------- | --------------------------- |
 | **ID**         | TASK-104                    |
-| **Status**     | ⬜ NOT_STARTED              |
+| **Status**     | 🔵 IN_PROGRESS              |
 | **Branch**     | `feature/TASK-104-fix-auth` |
 | **Priority**   | P1 - Quan trọng             |
 | **Est. Lines** | ~200 lines                  |

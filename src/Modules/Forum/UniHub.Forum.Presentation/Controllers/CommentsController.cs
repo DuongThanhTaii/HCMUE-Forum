@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UniHub.Contracts;
 using UniHub.Forum.Application.Commands.AcceptAnswer;
 using UniHub.Forum.Application.Commands.AddComment;
 using UniHub.Forum.Application.Commands.DeleteComment;
@@ -15,10 +16,9 @@ using UniHub.Forum.Presentation.DTOs.Votes;
 
 namespace UniHub.Forum.Presentation.Controllers;
 
-[ApiController]
 [Route("api/v1/comments")]
 [Produces("application/json")]
-public class CommentsController : ControllerBase
+public class CommentsController : BaseApiController
 {
     private readonly ISender _sender;
 
@@ -40,8 +40,7 @@ public class CommentsController : ControllerBase
         [FromBody] AddCommentRequest request,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var command = new AddCommentCommand(
             postId,
@@ -72,8 +71,7 @@ public class CommentsController : ControllerBase
         [FromBody] UpdateCommentRequest request,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var command = new UpdateCommentCommand(id, request.Content, userId);
         var result = await _sender.Send(command, cancellationToken);
@@ -98,8 +96,7 @@ public class CommentsController : ControllerBase
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var command = new DeleteCommentCommand(id, userId);
         var result = await _sender.Send(command, cancellationToken);
@@ -125,8 +122,7 @@ public class CommentsController : ControllerBase
         [FromBody] VoteRequest request,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var voteType = request.VoteType == 1 ? VoteType.Upvote : VoteType.Downvote;
         var command = new VoteCommentCommand(id, userId, voteType);
@@ -153,8 +149,7 @@ public class CommentsController : ControllerBase
         [FromQuery] Guid postId,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var command = new AcceptAnswerCommand(id, postId, userId);
         var result = await _sender.Send(command, cancellationToken);
@@ -180,8 +175,7 @@ public class CommentsController : ControllerBase
         [FromBody] ReportRequest request,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var command = new ReportCommentCommand(
             id,

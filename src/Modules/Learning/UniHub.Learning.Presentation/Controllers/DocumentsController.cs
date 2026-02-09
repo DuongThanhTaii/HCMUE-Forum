@@ -59,6 +59,7 @@ public class DocumentsController : ControllerBase
     /// Upload a new document
     /// </summary>
     [HttpPost("upload")]
+    [Authorize]
     [ProducesResponseType(typeof(UploadDocumentResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UploadDocument(
@@ -92,6 +93,7 @@ public class DocumentsController : ControllerBase
     /// Rate a document (1-5 stars)
     /// </summary>
     [HttpPost("{id}/rate")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RateDocument(
@@ -114,6 +116,7 @@ public class DocumentsController : ControllerBase
     /// Download a document
     /// </summary>
     [HttpPost("{id}/download")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DownloadDocument(
@@ -136,6 +139,7 @@ public class DocumentsController : ControllerBase
     /// Approve a document
     /// </summary>
     [HttpPost("{id}/approve")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ApproveDocument(
@@ -158,6 +162,7 @@ public class DocumentsController : ControllerBase
     /// Reject a document
     /// </summary>
     [HttpPost("{id}/reject")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RejectDocument(
@@ -180,6 +185,7 @@ public class DocumentsController : ControllerBase
     /// Request revision for a document
     /// </summary>
     [HttpPost("{id}/request-revision")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RequestRevision(

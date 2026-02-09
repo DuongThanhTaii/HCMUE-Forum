@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UniHub.Contracts;
 using UniHub.Forum.Application.Commands.BookmarkPost;
 using UniHub.Forum.Application.Commands.CreatePost;
 using UniHub.Forum.Application.Commands.DeletePost;
@@ -22,10 +23,9 @@ using UniHub.Forum.Presentation.DTOs.Votes;
 
 namespace UniHub.Forum.Presentation.Controllers;
 
-[ApiController]
 [Route("api/v1/posts")]
 [Produces("application/json")]
-public class PostsController : ControllerBase
+public class PostsController : BaseApiController
 {
     private readonly ISender _sender;
 
@@ -140,8 +140,7 @@ public class PostsController : ControllerBase
         [FromBody] CreatePostRequest request,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var authorId = Guid.NewGuid(); // Placeholder
+        var authorId = GetCurrentUserId();
 
         var command = new CreatePostCommand(
             request.Title,
@@ -177,8 +176,7 @@ public class PostsController : ControllerBase
         [FromBody] UpdatePostRequest request,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var command = new UpdatePostCommand(
             id,
@@ -210,8 +208,7 @@ public class PostsController : ControllerBase
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var command = new DeletePostCommand(id, userId);
         var result = await _sender.Send(command, cancellationToken);
@@ -236,8 +233,7 @@ public class PostsController : ControllerBase
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var command = new PublishPostCommand(id, userId);
         var result = await _sender.Send(command, cancellationToken);
@@ -262,8 +258,7 @@ public class PostsController : ControllerBase
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var command = new PinPostCommand(id, userId);
         var result = await _sender.Send(command, cancellationToken);
@@ -289,8 +284,7 @@ public class PostsController : ControllerBase
         [FromBody] VoteRequest request,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var voteType = request.VoteType == 1 ? VoteType.Upvote : VoteType.Downvote;
         var command = new VotePostCommand(id, userId, voteType);
@@ -362,8 +356,7 @@ public class PostsController : ControllerBase
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var command = new BookmarkPostCommand(id, userId);
         var result = await _sender.Send(command, cancellationToken);
@@ -388,8 +381,7 @@ public class PostsController : ControllerBase
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var command = new UnbookmarkPostCommand(id, userId);
         var result = await _sender.Send(command, cancellationToken);
@@ -415,8 +407,7 @@ public class PostsController : ControllerBase
         [FromBody] ReportRequest request,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = Guid.NewGuid(); // Placeholder
+        var userId = GetCurrentUserId();
 
         var command = new ReportPostCommand(
             id,

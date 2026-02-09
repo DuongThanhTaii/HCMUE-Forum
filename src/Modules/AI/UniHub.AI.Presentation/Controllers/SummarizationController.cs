@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using UniHub.AI.Application.DTOs;
@@ -11,6 +12,7 @@ namespace UniHub.AI.Presentation.Controllers;
 [ApiController]
 [Route("api/v1/ai")]
 [Produces("application/json")]
+[Authorize]
 public class SummarizationController : ControllerBase
 {
     private readonly IDocumentSummarizationService _summarizationService;
