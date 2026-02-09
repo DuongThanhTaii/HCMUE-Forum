@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using UniHub.Contracts;
 using UniHub.Identity.Application.Commands.ForgotPassword;
 using UniHub.Identity.Application.Commands.Login;
@@ -16,6 +17,7 @@ namespace UniHub.Identity.Presentation.Controllers;
 [ApiController]
 [Route("api/v1/auth")]
 [Produces("application/json")]
+[EnableRateLimiting("auth")]
 public class AuthController : BaseApiController
 {
     private readonly ISender _sender;

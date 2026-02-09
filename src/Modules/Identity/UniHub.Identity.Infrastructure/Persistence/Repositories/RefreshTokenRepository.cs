@@ -26,8 +26,9 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
 
     public async Task<List<RefreshToken>> GetActiveTokensByUserIdAsync(UserId userId, CancellationToken cancellationToken = default)
     {
+        var now = DateTime.UtcNow;
         return await _context.RefreshTokens
-            .Where(t => t.UserId == userId && t.IsActive)
+            .Where(t => t.UserId == userId && t.RevokedAt == null && now < t.ExpiresAt)
             .ToListAsync(cancellationToken);
     }
 
@@ -44,8 +45,9 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
 
     public async Task RevokeAllByUserIdAsync(UserId userId, string? revokedByIp = null, CancellationToken cancellationToken = default)
     {
+        var now = DateTime.UtcNow;
         var userTokens = await _context.RefreshTokens
-            .Where(t => t.UserId == userId && t.IsActive)
+            .Where(t => t.UserId == userId && t.RevokedAt == null && now < t.ExpiresAt)
             .ToListAsync(cancellationToken);
             
         foreach (var token in userTokens)
@@ -56,8 +58,9 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
 
     public async Task RemoveExpiredTokensAsync(CancellationToken cancellationToken = default)
     {
+        var now = DateTime.UtcNow;
         var expiredTokens = await _context.RefreshTokens
-            .Where(t => t.IsExpired)
+            .Where(t => now >= t.ExpiresAt)
             .ToListAsync(cancellationToken);
             
         _context.RefreshTokens.RemoveRange(expiredTokens);

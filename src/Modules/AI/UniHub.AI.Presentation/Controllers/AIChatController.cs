@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using UniHub.AI.Application.DTOs;
 using UniHub.AI.Application.Services;
 using UniHub.AI.Domain.Entities;
@@ -14,6 +15,7 @@ namespace UniHub.AI.Presentation.Controllers;
 [Route("api/v1/ai")]
 [Produces("application/json")]
 [Authorize]
+[EnableRateLimiting("ai")]
 public class AIChatController : ControllerBase
 {
     private readonly IUniBotService _uniBotService;

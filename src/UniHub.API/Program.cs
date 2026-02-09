@@ -1,4 +1,8 @@
+using System.Threading.RateLimiting;
 using Serilog;
+using Scalar.AspNetCore;
+using FluentValidation;
+using UniHub.Infrastructure.Behaviors;
 using UniHub.Identity.Infrastructure;
 using UniHub.Infrastructure;
 using UniHub.Forum.Infrastructure;
@@ -8,7 +12,7 @@ using UniHub.Chat.Presentation;
 using UniHub.Chat.Presentation.Hubs;
 using UniHub.Career.Infrastructure;
 using UniHub.Notification.Infrastructure;
-using UniHub.Notification.Presentation.Controllers;
+using UniHub.Notification.Presentation.Hubs;
 using UniHub.AI.Infrastructure;
 
 // Configure Serilog
@@ -41,7 +45,19 @@ try
 
     // Add services to the container.
     // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-    builder.Services.AddOpenApi();
+    builder.Services.AddOpenApi(options =>
+    {
+        options.AddDocumentTransformer((document, context, ct) =>
+        {
+            document.Info = new Microsoft.OpenApi.OpenApiInfo
+            {
+                Title = "UniHub API",
+                Version = "v1",
+                Description = "UniHub - University Hub for Students & Lecturers"
+            };
+            return Task.CompletedTask;
+        });
+    });
 
     // Add Controllers (for module API endpoints)
     builder.Services.AddControllers()
@@ -53,12 +69,15 @@ try
         .AddApplicationPart(typeof(UniHub.Notification.Presentation.Controllers.NotificationsController).Assembly)
         .AddApplicationPart(typeof(UniHub.AI.Presentation.Controllers.AIChatController).Assembly);
 
-    // Add CORS for SignalR (configure domains in production)
+    // Add CORS policy
+    var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+        ?? new[] { "http://localhost:3000", "http://localhost:5173" };
+
     builder.Services.AddCors(options =>
     {
-        options.AddPolicy("ChatCorsPolicy", policy =>
+        options.AddPolicy("DefaultCorsPolicy", policy =>
         {
-            policy.WithOrigins("http://localhost:3000", "http://localhost:5173") // Frontend origins
+            policy.WithOrigins(corsOrigins)
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials(); // Required for SignalR
@@ -74,7 +93,20 @@ try
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Chat.Application.Commands.CreateDirectConversation.CreateDirectConversationCommand>();
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Career.Application.Commands.JobPostings.CreateJobPosting.CreateJobPostingCommand>();
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Notification.Application.EventHandlers.UserRegisteredEventHandler>();
+
+        // Register pipeline behaviors (order matters: validation → logging → performance → unhandled)
+        cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
+        cfg.AddOpenBehavior(typeof(PerformanceBehavior<,>));
+        cfg.AddOpenBehavior(typeof(UnhandledExceptionBehavior<,>));
     });
+
+    // Register FluentValidation validators from all module assemblies
+    builder.Services.AddValidatorsFromAssemblyContaining<UniHub.Identity.Application.Commands.Register.RegisterUserCommand>();
+    builder.Services.AddValidatorsFromAssemblyContaining<UniHub.Forum.Application.Commands.CreatePost.CreatePostCommand>();
+    builder.Services.AddValidatorsFromAssemblyContaining<UniHub.Learning.Application.Commands.UploadDocument.UploadDocumentCommand>();
+    builder.Services.AddValidatorsFromAssemblyContaining<UniHub.Chat.Application.Commands.CreateDirectConversation.CreateDirectConversationCommand>();
+    builder.Services.AddValidatorsFromAssemblyContaining<UniHub.Career.Application.Commands.JobPostings.CreateJobPosting.CreateJobPostingCommand>();
 
     // Add Infrastructure (PostgreSQL, MongoDB, Redis)
     builder.Services.AddInfrastructure(builder.Configuration);
@@ -89,7 +121,8 @@ try
     builder.Services.AddLearningInfrastructure();
 
     // Add Chat module (repositories + SignalR with Redis backplane)
-    builder.Services.AddChatInfrastructure();
+    var chatBaseUrl = builder.Configuration["Chat:BaseUrl"] ?? "http://localhost:5000";
+    builder.Services.AddChatInfrastructure(baseUrl: chatBaseUrl);
     builder.Services.AddChatPresentation(builder.Configuration);
 
     // Add Career module
@@ -105,8 +138,47 @@ try
     builder.Services.AddExceptionHandler<UniHub.API.Middlewares.GlobalExceptionHandler>();
     builder.Services.AddProblemDetails();
 
-    // Add health checks
-    builder.Services.AddHealthChecks();
+    // Add response compression
+    builder.Services.AddResponseCompression(options =>
+    {
+        options.EnableForHttps = true;
+    });
+
+    // Add rate limiting
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+        // Global default: 100 requests per minute per IP
+        options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 100,
+                    Window = TimeSpan.FromMinutes(1)
+                }));
+
+        // Auth endpoints: 10 requests per minute (anti brute-force)
+        options.AddPolicy("auth", context =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 10,
+                    Window = TimeSpan.FromMinutes(1)
+                }));
+
+        // AI endpoints: 20 requests per minute (expensive calls)
+        options.AddPolicy("ai", context =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 20,
+                    Window = TimeSpan.FromMinutes(1)
+                }));
+    });
 
     var app = builder.Build();
 
@@ -130,12 +202,26 @@ try
     if (app.Environment.IsDevelopment())
     {
         app.MapOpenApi();
+        app.MapScalarApiReference(options =>
+        {
+            options.Title = "UniHub API";
+            options.Theme = ScalarTheme.BluePlanet;
+            options.DefaultHttpClient = new(ScalarTarget.CSharp, ScalarClient.HttpClient);
+            options.Authentication = new ScalarAuthenticationOptions
+            {
+                PreferredSecurityScheme = "Bearer"
+            };
+        });
     }
 
+    app.UseResponseCompression();
     app.UseHttpsRedirection();
 
-    // Use CORS for SignalR
-    app.UseCors("ChatCorsPolicy");
+    // Use CORS
+    app.UseCors("DefaultCorsPolicy");
+
+    // Use rate limiting
+    app.UseRateLimiter();
 
     // Authentication & Authorization
     app.UseAuthentication();
@@ -144,54 +230,36 @@ try
     // Map API controllers
     app.MapControllers();
 
-    // Map SignalR ChatHub
+    // Map SignalR Hubs
     app.MapHub<ChatHub>("/hubs/chat");
+    app.MapHub<NotificationHub>("/hubs/notifications");
 
-// Health check endpoint
-app.MapHealthChecks("/health");
+    // Health check endpoint
+    app.MapHealthChecks("/health");
 
-// JWT test endpoint
-app.MapGet("/auth/test", () => Results.Ok(new { Message = "JWT Authentication is working!", Timestamp = DateTime.UtcNow }))
-    .RequireAuthorization()
-    .WithName("TestJwtAuth");
+    // JWT test endpoint
+    app.MapGet("/auth/test", () => Results.Ok(new { Message = "JWT Authentication is working!", Timestamp = DateTime.UtcNow }))
+        .RequireAuthorization()
+        .WithName("TestJwtAuth");
 
-// Connection test endpoint
-app.MapGet("/health/connections", (IConfiguration config) =>
-{
-    var connections = new
+    // Connection test endpoint
+    app.MapGet("/health/connections", (IConfiguration config) =>
     {
-        PostgreSQL = !string.IsNullOrEmpty(config.GetConnectionString("PostgreSQL")),
-        MongoDB = !string.IsNullOrEmpty(config.GetConnectionString("MongoDB")),
-        Redis = !string.IsNullOrEmpty(config.GetConnectionString("Redis"))
-    };
-    
-    return Results.Ok(new
-    {
-        Status = "Healthy",
-        Timestamp = DateTime.UtcNow,
-        ConnectionsConfigured = connections
-    });
-})
-.WithName("GetConnectionsHealth");
+        var connections = new
+        {
+            PostgreSQL = !string.IsNullOrEmpty(config.GetConnectionString("DefaultConnection")),
+            MongoDB = !string.IsNullOrEmpty(config.GetConnectionString("MongoDB")),
+            Redis = !string.IsNullOrEmpty(config.GetConnectionString("Redis"))
+        };
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-    app.MapGet("/weatherforecast", () =>
-    {
-        var forecast =  Enumerable.Range(1, 5).Select(index =>
-            new WeatherForecast
-            (
-                DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                Random.Shared.Next(-20, 55),
-                summaries[Random.Shared.Next(summaries.Length)]
-            ))
-            .ToArray();
-        return forecast;
+        return Results.Ok(new
+        {
+            Status = "Healthy",
+            Timestamp = DateTime.UtcNow,
+            ConnectionsConfigured = connections
+        });
     })
-    .WithName("GetWeatherForecast");
+    .WithName("GetConnectionsHealth");
 
     // Seed database in development
     if (app.Environment.IsDevelopment())
@@ -208,9 +276,4 @@ catch (Exception ex)
 finally
 {
     Log.CloseAndFlush();
-}
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }

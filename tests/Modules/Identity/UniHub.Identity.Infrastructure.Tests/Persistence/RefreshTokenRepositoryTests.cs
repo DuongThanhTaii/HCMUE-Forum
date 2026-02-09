@@ -4,6 +4,7 @@ using UniHub.Identity.Domain.Tokens;
 using UniHub.Identity.Domain.Users;
 using UniHub.Identity.Infrastructure.Persistence.Repositories;
 using UniHub.Infrastructure.Persistence;
+using System.Reflection;
 
 namespace UniHub.Identity.Infrastructure.Tests.Persistence;
 
@@ -18,8 +19,46 @@ public sealed class RefreshTokenRepositoryTests
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
-        _context = new ApplicationDbContext(options);
+        _context = new IdentityTestDbContext(options);
         _repository = new RefreshTokenRepository(_context);
+    }
+
+    /// <summary>
+    /// Test DbContext that only applies Identity module configurations.
+    /// Non-Identity entities discovered from base class DbSet properties are
+    /// ignored via reflection so InMemory provider doesn't fail on unmapped types.
+    /// </summary>
+    private sealed class IdentityTestDbContext : ApplicationDbContext
+    {
+        public IdentityTestDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Apply Identity module configurations (converters, keys, relationships)
+            modelBuilder.ApplyConfigurationsFromAssembly(
+                typeof(UniHub.Identity.Infrastructure.DependencyInjection).Assembly);
+
+            // Ignore entity types from other modules discovered via base class DbSet properties.
+            // Use reflection to call the generic ModelBuilder.Ignore<T>() method.
+            var ignoreMethod = typeof(ModelBuilder).GetMethods()
+                .First(m => m.Name == "Ignore" && m.IsGenericMethod);
+
+            var entitiesToIgnore = modelBuilder.Model.GetEntityTypes()
+                .Where(e =>
+                {
+                    var ns = e.ClrType.Namespace;
+                    return ns != null
+                        && !ns.StartsWith("UniHub.Identity")
+                        && !ns.StartsWith("UniHub.SharedKernel");
+                })
+                .Select(e => e.ClrType)
+                .ToList();
+
+            foreach (var clrType in entitiesToIgnore)
+            {
+                ignoreMethod.MakeGenericMethod(clrType).Invoke(modelBuilder, null);
+            }
+        }
     }
 
     [Fact]
