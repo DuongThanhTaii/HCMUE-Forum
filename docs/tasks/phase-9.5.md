@@ -258,7 +258,7 @@ Sửa các bugs đã phát hiện và cải thiện code quality.
 | Property       | Value                             |
 | -------------- | --------------------------------- |
 | **ID**         | TASK-107                          |
-| **Status**     | 🔵 IN_PROGRESS                    |
+| **Status**     | ⚠️ BLOCKED                        |
 | **Branch**     | `feature/TASK-107-migration-seed` |
 | **Priority**   | P0 - Bắt buộc                     |
 | **Est. Lines** | ~300 lines                        |
@@ -266,6 +266,28 @@ Sửa các bugs đã phát hiện và cải thiện code quality.
 
 **Mô tả:**
 Chạy EF Core migrations để tạo database schema trên Neon.tech PostgreSQL. Tạo seed data cho development/testing.
+
+**📖 [Configuration Fixes Guide](./TASK-107-Configuration-Fixes-Guide.md)** - Hướng dẫn chi tiết sửa entity configurations
+
+**Current Status:**
+Entity configurations have multiple issues preventing migration generation:
+
+- Fixed UnitOfWork to use ApplicationDbContext instead of DbContext
+- Fixed Vote configurations (shadow properties for foreign keys)
+- Removed Navigation() calls for primitive collections (causes EF Core errors)
+- Fixed Message.Attachments shadow property definition
+- Added ApplicationDbContextFactory for design-time
+- Added EF Core Design tools to UniHub.API.csproj
+
+**Remaining Issues:**
+
+- Unit tests need refactoring (UnitOfWorkTests uses TestDbContext)
+- Entity configurations require incremental fixes for:
+  - All owned collections with composite keys need shadow property definitions BEFORE HasKey()
+  - Notification metadata configuration
+  - Other edge cases discovered during migration generation
+
+**Next Steps:** Follow [Configuration Fixes Guide](./TASK-107-Configuration-Fixes-Guide.md) for detailed fix workflow
 
 **Acceptance Criteria:**
 
