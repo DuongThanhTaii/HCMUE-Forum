@@ -11,7 +11,7 @@
 | **Phase**         | 9.5                                          |
 | **Name**          | Backend Consolidation & Database Integration |
 | **Status**        | 🔵 IN_PROGRESS                               |
-| **Progress**      | 4/7 tasks (57%)                              |
+| **Progress**      | 5/7 tasks (71%)                              |
 | **Est. Duration** | 1 week                                       |
 | **Dependencies**  | Phase 0-9                                    |
 
@@ -188,10 +188,10 @@ Sửa tất cả controllers đang dùng `Guid.NewGuid()` placeholder cho userId
 | Property       | Value                                |
 | -------------- | ------------------------------------ |
 | **ID**         | TASK-105                             |
-| **Status**     | 🔵 IN_PROGRESS                       |
+| **Status**     | ✅ COMPLETED                         |
 | **Branch**     | `feature/TASK-105-missing-endpoints` |
 | **Priority**   | P1 - Quan trọng                      |
-| **Est. Lines** | ~300 lines                           |
+| **Est. Lines** | ~813 lines (actual)                  |
 | **Depends On** | TASK-102, TASK-103                   |
 
 **Mô tả:**
@@ -199,12 +199,21 @@ Implement các API endpoints đang trả về 501 hoặc bị comment out.
 
 **Acceptance Criteria:**
 
-- [ ] AuthController: Implement RefreshToken endpoint (POST /api/v1/auth/refresh)
-- [ ] AuthController: Implement Logout thật (revoke refresh token)
-- [ ] CompaniesController: Implement GetById (GET /api/v1/companies/{id})
-- [ ] FacultiesController: Implement GetAll và Create thật (thay vì 501)
-- [ ] CoursesController: Thêm GET endpoint (GET /api/v1/courses, GET /api/v1/courses/{id})
-- [ ] Tất cả endpoints trả về response đúng format
+- [x] AuthController: Implement RefreshToken endpoint (POST /api/v1/auth/refresh)
+- [x] AuthController: Implement Logout thật (revoke refresh token)
+- [x] CompaniesController: Implement GetById (GET /api/v1/companies/{id})
+- [x] FacultiesController: Implement GetAll và Create thật (thay vì 501)
+- [x] CoursesController: Thêm GET endpoint (GET /api/v1/courses, GET /api/v1/courses/{id})
+- [x] Tất cả endpoints trả về response đúng format
+
+**Implementation Details:**
+- **Identity.Application**: 4 files (RefreshTokenCommand/Handler, RevokeRefreshTokenCommand/Handler) - 161 lines
+- **Career.Application**: 2 files (GetCompanyByIdQuery/Handler) - 84 lines
+- **Learning.Application**: 8 files + IFacultyRepository (GetCourses, GetCourseById, GetFaculties, CreateFaculty) - 327 lines
+- **Learning.Infrastructure**: FacultyRepository EF Core implementation - 68 lines
+- **Controllers**: AuthController, CompaniesController, FacultiesController, CoursesController updated
+- **Project Config**: Added UniHub.Contracts references to Identity/Learning Presentation projects
+- **Result**: ✅ Build succeeded (0 errors, 30 warnings - nullable/XML docs)
 
 ---
 
