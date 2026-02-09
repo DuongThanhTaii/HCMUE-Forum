@@ -1,0 +1,9 @@
+  Determining projects to restore...
+E:\ThanhTai\DHSP_HK2_25_26\Net_Web\src\Modules\Notification\UniHub.Notification.Infrastructure\UniHub.Notification.Infrastructure.csproj : warning NU1903: Package 'Newtonsoft.Json' 10.0.3 has a known high severity vulnerability, https://github.com/advisories/GHSA-5crp-9r3c-p9vr [E:\ThanhTai\DHSP_HK2_25_26\Net_Web\UniHub.sln]
+E:\ThanhTai\DHSP_HK2_25_26\Net_Web\src\UniHub.API\UniHub.API.csproj : warning NU1903: Package 'Newtonsoft.Json' 10.0.3 has a known high severity vulnerability, https://github.com/advisories/GHSA-5crp-9r3c-p9vr [E:\ThanhTai\DHSP_HK2_25_26\Net_Web\UniHub.sln]
+  All projects are up-to-date for restore.
+E:\ThanhTai\DHSP_HK2_25_26\Net_Web\src\UniHub.API\UniHub.API.csproj : warning NU1903: Package 'Newtonsoft.Json' 10.0.3 has a known high severity vulnerability, https://github.com/advisories/GHSA-5crp-9r3c-p9vr
+  UniHub.Contracts -> E:\ThanhTai\DHSP_HK2_25_26\Net_Web\src\Shared\UniHub.Contracts\bin\Debug\net10.0\UniHub.Contracts.dll
+E:\ThanhTai\DHSP_HK2_25_26\Net_Web\src\Modules\Notification\UniHub.Notification.Infrastructure\UniHub.Notification.Infrastructure.csproj : warning NU1903: Package 'Newtonsoft.Json' 10.0.3 has a known high severity vulnerability, https://github.com/advisories/GHSA-5crp-9r3c-p9vr
+  UniHub.ArchitectureTests -> E:\ThanhTai\DHSP_HK2_25_26\Net_Web\tests\UniHub.ArchitectureTests\bin\Debug\net10.0\UniHub.ArchitectureTests.dll
+  UniHub.IntegrationTests -> E:\ThanhTai\DHSP_HK2_25_26\Net_Web\tests\UniHub.IntegrationTests\bin\Debug\net10.0\UniHub.IntegrationTests.dll

@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using UniHub.Career.Application.Abstractions;
+using UniHub.Career.Infrastructure.Persistence.Repositories;
 
 namespace UniHub.Career.Infrastructure;
 
@@ -21,17 +23,15 @@ public static class DependencyInjection
     }
 
     /// <summary>
-    /// Registers all Career repository implementations.
-    /// Repository implementations will be added in Phase 8 (Infrastructure).
+    /// Registers all Career repository implementations with EF Core.
     /// </summary>
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        // TODO: Phase 8 - Register repository implementations
-        // services.AddScoped<IJobPostingRepository, JobPostingRepository>();
-        // services.AddScoped<ICompanyRepository, CompanyRepository>();
-        // services.AddScoped<IApplicationRepository, ApplicationRepository>();
-        // services.AddScoped<IRecruiterRepository, RecruiterRepository>();
-        // services.AddScoped<ISavedJobRepository, SavedJobRepository>();
+        services.AddScoped<IJobPostingRepository, JobPostingRepository>();
+        services.AddScoped<ICompanyRepository, CompanyRepository>();
+        services.AddScoped<IApplicationRepository, ApplicationRepository>();
+        services.AddScoped<IRecruiterRepository, RecruiterRepository>();
+        services.AddScoped<ISavedJobRepository, SavedJobRepository>();
 
         return services;
     }

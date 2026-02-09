@@ -1,4 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
+using UniHub.Learning.Application.Abstractions;
+using UniHub.Learning.Infrastructure.Persistence.Repositories;
+using UniHub.Learning.Infrastructure.Services;
 
 namespace UniHub.Learning.Infrastructure;
 
@@ -14,18 +17,41 @@ public static class DependencyInjection
     /// <returns>The service collection for method chaining.</returns>
     public static IServiceCollection AddLearningInfrastructure(this IServiceCollection services)
     {
-        // TODO: Register repository implementations when created
-        // services.AddScoped<IDocumentRepository, DocumentRepository>();
-        // services.AddScoped<ICourseRepository, CourseRepository>();
-        // services.AddScoped<IEventStore, MongoEventStore>();
+        services.AddRepositories();
+        services.AddServices();
 
-        // TODO: Register external service implementations
-        // services.AddScoped<IFileStorageService, LocalFileStorageService>();
-        // services.AddScoped<IVirusScanService, ClamAvVirusScanService>();
-        // services.AddScoped<IUserRatingService, UserRatingService>();
-        // services.AddScoped<IUserDownloadService, UserDownloadService>();
-        // services.AddScoped<IModeratorPermissionService, ModeratorPermissionService>();
-        // services.AddScoped<IModeratorManagementPermissionService, ModeratorManagementPermissionService>();
+        return services;
+    }
+
+    /// <summary>
+    /// Registers all Learning repository implementations with EF Core.
+    /// </summary>
+    private static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IDocumentRepository, DocumentRepository>();
+        services.AddScoped<ICourseRepository, CourseRepository>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers all Learning service implementations.
+    /// </summary>
+    private static IServiceCollection AddServices(this IServiceCollection services)
+    {
+        // File storage - local filesystem implementation
+        services.AddScoped<IFileStorageService, FileStorageService>();
+        
+        // Virus scanning - stub implementation
+        services.AddScoped<IVirusScanService, VirusScanService>();
+        
+        // User tracking services
+        services.AddScoped<IUserRatingService, UserRatingService>();
+        services.AddScoped<IUserDownloadService, UserDownloadService>();
+        
+        // Permission services
+        services.AddScoped<IModeratorPermissionService, ModeratorPermissionService>();
+        services.AddScoped<IModeratorManagementPermissionService, ModeratorManagementPermissionService>();
 
         return services;
     }
