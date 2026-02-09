@@ -53,7 +53,7 @@ public sealed class JobPostingRepository : IJobPostingRepository
             query = query.Where(j => j.CompanyId == companyId.Value);
 
         if (jobType.HasValue)
-            query = query.Where(j => j.Type == jobType.Value);
+            query = query.Where(j => j.JobType == jobType.Value);
 
         if (experienceLevel.HasValue)
             query = query.Where(j => j.ExperienceLevel == experienceLevel.Value);
@@ -62,10 +62,10 @@ public sealed class JobPostingRepository : IJobPostingRepository
             query = query.Where(j => j.Status == status.Value);
 
         if (!string.IsNullOrWhiteSpace(city))
-            query = query.Where(j => j.WorkLocation.City.Contains(city));
+            query = query.Where(j => j.Location.City.Contains(city));
 
         if (isRemote.HasValue)
-            query = query.Where(j => j.WorkLocation.IsRemote == isRemote.Value);
+            query = query.Where(j => j.Location.IsRemote == isRemote.Value);
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -77,7 +77,7 @@ public sealed class JobPostingRepository : IJobPostingRepository
         var totalCount = await query.CountAsync(cancellationToken);
 
         var jobPostings = await query
-            .OrderByDescending(j => j.PostedAt)
+            .OrderByDescending(j => j.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
@@ -90,7 +90,7 @@ public sealed class JobPostingRepository : IJobPostingRepository
     {
         return await _context.JobPostings
             .Where(j => j.CompanyId == companyId)
-            .OrderByDescending(j => j.PostedAt)
+            .OrderByDescending(j => j.CreatedAt)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
@@ -99,7 +99,7 @@ public sealed class JobPostingRepository : IJobPostingRepository
     {
         return await _context.JobPostings
             .Where(j => j.Status == JobPostingStatus.Published)
-            .OrderByDescending(j => j.PostedAt)
+            .OrderByDescending(j => j.PublishedAt)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
@@ -153,7 +153,7 @@ public sealed class JobPostingRepository : IJobPostingRepository
             query = query.Where(j => j.CompanyId == companyId.Value);
 
         if (jobType.HasValue)
-            query = query.Where(j => j.Type == jobType.Value);
+            query = query.Where(j => j.JobType == jobType.Value);
 
         if (experienceLevel.HasValue)
             query = query.Where(j => j.ExperienceLevel == experienceLevel.Value);
@@ -162,31 +162,31 @@ public sealed class JobPostingRepository : IJobPostingRepository
             query = query.Where(j => j.Status == status.Value);
 
         if (!string.IsNullOrWhiteSpace(city))
-            query = query.Where(j => j.WorkLocation.City.Contains(city));
+            query = query.Where(j => j.Location.City.Contains(city));
 
         if (isRemote.HasValue)
-            query = query.Where(j => j.WorkLocation.IsRemote == isRemote.Value);
+            query = query.Where(j => j.Location.IsRemote == isRemote.Value);
 
         // Salary range filters
         if (minSalary.HasValue || maxSalary.HasValue || !string.IsNullOrWhiteSpace(currency))
         {
-            // Note: SalaryRange is a Value Object, filtering may need adjustments based on implementation
+            // Note: Salary is a Value Object, filtering may need adjustments based on implementation
             if (minSalary.HasValue)
-                query = query.Where(j => j.SalaryRange.Min >= minSalary.Value);
+                query = query.Where(j => j.Salary!.MinAmount >= minSalary.Value);
 
             if (maxSalary.HasValue)
-                query = query.Where(j => j.SalaryRange.Max <= maxSalary.Value);
+                query = query.Where(j => j.Salary!.MaxAmount <= maxSalary.Value);
 
             if (!string.IsNullOrWhiteSpace(currency))
-                query = query.Where(j => j.SalaryRange.Currency == currency);
+                query = query.Where(j => j.Salary!.Currency == currency);
         }
 
         // Date range filters
         if (postedAfter.HasValue)
-            query = query.Where(j => j.PostedAt >= postedAfter.Value);
+            query = query.Where(j => j.PublishedAt.HasValue && j.PublishedAt.Value >= postedAfter.Value);
 
         if (postedBefore.HasValue)
-            query = query.Where(j => j.PostedAt <= postedBefore.Value);
+            query = query.Where(j => j.PublishedAt.HasValue && j.PublishedAt.Value <= postedBefore.Value);
 
         // Note: Tags are stored as JSONB, filtering would require specific EF Core JSONB queries
         // For now, we'll load results and filter in memory if needed, or implement server-side JSON queries
@@ -194,7 +194,7 @@ public sealed class JobPostingRepository : IJobPostingRepository
         var totalCount = await query.CountAsync(cancellationToken);
 
         var jobPostings = await query
-            .OrderByDescending(j => j.PostedAt)
+            .OrderByDescending(j => j.CreatedAt)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 

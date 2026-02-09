@@ -52,7 +52,7 @@ public sealed class RecruiterRepository : IRecruiterRepository
     public async Task<List<Recruiter>> GetActiveByCompanyAsync(CompanyId companyId, CancellationToken cancellationToken = default)
     {
         return await _context.Recruiters
-            .Where(r => r.CompanyId == companyId && r.IsActive)
+            .Where(r => r.CompanyId == companyId && r.Status == RecruiterStatus.Active)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
@@ -66,6 +66,6 @@ public sealed class RecruiterRepository : IRecruiterRepository
     public async Task<int> GetActiveCountAsync(CompanyId companyId, CancellationToken cancellationToken = default)
     {
         return await _context.Recruiters
-            .CountAsync(r => r.CompanyId == companyId && r.IsActive, cancellationToken);
+            .CountAsync(r => r.CompanyId == companyId && r.Status == RecruiterStatus.Active, cancellationToken);
     }
 }

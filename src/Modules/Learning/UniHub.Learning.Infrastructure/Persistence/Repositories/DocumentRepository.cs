@@ -3,7 +3,7 @@ using UniHub.Learning.Application.Abstractions;
 using UniHub.Learning.Application.Queries.DocumentSearch;
 using UniHub.Learning.Domain.Courses;
 using UniHub.Learning.Domain.Documents;
-using UniHub.Shared.Infrastructure.Persistence;
+using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Learning.Infrastructure.Persistence.Repositories;
 
@@ -58,10 +58,9 @@ internal sealed class DocumentRepository : IDocumentRepository
 
     public async Task<IReadOnlyList<Document>> GetByCourseIdAsync(Guid courseId, CancellationToken cancellationToken = default)
     {
-        var courseIdTyped = CourseId.Create(courseId);
         return await _context.Documents
             .AsNoTracking()
-            .Where(d => d.CourseId == courseIdTyped)
+            .Where(d => d.CourseId == courseId)
             .ToListAsync(cancellationToken);
     }
 
@@ -69,7 +68,7 @@ internal sealed class DocumentRepository : IDocumentRepository
     {
         return await _context.Documents
             .AsNoTracking()
-            .Where(d => d.UploadedBy == uploaderId)
+            .Where(d => d.UploaderId == uploaderId)
             .ToListAsync(cancellationToken);
     }
 
@@ -91,21 +90,20 @@ internal sealed class DocumentRepository : IDocumentRepository
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             query = query.Where(d => 
-                d.Title.Contains(searchTerm) || 
-                d.Description.Contains(searchTerm));
+                d.Title.Value.Contains(searchTerm) || 
+                d.Description.Value.Contains(searchTerm));
         }
 
         if (courseId.HasValue)
         {
-            var courseIdTyped = CourseId.Create(courseId.Value);
-            query = query.Where(d => d.CourseId == courseIdTyped);
+            query = query.Where(d => d.CourseId == courseId.Value);
         }
 
         if (facultyId.HasValue)
         {
             // Join with Courses to filter by FacultyId
             query = query.Where(d => _context.Courses
-                .Any(c => c.Id == d.CourseId && c.FacultyId == facultyId.Value));
+                .Any(c => c.Id.Value == d.CourseId));
         }
 
         if (documentType.HasValue)

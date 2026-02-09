@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UniHub.Learning.Application.Abstractions;
 using UniHub.Learning.Domain.Courses;
-using UniHub.Shared.Infrastructure.Persistence;
+using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Learning.Infrastructure.Persistence.Repositories;
 

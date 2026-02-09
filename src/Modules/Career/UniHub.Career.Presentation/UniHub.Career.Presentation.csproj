@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UniHub.Career.Application\UniHub.Career.Application.csproj" />
+    <ProjectReference Include="..\..\..\Shared\UniHub.Contracts\UniHub.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

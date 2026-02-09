@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using UniHub.Learning.Application.Abstractions;
-using UniHub.Shared.Infrastructure.Persistence;
+using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Learning.Infrastructure.Services;
 
@@ -28,7 +28,7 @@ internal sealed class UserDownloadService : IUserDownloadService
             WHERE user_id = {0} AND document_id = {1}";
 
         var count = await _context.Database
-            .SqlQuery<int>($"{sql}", userId, documentId)
+            .SqlQueryRaw<int>(sql, userId, documentId)
             .FirstOrDefaultAsync(cancellationToken);
 
         return count > 0;
