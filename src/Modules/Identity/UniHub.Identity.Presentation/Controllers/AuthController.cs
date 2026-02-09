@@ -2,10 +2,13 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UniHub.Contracts;
 using UniHub.Identity.Application.Commands.ForgotPassword;
 using UniHub.Identity.Application.Commands.Login;
+using UniHub.Identity.Application.Commands.RefreshToken;
 using UniHub.Identity.Application.Commands.Register;
 using UniHub.Identity.Application.Commands.ResetPassword;
+using UniHub.Identity.Application.Commands.RevokeRefreshToken;
 using UniHub.Identity.Presentation.DTOs.Auth;
 
 namespace UniHub.Identity.Presentation.Controllers;
@@ -13,7 +16,7 @@ namespace UniHub.Identity.Presentation.Controllers;
 [ApiController]
 [Route("api/v1/auth")]
 [Produces("application/json")]
-public class AuthController : ControllerBase
+public class AuthController : BaseApiController
 {
     private readonly ISender _sender;
 
@@ -91,10 +94,36 @@ public class AuthController : ControllerBase
         return Ok(response);
     }
 
-    // TODO: Implement RefreshToken command in Application layer
-    // [HttpPost("refresh-token")]
-    // [AllowAnonymous]
-    // public async Task<IActionResult> RefreshToken(...)
+    /// <summary>
+    /// Refresh access token using refresh token
+    /// </summary>
+    /// <param name="request">Refresh token</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>New access token and refresh token</returns>
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(DTOs.Auth.LoginResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> RefreshToken(
+        [FromBody] RefreshTokenRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new RefreshTokenCommand(request.RefreshToken);
+        var result = await _sender.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return Unauthorized(new { error = result.Error.Message });
+        }
+
+        var response = new DTOs.Auth.LoginResponse(
+            result.Value.AccessToken,
+            result.Value.RefreshToken,
+            result.Value.AccessTokenExpiresAt,
+            result.Value.RefreshTokenExpiresAt);
+
+        return Ok(response);
+    }
 
     /// <summary>
     /// Logout current user (revoke refresh token)
@@ -104,10 +133,18 @@ public class AuthController : ControllerBase
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
     {
-        // In production, you would revoke the refresh token here
-        // For now, just return success as tokens are self-contained
+        var userId = GetCurrentUserId();
+        
+        var command = new RevokeRefreshTokenCommand(userId);
+        var result = await _sender.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(new { error = result.Error.Message });
+        }
+
         return Ok(new { message = "Logged out successfully" });
     }
 

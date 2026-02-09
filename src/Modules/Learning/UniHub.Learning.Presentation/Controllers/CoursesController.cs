@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using UniHub.Learning.Application.Commands.CourseManagement;
 using UniHub.Learning.Application.Commands.ModeratorAssignment;
+using UniHub.Learning.Application.Queries.Courses.GetCourseById;
+using UniHub.Learning.Application.Queries.Courses.GetCourses;
 using UniHub.Learning.Presentation.DTOs.Courses;
 
 namespace UniHub.Learning.Presentation.Controllers;
@@ -18,6 +20,48 @@ public class CoursesController : ControllerBase
     public CoursesController(ISender sender)
     {
         _sender = sender;
+    }
+
+    /// <summary>
+    /// Get all courses with optional filtering
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(typeof(List<CourseListItemResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCourses(
+        [FromQuery] Guid? facultyId = null,
+        [FromQuery] string? semester = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetCoursesQuery(facultyId, semester);
+        var result = await _sender.Send(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(new { error = result.Error.Message });
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Get course details by ID
+    /// </summary>
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(CourseDetailResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCourseById(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetCourseByIdQuery(id);
+        var result = await _sender.Send(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return NotFound(new { error = result.Error.Message });
+        }
+
+        return Ok(result.Value);
     }
 
     /// <summary>

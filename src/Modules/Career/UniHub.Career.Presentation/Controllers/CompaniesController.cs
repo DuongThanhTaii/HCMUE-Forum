@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using UniHub.Career.Application.Commands.Companies.RegisterCompany;
+using UniHub.Career.Application.Queries.Companies.GetCompanyById;
 using UniHub.Career.Application.Queries.Companies.GetCompanyStatistics;
 using UniHub.Career.Application.Queries.Companies.GetRecentApplications;
 using UniHub.Career.Application.Queries.JobPostings.GetJobPostings;
@@ -50,14 +51,19 @@ public class CompaniesController : ControllerBase
     /// </summary>
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(CompanyResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CompanyDetailResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
-        // This would need a GetCompanyByIdQuery - not implemented yet
-        // For now, return NotImplemented
-        return StatusCode(StatusCodes.Status501NotImplemented,
-            new { message = "Get company by ID endpoint not yet implemented" });
+        var query = new GetCompanyByIdQuery(id);
+        var result = await _sender.Send(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return NotFound(new { error = result.Error.Message });
+        }
+
+        return Ok(result.Value);
     }
 
     /// <summary>

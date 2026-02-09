@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UniHub.Learning.Application\UniHub.Learning.Application.csproj" />
+    <ProjectReference Include="..\..\..\Shared\UniHub.Contracts\UniHub.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

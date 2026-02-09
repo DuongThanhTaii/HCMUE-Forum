@@ -188,7 +188,7 @@ Sửa tất cả controllers đang dùng `Guid.NewGuid()` placeholder cho userId
 | Property       | Value                                |
 | -------------- | ------------------------------------ |
 | **ID**         | TASK-105                             |
-| **Status**     | ⬜ NOT_STARTED                       |
+| **Status**     | 🔵 IN_PROGRESS                       |
 | **Branch**     | `feature/TASK-105-missing-endpoints` |
 | **Priority**   | P1 - Quan trọng                      |
 | **Est. Lines** | ~300 lines                           |
