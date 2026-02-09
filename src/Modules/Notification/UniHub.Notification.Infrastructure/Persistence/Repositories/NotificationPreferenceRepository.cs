@@ -1,64 +1,50 @@
+using Microsoft.EntityFrameworkCore;
+using UniHub.Infrastructure.Persistence;
 using UniHub.Notification.Application.Abstractions;
 using UniHub.Notification.Domain.NotificationPreferences;
 
 namespace UniHub.Notification.Infrastructure.Persistence.Repositories;
 
 /// <summary>
-/// In-memory implementation of INotificationPreferenceRepository for development/testing.
+/// EF Core implementation of INotificationPreferenceRepository
 /// </summary>
 public sealed class NotificationPreferenceRepository : INotificationPreferenceRepository
 {
-    private static readonly List<NotificationPreference> _preferences = new();
-    private static readonly object _lock = new();
+    private readonly ApplicationDbContext _context;
 
-    public Task<NotificationPreference?> GetByIdAsync(
+    public NotificationPreferenceRepository(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<NotificationPreference?> GetByIdAsync(
         NotificationPreferenceId id, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var preference = _preferences.FirstOrDefault(p => p.Id == id);
-            return Task.FromResult(preference);
-        }
+        return await _context.NotificationPreferences
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
-    public Task<NotificationPreference?> GetByUserIdAsync(
+    public async Task<NotificationPreference?> GetByUserIdAsync(
         Guid userId, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var preference = _preferences.FirstOrDefault(p => p.UserId == userId);
-            return Task.FromResult(preference);
-        }
+        return await _context.NotificationPreferences
+            .FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
     }
 
-    public Task AddAsync(NotificationPreference preference, CancellationToken cancellationToken = default)
+    public async Task AddAsync(NotificationPreference preference, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _preferences.Add(preference);
-            return Task.CompletedTask;
-        }
+        await _context.NotificationPreferences.AddAsync(preference, cancellationToken);
     }
 
     public Task UpdateAsync(NotificationPreference preference, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var index = _preferences.FindIndex(p => p.Id == preference.Id);
-            if (index >= 0)
-            {
-                _preferences[index] = preference;
-            }
-            return Task.CompletedTask;
-        }
+        _context.NotificationPreferences.Update(preference);
+        return Task.CompletedTask;
     }
 
-    public Task<bool> ExistsForUserAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsForUserAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var exists = _preferences.Any(p => p.UserId == userId);
-            return Task.FromResult(exists);
-        }
+        return await _context.NotificationPreferences
+            .AnyAsync(p => p.UserId == userId, cancellationToken);
     }
 }

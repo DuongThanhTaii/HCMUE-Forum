@@ -1,147 +1,127 @@
+using Microsoft.EntityFrameworkCore;
 using UniHub.Forum.Application.Abstractions;
 using UniHub.Forum.Application.Queries.GetPopularTags;
 using UniHub.Forum.Application.Queries.GetTags;
 using UniHub.Forum.Domain.Tags;
+using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Forum.Infrastructure.Persistence.Repositories;
 
 /// <summary>
-/// In-memory implementation of tag repository for Forum module.
-/// TODO: Replace with EF Core implementation when database is configured.
+/// EF Core implementation of tag repository for Forum module.
 /// </summary>
 public sealed class TagRepository : ITagRepository
 {
-    private static readonly List<Tag> _tags = new();
-    private static readonly object _lock = new();
+    private readonly ApplicationDbContext _context;
 
-    public Task<Tag?> GetByIdAsync(TagId id, CancellationToken cancellationToken = default)
+    public TagRepository(ApplicationDbContext context)
     {
-        lock (_lock)
-        {
-            var tag = _tags.FirstOrDefault(t => t.Id == id);
-            return Task.FromResult(tag);
-        }
+        _context = context;
     }
 
-    public Task<Tag?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+    public async Task<Tag?> GetByIdAsync(TagId id, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var tag = _tags.FirstOrDefault(t => t.Name.Value.Equals(name, StringComparison.OrdinalIgnoreCase));
-            return Task.FromResult(tag);
-        }
+        return await _context.Tags
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
-    public Task<Tag?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
+    public async Task<Tag?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var tag = _tags.FirstOrDefault(t => t.Slug.Value.Equals(slug, StringComparison.OrdinalIgnoreCase));
-            return Task.FromResult(tag);
-        }
+        return await _context.Tags
+            .FirstOrDefaultAsync(t => t.Name.Value.ToLower() == name.ToLower(), cancellationToken);
     }
 
-    public Task<GetTagsResult> GetTagsAsync(
+    public async Task<Tag?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
+    {
+        return await _context.Tags
+            .FirstOrDefaultAsync(t => t.Slug.Value.ToLower() == slug.ToLower(), cancellationToken);
+    }
+
+    public async Task<GetTagsResult> GetTagsAsync(
         int pageNumber,
         int pageSize,
         string? searchTerm,
         bool orderByUsage,
         CancellationToken cancellationToken = default)
     {
-        lock (_lock)
+        var query = _context.Tags.AsQueryable();
+
+        // Filter by search term
+        if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            var query = _tags.AsEnumerable();
-
-            // Filter by search term
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-            {
-                query = query.Where(t =>
-                    t.Name.Value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    t.Description.Value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
-            }
-
-            // Order by usage or name
-            query = orderByUsage
-                ? query.OrderByDescending(t => t.UsageCount)
-                : query.OrderBy(t => t.Name.Value);
-
-            var totalCount = query.Count();
-
-            // Apply pagination
-            var items = query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Select(t => new TagDto
-                {
-                    Id = (int)t.Id.Value,
-                    Name = t.Name.Value,
-                    Slug = t.Slug.Value,
-                    Description = t.Description.Value,
-                    UsageCount = t.UsageCount,
-                    CreatedAt = t.CreatedAt,
-                    UpdatedAt = t.UpdatedAt
-                })
-                .ToList();
-
-            return Task.FromResult(new GetTagsResult
-            {
-                Tags = items,
-                TotalCount = totalCount,
-                PageNumber = pageNumber,
-                PageSize = pageSize
-            });
+            var lowerSearchTerm = searchTerm.ToLower();
+            query = query.Where(t =>
+                t.Name.Value.ToLower().Contains(lowerSearchTerm) ||
+                t.Description.Value.ToLower().Contains(lowerSearchTerm));
         }
+
+        // Order by usage or name
+        query = orderByUsage
+            ? query.OrderByDescending(t => t.UsageCount)
+            : query.OrderBy(t => t.Name.Value);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        // Apply pagination
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .Select(t => new TagDto
+            {
+                Id = (int)t.Id.Value,
+                Name = t.Name.Value,
+                Slug = t.Slug.Value,
+                Description = t.Description.Value,
+                UsageCount = t.UsageCount,
+                CreatedAt = t.CreatedAt,
+                UpdatedAt = t.UpdatedAt
+            })
+            .ToListAsync(cancellationToken);
+
+        return new GetTagsResult
+        {
+            Tags = items,
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
     }
 
-    public Task<IEnumerable<PopularTagDto>> GetPopularTagsAsync(
+    public async Task<IEnumerable<PopularTagDto>> GetPopularTagsAsync(
         int count,
         CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var popularTags = _tags
-                .OrderByDescending(t => t.UsageCount)
-                .Take(count)
-                .Select(t => new PopularTagDto
-                {
-                    Id = (int)t.Id.Value,
-                    Name = t.Name.Value,
-                    Slug = t.Slug.Value,
-                    UsageCount = t.UsageCount
-                });
+        var popularTags = await _context.Tags
+            .OrderByDescending(t => t.UsageCount)
+            .Take(count)
+            .AsNoTracking()
+            .Select(t => new PopularTagDto
+            {
+                Id = (int)t.Id.Value,
+                Name = t.Name.Value,
+                Slug = t.Slug.Value,
+                UsageCount = t.UsageCount
+            })
+            .ToListAsync(cancellationToken);
 
-            return Task.FromResult(popularTags);
-        }
+        return popularTags;
     }
 
-    public Task AddAsync(Tag tag, CancellationToken cancellationToken = default)
+    public async Task AddAsync(Tag tag, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _tags.Add(tag);
-            return Task.CompletedTask;
-        }
+        await _context.Tags.AddAsync(tag, cancellationToken);
     }
 
     public Task UpdateAsync(Tag tag, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var index = _tags.FindIndex(t => t.Id == tag.Id);
-            if (index >= 0)
-            {
-                _tags[index] = tag;
-            }
-            return Task.CompletedTask;
-        }
+        _context.Tags.Update(tag);
+        return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Tag tag, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _tags.RemoveAll(t => t.Id == tag.Id);
-            return Task.CompletedTask;
-        }
+        _context.Tags.Remove(tag);
+        return Task.CompletedTask;
     }
 }

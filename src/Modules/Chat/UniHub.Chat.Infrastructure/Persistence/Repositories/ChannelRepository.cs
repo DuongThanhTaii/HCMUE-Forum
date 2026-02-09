@@ -1,91 +1,70 @@
+using Microsoft.EntityFrameworkCore;
 using UniHub.Chat.Application.Abstractions;
 using UniHub.Chat.Domain.Channels;
+using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Chat.Infrastructure.Persistence.Repositories;
 
 /// <summary>
-/// In-memory implementation of channel repository for Chat module.
-/// TODO: Replace with EF Core implementation when database is configured.
+/// EF Core implementation of channel repository for Chat module
 /// </summary>
 public sealed class ChannelRepository : IChannelRepository
 {
-    private static readonly List<Channel> _channels = new();
-    private static readonly object _lock = new();
+    private readonly ApplicationDbContext _context;
 
-    public Task<Channel?> GetByIdAsync(ChannelId id, CancellationToken cancellationToken = default)
+    public ChannelRepository(ApplicationDbContext context)
     {
-        lock (_lock)
-        {
-            var channel = _channels.FirstOrDefault(c => c.Id == id);
-            return Task.FromResult(channel);
-        }
+        _context = context;
     }
 
-    public Task<IReadOnlyList<Channel>> GetPublicChannelsAsync(CancellationToken cancellationToken = default)
+    public async Task<Channel?> GetByIdAsync(ChannelId id, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var publicChannels = _channels
-                .Where(c => c.Type == ChannelType.Public && !c.IsArchived)
-                .OrderBy(c => c.Name)
-                .ToList()
-                .AsReadOnly();
-
-            return Task.FromResult<IReadOnlyList<Channel>>(publicChannels);
-        }
+        return await _context.Channels
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 
-    public Task<IReadOnlyList<Channel>> GetByMemberIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Channel>> GetPublicChannelsAsync(CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var memberChannels = _channels
-                .Where(c => c.Members.Contains(userId) && !c.IsArchived)
-                .OrderBy(c => c.Name)
-                .ToList()
-                .AsReadOnly();
+        var publicChannels = await _context.Channels
+            .Where(c => c.Type == ChannelType.Public && !c.IsArchived)
+            .OrderBy(c => c.Name)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
 
-            return Task.FromResult<IReadOnlyList<Channel>>(memberChannels);
-        }
+        return publicChannels.AsReadOnly();
     }
 
-    public Task<bool> ExistsAsync(ChannelId id, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Channel>> GetByMemberIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var exists = _channels.Any(c => c.Id == id);
-            return Task.FromResult(exists);
-        }
+        var memberChannels = await _context.Channels
+            .Where(c => c.Members.Contains(userId) && !c.IsArchived)
+            .OrderBy(c => c.Name)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return memberChannels.AsReadOnly();
     }
 
-    public Task AddAsync(Channel channel, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(ChannelId id, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _channels.Add(channel);
-            return Task.CompletedTask;
-        }
+        return await _context.Channels
+            .AnyAsync(c => c.Id == id, cancellationToken);
+    }
+
+    public async Task AddAsync(Channel channel, CancellationToken cancellationToken = default)
+    {
+        await _context.Channels.AddAsync(channel, cancellationToken);
     }
 
     public Task UpdateAsync(Channel channel, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var index = _channels.FindIndex(c => c.Id == channel.Id);
-            if (index >= 0)
-            {
-                _channels[index] = channel;
-            }
-            return Task.CompletedTask;
-        }
+        _context.Channels.Update(channel);
+        return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Channel channel, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _channels.Remove(channel);
-            return Task.CompletedTask;
-        }
+        _context.Channels.Remove(channel);
+        return Task.CompletedTask;
     }
 }

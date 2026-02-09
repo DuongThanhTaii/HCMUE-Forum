@@ -1,69 +1,33 @@
+using Microsoft.EntityFrameworkCore;
 using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Domain.Permissions;
+using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Identity.Infrastructure.Persistence.Repositories;
 
 /// <summary>
-/// In-memory implementation of permission repository
-/// TODO: Replace with proper database implementation when adding EF Core
+/// EF Core implementation of permission repository
 /// </summary>
 public sealed class PermissionRepository : IPermissionRepository
 {
-    private static readonly List<Permission> _permissions = new();
-    private static readonly object _lock = new();
+    private readonly ApplicationDbContext _context;
 
-    static PermissionRepository()
+    public PermissionRepository(ApplicationDbContext context)
     {
-        // Seed default permissions
-        SeedDefaultPermissions();
+        _context = context;
     }
 
-    private static void SeedDefaultPermissions()
+    public async Task<Permission?> GetByIdAsync(PermissionId id, CancellationToken cancellationToken = default)
     {
-        if (_permissions.Count > 0) return;
-
-        // Forum permissions
-        AddPermission("forum.post.create", "Create Post", "Create new posts in forums");
-        AddPermission("forum.post.edit", "Edit Post", "Edit own posts");
-        AddPermission("forum.post.delete", "Delete Post", "Delete own posts");
-        AddPermission("forum.post.moderate", "Moderate Post", "Moderate posts from other users");
-        AddPermission("forum.comment.create", "Create Comment", "Create comments on posts");
-        AddPermission("forum.comment.delete", "Delete Comment", "Delete comments");
-
-        // Learning permissions
-        AddPermission("learning.document.upload", "Upload Document", "Upload learning documents");
-        AddPermission("learning.document.approve", "Approve Document", "Approve uploaded documents");
-        AddPermission("learning.course.manage", "Manage Course", "Manage course content and settings");
-
-        // Identity permissions
-        AddPermission("identity.user.manage", "Manage Users", "Manage user accounts");
-        AddPermission("identity.role.manage", "Manage Roles", "Manage roles and permissions");
-        AddPermission("identity.permission.assign", "Assign Permissions", "Assign permissions to roles");
+        return await _context.Permissions
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
-    private static void AddPermission(string code, string name, string? description = null)
+    public async Task<IReadOnlyList<Permission>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var permissionResult = Permission.Create(code, name, description);
-        if (permissionResult.IsSuccess)
-        {
-            _permissions.Add(permissionResult.Value);
-        }
-    }
-
-    public Task<Permission?> GetByIdAsync(PermissionId id, CancellationToken cancellationToken = default)
-    {
-        lock (_lock)
-        {
-            var permission = _permissions.FirstOrDefault(p => p.Id == id);
-            return Task.FromResult(permission);
-        }
-    }
-
-    public Task<IReadOnlyList<Permission>> GetAllAsync(CancellationToken cancellationToken = default)
-    {
-        lock (_lock)
-        {
-            return Task.FromResult<IReadOnlyList<Permission>>(_permissions.ToList());
-        }
+        var permissions = await _context.Permissions
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+        return permissions.AsReadOnly();
     }
 }

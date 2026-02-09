@@ -1,104 +1,83 @@
+using Microsoft.EntityFrameworkCore;
+using UniHub.Infrastructure.Persistence;
 using UniHub.Notification.Application.Abstractions;
 using UniHub.Notification.Domain.Notifications;
 
 namespace UniHub.Notification.Infrastructure.Persistence.Repositories;
 
 /// <summary>
-/// In-memory implementation of INotificationRepository for development/testing.
+/// EF Core implementation of INotificationRepository
 /// </summary>
 public sealed class NotificationRepository : INotificationRepository
 {
-    private static readonly List<Domain.Notifications.Notification> _notifications = new();
-    private static readonly object _lock = new();
+    private readonly ApplicationDbContext _context;
 
-    public Task<Domain.Notifications.Notification?> GetByIdAsync(
-        NotificationId id, CancellationToken cancellationToken = default)
+    public NotificationRepository(ApplicationDbContext context)
     {
-        lock (_lock)
-        {
-            var notification = _notifications.FirstOrDefault(n => n.Id == id);
-            return Task.FromResult(notification);
-        }
+        _context = context;
     }
 
-    public Task<(List<Domain.Notifications.Notification> Notifications, int TotalCount)> GetByRecipientAsync(
+    public async Task<Domain.Notifications.Notification?> GetByIdAsync(
+        NotificationId id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Notifications
+            .FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
+    }
+
+    public async Task<(List<Domain.Notifications.Notification> Notifications, int TotalCount)> GetByRecipientAsync(
         Guid recipientId,
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var query = _notifications
-                .Where(n => n.RecipientId == recipientId)
-                .OrderByDescending(n => n.CreatedAt);
+        var query = _context.Notifications
+            .Where(n => n.RecipientId == recipientId)
+            .OrderByDescending(n => n.CreatedAt);
 
-            var totalCount = query.Count();
-            var items = query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
 
-            return Task.FromResult((items, totalCount));
-        }
+        return (items, totalCount);
     }
 
-    public Task<int> GetUnreadCountAsync(Guid recipientId, CancellationToken cancellationToken = default)
+    public async Task<int> GetUnreadCountAsync(Guid recipientId, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var count = _notifications.Count(n =>
-                n.RecipientId == recipientId && !n.IsRead());
-
-            return Task.FromResult(count);
-        }
+        return await _context.Notifications
+            .CountAsync(n => n.RecipientId == recipientId && !n.IsRead(), cancellationToken);
     }
 
-    public Task AddAsync(Domain.Notifications.Notification notification, CancellationToken cancellationToken = default)
+    public async Task AddAsync(Domain.Notifications.Notification notification, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _notifications.Add(notification);
-            return Task.CompletedTask;
-        }
+        await _context.Notifications.AddAsync(notification, cancellationToken);
     }
 
     public Task UpdateAsync(Domain.Notifications.Notification notification, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var index = _notifications.FindIndex(n => n.Id == notification.Id);
-            if (index >= 0)
-            {
-                _notifications[index] = notification;
-            }
-            return Task.CompletedTask;
-        }
+        _context.Notifications.Update(notification);
+        return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Domain.Notifications.Notification notification, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _notifications.RemoveAll(n => n.Id == notification.Id);
-            return Task.CompletedTask;
-        }
+        _context.Notifications.Remove(notification);
+        return Task.CompletedTask;
     }
 
-    public Task<int> MarkAllAsReadAsync(Guid recipientId, CancellationToken cancellationToken = default)
+    public async Task<int> MarkAllAsReadAsync(Guid recipientId, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
+        var unread = await _context.Notifications
+            .Where(n => n.RecipientId == recipientId && !n.IsRead())
+            .ToListAsync(cancellationToken);
+
+        foreach (var notification in unread)
         {
-            var unread = _notifications
-                .Where(n => n.RecipientId == recipientId && !n.IsRead())
-                .ToList();
-
-            foreach (var notification in unread)
-            {
-                notification.MarkAsRead();
-            }
-
-            return Task.FromResult(unread.Count);
+            notification.MarkAsRead();
         }
+
+        return unread.Count;
     }
 }

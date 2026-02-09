@@ -2,72 +2,64 @@ using Microsoft.EntityFrameworkCore;
 using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Domain.Tokens;
 using UniHub.Identity.Domain.Users;
+using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Identity.Infrastructure.Persistence.Repositories;
 
 /// <summary>
-/// In-memory implementation of refresh token repository
-/// TODO: Replace with proper database implementation when adding EF Core
+/// EF Core implementation of refresh token repository
 /// </summary>
 public sealed class RefreshTokenRepository : IRefreshTokenRepository
 {
-    private static readonly List<RefreshToken> _tokens = new();
-    private static readonly object _lock = new();
+    private readonly ApplicationDbContext _context;
 
-    public Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken = default)
+    public RefreshTokenRepository(ApplicationDbContext context)
     {
-        lock (_lock)
-        {
-            var refreshToken = _tokens.FirstOrDefault(t => t.Token == token);
-            return Task.FromResult(refreshToken);
-        }
+        _context = context;
     }
 
-    public Task<List<RefreshToken>> GetActiveTokensByUserIdAsync(UserId userId, CancellationToken cancellationToken = default)
+    public async Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var activeTokens = _tokens
-                .Where(t => t.UserId == userId && t.IsActive)
-                .ToList();
-            return Task.FromResult(activeTokens);
-        }
+        return await _context.RefreshTokens
+            .FirstOrDefaultAsync(t => t.Token == token, cancellationToken);
     }
 
-    public Task AddAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default)
+    public async Task<List<RefreshToken>> GetActiveTokensByUserIdAsync(UserId userId, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _tokens.Add(refreshToken);
-        }
-        return Task.CompletedTask;
+        return await _context.RefreshTokens
+            .Where(t => t.UserId == userId && t.IsActive)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task AddAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default)
+    {
+        await _context.RefreshTokens.AddAsync(refreshToken, cancellationToken);
     }
 
     public Task UpdateAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default)
     {
-        // In-memory implementation doesn't need explicit update as objects are mutable
+        _context.RefreshTokens.Update(refreshToken);
         return Task.CompletedTask;
     }
 
-    public Task RevokeAllByUserIdAsync(UserId userId, string? revokedByIp = null, CancellationToken cancellationToken = default)
+    public async Task RevokeAllByUserIdAsync(UserId userId, string? revokedByIp = null, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
+        var userTokens = await _context.RefreshTokens
+            .Where(t => t.UserId == userId && t.IsActive)
+            .ToListAsync(cancellationToken);
+            
+        foreach (var token in userTokens)
         {
-            var userTokens = _tokens.Where(t => t.UserId == userId && t.IsActive).ToList();
-            foreach (var token in userTokens)
-            {
-                token.Revoke(revokedByIp, "Revoked all tokens");
-            }
+            token.Revoke(revokedByIp, "Revoked all tokens");
         }
-        return Task.CompletedTask;
     }
 
-    public Task RemoveExpiredTokensAsync(CancellationToken cancellationToken = default)
+    public async Task RemoveExpiredTokensAsync(CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _tokens.RemoveAll(t => t.IsExpired);
-        }
-        return Task.CompletedTask;
+        var expiredTokens = await _context.RefreshTokens
+            .Where(t => t.IsExpired)
+            .ToListAsync(cancellationToken);
+            
+        _context.RefreshTokens.RemoveRange(expiredTokens);
     }
 }

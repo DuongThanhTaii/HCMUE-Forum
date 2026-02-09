@@ -1,17 +1,25 @@
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using UniHub.Identity.Domain.Tokens;
 using UniHub.Identity.Domain.Users;
 using UniHub.Identity.Infrastructure.Persistence.Repositories;
+using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Identity.Infrastructure.Tests.Persistence;
 
 public sealed class RefreshTokenRepositoryTests
 {
     private readonly RefreshTokenRepository _repository;
+    private readonly ApplicationDbContext _context;
 
     public RefreshTokenRepositoryTests()
     {
-        _repository = new RefreshTokenRepository();
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        _context = new ApplicationDbContext(options);
+        _repository = new RefreshTokenRepository(_context);
     }
 
     [Fact]
@@ -25,6 +33,7 @@ public sealed class RefreshTokenRepositoryTests
 
         // Act
         await _repository.AddAsync(refreshToken);
+        await _context.SaveChangesAsync();
 
         // Assert
         var retrieved = await _repository.GetByTokenAsync(token);
@@ -59,6 +68,7 @@ public sealed class RefreshTokenRepositoryTests
         await _repository.AddAsync(activeToken2);
         await _repository.AddAsync(revokedToken);
         await _repository.AddAsync(expiredToken);
+        await _context.SaveChangesAsync();
 
         // Act
         var activeTokens = await _repository.GetActiveTokensByUserIdAsync(userId);
@@ -80,6 +90,7 @@ public sealed class RefreshTokenRepositoryTests
         
         var token = RefreshToken.Create(userId1, "user1-token", DateTime.UtcNow.AddDays(7));
         await _repository.AddAsync(token);
+        await _context.SaveChangesAsync();
 
         // Act
         var activeTokens = await _repository.GetActiveTokensByUserIdAsync(userId2);
@@ -100,9 +111,11 @@ public sealed class RefreshTokenRepositoryTests
         
         await _repository.AddAsync(token1);
         await _repository.AddAsync(token2);
+        await _context.SaveChangesAsync();
 
         // Act
         await _repository.RevokeAllByUserIdAsync(userId, ipAddress);
+        await _context.SaveChangesAsync();
 
         // Assert
         var activeTokens = await _repository.GetActiveTokensByUserIdAsync(userId);
@@ -129,9 +142,11 @@ public sealed class RefreshTokenRepositoryTests
         await _repository.AddAsync(activeToken);
         await _repository.AddAsync(expiredToken1);
         await _repository.AddAsync(expiredToken2);
+        await _context.SaveChangesAsync();
 
         // Act
         await _repository.RemoveExpiredTokensAsync();
+        await _context.SaveChangesAsync();
 
         // Assert
         var retrieved = await _repository.GetByTokenAsync("active-token");

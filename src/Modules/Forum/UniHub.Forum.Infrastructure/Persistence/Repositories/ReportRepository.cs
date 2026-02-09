@@ -1,90 +1,77 @@
+using Microsoft.EntityFrameworkCore;
 using UniHub.Forum.Application.Abstractions;
 using UniHub.Forum.Domain.Reports;
+using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Forum.Infrastructure.Persistence.Repositories;
 
 /// <summary>
-/// In-memory implementation of report repository for Forum module.
-/// TODO: Replace with EF Core implementation when database is configured.
+/// EF Core implementation of report repository for Forum module
 /// </summary>
 public sealed class ReportRepository : IReportRepository
 {
-    private static readonly List<Report> _reports = new();
-    private static readonly object _lock = new();
+    private readonly ApplicationDbContext _context;
 
-    public Task<Report?> GetByIdAsync(ReportId id, CancellationToken cancellationToken = default)
+    public ReportRepository(ApplicationDbContext context)
     {
-        lock (_lock)
-        {
-            var report = _reports.FirstOrDefault(r => r.Id == id);
-            return Task.FromResult(report);
-        }
+        _context = context;
     }
 
-    public Task<Report?> GetByReporterAndItemAsync(
+    public async Task<Report?> GetByIdAsync(ReportId id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Reports
+            .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
+    }
+
+    public async Task<Report?> GetByReporterAndItemAsync(
         Guid reporterId,
         Guid reportedItemId,
         ReportedItemType reportedItemType,
         CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var report = _reports.FirstOrDefault(r =>
+        return await _context.Reports
+            .FirstOrDefaultAsync(r =>
                 r.ReporterId == reporterId &&
                 r.ReportedItemId == reportedItemId &&
-                r.ReportedItemType == reportedItemType);
-            return Task.FromResult(report);
-        }
+                r.ReportedItemType == reportedItemType,
+                cancellationToken);
     }
 
-    public Task<(IReadOnlyList<Report> Reports, int TotalCount)> GetReportsAsync(
+    public async Task<(IReadOnlyList<Report> Reports, int TotalCount)> GetReportsAsync(
         int pageNumber,
         int pageSize,
         ReportStatus? status = null,
         CancellationToken cancellationToken = default)
     {
-        lock (_lock)
+        var query = _context.Reports.AsQueryable();
+
+        // Filter by status if provided
+        if (status.HasValue)
         {
-            var query = _reports.AsEnumerable();
-
-            // Filter by status if provided
-            if (status.HasValue)
-            {
-                query = query.Where(r => r.Status == status.Value);
-            }
-
-            var totalCount = query.Count();
-
-            // Apply pagination and ordering
-            var reports = query
-                .OrderByDescending(r => r.CreatedAt)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
-            return Task.FromResult<(IReadOnlyList<Report>, int)>((reports.AsReadOnly(), totalCount));
+            query = query.Where(r => r.Status == status.Value);
         }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        // Apply pagination and ordering
+        var reports = await query
+            .OrderByDescending(r => r.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return (reports.AsReadOnly(), totalCount);
     }
 
-    public Task AddAsync(Report report, CancellationToken cancellationToken = default)
+    public async Task AddAsync(Report report, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _reports.Add(report);
-            return Task.CompletedTask;
-        }
+        await _context.Reports.AddAsync(report, cancellationToken);
     }
 
     public Task UpdateAsync(Report report, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var index = _reports.FindIndex(r => r.Id == report.Id);
-            if (index >= 0)
-            {
-                _reports[index] = report;
-            }
-            return Task.CompletedTask;
-        }
+        _context.Reports.Update(report);
+        return Task.CompletedTask;
     }
 }
