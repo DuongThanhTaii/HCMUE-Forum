@@ -16,9 +16,9 @@ export function LanguageSwitcher() {
   };
 
   return (
-    <Button 
-      variant="ghost" 
-      size="icon" 
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={switchLocale}
       title={locale === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}
     >

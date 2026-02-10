@@ -42,6 +42,34 @@
     "lightMode": "Chế độ sáng",
     "language": "Ngôn ngữ"
   },
+  "nav": {
+    "home": "Trang chủ",
+    "forum": "Diễn đàn",
+    "learning": "Học tập",
+    "chat": "Tin nhắn",
+    "career": "Việc làm",
+    "profile": "Hồ sơ",
+    "settings": "Cài đặt",
+    "logout": "Đăng xuất",
+    "login": "Đăng nhập",
+    "register": "Đăng ký"
+  },
+  "footer": {
+    "description": "Nền tảng học tập và kết nối sinh viên",
+    "products": "Sản phẩm",
+    "forum": "Diễn đàn",
+    "learning": "Học tập",
+    "chat": "Trò chuyện",
+    "career": "Nghề nghiệp",
+    "support": "Hỗ trợ",
+    "help": "Trợ giúp",
+    "about": "Về chúng tôi",
+    "contact": "Liên hệ",
+    "legal": "Pháp lý",
+    "privacy": "Chính sách bảo mật",
+    "terms": "Điều khoản sử dụng",
+    "copyright": "© {year} UniHub. Tất cả quyền được bảo lưu."
+  },
   "auth": {
     "login": "Đăng nhập",
     "register": "Đăng ký",

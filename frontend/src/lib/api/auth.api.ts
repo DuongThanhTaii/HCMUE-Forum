@@ -28,19 +28,16 @@ export interface AuthResponse {
 }
 
 export const authApi = {
-  login: (data: LoginRequest) =>
-    apiClient.post<AuthResponse>('/api/v1/auth/login', data),
+  login: (data: LoginRequest) => apiClient.post<AuthResponse>('/api/v1/auth/login', data),
 
-  register: (data: RegisterRequest) =>
-    apiClient.post<AuthResponse>('/api/v1/auth/register', data),
+  register: (data: RegisterRequest) => apiClient.post<AuthResponse>('/api/v1/auth/register', data),
 
   refreshToken: (refreshToken: string) =>
     apiClient.post<AuthResponse>('/api/v1/auth/refresh', { refreshToken }),
 
   logout: () => apiClient.post('/api/v1/auth/logout'),
 
-  forgotPassword: (email: string) =>
-    apiClient.post('/api/v1/auth/forgot-password', { email }),
+  forgotPassword: (email: string) => apiClient.post('/api/v1/auth/forgot-password', { email }),
 
   resetPassword: (token: string, newPassword: string) =>
     apiClient.post('/api/v1/auth/reset-password', { token, newPassword }),

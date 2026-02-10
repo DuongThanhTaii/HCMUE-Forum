@@ -17,11 +17,7 @@ interface AuthState {
   isAuthenticated: boolean;
 
   // Actions
-  setAuth: (data: {
-    user: User;
-    accessToken: string;
-    refreshToken: string;
-  }) => void;
+  setAuth: (data: { user: User; accessToken: string; refreshToken: string }) => void;
   clearAuth: () => void;
   updateUser: (user: Partial<User>) => void;
 }

@@ -6,16 +6,16 @@
 
 ## 📋 TASK INFO
 
-| Property         | Value                        |
-| ---------------- | ---------------------------- |
-| **Task ID**      | TASK-104                     |
-| **Module**       | Authentication & Security    |
-| **Status**       | ✅ COMPLETED                 |
-| **Priority**     | 🔴 Critical                  |
-| **Estimate**     | 6 hours                      |
-| **Actual**       | 4 hours                      |
+| Property         | Value                         |
+| ---------------- | ----------------------------- |
+| **Task ID**      | TASK-104                      |
+| **Module**       | Authentication & Security     |
+| **Status**       | ✅ COMPLETED                  |
+| **Priority**     | 🔴 Critical                   |
+| **Estimate**     | 6 hours                       |
+| **Actual**       | 4 hours                       |
 | **Branch**       | `feature/TASK-104-auth-pages` |
-| **Dependencies** | TASK-101, TASK-102, TASK-103 |
+| **Dependencies** | TASK-101, TASK-102, TASK-103  |
 
 **Completion Date**: 2026-02-10
 
@@ -35,6 +35,7 @@
 ## 📡 BACKEND API ENDPOINTS
 
 ### Login
+
 ```http
 POST /api/v1/auth/login
 Content-Type: application/json
@@ -59,6 +60,7 @@ Response 200:
 ```
 
 ### Register
+
 ```http
 POST /api/v1/auth/register
 Content-Type: application/json
@@ -80,6 +82,7 @@ Response 200:
 ```
 
 ### Refresh Token
+
 ```http
 POST /api/v1/auth/refresh
 Content-Type: application/json
@@ -97,6 +100,7 @@ Response 200:
 ```
 
 ### Logout
+
 ```http
 POST /api/v1/auth/logout
 Authorization: Bearer {accessToken}
@@ -105,6 +109,7 @@ Response 204: No Content
 ```
 
 ### Forgot Password
+
 ```http
 POST /api/v1/auth/forgot-password
 Content-Type: application/json
@@ -120,6 +125,7 @@ Response 200:
 ```
 
 ### Reset Password
+
 ```http
 POST /api/v1/auth/reset-password
 Content-Type: application/json
@@ -144,8 +150,8 @@ Response 200:
 **File**: `src/stores/auth.store.ts`
 
 ```typescript
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface User {
   id: string;
@@ -161,9 +167,13 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
-  
+
   // Actions
-  setAuth: (data: { user: User; accessToken: string; refreshToken: string }) => void;
+  setAuth: (data: {
+    user: User;
+    accessToken: string;
+    refreshToken: string;
+  }) => void;
   clearAuth: () => void;
   updateUser: (user: Partial<User>) => void;
 }
@@ -198,15 +208,15 @@ export const useAuthStore = create<AuthState>()(
         })),
     }),
     {
-      name: 'auth-storage',
+      name: "auth-storage",
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
-    }
-  )
+    },
+  ),
 );
 ```
 
@@ -215,7 +225,7 @@ export const useAuthStore = create<AuthState>()(
 **File**: `src/lib/api/auth.api.ts`
 
 ```typescript
-import { apiClient } from './client';
+import { apiClient } from "./client";
 
 export interface LoginRequest {
   email: string;
@@ -246,21 +256,21 @@ export interface AuthResponse {
 
 export const authApi = {
   login: (data: LoginRequest) =>
-    apiClient.post<AuthResponse>('/api/v1/auth/login', data),
+    apiClient.post<AuthResponse>("/api/v1/auth/login", data),
 
   register: (data: RegisterRequest) =>
-    apiClient.post<AuthResponse>('/api/v1/auth/register', data),
+    apiClient.post<AuthResponse>("/api/v1/auth/register", data),
 
   refreshToken: (refreshToken: string) =>
-    apiClient.post<AuthResponse>('/api/v1/auth/refresh', { refreshToken }),
+    apiClient.post<AuthResponse>("/api/v1/auth/refresh", { refreshToken }),
 
-  logout: () => apiClient.post('/api/v1/auth/logout'),
+  logout: () => apiClient.post("/api/v1/auth/logout"),
 
   forgotPassword: (email: string) =>
-    apiClient.post('/api/v1/auth/forgot-password', { email }),
+    apiClient.post("/api/v1/auth/forgot-password", { email }),
 
   resetPassword: (token: string, newPassword: string) =>
-    apiClient.post('/api/v1/auth/reset-password', { token, newPassword }),
+    apiClient.post("/api/v1/auth/reset-password", { token, newPassword }),
 };
 ```
 
@@ -269,16 +279,16 @@ export const authApi = {
 **File**: `src/lib/api/client.ts`
 
 ```typescript
-import axios from 'axios';
-import { useAuthStore } from '@/stores/auth.store';
+import axios from "axios";
+import { useAuthStore } from "@/stores/auth.store";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export const apiClient = axios.create({
   baseURL: API_URL,
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -291,7 +301,7 @@ apiClient.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Response interceptor: Handle 401 with refresh
@@ -309,7 +319,7 @@ apiClient.interceptors.response.use(
 
         if (!refreshToken) {
           clearAuth();
-          window.location.href = '/vi/login';
+          window.location.href = "/vi/login";
           return Promise.reject(error);
         }
 
@@ -318,7 +328,11 @@ apiClient.interceptors.response.use(
           refreshToken,
         });
 
-        const { accessToken, refreshToken: newRefreshToken, user } = response.data;
+        const {
+          accessToken,
+          refreshToken: newRefreshToken,
+          user,
+        } = response.data;
 
         // Update store with new tokens
         setAuth({ user, accessToken, refreshToken: newRefreshToken });
@@ -329,13 +343,13 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         // Refresh failed → logout
         useAuthStore.getState().clearAuth();
-        window.location.href = '/vi/login';
+        window.location.href = "/vi/login";
         return Promise.reject(refreshError);
       }
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 ```
 
@@ -344,7 +358,7 @@ apiClient.interceptors.response.use(
 **File**: `src/hooks/auth/useAuth.ts`
 
 ```typescript
-import { useAuthStore } from '@/stores/auth.store';
+import { useAuthStore } from "@/stores/auth.store";
 
 export function useAuth() {
   const { user, isAuthenticated, clearAuth } = useAuthStore();
@@ -357,8 +371,8 @@ export function useAuth() {
     return roles.some((role) => user?.roles.includes(role));
   };
 
-  const isAdmin = () => hasRole('Admin');
-  const isModerator = () => hasAnyRole(['Admin', 'Moderator']);
+  const isAdmin = () => hasRole("Admin");
+  const isModerator = () => hasAnyRole(["Admin", "Moderator"]);
 
   return {
     user,
@@ -375,17 +389,17 @@ export function useAuth() {
 **File**: `src/hooks/auth/useLogin.ts`
 
 ```typescript
-import { useMutation } from '@tanstack/react-query';
-import { useRouter } from '@/lib/i18n/routing';
-import { authApi, type LoginRequest } from '@/lib/api/auth.api';
-import { useAuthStore } from '@/stores/auth.store';
-import { toast } from 'sonner';
-import { useTranslations } from 'next-intl';
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "@/lib/i18n/routing";
+import { authApi, type LoginRequest } from "@/lib/api/auth.api";
+import { useAuthStore } from "@/stores/auth.store";
+import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function useLogin() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
-  const t = useTranslations('auth');
+  const t = useTranslations("auth");
 
   return useMutation({
     mutationFn: (data: LoginRequest) => authApi.login(data),
@@ -395,11 +409,11 @@ export function useLogin() {
         accessToken: response.data.accessToken,
         refreshToken: response.data.refreshToken,
       });
-      toast.success(t('loginSuccess'));
-      router.push('/');
+      toast.success(t("loginSuccess"));
+      router.push("/");
     },
     onError: (error: any) => {
-      const message = error.response?.data?.error || t('loginError');
+      const message = error.response?.data?.error || t("loginError");
       toast.error(message);
     },
   });
@@ -409,17 +423,17 @@ export function useLogin() {
 **File**: `src/hooks/auth/useRegister.ts`
 
 ```typescript
-import { useMutation } from '@tanstack/react-query';
-import { useRouter } from '@/lib/i18n/routing';
-import { authApi, type RegisterRequest } from '@/lib/api/auth.api';
-import { useAuthStore } from '@/stores/auth.store';
-import { toast } from 'sonner';
-import { useTranslations } from 'next-intl';
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "@/lib/i18n/routing";
+import { authApi, type RegisterRequest } from "@/lib/api/auth.api";
+import { useAuthStore } from "@/stores/auth.store";
+import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function useRegister() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
-  const t = useTranslations('auth');
+  const t = useTranslations("auth");
 
   return useMutation({
     mutationFn: (data: RegisterRequest) => authApi.register(data),
@@ -429,11 +443,11 @@ export function useRegister() {
         accessToken: response.data.accessToken,
         refreshToken: response.data.refreshToken,
       });
-      toast.success(t('registerSuccess'));
-      router.push('/');
+      toast.success(t("registerSuccess"));
+      router.push("/");
     },
     onError: (error: any) => {
-      const message = error.response?.data?.error || t('registerError');
+      const message = error.response?.data?.error || t("registerError");
       toast.error(message);
     },
   });
@@ -445,51 +459,51 @@ export function useRegister() {
 **File**: `src/lib/validations/auth.schema.ts`
 
 ```typescript
-import { z } from 'zod';
+import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.string().email('Email không hợp lệ'),
-  password: z.string().min(8, 'Mật khẩu phải có ít nhất 8 ký tự'),
+  email: z.string().email("Email không hợp lệ"),
+  password: z.string().min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
   rememberMe: z.boolean().optional(),
 });
 
 export const registerSchema = z
   .object({
-    email: z.string().email('Email không hợp lệ'),
-    fullName: z.string().min(3, 'Họ tên phải có ít nhất 3 ký tự'),
+    email: z.string().email("Email không hợp lệ"),
+    fullName: z.string().min(3, "Họ tên phải có ít nhất 3 ký tự"),
     studentId: z.string().optional(),
     password: z
       .string()
-      .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
-      .regex(/[A-Z]/, 'Mật khẩu phải chứa ít nhất 1 chữ hoa')
-      .regex(/[a-z]/, 'Mật khẩu phải chứa ít nhất 1 chữ thường')
-      .regex(/[0-9]/, 'Mật khẩu phải chứa ít nhất 1 số')
-      .regex(/[^A-Za-z0-9]/, 'Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt'),
+      .min(8, "Mật khẩu phải có ít nhất 8 ký tự")
+      .regex(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ hoa")
+      .regex(/[a-z]/, "Mật khẩu phải chứa ít nhất 1 chữ thường")
+      .regex(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 số")
+      .regex(/[^A-Za-z0-9]/, "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Mật khẩu xác nhận không khớp',
-    path: ['confirmPassword'],
+    message: "Mật khẩu xác nhận không khớp",
+    path: ["confirmPassword"],
   });
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().email('Email không hợp lệ'),
+  email: z.string().email("Email không hợp lệ"),
 });
 
 export const resetPasswordSchema = z
   .object({
     password: z
       .string()
-      .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
-      .regex(/[A-Z]/, 'Mật khẩu phải chứa ít nhất 1 chữ hoa')
-      .regex(/[a-z]/, 'Mật khẩu phải chứa ít nhất 1 chữ thường')
-      .regex(/[0-9]/, 'Mật khẩu phải chứa ít nhất 1 số')
-      .regex(/[^A-Za-z0-9]/, 'Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt'),
+      .min(8, "Mật khẩu phải có ít nhất 8 ký tự")
+      .regex(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ hoa")
+      .regex(/[a-z]/, "Mật khẩu phải chứa ít nhất 1 chữ thường")
+      .regex(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 số")
+      .regex(/[^A-Za-z0-9]/, "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Mật khẩu xác nhận không khớp',
-    path: ['confirmPassword'],
+    message: "Mật khẩu xác nhận không khớp",
+    path: ["confirmPassword"],
   });
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -503,23 +517,29 @@ export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 **File**: `src/app/[locale]/(auth)/login/page.tsx`
 
 ```tsx
-'use client';
+"use client";
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useTranslations } from 'next-intl';
-import { useLogin } from '@/hooks/auth/useLogin';
-import { loginSchema, type LoginInput } from '@/lib/validations/auth.schema';
-import { Link } from '@/lib/i18n/routing';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
+import { useLogin } from "@/hooks/auth/useLogin";
+import { loginSchema, type LoginInput } from "@/lib/validations/auth.schema";
+import { Link } from "@/lib/i18n/routing";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
-  const t = useTranslations('auth');
+  const t = useTranslations("auth");
   const { mutate: login, isPending } = useLogin();
 
   const {
@@ -538,64 +558,68 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted/50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">{t('login')}</CardTitle>
-          <CardDescription>{t('loginDescription')}</CardDescription>
+          <CardTitle className="text-2xl font-bold">{t("login")}</CardTitle>
+          <CardDescription>{t("loginDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">{t('email')}</Label>
+              <Label htmlFor="email">{t("email")}</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="student@unihub.edu.vn"
-                {...register('email')}
+                {...register("email")}
                 disabled={isPending}
               />
               {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
+                <p className="text-sm text-destructive">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">{t('password')}</Label>
+                <Label htmlFor="password">{t("password")}</Label>
                 <Link
                   href="/forgot-password"
                   className="text-sm text-primary hover:underline"
                 >
-                  {t('forgotPassword')}
+                  {t("forgotPassword")}
                 </Link>
               </div>
               <Input
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                {...register('password')}
+                {...register("password")}
                 disabled={isPending}
               />
               {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
+                <p className="text-sm text-destructive">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
             <div className="flex items-center space-x-2">
-              <Checkbox id="rememberMe" {...register('rememberMe')} />
+              <Checkbox id="rememberMe" {...register("rememberMe")} />
               <Label htmlFor="rememberMe" className="text-sm font-normal">
-                {t('rememberMe')}
+                {t("rememberMe")}
               </Label>
             </div>
 
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t('login')}
+              {t("login")}
             </Button>
           </form>
 
           <div className="mt-4 text-center text-sm">
-            {t('noAccount')}{' '}
+            {t("noAccount")}{" "}
             <Link href="/register" className="text-primary hover:underline">
-              {t('register')}
+              {t("register")}
             </Link>
           </div>
         </CardContent>
@@ -610,19 +634,22 @@ export default function LoginPage() {
 **File**: `src/components/features/auth/ProtectedRoute.tsx`
 
 ```tsx
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useAuthStore } from '@/stores/auth.store';
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
+import { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuthStore } from "@/stores/auth.store";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRoles?: string[];
 }
 
-export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps) {
+export function ProtectedRoute({
+  children,
+  requiredRoles,
+}: ProtectedRouteProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, user } = useAuthStore();
@@ -634,9 +661,11 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
     }
 
     if (requiredRoles && user) {
-      const hasRequiredRole = requiredRoles.some((role) => user.roles.includes(role));
+      const hasRequiredRole = requiredRoles.some((role) =>
+        user.roles.includes(role),
+      );
       if (!hasRequiredRole) {
-        router.push('/unauthorized');
+        router.push("/unauthorized");
       }
     }
   }, [isAuthenticated, user, requiredRoles, router, pathname]);
@@ -650,7 +679,9 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
   }
 
   if (requiredRoles && user) {
-    const hasRequiredRole = requiredRoles.some((role) => user.roles.includes(role));
+    const hasRequiredRole = requiredRoles.some((role) =>
+      user.roles.includes(role),
+    );
     if (!hasRequiredRole) {
       return (
         <div className="flex min-h-screen items-center justify-center">
@@ -669,13 +700,17 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
 **File**: `src/app/[locale]/(auth)/layout.tsx`
 
 ```tsx
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Authentication - UniHub',
+  title: "Authentication - UniHub",
 };
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
       {children}

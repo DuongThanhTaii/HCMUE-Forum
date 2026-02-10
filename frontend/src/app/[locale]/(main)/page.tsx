@@ -10,7 +10,9 @@ export default function Home() {
         {/* Header with toggles */}
         <div className="flex items-start justify-between">
           <div className="space-y-2">
-            <h1 className="text-foreground text-4xl font-bold">🎓 UniHub - Mạng xã hội sinh viên</h1>
+            <h1 className="text-foreground text-4xl font-bold">
+              🎓 UniHub - Mạng xã hội sinh viên
+            </h1>
             <p className="text-muted-foreground text-lg">
               Test màu sắc custom: Cerulean Blue #124874 & Jasper Red #CF373D
             </p>
@@ -90,15 +92,13 @@ export default function Home() {
         </section>
 
         {/* Link to components showcase */}
-        <section className="bg-primary/10 rounded-lg border border-primary/20 p-6">
-          <h3 className="text-primary mb-2 text-lg font-semibold">
-            📦 Component Library
-          </h3>
+        <section className="bg-primary/10 border-primary/20 rounded-lg border p-6">
+          <h3 className="text-primary mb-2 text-lg font-semibold">📦 Component Library</h3>
           <p className="text-muted-foreground mb-4">
             Check out our comprehensive component showcase with all Shadcn UI components
           </p>
-          <Link 
-            href="/components" 
+          <Link
+            href="/components"
             className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex rounded-lg px-6 py-3 transition-colors"
           >
             View Component Library →

@@ -42,9 +42,7 @@ export default function ComponentsShowcase() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-foreground text-4xl font-bold">🎨 {t('title')}</h1>
-            <p className="text-muted-foreground mt-2 text-lg">
-              {t('subtitle')}
-            </p>
+            <p className="text-muted-foreground mt-2 text-lg">{t('subtitle')}</p>
           </div>
           <div className="flex gap-2">
             <ThemeToggle />
@@ -97,7 +95,11 @@ export default function ComponentsShowcase() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" placeholder={tForms('passwordPlaceholder')} />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder={tForms('passwordPlaceholder')}
+                  />
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
@@ -117,10 +119,7 @@ export default function ComponentsShowcase() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="bio">Bio</Label>
-                  <Input
-                    id="bio"
-                    placeholder={tForms('bioPlaceholder')}
-                  />
+                  <Input id="bio" placeholder={tForms('bioPlaceholder')} />
                 </div>
               </CardContent>
               <CardFooter>
@@ -162,7 +161,8 @@ export default function ComponentsShowcase() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm">
-                  Access a diverse library of textbooks, lectures, and exams shared by the community.
+                  Access a diverse library of textbooks, lectures, and exams shared by the
+                  community.
                 </p>
               </CardContent>
               <CardFooter>
@@ -233,9 +233,7 @@ export default function ComponentsShowcase() {
                     <DialogContent>
                       <DialogHeader>
                         <DialogTitle>{tAvatars('dialogTitle')}</DialogTitle>
-                        <DialogDescription>
-                          {tAvatars('dialogDescription')}
-                        </DialogDescription>
+                        <DialogDescription>{tAvatars('dialogDescription')}</DialogDescription>
                       </DialogHeader>
                       <div className="flex justify-end gap-4 pt-4">
                         <Button variant="outline">{tAvatars('dialogCancel')}</Button>
@@ -263,7 +261,7 @@ export default function ComponentsShowcase() {
                   {[50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((shade) => (
                     <div
                       key={shade}
-                      className={`h-12 rounded-md bg-primary flex items-center justify-center text-xs font-medium text-primary-foreground`}
+                      className={`bg-primary text-primary-foreground flex h-12 items-center justify-center rounded-md text-xs font-medium`}
                       style={{ backgroundColor: `var(--color-primary-${shade}, #124874)` }}
                     >
                       {shade}
@@ -283,7 +281,7 @@ export default function ComponentsShowcase() {
                   {[50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((shade) => (
                     <div
                       key={shade}
-                      className={`h-12 rounded-md bg-accent flex items-center justify-center text-xs font-medium text-accent-foreground`}
+                      className={`bg-accent text-accent-foreground flex h-12 items-center justify-center rounded-md text-xs font-medium`}
                       style={{ backgroundColor: `var(--color-accent-${shade}, #CF373D)` }}
                     >
                       {shade}

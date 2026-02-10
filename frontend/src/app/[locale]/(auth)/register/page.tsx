@@ -9,13 +9,7 @@ import { Link } from '@/lib/i18n/routing';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 
 export default function RegisterPage() {
@@ -35,13 +29,11 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/50 p-4">
+    <div className="bg-muted/50 flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">{t('register')}</CardTitle>
-          <CardDescription>
-            Tạo tài khoản mới để tham gia UniHub
-          </CardDescription>
+          <CardDescription>Tạo tài khoản mới để tham gia UniHub</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -55,7 +47,7 @@ export default function RegisterPage() {
                 disabled={isPending}
               />
               {errors.fullName && (
-                <p className="text-sm text-destructive">{errors.fullName.message}</p>
+                <p className="text-destructive text-sm">{errors.fullName.message}</p>
               )}
             </div>
 
@@ -68,9 +60,7 @@ export default function RegisterPage() {
                 {...registerField('email')}
                 disabled={isPending}
               />
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
-              )}
+              {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -83,7 +73,7 @@ export default function RegisterPage() {
                 disabled={isPending}
               />
               {errors.studentId && (
-                <p className="text-sm text-destructive">{errors.studentId.message}</p>
+                <p className="text-destructive text-sm">{errors.studentId.message}</p>
               )}
             </div>
 
@@ -97,7 +87,7 @@ export default function RegisterPage() {
                 disabled={isPending}
               />
               {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
+                <p className="text-destructive text-sm">{errors.password.message}</p>
               )}
             </div>
 
@@ -111,9 +101,7 @@ export default function RegisterPage() {
                 disabled={isPending}
               />
               {errors.confirmPassword && (
-                <p className="text-sm text-destructive">
-                  {errors.confirmPassword.message}
-                </p>
+                <p className="text-destructive text-sm">{errors.confirmPassword.message}</p>
               )}
             </div>
 

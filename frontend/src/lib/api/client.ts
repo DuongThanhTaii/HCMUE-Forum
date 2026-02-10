@@ -49,11 +49,7 @@ apiClient.interceptors.response.use(
           refreshToken,
         });
 
-        const {
-          accessToken,
-          refreshToken: newRefreshToken,
-          user,
-        } = response.data;
+        const { accessToken, refreshToken: newRefreshToken, user } = response.data;
 
         // Update store with new tokens
         setAuth({ user, accessToken, refreshToken: newRefreshToken });

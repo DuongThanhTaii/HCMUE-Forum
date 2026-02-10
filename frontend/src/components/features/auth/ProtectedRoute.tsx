@@ -22,9 +22,7 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
     }
 
     if (requiredRoles && user) {
-      const hasRequiredRole = requiredRoles.some((role) =>
-        user.roles.includes(role)
-      );
+      const hasRequiredRole = requiredRoles.some((role) => user.roles.includes(role));
       if (!hasRequiredRole) {
         router.push('/unauthorized');
       }
@@ -34,19 +32,17 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
   if (!isAuthenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
       </div>
     );
   }
 
   if (requiredRoles && user) {
-    const hasRequiredRole = requiredRoles.some((role) =>
-      user.roles.includes(role)
-    );
+    const hasRequiredRole = requiredRoles.some((role) => user.roles.includes(role));
     if (!hasRequiredRole) {
       return (
         <div className="flex min-h-screen items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
         </div>
       );
     }

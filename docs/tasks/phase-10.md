@@ -819,7 +819,7 @@ export function cn(...inputs: ClassValue[]) {
 - ✅ Configure next-intl for i18n
 - ✅ Setup Vietnamese and English translations
 - ✅ Create language switcher component (Globe icon with VI/EN toggle)
-- ✅ Configure routing for locales (/vi/*, /en/*)
+- ✅ Configure routing for locales (/vi/_, /en/_)
 - ✅ Update next.config.ts with next-intl plugin
 - ✅ Create i18n middleware for locale detection
 - ✅ Restructure app directory with [locale] routing
