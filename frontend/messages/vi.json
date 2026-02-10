@@ -14,7 +14,19 @@
     "sort": "Sắp xếp",
     "noResults": "Không tìm thấy kết quả",
     "confirm": "Xác nhận",
-    "back": "Quay lại"
+    "back": "Quay lại",
+    "close": "Đóng",
+    "submit": "Gửi",
+    "update": "Cập nhật",
+    "view": "Xem",
+    "download": "Tải xuống",
+    "upload": "Tải lên",
+    "share": "Chia sẻ",
+    "copy": "Sao chép",
+    "noData": "Không có dữ liệu",
+    "selectAll": "Chọn tất cả",
+    "clear": "Xóa",
+    "reset": "Đặt lại"
   },
   "navigation": {
     "home": "Trang chủ",
@@ -24,7 +36,11 @@
     "chat": "Tin nhắn",
     "profile": "Hồ sơ",
     "settings": "Cài đặt",
-    "admin": "Quản trị"
+    "admin": "Quản trị",
+    "notifications": "Thông báo",
+    "darkMode": "Chế độ tối",
+    "lightMode": "Chế độ sáng",
+    "language": "Ngôn ngữ"
   },
   "auth": {
     "login": "Đăng nhập",
@@ -33,6 +49,162 @@
     "email": "Email",
     "password": "Mật khẩu",
     "forgotPassword": "Quên mật khẩu?",
-    "rememberMe": "Ghi nhớ đăng nhập"
+    "rememberMe": "Ghi nhớ đăng nhập",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "fullName": "Họ và tên",
+    "username": "Tên đăng nhập",
+    "resetPassword": "Đặt lại mật khẩu",
+    "newPassword": "Mật khẩu mới",
+    "currentPassword": "Mật khẩu hiện tại",
+    "loginSuccess": "Đăng nhập thành công",
+    "logoutSuccess": "Đăng xuất thành công",
+    "registerSuccess": "Đăng ký thành công",
+    "invalidCredentials": "Email hoặc mật khẩu không đúng",
+    "emailRequired": "Email là bắt buộc",
+    "passwordRequired": "Mật khẩu là bắt buộc",
+    "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
+    "passwordMismatch": "Mật khẩu xác nhận không khớp"
+  },
+  "components": {
+    "title": "Thư viện Component",
+    "subtitle": "Bộ sưu tập component UniHub với Shadcn UI & GAIA UI",
+    "buttons": {
+      "title": "Nút bấm",
+      "default": "Mặc định",
+      "secondary": "Phụ",
+      "destructive": "Xóa",
+      "outline": "Viền",
+      "ghost": "Trong suốt",
+      "link": "Liên kết",
+      "withIcon": "Với biểu tượng",
+      "sizes": "Kích thước"
+    },
+    "forms": {
+      "title": "Biểu mẫu",
+      "loginTitle": "Đăng nhập",
+      "loginSubtitle": "Nhập thông tin để đăng nhập",
+      "emailPlaceholder": "email@example.com",
+      "passwordPlaceholder": "••••••••",
+      "loginButton": "Đăng nhập",
+      "profileTitle": "Cài đặt hồ sơ",
+      "profileSubtitle": "Quản lý thông tin cá nhân của bạn",
+      "namePlaceholder": "Nguyễn Văn A",
+      "bioPlaceholder": "Giới thiệu ngắn về bản thân...",
+      "saveButton": "Lưu thay đổi"
+    },
+    "cards": {
+      "title": "Thẻ & Huy hiệu",
+      "modules": "Các module",
+      "forum": {
+        "title": "Diễn đàn",
+        "description": "Thảo luận và chia sẻ",
+        "posts": "bài viết"
+      },
+      "documents": {
+        "title": "Tài liệu",
+        "description": "Học liệu và tài nguyên",
+        "count": "tài liệu"
+      },
+      "jobs": {
+        "title": "Việc làm",
+        "description": "Cơ hội nghề nghiệp",
+        "new": "mới"
+      }
+    },
+    "avatars": {
+      "title": "Avatar & Dialog",
+      "default": "Mặc định",
+      "fallback": "Dự phòng",
+      "large": "Lớn",
+      "openDialog": "Mở hộp thoại",
+      "dialogTitle": "Bạn có chắc chắn?",
+      "dialogDescription": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn dữ liệu của bạn.",
+      "dialogCancel": "Hủy",
+      "dialogContinue": "Tiếp tục"
+    },
+    "colorPalette": {
+      "title": "Bảng màu",
+      "cerulean": "Cerulean Blue (Chính)",
+      "jasper": "Jasper Red (Nhấn)",
+      "lightMode": "Chế độ sáng",
+      "darkMode": "Chế độ tối"
+    },
+    "status": {
+      "title": "Trạng thái TASK-102",
+      "completed": "Hoàn thành"
+    }
+  },
+  "forum": {
+    "title": "Diễn đàn",
+    "createPost": "Tạo bài viết",
+    "allPosts": "Tất cả bài viết",
+    "myPosts": "Bài viết của tôi",
+    "trending": "Xu hướng",
+    "recent": "Gần đây",
+    "post": "Bài viết",
+    "posts": "bài viết",
+    "comment": "Bình luận",
+    "comments": "bình luận",
+    "vote": "Bình chọn",
+    "votes": "lượt bình chọn",
+    "share": "Chia sẻ",
+    "bookmark": "Đánh dấu",
+    "report": "Báo cáo"
+  },
+  "learning": {
+    "title": "Học tập",
+    "documents": "Tài liệu",
+    "courses": "Khóa học",
+    "faculties": "Khoa",
+    "uploadDocument": "Tải lên tài liệu",
+    "myDocuments": "Tài liệu của tôi",
+    "pendingApproval": "Chờ duyệt"
+  },
+  "career": {
+    "title": "Việc làm",
+    "jobs": "Công việc",
+    "companies": "Công ty",
+    "applications": "Ứng tuyển",
+    "savedJobs": "Đã lưu",
+    "postJob": "Đăng tuyển"
+  },
+  "chat": {
+    "title": "Tin nhắn",
+    "conversations": "Cuộc trò chuyện",
+    "channels": "Kênh",
+    "aiBot": "UniBot AI",
+    "typeMessage": "Nhập tin nhắn...",
+    "send": "Gửi",
+    "online": "Trực tuyến",
+    "offline": "Ngoại tuyến",
+    "typing": "đang nhập..."
+  },
+  "profile": {
+    "title": "Hồ sơ",
+    "editProfile": "Chỉnh sửa hồ sơ",
+    "myProfile": "Hồ sơ của tôi",
+    "changePassword": "Đổi mật khẩu",
+    "bio": "Tiểu sử",
+    "location": "Địa chỉ",
+    "website": "Website",
+    "joined": "Tham gia"
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "general": "Chung",
+    "account": "Tài khoản",
+    "privacy": "Riêng tư",
+    "notifications": "Thông báo",
+    "appearance": "Giao diện",
+    "language": "Ngôn ngữ",
+    "theme": "Chủ đề"
+  },
+  "admin": {
+    "title": "Quản trị",
+    "dashboard": "Bảng điều khiển",
+    "users": "Người dùng",
+    "roles": "Vai trò",
+    "reports": "Báo cáo",
+    "analytics": "Phân tích"
   }
 }

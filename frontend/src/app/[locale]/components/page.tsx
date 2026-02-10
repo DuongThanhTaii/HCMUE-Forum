@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -21,39 +24,51 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 
 export default function ComponentsShowcase() {
+  const t = useTranslations('components');
+  const tButtons = useTranslations('components.buttons');
+  const tForms = useTranslations('components.forms');
+  const tCards = useTranslations('components.cards');
+  const tAvatars = useTranslations('components.avatars');
+  const tColors = useTranslations('components.colorPalette');
+  const tStatus = useTranslations('components.status');
+
   return (
     <div className="bg-background min-h-screen p-8">
       <div className="mx-auto max-w-7xl space-y-12">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-foreground text-4xl font-bold">🎨 UniHub Component Showcase</h1>
+            <h1 className="text-foreground text-4xl font-bold">🎨 {t('title')}</h1>
             <p className="text-muted-foreground mt-2 text-lg">
-              Shadcn UI với Cerulean Blue #124874 & Jasper Red #CF373D
+              {t('subtitle')}
             </p>
           </div>
-          <ThemeToggle />
+          <div className="flex gap-2">
+            <ThemeToggle />
+            <LanguageSwitcher />
+          </div>
         </div>
 
         {/* Buttons Section */}
         <section className="space-y-4">
           <div>
-            <h2 className="text-2xl font-semibold">Buttons</h2>
+            <h2 className="text-2xl font-semibold">{tButtons('title')}</h2>
             <p className="text-muted-foreground text-sm">
-              Primary sử dụng Cerulean Blue, Destructive sử dụng Jasper Red
+              Primary uses Cerulean Blue, Destructive uses Jasper Red
             </p>
           </div>
           <Card>
             <CardContent className="pt-6">
               <div className="flex flex-wrap gap-4">
-                <Button variant="default">Primary Button</Button>
-                <Button variant="secondary">Secondary</Button>
-                <Button variant="destructive">Destructive</Button>
-                <Button variant="outline">Outline</Button>
-                <Button variant="ghost">Ghost</Button>
-                <Button variant="link">Link</Button>
+                <Button variant="default">{tButtons('default')}</Button>
+                <Button variant="secondary">{tButtons('secondary')}</Button>
+                <Button variant="destructive">{tButtons('destructive')}</Button>
+                <Button variant="outline">{tButtons('outline')}</Button>
+                <Button variant="ghost">{tButtons('ghost')}</Button>
+                <Button variant="link">{tButtons('link')}</Button>
               </div>
               <Separator className="my-4" />
               <div className="flex flex-wrap gap-4">
@@ -68,50 +83,48 @@ export default function ComponentsShowcase() {
 
         {/* Forms Section */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-semibold">Forms</h2>
+          <h2 className="text-2xl font-semibold">{tForms('title')}</h2>
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Login Form</CardTitle>
-                <CardDescription>Nhập email và mật khẩu của bạn</CardDescription>
+                <CardTitle>{tForms('loginTitle')}</CardTitle>
+                <CardDescription>{tForms('loginSubtitle')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="student@unihub.edu.vn" />
+                  <Input id="email" type="email" placeholder={tForms('emailPlaceholder')} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Mật khẩu</Label>
-                  <Input id="password" type="password" placeholder="••••••••" />
+                  <Label htmlFor="password">Password</Label>
+                  <Input id="password" type="password" placeholder={tForms('passwordPlaceholder')} />
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
-                <Button variant="outline">Hủy</Button>
-                <Button>Đăng nhập</Button>
+                <Button variant="outline">{tForms('loginButton')}</Button>
               </CardFooter>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Profile Settings</CardTitle>
-                <CardDescription>Cập nhật thông tin cá nhân</CardDescription>
+                <CardTitle>{tForms('profileTitle')}</CardTitle>
+                <CardDescription>{tForms('profileSubtitle')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Họ và tên</Label>
-                  <Input id="name" placeholder="Nguyễn Văn A" defaultValue="Nguyễn Văn A" />
+                  <Label htmlFor="name">Name</Label>
+                  <Input id="name" placeholder={tForms('namePlaceholder')} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="bio">Bio</Label>
                   <Input
                     id="bio"
-                    placeholder="Sinh viên năm 3..."
-                    defaultValue="Sinh viên ĐHSP TPHCM"
+                    placeholder={tForms('bioPlaceholder')}
                   />
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="w-full">Lưu thay đổi</Button>
+                <Button className="w-full">{tForms('saveButton')}</Button>
               </CardFooter>
             </Card>
           </div>
@@ -119,44 +132,42 @@ export default function ComponentsShowcase() {
 
         {/* Cards & Badges */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-semibold">Cards & Badges</h2>
+          <h2 className="text-2xl font-semibold">{tCards('title')}</h2>
           <div className="grid gap-4 md:grid-cols-3">
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Diễn đàn</CardTitle>
-                  <Badge>125 bài viết</Badge>
+                  <CardTitle>{tCards('forum.title')}</CardTitle>
+                  <Badge>125 {tCards('forum.posts')}</Badge>
                 </div>
-                <CardDescription>Thảo luận với cộng đồng sinh viên</CardDescription>
+                <CardDescription>{tCards('forum.description')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm">
-                  Tham gia cùng hàng nghìn sinh viên để chia sẻ kiến thức, giải đáp thắc mắc và trao
-                  đổi kinh nghiệm học tập.
+                  Join thousands of students to share knowledge and exchange experiences.
                 </p>
               </CardContent>
               <CardFooter>
-                <Button className="w-full">Xem diễn đàn</Button>
+                <Button className="w-full">View Forum</Button>
               </CardFooter>
             </Card>
 
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Tài liệu học tập</CardTitle>
-                  <Badge variant="secondary">847 tài liệu</Badge>
+                  <CardTitle>{tCards('documents.title')}</CardTitle>
+                  <Badge variant="secondary">847 {tCards('documents.count')}</Badge>
                 </div>
-                <CardDescription>Kho tài liệu phong phú</CardDescription>
+                <CardDescription>{tCards('documents.description')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm">
-                  Truy cập thư viện tài liệu đa dạng từ giáo trình, bài giảng đến đề thi các môn
-                  học, được chia sẻ bởi cộng đồng.
+                  Access a diverse library of textbooks, lectures, and exams shared by the community.
                 </p>
               </CardContent>
               <CardFooter>
                 <Button variant="outline" className="w-full">
-                  Tìm tài liệu
+                  Browse Documents
                 </Button>
               </CardFooter>
             </Card>
@@ -164,20 +175,19 @@ export default function ComponentsShowcase() {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Việc làm</CardTitle>
-                  <Badge variant="destructive">32 việc mới</Badge>
+                  <CardTitle>{tCards('jobs.title')}</CardTitle>
+                  <Badge variant="destructive">32 {tCards('jobs.new')}</Badge>
                 </div>
-                <CardDescription>Cơ hội nghề nghiệp</CardDescription>
+                <CardDescription>{tCards('jobs.description')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm">
-                  Khám phá các cơ hội thực tập và việc làm phù hợp với chuyên ngành, được cập nhật
-                  liên tục từ doanh nghiệp.
+                  Discover internship and job opportunities matching your field of study.
                 </p>
               </CardContent>
               <CardFooter>
                 <Button variant="secondary" className="w-full">
-                  Xem việc làm
+                  View Jobs
                 </Button>
               </CardFooter>
             </Card>
@@ -186,12 +196,12 @@ export default function ComponentsShowcase() {
 
         {/* Avatars & Dialog */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-semibold">Avatars & Dialogs</h2>
+          <h2 className="text-2xl font-semibold">{tAvatars('title')}</h2>
           <Card>
             <CardContent className="pt-6">
               <div className="flex flex-wrap items-center gap-6">
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Default Avatar</p>
+                  <p className="text-sm font-medium">{tAvatars('default')}</p>
                   <Avatar>
                     <AvatarImage src="https://github.com/shadcn.png" alt="User" />
                     <AvatarFallback>NV</AvatarFallback>
@@ -199,14 +209,14 @@ export default function ComponentsShowcase() {
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Fallback Avatar</p>
+                  <p className="text-sm font-medium">{tAvatars('fallback')}</p>
                   <Avatar>
                     <AvatarFallback>AB</AvatarFallback>
                   </Avatar>
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Large Avatar</p>
+                  <p className="text-sm font-medium">{tAvatars('large')}</p>
                   <Avatar className="h-16 w-16">
                     <AvatarFallback className="text-lg">UV</AvatarFallback>
                   </Avatar>
@@ -215,22 +225,21 @@ export default function ComponentsShowcase() {
                 <Separator orientation="vertical" className="h-20" />
 
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Dialog Example</p>
+                  <p className="text-sm font-medium">Dialog</p>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button>Mở Dialog</Button>
+                      <Button>{tAvatars('openDialog')}</Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Xác nhận hành động</DialogTitle>
+                        <DialogTitle>{tAvatars('dialogTitle')}</DialogTitle>
                         <DialogDescription>
-                          Bạn có chắc chắn muốn thực hiện hành động này không? Hành động này không
-                          thể hoàn tác.
+                          {tAvatars('dialogDescription')}
                         </DialogDescription>
                       </DialogHeader>
                       <div className="flex justify-end gap-4 pt-4">
-                        <Button variant="outline">Hủy</Button>
-                        <Button variant="destructive">Xác nhận</Button>
+                        <Button variant="outline">{tAvatars('dialogCancel')}</Button>
+                        <Button variant="destructive">{tAvatars('dialogContinue')}</Button>
                       </div>
                     </DialogContent>
                   </Dialog>
@@ -242,11 +251,11 @@ export default function ComponentsShowcase() {
 
         {/* Color Palette */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-semibold">UniHub Color Palette</h2>
+          <h2 className="text-2xl font-semibold">{tColors('title')}</h2>
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Primary - Cerulean Blue</CardTitle>
+                <CardTitle>{tColors('cerulean')}</CardTitle>
                 <CardDescription>#124874</CardDescription>
               </CardHeader>
               <CardContent>
@@ -254,7 +263,7 @@ export default function ComponentsShowcase() {
                   {[50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((shade) => (
                     <div
                       key={shade}
-                      className={`h-12 rounded-md bg-primary-${shade} flex items-center justify-center text-xs font-medium`}
+                      className={`h-12 rounded-md bg-primary flex items-center justify-center text-xs font-medium text-primary-foreground`}
                       style={{ backgroundColor: `var(--color-primary-${shade}, #124874)` }}
                     >
                       {shade}
@@ -266,7 +275,7 @@ export default function ComponentsShowcase() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Accent - Jasper Red</CardTitle>
+                <CardTitle>{tColors('jasper')}</CardTitle>
                 <CardDescription>#CF373D</CardDescription>
               </CardHeader>
               <CardContent>
@@ -274,7 +283,7 @@ export default function ComponentsShowcase() {
                   {[50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((shade) => (
                     <div
                       key={shade}
-                      className={`h-12 rounded-md bg-accent-${shade} flex items-center justify-center text-xs font-medium`}
+                      className={`h-12 rounded-md bg-accent flex items-center justify-center text-xs font-medium text-accent-foreground`}
                       style={{ backgroundColor: `var(--color-accent-${shade}, #CF373D)` }}
                     >
                       {shade}
@@ -290,7 +299,7 @@ export default function ComponentsShowcase() {
         <Card className="border-primary/20 bg-primary/5">
           <CardHeader>
             <CardTitle className="text-primary">
-              ✅ TASK-102: GAIA UI + Shadcn Setup - HOÀN THÀNH
+              ✅ {tStatus('title')} - {tStatus('completed')}
             </CardTitle>
           </CardHeader>
           <CardContent>

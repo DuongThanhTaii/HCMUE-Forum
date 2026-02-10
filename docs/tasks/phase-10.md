@@ -578,7 +578,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 - ✅ Configure Tailwind CSS v4 (already done in TASK-101)
 - ✅ Install Shadcn/ui base components (Button, Card, Input, Label, Badge, Avatar, Dialog, Separator)
-- ✅ Install Radix UI primitives (@radix-ui/react-*)
+- ✅ Install Radix UI primitives (@radix-ui/react-\*)
 - ✅ Configure component registry (components.json)
 - ✅ Setup dark mode with ThemeProvider and ThemeToggle
 - ✅ Update dark mode colors with Cerulean & Jasper palette
@@ -805,18 +805,27 @@ export function cn(...inputs: ClassValue[]) {
 | Property         | Value                         |
 | ---------------- | ----------------------------- |
 | **ID**           | TASK-103                      |
-| **Status**       | ⬜ NOT_STARTED                |
+| **Status**       | ✅ COMPLETED                  |
 | **Priority**     | 🔴 Critical                   |
 | **Estimate**     | 3 hours                       |
+| **Actual**       | 2 hours                       |
 | **Branch**       | `feature/TASK-103-i18n-setup` |
 | **Dependencies** | TASK-101                      |
 
-**Objectives:**
+**Completion Date**: 2026-02-10
 
-- Configure next-intl for i18n
-- Setup Vietnamese and English translations
-- Create language switcher component
-- Configure routing for locales
+**Objectives**: ✅ All completed
+
+- ✅ Configure next-intl for i18n
+- ✅ Setup Vietnamese and English translations
+- ✅ Create language switcher component (Globe icon with VI/EN toggle)
+- ✅ Configure routing for locales (/vi/*, /en/*)
+- ✅ Update next.config.ts with next-intl plugin
+- ✅ Create i18n middleware for locale detection
+- ✅ Restructure app directory with [locale] routing
+- ✅ Expand translation files with comprehensive messages (150+ keys)
+- ✅ Update component showcase with translations
+- ✅ Production build verified (10 static pages generated)
 
 **Files to Create:**
 
