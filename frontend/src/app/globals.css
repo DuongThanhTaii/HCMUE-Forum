@@ -1,5 +1,4 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -46,39 +45,62 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+/* Light Mode - UniHub Theme với Cerulean Blue #124874 và Jasper Red #CF373D */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --radius: 0.5rem;
+
+  /* Background & Foreground */
+  --background: oklch(1 0 0); /* White */
+  --foreground: oklch(0.25 0.02 240); /* Dark blue-gray */
+
+  /* Card */
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.25 0.02 240);
+
+  /* Popover */
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --popover-foreground: oklch(0.25 0.02 240);
+
+  /* Primary - Cerulean Blue #124874 */
+  --primary: oklch(0.35 0.095 245); /* #124874 */
+  --primary-foreground: oklch(1 0 0); /* White */
+
+  /* Accent - Jasper Red #CF373D */
+  --accent: oklch(0.52 0.2 15); /* #CF373D */
+  --accent-foreground: oklch(1 0 0); /* White */
+
+  /* Secondary */
+  --secondary: oklch(0.96 0.01 240);
+  --secondary-foreground: oklch(0.25 0.02 240);
+
+  /* Muted */
+  --muted: oklch(0.96 0.01 240);
+  --muted-foreground: oklch(0.5 0.02 240);
+
+  /* Destructive - Using Jasper Red */
+  --destructive: oklch(0.52 0.2 15);
+
+  /* Border & Input */
+  --border: oklch(0.9 0.01 240);
+  --input: oklch(0.9 0.01 240);
+  --ring: oklch(0.35 0.095 245); /* Primary color */
+
+  /* Charts - Using primary and accent variations */
+  --chart-1: oklch(0.35 0.095 245); /* Cerulean */
+  --chart-2: oklch(0.52 0.2 15); /* Jasper */
+  --chart-3: oklch(0.5 0.05 240); /* Gray */
+  --chart-4: oklch(0.45 0.12 245); /* Light Cerulean */
+  --chart-5: oklch(0.65 0.15 15); /* Light Jasper */
+
+  /* Sidebar */
+  --sidebar: oklch(0.98 0 0);
+  --sidebar-foreground: oklch(0.25 0.02 240);
+  --sidebar-primary: oklch(0.35 0.095 245);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.96 0.01 240);
+  --sidebar-accent-foreground: oklch(0.25 0.02 240);
+  --sidebar-border: oklch(0.9 0.01 240);
+  --sidebar-ring: oklch(0.35 0.095 245);
 }
 
 .dark {
