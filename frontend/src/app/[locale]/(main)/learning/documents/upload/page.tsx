@@ -95,7 +95,7 @@ export default function UploadDocumentPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-3xl">
+    <div className="container mx-auto max-w-3xl py-8">
       <Button variant="ghost" onClick={() => router.back()} className="mb-6">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Quay lại
@@ -104,7 +104,7 @@ export default function UploadDocumentPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Tải lên tài liệu</CardTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Chia sẻ tài liệu học tập với cộng đồng sinh viên
           </p>
         </CardHeader>
@@ -137,12 +137,12 @@ export default function UploadDocumentPage() {
                 rows={4}
                 maxLength={2000}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {formData.description.length}/2000 ký tự
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>
                   Khoa <span className="text-destructive">*</span>
@@ -222,9 +222,9 @@ export default function UploadDocumentPage() {
               <FileUploader value={file} onChange={setFile} disabled={isUploading} />
             </div>
 
-            <div className="bg-muted/50 border rounded-lg p-4 text-sm text-muted-foreground">
-              <p className="font-medium mb-2">Lưu ý:</p>
-              <ul className="list-disc list-inside space-y-1">
+            <div className="bg-muted/50 text-muted-foreground rounded-lg border p-4 text-sm">
+              <p className="mb-2 font-medium">Lưu ý:</p>
+              <ul className="list-inside list-disc space-y-1">
                 <li>Tài liệu sẽ được kiểm duyệt trước khi công khai</li>
                 <li>Chỉ tải lên tài liệu học tập hợp lệ</li>
                 <li>Không tải lên tài liệu có bản quyền</li>

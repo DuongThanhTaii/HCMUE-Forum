@@ -431,7 +431,58 @@
     "send": "Send",
     "online": "Online",
     "offline": "Offline",
-    "typing": "typing..."
+    "typing": "typing...",
+    "welcome": "Welcome to Chat",
+    "selectConversation": "Select a conversation to start",
+    "noConversations": "No conversations yet",
+    "loadError": "Cannot load conversations",
+    "cannotLoadMessages": "Cannot load messages",
+    "sendError": "Cannot send message",
+    "uploadError": "Cannot upload file",
+    "maxFileSize": "Maximum file size 10MB",
+    "attachFile": "Attach file",
+    "attachment": "Attachment",
+    "loadMore": "Load more messages",
+    "edited": "edited",
+    "channelsPage": {
+      "title": "Channels",
+      "subtitle": "Join public channels and chat with everyone",
+      "publicChannels": "Public channels",
+      "myChannels": "My channels",
+      "noPublicChannels": "No public channels",
+      "notJoinedAny": "You haven't joined any channels",
+      "joinChannel": "Join channel",
+      "openChannel": "Open channel",
+      "createdBy": "Created by:",
+      "members": "members",
+      "noDescription": "No description",
+      "joinSuccess": "Joined channel",
+      "joinError": "Cannot join channel"
+    },
+    "aiPage": {
+      "title": "UniBot AI",
+      "assistant": "Your intelligent AI assistant",
+      "newConversation": "New conversation",
+      "noConversations": "No conversations yet",
+      "messageCount": "{count} messages",
+      "greeting": "Hello! I'm UniBot AI",
+      "description": "I can help you answer questions, find information, and support your learning tasks. Ask me anything!",
+      "askUniBot": "Ask UniBot...",
+      "sendError": "Cannot send message to AI",
+      "toolCalling": "Calling: {tool}"
+    },
+    "typingIndicator": {
+      "single": "{user} is typing...",
+      "double": "{user1} and {user2} are typing...",
+      "multiple": "{user} and {count} others are typing..."
+    },
+    "connectionStatus": {
+      "connecting": "Connecting...",
+      "connected": "Connected",
+      "reconnecting": "Reconnecting...",
+      "disconnected": "Disconnected",
+      "connectionFailed": "Failed to connect to chat server"
+    }
   },
   "profile": {
     "title": "Profile",

@@ -32,15 +32,13 @@ export default function CoursesPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="container mx-auto space-y-6 py-8">
       <div>
         <h1 className="text-3xl font-bold">Danh sách môn học</h1>
-        <p className="text-muted-foreground mt-1">
-          Khám phá các môn học và tài liệu liên quan
-        </p>
+        <p className="text-muted-foreground mt-1">Khám phá các môn học và tài liệu liên quan</p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <Select
           value={filters.facultyId || 'all'}
           onValueChange={(value) =>
@@ -82,38 +80,36 @@ export default function CoursesPage() {
 
       {isLoading && (
         <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="text-primary h-8 w-8 animate-spin" />
         </div>
       )}
 
       {isError && (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-destructive">Không thể tải danh sách môn học</p>
         </div>
       )}
 
       {data && data.items.length === 0 && (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-muted-foreground">Không tìm thấy môn học nào</p>
         </div>
       )}
 
       {data && data.items.length > 0 && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {data.items.map((course) => (
-              <Card key={course.id} className="hover:shadow-md transition-shadow">
+              <Card key={course.id} className="transition-shadow hover:shadow-md">
                 <CardHeader>
                   <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg line-clamp-2">{course.name}</CardTitle>
+                    <CardTitle className="line-clamp-2 text-lg">{course.name}</CardTitle>
                     <Badge variant="secondary">HK{course.semester}</Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground">Mã: {course.code}</p>
+                  <p className="text-muted-foreground text-sm">Mã: {course.code}</p>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {course.description}
-                  </p>
+                  <p className="text-muted-foreground line-clamp-2 text-sm">{course.description}</p>
 
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Khoa:</span>
@@ -125,15 +121,13 @@ export default function CoursesPage() {
                     <span className="font-medium">{course.credits}</span>
                   </div>
 
-                  <div className="flex items-center justify-between text-sm pt-2 border-t">
-                    <div className="flex items-center space-x-1 text-muted-foreground">
+                  <div className="flex items-center justify-between border-t pt-2 text-sm">
+                    <div className="text-muted-foreground flex items-center space-x-1">
                       <FileText className="h-4 w-4" />
                       <span>{course.documentCount} tài liệu</span>
                     </div>
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/learning/documents?courseId=${course.id}`}>
-                        Xem tài liệu
-                      </Link>
+                      <Link href={`/learning/documents?courseId=${course.id}`}>Xem tài liệu</Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -142,7 +136,7 @@ export default function CoursesPage() {
           </div>
 
           {data.totalPages > 1 && (
-            <div className="flex justify-center items-center space-x-2 pt-6">
+            <div className="flex items-center justify-center space-x-2 pt-6">
               <Button
                 variant="outline"
                 onClick={() => handlePageChange(data.page - 1)}
@@ -150,7 +144,7 @@ export default function CoursesPage() {
               >
                 Trước
               </Button>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 Trang {data.page} / {data.totalPages}
               </span>
               <Button

@@ -431,7 +431,58 @@
     "send": "Gửi",
     "online": "Trực tuyến",
     "offline": "Ngoại tuyến",
-    "typing": "đang nhập..."
+    "typing": "đang nhập...",
+    "welcome": "Chào mừng đến với Chat",
+    "selectConversation": "Chọn một cuộc trò chuyện để bắt đầu",
+    "noConversations": "Chưa có cuộc trò chuyện nào",
+    "loadError": "Không thể tải danh sách cuộc trò chuyện",
+    "cannotLoadMessages": "Không thể tải tin nhắn",
+    "sendError": "Không thể gửi tin nhắn",
+    "uploadError": "Không thể tải file lên",
+    "maxFileSize": "Kích thước file tối đa 10MB",
+    "attachFile": "Đính kèm file",
+    "attachment": "File đính kèm",
+    "loadMore": "Tải thêm tin nhắn",
+    "edited": "đã chỉnh sửa",
+    "channels Page": {
+      "title": "Kênh trò chuyện",
+      "subtitle": "Tham gia các kênh công khai và trò chuyện với mọi người",
+      "publicChannels": "Kênh công khai",
+      "myChannels": "Kênh của tôi",
+      "noPublicChannels": "Không có kênh công khai nào",
+      "notJoinedAny": "Bạn chưa tham gia kênh nào",
+      "joinChannel": "Tham gia kênh",
+      "openChannel": "Mở kênh",
+      "createdBy": "Tạo bởi:",
+      "members": "thành viên",
+      "noDescription": "Không có mô tả",
+      "joinSuccess": "Đã tham gia kênh",
+      "joinError": "Không thể tham gia kênh"
+    },
+    "aiPage": {
+      "title": "UniBot AI",
+      "assistant": "Trợ lý AI thông minh của bạn",
+      "newConversation": "Cuộc trò chuyện mới",
+      "noConversations": "Chưa có cuộc trò chuyện nào",
+      "messageCount": "{count} tin nhắn",
+      "greeting": "Xin chào! Tôi là UniBot AI",
+      "description": "Tôi có thể giúp bạn trả lời câu hỏi, tìm kiếm thông tin, và hỗ trợ các tác vụ học tập. Hãy hỏi tôi bất cứ điều gì!",
+      "askUniBot": "Hỏi UniBot...",
+      "sendError": "Không thể gửi tin nhắn đến AI",
+      "toolCalling": "Calling: {tool}"
+    },
+    "typing Indicator": {
+      "single": "{user} đang nhập...",
+      "double": "{user1} và {user2} đang nhập...",
+      "multiple": "{user} và {count} người khác đang nhập..."
+    },
+    "connectionStatus": {
+      "connecting": "Đang kết nối...",
+      "connected": "Đã kết nối",
+      "reconnecting": "Đang kết nối lại...",
+      "disconnected": "Mất kết nối",
+      "connectionFailed": "Không thể kết nối đến máy chủ chat"
+    }
   },
   "profile": {
     "title": "Hồ sơ",

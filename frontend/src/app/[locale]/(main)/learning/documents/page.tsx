@@ -27,13 +27,11 @@ export default function DocumentsPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="container mx-auto space-y-6 py-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Tài liệu học tập</h1>
-          <p className="text-muted-foreground mt-1">
-            Khám phá và tải xuống tài liệu học tập
-          </p>
+          <p className="text-muted-foreground mt-1">Khám phá và tải xuống tài liệu học tập</p>
         </div>
         <Button asChild>
           <Link href="/learning/documents/upload">
@@ -47,32 +45,32 @@ export default function DocumentsPage() {
 
       {isLoading && (
         <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="text-primary h-8 w-8 animate-spin" />
         </div>
       )}
 
       {isError && (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-destructive">Không thể tải danh sách tài liệu</p>
         </div>
       )}
 
       {data && data.items.length === 0 && (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-muted-foreground">Không tìm thấy tài liệu nào</p>
         </div>
       )}
 
       {data && data.items.length > 0 && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {data.items.map((document) => (
               <DocumentCard key={document.id} document={document} />
             ))}
           </div>
 
           {data.totalPages > 1 && (
-            <div className="flex justify-center items-center space-x-2 pt-6">
+            <div className="flex items-center justify-center space-x-2 pt-6">
               <Button
                 variant="outline"
                 onClick={() => handlePageChange(data.page - 1)}
@@ -80,7 +78,7 @@ export default function DocumentsPage() {
               >
                 Trước
               </Button>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 Trang {data.page} / {data.totalPages}
               </span>
               <Button

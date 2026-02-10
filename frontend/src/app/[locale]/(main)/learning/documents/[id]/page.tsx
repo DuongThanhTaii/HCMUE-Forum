@@ -46,8 +46,8 @@ export default function DocumentDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-8 flex justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="container mx-auto flex justify-center py-8">
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -67,14 +67,14 @@ export default function DocumentDetailPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="container mx-auto space-y-6 py-8">
       <Button variant="ghost" onClick={() => router.back()}>
         <ArrowLeft className="mr-2 h-4 w-4" />
         Quay lại
       </Button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
           <Card>
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -87,7 +87,7 @@ export default function DocumentDetailPage() {
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">{document.description}</p>
 
-              <div className="flex items-center space-x-6 text-sm text-muted-foreground">
+              <div className="text-muted-foreground flex items-center space-x-6 text-sm">
                 <div className="flex items-center space-x-1">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                   <span className="font-medium">{document.averageRating.toFixed(1)}</span>
@@ -116,12 +116,12 @@ export default function DocumentDetailPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Đánh giá của bạn</label>
+                <label className="mb-2 block text-sm font-medium">Đánh giá của bạn</label>
                 <RatingStars value={rating} onChange={setRating} size="lg" />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">Nhận xét (tùy chọn)</label>
+                <label className="mb-2 block text-sm font-medium">Nhận xét (tùy chọn)</label>
                 <Textarea
                   placeholder="Chia sẻ ý kiến của bạn về tài liệu này..."
                   value={review}
@@ -129,9 +129,7 @@ export default function DocumentDetailPage() {
                   maxLength={500}
                   rows={4}
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {review.length}/500 ký tự
-                </p>
+                <p className="text-muted-foreground mt-1 text-xs">{review.length}/500 ký tự</p>
               </div>
 
               <Button
@@ -152,36 +150,38 @@ export default function DocumentDetailPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-start space-x-2">
-                <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <FileText className="text-muted-foreground mt-0.5 h-5 w-5" />
                 <div>
                   <p className="text-sm font-medium">Tên file</p>
-                  <p className="text-sm text-muted-foreground">{document.fileName}</p>
+                  <p className="text-muted-foreground text-sm">{document.fileName}</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-2">
-                <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <FileText className="text-muted-foreground mt-0.5 h-5 w-5" />
                 <div>
                   <p className="text-sm font-medium">Kích thước</p>
-                  <p className="text-sm text-muted-foreground">{formatFileSize(document.fileSize)}</p>
+                  <p className="text-muted-foreground text-sm">
+                    {formatFileSize(document.fileSize)}
+                  </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-2">
-                <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <Calendar className="text-muted-foreground mt-0.5 h-5 w-5" />
                 <div>
                   <p className="text-sm font-medium">Ngày tải lên</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     {format(new Date(document.createdAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-2">
-                <User className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <User className="text-muted-foreground mt-0.5 h-5 w-5" />
                 <div>
                   <p className="text-sm font-medium">Tải lên bởi</p>
-                  <p className="text-sm text-muted-foreground">{document.uploader.fullName}</p>
+                  <p className="text-muted-foreground text-sm">{document.uploader.fullName}</p>
                 </div>
               </div>
             </CardContent>
@@ -193,10 +193,8 @@ export default function DocumentDetailPage() {
             </CardHeader>
             <CardContent className="space-y-2">
               <p className="font-medium">{document.course.name}</p>
-              <p className="text-sm text-muted-foreground">Mã: {document.course.code}</p>
-              <p className="text-sm text-muted-foreground">
-                Khoa: {document.course.faculty.name}
-              </p>
+              <p className="text-muted-foreground text-sm">Mã: {document.course.code}</p>
+              <p className="text-muted-foreground text-sm">Khoa: {document.course.faculty.name}</p>
             </CardContent>
           </Card>
         </div>

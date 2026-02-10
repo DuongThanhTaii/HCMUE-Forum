@@ -63,28 +63,26 @@ export default function ApprovalQueuePage() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="container mx-auto space-y-6 py-8">
       <div>
         <h1 className="text-3xl font-bold">Kiểm duyệt tài liệu</h1>
-        <p className="text-muted-foreground mt-1">
-          Phê duyệt hoặc từ chối tài liệu chờ kiểm duyệt
-        </p>
+        <p className="text-muted-foreground mt-1">Phê duyệt hoặc từ chối tài liệu chờ kiểm duyệt</p>
       </div>
 
       {isLoading && (
         <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="text-primary h-8 w-8 animate-spin" />
         </div>
       )}
 
       {isError && (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-destructive">Không thể tải danh sách tài liệu</p>
         </div>
       )}
 
       {documents && documents.length === 0 && (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-muted-foreground">Không có tài liệu nào đang chờ duyệt</p>
         </div>
       )}
@@ -96,28 +94,28 @@ export default function ApprovalQueuePage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-xl mb-2">{document.title}</CardTitle>
+                    <CardTitle className="mb-2 text-xl">{document.title}</CardTitle>
                     <Badge variant="secondary">Chờ duyệt</Badge>
                   </div>
-                  <FileText className="h-6 w-6 text-muted-foreground" />
+                  <FileText className="text-muted-foreground h-6 w-6" />
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">{document.description}</p>
+                <p className="text-muted-foreground text-sm">{document.description}</p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
                   <div className="space-y-2">
                     <div className="flex items-start space-x-2">
-                      <User className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <User className="text-muted-foreground mt-0.5 h-4 w-4" />
                       <div>
                         <p className="font-medium">Người tải lên</p>
                         <p className="text-muted-foreground">{document.uploader.fullName}</p>
-                        <p className="text-xs text-muted-foreground">{document.uploader.email}</p>
+                        <p className="text-muted-foreground text-xs">{document.uploader.email}</p>
                       </div>
                     </div>
 
                     <div className="flex items-start space-x-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <Calendar className="text-muted-foreground mt-0.5 h-4 w-4" />
                       <div>
                         <p className="font-medium">Ngày tải lên</p>
                         <p className="text-muted-foreground">
@@ -131,7 +129,7 @@ export default function ApprovalQueuePage() {
                     <div>
                       <p className="font-medium">Môn học</p>
                       <p className="text-muted-foreground">{document.course.name}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs">
                         Khoa: {document.course.faculty.name}
                       </p>
                     </div>
@@ -139,14 +137,14 @@ export default function ApprovalQueuePage() {
                     <div>
                       <p className="font-medium">File</p>
                       <p className="text-muted-foreground">{document.fileName}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs">
                         {formatFileSize(document.fileSize)}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t">
+                <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row">
                   <Button
                     variant="default"
                     onClick={() => handleApprove(document.id)}
@@ -179,13 +177,14 @@ export default function ApprovalQueuePage() {
         </div>
       )}
 
-      <Dialog open={rejectDialog.isOpen} onOpenChange={(open) => !open && setRejectDialog({ isOpen: false, document: null })}>
+      <Dialog
+        open={rejectDialog.isOpen}
+        onOpenChange={(open) => !open && setRejectDialog({ isOpen: false, document: null })}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Từ chối tài liệu</DialogTitle>
-            <DialogDescription>
-              Vui lòng nhập lý do từ chối tài liệu này
-            </DialogDescription>
+            <DialogDescription>Vui lòng nhập lý do từ chối tài liệu này</DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             <Label htmlFor="reason">Lý do từ chối</Label>
@@ -197,7 +196,7 @@ export default function ApprovalQueuePage() {
               rows={4}
               maxLength={500}
             />
-            <p className="text-xs text-muted-foreground">{rejectReason.length}/500 ký tự</p>
+            <p className="text-muted-foreground text-xs">{rejectReason.length}/500 ký tự</p>
           </div>
           <DialogFooter>
             <Button
