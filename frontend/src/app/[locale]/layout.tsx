@@ -3,7 +3,9 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/shared/ThemeProvider';
+import { QueryProvider } from '@/components/shared/QueryProvider';
 import { routing } from '@/lib/i18n/routing';
+import { Toaster } from 'sonner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -47,7 +49,10 @@ export default async function LocaleLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <QueryProvider>
+              {children}
+              <Toaster position="top-right" richColors />
+            </QueryProvider>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>
