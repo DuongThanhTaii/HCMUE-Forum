@@ -165,6 +165,8 @@
   "forum": {
     "title": "Diễn đàn",
     "createPost": "Tạo bài viết",
+    "editPost": "Chỉnh sửa bài viết",
+    "deletePost": "Xóa bài viết",
     "allPosts": "Tất cả bài viết",
     "myPosts": "Bài viết của tôi",
     "trending": "Xu hướng",
@@ -175,9 +177,94 @@
     "comments": "bình luận",
     "vote": "Bình chọn",
     "votes": "lượt bình chọn",
+    "upvote": "Upvote",
+    "downvote": "Downvote",
     "share": "Chia sẻ",
     "bookmark": "Đánh dấu",
-    "report": "Báo cáo"
+    "unbookmark": "Bỏ lưu",
+    "report": "Báo cáo",
+    "pinned": "Đã ghim",
+    "pin": "Ghim bài viết",
+    "category": "Danh mục",
+    "categories": "Danh mục",
+    "allCategories": "Tất cả danh mục",
+    "tag": "Tag",
+    "tags": "Tags",
+    "popularTags": "Tags phổ biến",
+    "addTag": "Thêm tag",
+    "type": {
+      "discussion": "Thảo luận",
+      "question": "Câu hỏi",
+      "announcement": "Thông báo"
+    },
+    "status": {
+      "draft": "Nháp",
+      "published": "Đã đăng",
+      "archived": "Lưu trữ"
+    },
+    "filter": {
+      "allTypes": "Tất cả loại",
+      "clearFilters": "Xóa bộ lọc"
+    },
+    "form": {
+      "title": "Tiêu đề",
+      "titlePlaceholder": "Nhập tiêu đề bài viết...",
+      "content": "Nội dung",
+      "contentPlaceholder": "Viết nội dung bài viết của bạn...",
+      "selectCategory": "Chọn danh mục",
+      "selectType": "Chọn loại bài viết",
+      "tagPlaceholder": "Nhập tag và nhấn Enter...",
+      "saveDraft": "Lưu nháp",
+      "publish": "Đăng bài viết",
+      "update": "Cập nhật bài viết",
+      "minTitleLength": "Tiêu đề phải có ít nhất 10 ký tự",
+      "maxTitleLength": "Tiêu đề không được vượt quá 200 ký tự",
+      "minContentLength": "Nội dung phải có ít nhất 50 ký tự",
+      "minTags": "Vui lòng thêm ít nhất 1 tag",
+      "maxTags": "Tối đa 5 tags"
+    },
+    "commentSection": {
+      "title": "Bình luận",
+      "noComments": "Chưa có bình luận nào. Hãy là người đầu tiên!",
+      "writeComment": "Viết bình luận của bạn...",
+      "minLength": "Tối thiểu 10 ký tự",
+      "postComment": "Gửi bình luận",
+      "reply": "Trả lời",
+      "cancelReply": "Hủy trả lời",
+      "acceptedAnswer": "Câu trả lời đúng",
+      "author": "Tác giả"
+    },
+    "meta": {
+      "views": "lượt xem",
+      "postedBy": "Đăng bởi",
+      "lastUpdated": "Cập nhật lần cuối",
+      "createdAt": "Tạo lúc"
+    },
+    "empty": {
+      "noPosts": "Chưa có bài viết nào",
+      "noPostsDescription": "Hãy là người đầu tiên chia sẻ kiến thức của bạn",
+      "createFirstPost": "Tạo bài viết đầu tiên"
+    },
+    "error": {
+      "loadFailed": "Không thể tải bài viết",
+      "notFound": "Không tìm thấy bài viết",
+      "notFoundDescription": "Bài viết có thể đã bị xóa hoặc bạn không có quyền truy cập",
+      "createFailed": "Không thể tạo bài viết",
+      "updateFailed": "Không thể cập nhật bài viết",
+      "deleteFailed": "Không thể xóa bài viết",
+      "voteFailed": "Không thể vote",
+      "bookmarkFailed": "Không thể bookmark",
+      "commentFailed": "Không thể thêm bình luận"
+    },
+    "success": {
+      "created": "Tạo bài viết thành công!",
+      "updated": "Cập nhật bài viết thành công!",
+      "deleted": "Xóa bài viết thành công!",
+      "commented": "Thêm bình luận thành công!"
+    },
+    "confirm": {
+      "delete": "Bạn có chắc muốn xóa bài viết này?"
+    }
   },
   "learning": {
     "title": "Học tập",

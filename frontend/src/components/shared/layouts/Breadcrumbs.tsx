@@ -10,14 +10,12 @@ export function Breadcrumbs() {
   const segments = pathname.split('/').filter(Boolean);
 
   // Remove locale from segments
-  const pathSegments = segments[0] === 'vi' || segments[0] === 'en' 
-    ? segments.slice(1) 
-    : segments;
+  const pathSegments = segments[0] === 'vi' || segments[0] === 'en' ? segments.slice(1) : segments;
 
   if (pathSegments.length === 0) return null;
 
   return (
-    <nav className="mb-4 flex items-center space-x-2 text-sm text-muted-foreground">
+    <nav className="text-muted-foreground mb-4 flex items-center space-x-2 text-sm">
       <Link href="/" className="hover:text-foreground">
         <Home className="h-4 w-4" />
       </Link>
@@ -30,7 +28,7 @@ export function Breadcrumbs() {
           <Fragment key={href}>
             <ChevronRight className="h-4 w-4" />
             {isLast ? (
-              <span className="font-medium text-foreground">{label}</span>
+              <span className="text-foreground font-medium">{label}</span>
             ) : (
               <Link href={href} className="hover:text-foreground">
                 {label}

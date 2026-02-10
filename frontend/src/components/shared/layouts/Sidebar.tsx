@@ -33,7 +33,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'hidden border-r bg-muted/10 transition-all duration-300 md:block',
+        'bg-muted/10 hidden border-r transition-all duration-300 md:block',
         collapsed ? 'w-16' : 'w-64'
       )}
     >
@@ -43,15 +43,12 @@ export function Sidebar() {
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-              
+
               return (
                 <Link key={item.href} href={item.href}>
                   <Button
                     variant={isActive ? 'secondary' : 'ghost'}
-                    className={cn(
-                      'w-full',
-                      collapsed ? 'justify-center px-2' : 'justify-start'
-                    )}
+                    className={cn('w-full', collapsed ? 'justify-center px-2' : 'justify-start')}
                   >
                     <Icon className={cn('h-5 w-5', !collapsed && 'mr-3')} />
                     {!collapsed && <span>{t(item.label)}</span>}

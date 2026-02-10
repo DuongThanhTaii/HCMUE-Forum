@@ -16,7 +16,18 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
-import { Menu, X, User, Settings, LogOut, Home, MessageSquare, BookOpen, MessageCircle, Briefcase } from 'lucide-react';
+import {
+  Menu,
+  X,
+  User,
+  Settings,
+  LogOut,
+  Home,
+  MessageSquare,
+  BookOpen,
+  MessageCircle,
+  Briefcase,
+} from 'lucide-react';
 
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -29,29 +40,32 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-lg bg-primary" />
+          <div className="bg-primary h-8 w-8 rounded-lg" />
           <span className="text-xl font-bold">UniHub</span>
         </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex md:items-center md:space-x-6">
-          <Link href="/" className="text-sm font-medium transition-colors hover:text-primary">
+          <Link href="/" className="hover:text-primary text-sm font-medium transition-colors">
             {t('home')}
           </Link>
-          <Link href="/forum" className="text-sm font-medium transition-colors hover:text-primary">
+          <Link href="/forum" className="hover:text-primary text-sm font-medium transition-colors">
             {t('forum')}
           </Link>
-          <Link href="/learning" className="text-sm font-medium transition-colors hover:text-primary">
+          <Link
+            href="/learning"
+            className="hover:text-primary text-sm font-medium transition-colors"
+          >
             {t('learning')}
           </Link>
-          <Link href="/chat" className="text-sm font-medium transition-colors hover:text-primary">
+          <Link href="/chat" className="hover:text-primary text-sm font-medium transition-colors">
             {t('chat')}
           </Link>
-          <Link href="/career" className="text-sm font-medium transition-colors hover:text-primary">
+          <Link href="/career" className="hover:text-primary text-sm font-medium transition-colors">
             {t('career')}
           </Link>
         </div>
@@ -60,16 +74,14 @@ export function Navbar() {
         <div className="flex items-center space-x-2">
           <ThemeToggle />
           <LanguageSwitcher />
-          
+
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar>
                     <AvatarImage src={user?.avatar} alt={user?.fullName} />
-                    <AvatarFallback>
-                      {user?.fullName.charAt(0).toUpperCase()}
-                    </AvatarFallback>
+                    <AvatarFallback>{user?.fullName.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -77,7 +89,7 @@ export function Navbar() {
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium">{user?.fullName}</p>
-                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    <p className="text-muted-foreground text-xs">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -127,41 +139,41 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="border-t md:hidden">
           <div className="container mx-auto space-y-1 px-4 py-4">
-            <Link 
-              href="/" 
-              className="flex items-center rounded px-3 py-2 hover:bg-accent"
+            <Link
+              href="/"
+              className="hover:bg-accent flex items-center rounded px-3 py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               <Home className="mr-3 h-5 w-5" />
               {t('home')}
             </Link>
-            <Link 
-              href="/forum" 
-              className="flex items-center rounded px-3 py-2 hover:bg-accent"
+            <Link
+              href="/forum"
+              className="hover:bg-accent flex items-center rounded px-3 py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               <MessageSquare className="mr-3 h-5 w-5" />
               {t('forum')}
             </Link>
-            <Link 
-              href="/learning" 
-              className="flex items-center rounded px-3 py-2 hover:bg-accent"
+            <Link
+              href="/learning"
+              className="hover:bg-accent flex items-center rounded px-3 py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               <BookOpen className="mr-3 h-5 w-5" />
               {t('learning')}
             </Link>
-            <Link 
-              href="/chat" 
-              className="flex items-center rounded px-3 py-2 hover:bg-accent"
+            <Link
+              href="/chat"
+              className="hover:bg-accent flex items-center rounded px-3 py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               <MessageCircle className="mr-3 h-5 w-5" />
               {t('chat')}
             </Link>
-            <Link 
-              href="/career" 
-              className="flex items-center rounded px-3 py-2 hover:bg-accent"
+            <Link
+              href="/career"
+              className="hover:bg-accent flex items-center rounded px-3 py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               <Briefcase className="mr-3 h-5 w-5" />
@@ -169,17 +181,17 @@ export function Navbar() {
             </Link>
             {!isAuthenticated && (
               <>
-                <div className="h-px bg-border" />
-                <Link 
-                  href="/login" 
-                  className="block rounded px-3 py-2 hover:bg-accent"
+                <div className="bg-border h-px" />
+                <Link
+                  href="/login"
+                  className="hover:bg-accent block rounded px-3 py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t('login')}
                 </Link>
-                <Link 
-                  href="/register" 
-                  className="block rounded px-3 py-2 hover:bg-accent"
+                <Link
+                  href="/register"
+                  className="hover:bg-accent block rounded px-3 py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t('register')}
