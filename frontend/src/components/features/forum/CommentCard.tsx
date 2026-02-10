@@ -22,7 +22,7 @@ export function CommentCard({ comment, postId, onReply, isNested = false }: Comm
   const isAuthor = user?.id === comment.authorId;
 
   return (
-    <div className={`flex gap-3 ${isNested ? 'ml-12 mt-3' : ''}`}>
+    <div className={`flex gap-3 ${isNested ? 'mt-3 ml-12' : ''}`}>
       <Avatar className="h-8 w-8 flex-shrink-0">
         <AvatarImage src={comment.author.avatar} />
         <AvatarFallback>{comment.author.fullName[0]}</AvatarFallback>
@@ -31,7 +31,7 @@ export function CommentCard({ comment, postId, onReply, isNested = false }: Comm
       <div className="flex-1 space-y-2">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="font-medium">{comment.author.fullName}</span>
               {isAuthor && <Badge variant="outline">Tác giả</Badge>}
               {comment.isAccepted && (
@@ -40,7 +40,7 @@ export function CommentCard({ comment, postId, onReply, isNested = false }: Comm
                   Câu trả lời đúng
                 </Badge>
               )}
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 {formatDistanceToNow(new Date(comment.createdAt), {
                   addSuffix: true,
                   locale: vi,
@@ -59,16 +59,11 @@ export function CommentCard({ comment, postId, onReply, isNested = false }: Comm
             commentId={comment.id}
             score={comment.voteScore}
             userVote={comment.userVote}
-            className="flex-row space-y-0 gap-2"
+            className="flex-row gap-2 space-y-0"
           />
-          
+
           {isAuthenticated && !isNested && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onReply(comment.id)}
-              className="h-8"
-            >
+            <Button variant="ghost" size="sm" onClick={() => onReply(comment.id)} className="h-8">
               <Reply className="mr-1 h-4 w-4" />
               Trả lời
             </Button>
@@ -76,7 +71,7 @@ export function CommentCard({ comment, postId, onReply, isNested = false }: Comm
         </div>
 
         {comment.replies && comment.replies.length > 0 && (
-          <div className="space-y-3 mt-3">
+          <div className="mt-3 space-y-3">
             {comment.replies.map((reply) => (
               <CommentCard
                 key={reply.id}

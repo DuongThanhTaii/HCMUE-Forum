@@ -82,7 +82,7 @@ export function PostFilters({ filters, onChange }: PostFiltersProps) {
           #{filters.tag}
           <button
             onClick={() => onChange({ ...filters, tag: undefined })}
-            className="ml-2 hover:text-destructive"
+            className="hover:text-destructive ml-2"
           >
             <X className="h-3 w-3" />
           </button>

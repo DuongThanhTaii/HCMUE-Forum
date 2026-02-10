@@ -26,10 +26,10 @@ export default function ForumPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="container mx-auto space-y-6 px-4 py-6">
       <Breadcrumbs />
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-3xl font-bold">Diễn đàn</h1>
           <p className="text-muted-foreground mt-1">
@@ -48,22 +48,20 @@ export default function ForumPage() {
 
       <div className="grid gap-4">
         {isLoading && filters.page === 1 ? (
-          Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-40 w-full" />
-          ))
+          Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-40 w-full" />)
         ) : error ? (
-          <div className="rounded-lg border border-destructive bg-destructive/10 p-6 text-center">
-            <AlertCircle className="mx-auto h-12 w-12 text-destructive mb-2" />
-            <h3 className="text-lg font-semibold text-destructive">Không thể tải bài viết</h3>
-            <p className="text-sm text-muted-foreground mt-1">
+          <div className="border-destructive bg-destructive/10 rounded-lg border p-6 text-center">
+            <AlertCircle className="text-destructive mx-auto mb-2 h-12 w-12" />
+            <h3 className="text-destructive text-lg font-semibold">Không thể tải bài viết</h3>
+            <p className="text-muted-foreground mt-1 text-sm">
               Vui lòng thử lại sau hoặc liên hệ hỗ trợ
             </p>
           </div>
         ) : data?.items.length === 0 ? (
           <div className="rounded-lg border p-12 text-center">
-            <MessageCircle className="mx-auto h-16 w-16 text-muted-foreground/50 mb-4" />
+            <MessageCircle className="text-muted-foreground/50 mx-auto mb-4 h-16 w-16" />
             <h3 className="text-lg font-semibold">Chưa có bài viết nào</h3>
-            <p className="text-sm text-muted-foreground mt-1 mb-4">
+            <p className="text-muted-foreground mt-1 mb-4 text-sm">
               Hãy là người đầu tiên chia sẻ kiến thức của bạn
             </p>
             <Button asChild>
@@ -91,7 +89,7 @@ export default function ForumPage() {
       </div>
 
       {data && data.items.length > 0 && (
-        <div className="text-center text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-center text-sm">
           Hiển thị {data.items.length} / {data.totalItems} bài viết
         </div>
       )}

@@ -102,7 +102,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
 
   if (isLoadingPost) {
     return (
-      <div className="container mx-auto px-4 py-6 max-w-4xl space-y-6">
+      <div className="container mx-auto max-w-4xl space-y-6 px-4 py-6">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-96 w-full" />
       </div>
@@ -111,12 +111,10 @@ export default function EditPostPage({ params }: EditPostPageProps) {
 
   if (!post) {
     return (
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
-        <div className="rounded-lg border border-destructive bg-destructive/10 p-8 text-center">
-          <AlertCircle className="mx-auto h-12 w-12 text-destructive mb-4" />
-          <h2 className="text-2xl font-bold text-destructive mb-2">
-            Không tìm thấy bài viết
-          </h2>
+      <div className="container mx-auto max-w-4xl px-4 py-6">
+        <div className="border-destructive bg-destructive/10 rounded-lg border p-8 text-center">
+          <AlertCircle className="text-destructive mx-auto mb-4 h-12 w-12" />
+          <h2 className="text-destructive mb-2 text-2xl font-bold">Không tìm thấy bài viết</h2>
           <p className="text-muted-foreground mb-4">
             Bài viết có thể đã bị xóa hoặc bạn không có quyền chỉnh sửa
           </p>
@@ -129,7 +127,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-4xl space-y-6">
+    <div className="container mx-auto max-w-4xl space-y-6 px-4 py-6">
       <Breadcrumbs />
 
       <Card>
@@ -160,7 +158,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="categoryId"
@@ -270,7 +268,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveTag(tag)}
-                                  className="ml-2 hover:text-destructive"
+                                  className="hover:text-destructive ml-2"
                                 >
                                   <X className="h-3 w-3" />
                                 </button>
@@ -280,14 +278,14 @@ export default function EditPostPage({ params }: EditPostPageProps) {
                         )}
 
                         {allTags && allTags.length > 0 && (
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-muted-foreground text-sm">
                             <p className="mb-2">Tags phổ biến:</p>
                             <div className="flex flex-wrap gap-2">
                               {allTags.slice(0, 10).map((tag) => (
                                 <Badge
                                   key={tag.id}
                                   variant="outline"
-                                  className="cursor-pointer hover:bg-secondary"
+                                  className="hover:bg-secondary cursor-pointer"
                                   onClick={() => handleAddTag(tag.name)}
                                 >
                                   #{tag.name}

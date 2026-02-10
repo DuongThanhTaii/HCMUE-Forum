@@ -29,7 +29,7 @@ export function VoteButtons({
   const handleVote = (voteType: VoteType) => {
     // If clicking same vote, remove it
     const newVote = vote === voteType ? null : voteType;
-    
+
     // Calculate score diff
     let scoreDiff = 0;
     if (vote === 'Upvote') scoreDiff -= 1;
@@ -62,7 +62,7 @@ export function VoteButtons({
         onClick={() => handleVote('Upvote')}
         className={cn(
           'h-8 w-8 p-0 hover:bg-orange-100 dark:hover:bg-orange-950',
-          vote === 'Upvote' && 'text-orange-500 bg-orange-100 dark:bg-orange-950'
+          vote === 'Upvote' && 'bg-orange-100 text-orange-500 dark:bg-orange-950'
         )}
         aria-label="Upvote"
       >
@@ -83,7 +83,7 @@ export function VoteButtons({
         onClick={() => handleVote('Downvote')}
         className={cn(
           'h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-950',
-          vote === 'Downvote' && 'text-blue-500 bg-blue-100 dark:bg-blue-950'
+          vote === 'Downvote' && 'bg-blue-100 text-blue-500 dark:bg-blue-950'
         )}
         aria-label="Downvote"
       >

@@ -56,7 +56,7 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-6 max-w-4xl space-y-6">
+      <div className="container mx-auto max-w-4xl space-y-6 px-4 py-6">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-12 w-full" />
         <Skeleton className="h-64 w-full" />
@@ -66,10 +66,10 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
 
   if (error || !post) {
     return (
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
-        <div className="rounded-lg border border-destructive bg-destructive/10 p-8 text-center">
-          <AlertCircle className="mx-auto h-12 w-12 text-destructive mb-4" />
-          <h2 className="text-2xl font-bold text-destructive mb-2">Không tìm thấy bài viết</h2>
+      <div className="container mx-auto max-w-4xl px-4 py-6">
+        <div className="border-destructive bg-destructive/10 rounded-lg border p-8 text-center">
+          <AlertCircle className="text-destructive mx-auto mb-4 h-12 w-12" />
+          <h2 className="text-destructive mb-2 text-2xl font-bold">Không tìm thấy bài viết</h2>
           <p className="text-muted-foreground mb-4">
             Bài viết có thể đã bị xóa hoặc bạn không có quyền truy cập
           </p>
@@ -82,7 +82,7 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-4xl space-y-6">
+    <div className="container mx-auto max-w-4xl space-y-6 px-4 py-6">
       <Breadcrumbs />
 
       <article className="space-y-6">
@@ -92,9 +92,9 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
 
           <div className="flex-1 space-y-4">
             <div>
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <h1 className="text-3xl font-bold flex-1">{post.title}</h1>
-                
+              <div className="mb-2 flex items-start justify-between gap-2">
+                <h1 className="flex-1 text-3xl font-bold">{post.title}</h1>
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm">
@@ -146,7 +146,7 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
                 </DropdownMenu>
               </div>
 
-              <div className="flex flex-wrap gap-2 mb-3">
+              <div className="mb-3 flex flex-wrap gap-2">
                 <Badge variant="outline">{post.category.name}</Badge>
                 <Badge variant="secondary">{post.postType}</Badge>
                 {post.isPinned && (
@@ -164,7 +164,7 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
                 ))}
               </div>
 
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <div className="text-muted-foreground flex items-center gap-3 text-sm">
                 <div className="flex items-center gap-2">
                   <Avatar className="h-7 w-7">
                     <AvatarImage src={post.author.avatar} />

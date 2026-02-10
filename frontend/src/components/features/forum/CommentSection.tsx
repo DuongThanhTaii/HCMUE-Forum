@@ -46,9 +46,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <MessageCircle className="h-5 w-5" />
-        <h2 className="text-xl font-semibold">
-          Bình luận ({comments?.length || 0})
-        </h2>
+        <h2 className="text-xl font-semibold">Bình luận ({comments?.length || 0})</h2>
       </div>
 
       {isAuthenticated && (
@@ -61,9 +59,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
             disabled={isPending}
           />
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              {content.length} / 5000 ký tự
-            </span>
+            <span className="text-muted-foreground text-sm">{content.length} / 5000 ký tự</span>
             <div className="flex gap-2">
               {replyingTo && (
                 <Button
@@ -87,11 +83,9 @@ export function CommentSection({ postId }: CommentSectionProps) {
 
       <div className="space-y-4">
         {isLoading ? (
-          Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 w-full" />
-          ))
+          Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-32 w-full" />)
         ) : topLevelComments.length === 0 ? (
-          <div className="rounded-lg border p-8 text-center text-muted-foreground">
+          <div className="text-muted-foreground rounded-lg border p-8 text-center">
             Chưa có bình luận nào. Hãy là người đầu tiên!
           </div>
         ) : (

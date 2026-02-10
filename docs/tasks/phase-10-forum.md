@@ -69,23 +69,23 @@ GET /api/v1/search?q={query}&type=posts
 **File**: `src/app/[locale]/(main)/forum/page.tsx`
 
 ```tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { usePosts } from '@/hooks/api/forum/usePosts';
-import { PostCard } from '@/components/features/forum/PostCard';
-import { PostFilters } from '@/components/features/forum/PostFilters';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { Link } from '@/lib/i18n/routing';
-import { Breadcrumbs } from '@/components/shared/layouts/Breadcrumbs';
+import { useState } from "react";
+import { usePosts } from "@/hooks/api/forum/usePosts";
+import { PostCard } from "@/components/features/forum/PostCard";
+import { PostFilters } from "@/components/features/forum/PostFilters";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { Link } from "@/lib/i18n/routing";
+import { Breadcrumbs } from "@/components/shared/layouts/Breadcrumbs";
 
 export default function ForumPage() {
   const [filters, setFilters] = useState({
-    category: '',
-    type: '',
-    status: '',
+    category: "",
+    type: "",
+    status: "",
     page: 1,
   });
 
@@ -94,11 +94,13 @@ export default function ForumPage() {
   return (
     <div className="space-y-6">
       <Breadcrumbs />
-      
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Diễn đàn</h1>
-          <p className="text-muted-foreground">Đặt câu hỏi, chia sẻ kiến thức</p>
+          <p className="text-muted-foreground">
+            Đặt câu hỏi, chia sẻ kiến thức
+          </p>
         </div>
         <Button asChild>
           <Link href="/forum/create">
@@ -149,14 +151,14 @@ export default function ForumPage() {
 **File**: `src/components/features/forum/PostCard.tsx`
 
 ```tsx
-import { Link } from '@/lib/i18n/routing';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { VoteButtons } from './VoteButtons';
-import { Eye, MessageCircle, Bookmark } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { Link } from "@/lib/i18n/routing";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { VoteButtons } from "./VoteButtons";
+import { Eye, MessageCircle, Bookmark } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { vi } from "date-fns/locale";
 
 interface Post {
   id: string;
@@ -237,7 +239,9 @@ export function PostCard({ post }: PostCardProps) {
                 <MessageCircle className="h-4 w-4" />
                 <span>{post.commentCount}</span>
               </div>
-              {post.isBookmarked && <Bookmark className="h-4 w-4 fill-current" />}
+              {post.isBookmarked && (
+                <Bookmark className="h-4 w-4 fill-current" />
+              )}
             </div>
           </div>
         </div>
@@ -252,33 +256,38 @@ export function PostCard({ post }: PostCardProps) {
 **File**: `src/components/features/forum/VoteButtons.tsx`
 
 ```tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useVote } from '@/hooks/api/forum/useVote';
-import { Button } from '@/components/ui/button';
-import { ChevronUp, ChevronDown } from 'lucide-react';
-import { cn } from '@/lib/utils/cn';
+import { useState } from "react";
+import { useVote } from "@/hooks/api/forum/useVote";
+import { Button } from "@/components/ui/button";
+import { ChevronUp, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
 interface VoteButtonsProps {
   postId: string;
   score: number;
-  userVote?: 'Upvote' | 'Downvote' | null;
+  userVote?: "Upvote" | "Downvote" | null;
 }
 
-export function VoteButtons({ postId, score: initialScore, userVote }: VoteButtonsProps) {
+export function VoteButtons({
+  postId,
+  score: initialScore,
+  userVote,
+}: VoteButtonsProps) {
   const [score, setScore] = useState(initialScore);
   const [vote, setVote] = useState(userVote);
   const { mutate: submitVote } = useVote();
 
-  const handleVote = (voteType: 'Upvote' | 'Downvote') => {
+  const handleVote = (voteType: "Upvote" | "Downvote") => {
     const newVote = vote === voteType ? null : voteType;
-    const scoreDiff = newVote === 'Upvote' ? 1 : newVote === 'Downvote' ? -1 : 0;
-    const prevScore = vote === 'Upvote' ? -1 : vote === 'Downvote' ? 1 : 0;
-    
+    const scoreDiff =
+      newVote === "Upvote" ? 1 : newVote === "Downvote" ? -1 : 0;
+    const prevScore = vote === "Upvote" ? -1 : vote === "Downvote" ? 1 : 0;
+
     setScore(score + prevScore + scoreDiff);
     setVote(newVote);
-    
+
     submitVote({ postId, voteType: newVote || voteType });
   };
 
@@ -287,22 +296,24 @@ export function VoteButtons({ postId, score: initialScore, userVote }: VoteButto
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => handleVote('Upvote')}
-        className={cn('h-8 w-8 p-0', vote === 'Upvote' && 'text-orange-500')}
+        onClick={() => handleVote("Upvote")}
+        className={cn("h-8 w-8 p-0", vote === "Upvote" && "text-orange-500")}
       >
         <ChevronUp className="h-5 w-5" />
       </Button>
-      <span className={cn('text-sm font-medium', {
-        'text-orange-500': score > 0,
-        'text-blue-500': score < 0,
-      })}>
+      <span
+        className={cn("text-sm font-medium", {
+          "text-orange-500": score > 0,
+          "text-blue-500": score < 0,
+        })}
+      >
         {score}
       </span>
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => handleVote('Downvote')}
-        className={cn('h-8 w-8 p-0', vote === 'Downvote' && 'text-blue-500')}
+        onClick={() => handleVote("Downvote")}
+        className={cn("h-8 w-8 p-0", vote === "Downvote" && "text-blue-500")}
       >
         <ChevronDown className="h-5 w-5" />
       </Button>
@@ -316,16 +327,16 @@ export function VoteButtons({ postId, score: initialScore, userVote }: VoteButto
 **File**: `src/app/[locale]/(main)/forum/create/page.tsx`
 
 ```tsx
-'use client';
+"use client";
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from '@/lib/i18n/routing';
-import { useCreatePost } from '@/hooks/api/forum/useCreatePost';
-import { postSchema, type PostInput } from '@/lib/validations/post.schema';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "@/lib/i18n/routing";
+import { useCreatePost } from "@/hooks/api/forum/useCreatePost";
+import { postSchema, type PostInput } from "@/lib/validations/post.schema";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -333,15 +344,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function CreatePostPage() {
   const router = useRouter();
@@ -350,10 +361,10 @@ export default function CreatePostPage() {
   const form = useForm<PostInput>({
     resolver: zodResolver(postSchema),
     defaultValues: {
-      title: '',
-      content: '',
-      categoryId: '',
-      postType: 'Discussion',
+      title: "",
+      content: "",
+      categoryId: "",
+      postType: "Discussion",
       tags: [],
     },
   });
@@ -382,7 +393,10 @@ export default function CreatePostPage() {
                   <FormItem>
                     <FormLabel>Tiêu đề</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nhập tiêu đề bài viết..." {...field} />
+                      <Input
+                        placeholder="Nhập tiêu đề bài viết..."
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -395,7 +409,10 @@ export default function CreatePostPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Danh mục</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Chọn danh mục" />
@@ -418,7 +435,10 @@ export default function CreatePostPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Loại bài viết</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue />
@@ -462,7 +482,7 @@ export default function CreatePostPage() {
                   Hủy
                 </Button>
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? 'Đang tạo...' : 'Tạo bài viết'}
+                  {isPending ? "Đang tạo..." : "Tạo bài viết"}
                 </Button>
               </div>
             </form>

@@ -73,7 +73,7 @@ export default function CreatePostPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-4xl space-y-6">
+    <div className="container mx-auto max-w-4xl space-y-6 px-4 py-6">
       <Breadcrumbs />
 
       <Card>
@@ -104,7 +104,7 @@ export default function CreatePostPage() {
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="categoryId"
@@ -149,7 +149,8 @@ export default function CreatePostPage() {
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        {field.value === 'Question' && 'Câu hỏi có thể được đánh dấu câu trả lời đúng'}
+                        {field.value === 'Question' &&
+                          'Câu hỏi có thể được đánh dấu câu trả lời đúng'}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -217,7 +218,7 @@ export default function CreatePostPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveTag(tag)}
-                                  className="ml-2 hover:text-destructive"
+                                  className="hover:text-destructive ml-2"
                                 >
                                   <X className="h-3 w-3" />
                                 </button>
@@ -227,14 +228,14 @@ export default function CreatePostPage() {
                         )}
 
                         {allTags && allTags.length > 0 && (
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-muted-foreground text-sm">
                             <p className="mb-2">Tags phổ biến:</p>
                             <div className="flex flex-wrap gap-2">
                               {allTags.slice(0, 10).map((tag) => (
                                 <Badge
                                   key={tag.id}
                                   variant="outline"
-                                  className="cursor-pointer hover:bg-secondary"
+                                  className="hover:bg-secondary cursor-pointer"
                                   onClick={() => handleAddTag(tag.name)}
                                 >
                                   #{tag.name}

@@ -14,7 +14,7 @@ interface PostCardProps {
 
 export function PostCard({ post }: PostCardProps) {
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="transition-shadow hover:shadow-md">
       <CardContent className="flex gap-4 p-4">
         <VoteButtons
           postId={post.id}
@@ -22,15 +22,15 @@ export function PostCard({ post }: PostCardProps) {
           userVote={post.userVote}
           className="flex-shrink-0"
         />
-        
-        <div className="flex-1 space-y-2 min-w-0">
+
+        <div className="min-w-0 flex-1 space-y-2">
           <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <Link
                 href={`/forum/${post.id}`}
-                className="hover:underline hover:text-primary inline"
+                className="hover:text-primary inline hover:underline"
               >
-                <h3 className="text-lg font-semibold line-clamp-2">{post.title}</h3>
+                <h3 className="line-clamp-2 text-lg font-semibold">{post.title}</h3>
               </Link>
               {post.isPinned && (
                 <Badge variant="secondary" className="ml-2">
@@ -41,7 +41,7 @@ export function PostCard({ post }: PostCardProps) {
             </div>
           </div>
 
-          <p className="text-sm text-muted-foreground line-clamp-2">{post.content}</p>
+          <p className="text-muted-foreground line-clamp-2 text-sm">{post.content}</p>
 
           <div className="flex flex-wrap gap-2">
             <Badge variant="outline">{post.category.name}</Badge>
@@ -54,8 +54,8 @@ export function PostCard({ post }: PostCardProps) {
             ))}
           </div>
 
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center gap-2 flex-wrap">
+          <div className="text-muted-foreground flex items-center justify-between text-sm">
+            <div className="flex flex-wrap items-center gap-2">
               <Avatar className="h-6 w-6">
                 <AvatarImage src={post.author.avatar} />
                 <AvatarFallback>{post.author.fullName[0]}</AvatarFallback>
@@ -70,7 +70,7 @@ export function PostCard({ post }: PostCardProps) {
               </span>
             </div>
 
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex flex-shrink-0 items-center gap-3">
               <div className="flex items-center gap-1">
                 <Eye className="h-4 w-4" />
                 <span>{post.viewCount}</span>

@@ -13,10 +13,7 @@ export const postSchema = z.object({
   postType: z.enum(['Discussion', 'Question', 'Announcement'], {
     required_error: 'Vui lòng chọn loại bài viết',
   }),
-  tags: z
-    .array(z.string())
-    .min(1, 'Vui lòng thêm ít nhất 1 tag')
-    .max(5, 'Tối đa 5 tags'),
+  tags: z.array(z.string()).min(1, 'Vui lòng thêm ít nhất 1 tag').max(5, 'Tối đa 5 tags'),
   status: z.enum(['Draft', 'Published', 'Archived']).optional(),
 });
 
