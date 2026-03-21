@@ -52,6 +52,8 @@ dist/
 .env.*.local
 .env.development
 .env.production
+.env.docker
+src/UniHub.API/.env.api
 
 # IDE
 .idea/
