@@ -81,7 +81,7 @@ public static class DependencyInjection
 
         // Add health checks
         services.AddHealthChecks()
-            .AddDbContextCheck<ApplicationDbContext>(
+            .AddCheck<PostgreSqlHealthCheck>(
                 name: "postgresql",
                 tags: new[] { "database", "postgresql" });
 
@@ -109,7 +109,7 @@ public static class DependencyInjection
         {
             var settings = serviceProvider.GetRequiredService<MongoDbSettings>();
             var mongoClientSettings = MongoClientSettings.FromConnectionString(settings.ConnectionString);
-            
+
             mongoClientSettings.ConnectTimeout = TimeSpan.FromSeconds(settings.ConnectionTimeoutSeconds);
             mongoClientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(settings.ServerSelectionTimeoutSeconds);
             mongoClientSettings.MaxConnectionPoolSize = settings.MaxConnectionPoolSize;

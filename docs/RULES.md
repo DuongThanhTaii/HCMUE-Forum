@@ -30,6 +30,32 @@ Presentation → Application → Domain
 - ✅ Infrastructure implements interfaces từ Application
 - ✅ Presentation chỉ reference Application
 
+### 1.3 Pragmatic Implementation Rules (NEW)
+
+Nguyên tắc này đảm bảo team **không over-engineer**, nhưng vẫn giữ chất lượng ở các luồng rủi ro cao.
+
+- ✅ **Simple flows can be simple**: use-case đọc dữ liệu đơn giản, ít business logic có thể dùng cách triển khai tối giản.
+- ✅ **Critical flows must be rigorous**: auth/permission/security/audit/payment phải theo đầy đủ pattern (validation, logging, test, audit).
+- ✅ **Risk-based decision**: mức độ "bài bản" tỉ lệ thuận với impact nếu sai.
+- ✅ **Consistency per use-case family**: cùng một nhóm use-case trong module phải theo pattern nhất quán.
+- ✅ **Refactor trigger**: nếu flow tối giản bắt đầu có nhiều rule/side-effects, phải nâng cấp lên kiến trúc bài bản.
+
+#### Decision Matrix (Pragmatic vs Rigorous)
+
+| Use-case type | Recommended approach |
+| --- | --- |
+| Simple read/list, low risk | Pragmatic (tối giản) |
+| Complex business workflow | Rigorous (CQRS đầy đủ) |
+| Authorization / permission / endpoint toggle | Rigorous bắt buộc |
+| Security-sensitive mutation | Rigorous bắt buộc |
+
+#### Mandatory for Dynamic Authorization
+
+- ✅ Deny-by-default
+- ✅ Deny wins over allow
+- ✅ Every permission mutation must have audit log
+- ✅ Endpoint toggle must support emergency rollback
+
 ---
 
 ## 🏷️ 2. NAMING CONVENTIONS

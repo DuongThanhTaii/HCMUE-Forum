@@ -30,4 +30,13 @@ public sealed class PermissionRepository : IPermissionRepository
             .ToListAsync(cancellationToken);
         return permissions.AsReadOnly();
     }
+
+    public async Task<Permission?> GetByCodeAsync(string code, CancellationToken cancellationToken = default)
+    {
+        var normalizedCode = code.Trim().ToLowerInvariant();
+
+        return await _context.Permissions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Code == normalizedCode, cancellationToken);
+    }
 }

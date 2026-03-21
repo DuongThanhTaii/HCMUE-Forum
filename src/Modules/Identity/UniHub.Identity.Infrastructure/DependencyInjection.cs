@@ -19,7 +19,7 @@ public static class DependencyInjection
         services.AddAuthentication(configuration);
         services.AddRepositories();
         services.AddServices();
-        
+
         return services;
     }
 
@@ -52,6 +52,11 @@ public static class DependencyInjection
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+        services.AddScoped<IUserGroupRepository, UserGroupRepository>();
+        services.AddScoped<IUserPermissionOverrideRepository, UserPermissionOverrideRepository>();
+        services.AddScoped<IGroupPermissionOverrideRepository, GroupPermissionOverrideRepository>();
+        services.AddScoped<IEndpointToggleRepository, EndpointToggleRepository>();
+        services.AddScoped<IAuthorizationAuditLogRepository, AuthorizationAuditLogRepository>();
 
         return services;
     }

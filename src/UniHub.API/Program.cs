@@ -225,6 +225,7 @@ try
 
     // Authentication & Authorization
     app.UseAuthentication();
+    app.UseMiddleware<UniHub.API.Middlewares.EndpointToggleMiddleware>();
     app.UseAuthorization();
 
     // Map API controllers
