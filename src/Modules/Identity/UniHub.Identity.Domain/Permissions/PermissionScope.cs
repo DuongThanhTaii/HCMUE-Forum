@@ -8,6 +8,9 @@ public sealed class PermissionScope : ValueObject
     public PermissionScopeType Type { get; private set; }
     public string? Value { get; private set; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private PermissionScope() { }
+
     private PermissionScope(PermissionScopeType type, string? value = null)
     {
         Type = type;

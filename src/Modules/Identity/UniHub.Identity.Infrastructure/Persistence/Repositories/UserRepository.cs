@@ -1,74 +1,63 @@
+using Microsoft.EntityFrameworkCore;
 using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Domain.Users;
 using UniHub.Identity.Domain.Users.ValueObjects;
+using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Identity.Infrastructure.Persistence.Repositories;
 
 /// <summary>
-/// In-memory implementation of user repository
-/// TODO: Replace with proper database implementation when adding EF Core
+/// EF Core implementation of user repository
 /// </summary>
 public sealed class UserRepository : IUserRepository
 {
-    private static readonly List<User> _users = new();
-    private static readonly object _lock = new();
+    private readonly ApplicationDbContext _context;
 
-    public Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
+    public UserRepository(ApplicationDbContext context)
     {
-        lock (_lock)
-        {
-            return Task.FromResult<IReadOnlyList<User>>(_users.ToList().AsReadOnly());
-        }
+        _context = context;
     }
 
-    public Task<User?> GetByIdAsync(UserId userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var user = _users.FirstOrDefault(u => u.Id == userId);
-            return Task.FromResult(user);
-        }
+        return await _context.Users
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 
-    public Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByIdAsync(UserId userId, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var user = _users.FirstOrDefault(u => u.Email.Equals(email));
-            return Task.FromResult(user);
-        }
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
     }
 
-    public Task<bool> IsEmailUniqueAsync(Email email, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var exists = _users.Any(u => u.Email.Equals(email));
-            return Task.FromResult(!exists);
-        }
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
     }
 
-    public Task AddAsync(User user, CancellationToken cancellationToken = default)
+    public async Task<bool> IsEmailUniqueAsync(Email email, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _users.Add(user);
-        }
-        return Task.CompletedTask;
+        var exists = await _context.Users
+            .AnyAsync(u => u.Email == email, cancellationToken);
+        return !exists;
+    }
+
+    public async Task AddAsync(User user, CancellationToken cancellationToken = default)
+    {
+        await _context.Users.AddAsync(user, cancellationToken);
     }
 
     public Task UpdateAsync(User user, CancellationToken cancellationToken = default)
     {
-        // In-memory implementation doesn't need explicit update as objects are mutable
+        _context.Users.Update(user);
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(User user, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _users.Remove(user);
-        }
+        _context.Users.Remove(user);
         return Task.CompletedTask;
     }
 }

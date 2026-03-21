@@ -13,6 +13,11 @@ public interface IPermissionRepository
     Task<Permission?> GetByIdAsync(PermissionId id, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets a permission by its code
+    /// </summary>
+    Task<Permission?> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Gets all permissions
     /// </summary>
     Task<IReadOnlyList<Permission>> GetAllAsync(CancellationToken cancellationToken = default);

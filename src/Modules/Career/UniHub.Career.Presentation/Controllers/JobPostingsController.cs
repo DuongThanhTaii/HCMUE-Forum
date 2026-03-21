@@ -13,14 +13,14 @@ using UniHub.Career.Application.Queries.JobPostings.GetJobPostings;
 using UniHub.Career.Application.Queries.JobPostings.SearchJobPostings;
 using UniHub.Career.Application.Queries.SavedJobs.GetSavedJobs;
 using UniHub.Career.Application.Queries.SavedJobs.IsSaved;
+using UniHub.Contracts;
 
 namespace UniHub.Career.Presentation.Controllers;
 
-[ApiController]
 [Route("api/v1/jobs")]
 [Produces("application/json")]
 [Authorize]
-public class JobPostingsController : ControllerBase
+public class JobPostingsController : BaseApiController
 {
     private readonly ISender _sender;
 
@@ -244,8 +244,9 @@ public class JobPostingsController : ControllerBase
     [HttpPost("{id:guid}/save")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> SaveJob(Guid id, [FromQuery] Guid userId, CancellationToken cancellationToken)
+    public async Task<IActionResult> SaveJob(Guid id, CancellationToken cancellationToken)
     {
+        var userId = GetCurrentUserId();
         var command = new SaveJobCommand(userId, id);
         var result = await _sender.Send(command, cancellationToken);
 
@@ -263,8 +264,9 @@ public class JobPostingsController : ControllerBase
     [HttpDelete("{id:guid}/save")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UnsaveJob(Guid id, [FromQuery] Guid userId, CancellationToken cancellationToken)
+    public async Task<IActionResult> UnsaveJob(Guid id, CancellationToken cancellationToken)
     {
+        var userId = GetCurrentUserId();
         var command = new UnsaveJobCommand(userId, id);
         var result = await _sender.Send(command, cancellationToken);
 

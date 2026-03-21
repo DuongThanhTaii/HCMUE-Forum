@@ -1,17 +1,64 @@
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using UniHub.Identity.Domain.Tokens;
 using UniHub.Identity.Domain.Users;
 using UniHub.Identity.Infrastructure.Persistence.Repositories;
+using UniHub.Infrastructure.Persistence;
+using System.Reflection;
 
 namespace UniHub.Identity.Infrastructure.Tests.Persistence;
 
 public sealed class RefreshTokenRepositoryTests
 {
     private readonly RefreshTokenRepository _repository;
+    private readonly ApplicationDbContext _context;
 
     public RefreshTokenRepositoryTests()
     {
-        _repository = new RefreshTokenRepository();
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        _context = new IdentityTestDbContext(options);
+        _repository = new RefreshTokenRepository(_context);
+    }
+
+    /// <summary>
+    /// Test DbContext that only applies Identity module configurations.
+    /// Non-Identity entities discovered from base class DbSet properties are
+    /// ignored via reflection so InMemory provider doesn't fail on unmapped types.
+    /// </summary>
+    private sealed class IdentityTestDbContext : ApplicationDbContext
+    {
+        public IdentityTestDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Apply Identity module configurations (converters, keys, relationships)
+            modelBuilder.ApplyConfigurationsFromAssembly(
+                typeof(UniHub.Identity.Infrastructure.DependencyInjection).Assembly);
+
+            // Ignore entity types from other modules discovered via base class DbSet properties.
+            // Use reflection to call the generic ModelBuilder.Ignore<T>() method.
+            var ignoreMethod = typeof(ModelBuilder).GetMethods()
+                .First(m => m.Name == "Ignore" && m.IsGenericMethod);
+
+            var entitiesToIgnore = modelBuilder.Model.GetEntityTypes()
+                .Where(e =>
+                {
+                    var ns = e.ClrType.Namespace;
+                    return ns != null
+                        && !ns.StartsWith("UniHub.Identity")
+                        && !ns.StartsWith("UniHub.SharedKernel");
+                })
+                .Select(e => e.ClrType)
+                .ToList();
+
+            foreach (var clrType in entitiesToIgnore)
+            {
+                ignoreMethod.MakeGenericMethod(clrType).Invoke(modelBuilder, null);
+            }
+        }
     }
 
     [Fact]
@@ -25,6 +72,7 @@ public sealed class RefreshTokenRepositoryTests
 
         // Act
         await _repository.AddAsync(refreshToken);
+        await _context.SaveChangesAsync();
 
         // Assert
         var retrieved = await _repository.GetByTokenAsync(token);
@@ -59,6 +107,7 @@ public sealed class RefreshTokenRepositoryTests
         await _repository.AddAsync(activeToken2);
         await _repository.AddAsync(revokedToken);
         await _repository.AddAsync(expiredToken);
+        await _context.SaveChangesAsync();
 
         // Act
         var activeTokens = await _repository.GetActiveTokensByUserIdAsync(userId);
@@ -80,6 +129,7 @@ public sealed class RefreshTokenRepositoryTests
         
         var token = RefreshToken.Create(userId1, "user1-token", DateTime.UtcNow.AddDays(7));
         await _repository.AddAsync(token);
+        await _context.SaveChangesAsync();
 
         // Act
         var activeTokens = await _repository.GetActiveTokensByUserIdAsync(userId2);
@@ -100,9 +150,11 @@ public sealed class RefreshTokenRepositoryTests
         
         await _repository.AddAsync(token1);
         await _repository.AddAsync(token2);
+        await _context.SaveChangesAsync();
 
         // Act
         await _repository.RevokeAllByUserIdAsync(userId, ipAddress);
+        await _context.SaveChangesAsync();
 
         // Assert
         var activeTokens = await _repository.GetActiveTokensByUserIdAsync(userId);
@@ -129,9 +181,11 @@ public sealed class RefreshTokenRepositoryTests
         await _repository.AddAsync(activeToken);
         await _repository.AddAsync(expiredToken1);
         await _repository.AddAsync(expiredToken2);
+        await _context.SaveChangesAsync();
 
         // Act
         await _repository.RemoveExpiredTokensAsync();
+        await _context.SaveChangesAsync();
 
         // Assert
         var retrieved = await _repository.GetByTokenAsync("active-token");

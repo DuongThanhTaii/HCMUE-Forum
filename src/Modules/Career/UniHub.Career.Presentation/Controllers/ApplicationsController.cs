@@ -10,17 +10,17 @@ using UniHub.Career.Application.Commands.Applications.WithdrawApplication;
 using UniHub.Career.Application.Queries.Applications.GetApplicationById;
 using UniHub.Career.Application.Queries.Applications.GetApplicationsByApplicant;
 using UniHub.Career.Application.Queries.Applications.GetApplicationsByJob;
+using UniHub.Contracts;
 
 namespace UniHub.Career.Presentation.Controllers;
 
 /// <summary>
 /// Controller for managing job applications
 /// </summary>
-[ApiController]
 [Route("api/v1/applications")]
 [Produces("application/json")]
 [Authorize]
-public class ApplicationsController : ControllerBase
+public class ApplicationsController : BaseApiController
 {
     private readonly ISender _sender;
 
@@ -70,10 +70,8 @@ public class ApplicationsController : ControllerBase
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        // In a real application, get userId from ClaimsPrincipal
-        // For now, this would need to be passed or extracted from auth context
         var query = new GetApplicationsByApplicantQuery(
-            ApplicantId: Guid.Empty, // TODO: Get from authenticated user
+            ApplicantId: GetCurrentUserId(),
             Status: null,
             Page: page,
             PageSize: pageSize);

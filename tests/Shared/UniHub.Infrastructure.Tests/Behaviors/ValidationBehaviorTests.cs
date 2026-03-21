@@ -74,7 +74,7 @@ public class ValidationBehaviorTests
         var act = async () => await behavior.Handle(request, _nextMock.Object, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<ValidationException>();
+        await act.Should().ThrowAsync<UniHub.SharedKernel.Exceptions.ValidationException>();
         _nextMock.Verify(x => x(), Times.Never);
     }
 

@@ -1,88 +1,55 @@
+using Microsoft.EntityFrameworkCore;
 using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Domain.Roles;
+using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Identity.Infrastructure.Persistence.Repositories;
 
 /// <summary>
-/// In-memory implementation of role repository
-/// TODO: Replace with proper database implementation when adding EF Core
+/// EF Core implementation of role repository
 /// </summary>
 public sealed class RoleRepository : IRoleRepository
 {
-    private static readonly List<Role> _roles = new();
-    private static readonly object _lock = new();
+    private readonly ApplicationDbContext _context;
 
-    static RoleRepository()
+    public RoleRepository(ApplicationDbContext context)
     {
-        // Seed default roles
-        SeedDefaultRoles();
+        _context = context;
     }
 
-    private static void SeedDefaultRoles()
+    public async Task<Role?> GetByIdAsync(RoleId roleId, CancellationToken cancellationToken = default)
     {
-        if (_roles.Count > 0) return;
-
-        var studentRole = Role.Create("Student", "Default role for students");
-        var teacherRole = Role.Create("Teacher", "Role for teachers and instructors");
-        var adminRole = Role.Create("Admin", "Administrator role with full access");
-
-        if (studentRole.IsSuccess)
-            _roles.Add(studentRole.Value);
-
-        if (teacherRole.IsSuccess)
-            _roles.Add(teacherRole.Value);
-
-        if (adminRole.IsSuccess)
-            _roles.Add(adminRole.Value);
+        return await _context.Roles
+            .FirstOrDefaultAsync(r => r.Id == roleId, cancellationToken);
     }
 
-    public Task<Role?> GetByIdAsync(RoleId roleId, CancellationToken cancellationToken = default)
+    public async Task<Role?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var role = _roles.FirstOrDefault(r => r.Id == roleId);
-            return Task.FromResult(role);
-        }
+        return await _context.Roles
+            .FirstOrDefaultAsync(r => r.Name == name, cancellationToken);
     }
 
-    public Task<Role?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+    public async Task<List<Role>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var role = _roles.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            return Task.FromResult(role);
-        }
+        return await _context.Roles
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 
-    public Task<List<Role>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task AddAsync(Role role, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            return Task.FromResult(_roles.ToList());
-        }
-    }
-
-    public Task AddAsync(Role role, CancellationToken cancellationToken = default)
-    {
-        lock (_lock)
-        {
-            _roles.Add(role);
-        }
-        return Task.CompletedTask;
+        await _context.Roles.AddAsync(role, cancellationToken);
     }
 
     public Task UpdateAsync(Role role, CancellationToken cancellationToken = default)
     {
-        // In-memory implementation doesn't need explicit update as objects are mutable
+        _context.Roles.Update(role);
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Role role, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _roles.Remove(role);
-        }
+        _context.Roles.Remove(role);
         return Task.CompletedTask;
     }
 }

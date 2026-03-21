@@ -5,6 +5,9 @@ namespace UniHub.Forum.Domain.Reports;
 
 public sealed class Report : Entity<ReportId>
 {
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private Report() { }
+
     private Report(
         ReportId id,
         Guid reportedItemId,

@@ -10,6 +10,9 @@ public sealed class CommentContent : ValueObject
 
     public string Value { get; private set; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private CommentContent() { Value = string.Empty; }
+
     private CommentContent(string value)
     {
         Value = value;

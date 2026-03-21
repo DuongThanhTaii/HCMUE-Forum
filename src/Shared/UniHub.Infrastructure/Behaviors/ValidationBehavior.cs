@@ -38,7 +38,14 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
 
         if (failures.Count != 0)
         {
-            throw new ValidationException(failures);
+            // Convert FluentValidation errors to domain ValidationException
+            var errorDictionary = failures
+                .GroupBy(f => f.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(f => f.ErrorMessage).ToArray());
+
+            throw new SharedKernel.Exceptions.ValidationException(errorDictionary);
         }
 
         return await next();

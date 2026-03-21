@@ -28,7 +28,7 @@ public class SearchController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SearchPosts(
         [FromQuery] string q,
-        [FromQuery] int? categoryId = null,
+        [FromQuery] Guid? categoryId = null,
         [FromQuery] int? postType = null,
         [FromQuery] string? tags = null,
         [FromQuery] int pageNumber = 1,
@@ -43,12 +43,10 @@ public class SearchController : ControllerBase
         var tagList = string.IsNullOrWhiteSpace(tags)
             ? null
             : tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        
-        var categoryGuid = categoryId.HasValue ? Guid.Parse(categoryId.Value.ToString()) : (Guid?)null;
 
         var query = new SearchPostsQuery(
             q,
-            categoryGuid,
+            categoryId,
             postType,
             tagList,
             pageNumber,

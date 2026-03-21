@@ -10,6 +10,9 @@ public sealed class RecruiterPermissions : ValueObject
     public bool CanUpdateApplicationStatus { get; private set; }
     public bool CanInviteRecruiters { get; private set; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private RecruiterPermissions() { }
+
     private RecruiterPermissions(
         bool canManageJobPostings,
         bool canReviewApplications,

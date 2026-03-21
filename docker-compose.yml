@@ -1,61 +1,82 @@
-version: "3.8"
-
 services:
   postgres:
-    image: postgres:16-alpine
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
     container_name: unihub-postgres
     environment:
-      POSTGRES_USER: unihub
-      POSTGRES_PASSWORD: unihub_dev_2026
-      POSTGRES_DB: unihub
+      POSTGRES_USER: ${POSTGRES_USER:-unihub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-unihub_dev_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-unihub}
     ports:
-      - "5432:5432"
+      - "${DB_BIND_HOST:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U unihub"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-unihub}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - unihub-network
 
   mongodb:
-    image: mongo:7-jammy
+    image: ${MONGODB_IMAGE:-mongo:7-jammy}
     container_name: unihub-mongodb
     environment:
-      MONGO_INITDB_ROOT_USERNAME: unihub
-      MONGO_INITDB_ROOT_PASSWORD: unihub_dev_2026
-      MONGO_INITDB_DATABASE: unihub
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-unihub}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-unihub_dev_2026}
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-unihub}
     ports:
-      - "27017:27017"
+      - "${DB_BIND_HOST:-127.0.0.1}:${MONGODB_PORT:-27017}:27017"
     volumes:
       - mongo_data:/data/db
       - mongo_config:/data/configdb
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - unihub-network
 
   redis:
-    image: redis:7-alpine
+    image: ${REDIS_IMAGE:-redis:7-alpine}
     container_name: unihub-redis
-    command: redis-server --requirepass unihub_dev_2026 --appendonly yes
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD:-unihub_dev_2026}
+      - --appendonly
+      - ${REDIS_APPENDONLY:-yes}
     ports:
-      - "6379:6379"
+      - "${DB_BIND_HOST:-127.0.0.1}:${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-unihub_dev_2026}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 5s
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - unihub-network
 

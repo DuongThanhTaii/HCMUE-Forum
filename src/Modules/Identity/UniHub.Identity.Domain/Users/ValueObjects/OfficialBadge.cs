@@ -11,6 +11,13 @@ public sealed class OfficialBadge : ValueObject
     public DateTime VerifiedAt { get; private set; }
     public string VerifiedBy { get; private set; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private OfficialBadge()
+    {
+        Name = string.Empty;
+        VerifiedBy = string.Empty;
+    }
+
     private OfficialBadge(BadgeType type, string name, string? description, DateTime verifiedAt, string verifiedBy)
     {
         Type = type;

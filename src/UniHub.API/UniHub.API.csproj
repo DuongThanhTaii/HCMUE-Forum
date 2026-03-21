@@ -8,7 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Sinks.Console" />
     <PackageReference Include="Serilog.Sinks.File" />
@@ -32,6 +34,8 @@
     <ProjectReference Include="..\Modules\Career\UniHub.Career.Presentation\UniHub.Career.Presentation.csproj" />
     <ProjectReference Include="..\Modules\Notification\UniHub.Notification.Infrastructure\UniHub.Notification.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Notification\UniHub.Notification.Presentation\UniHub.Notification.Presentation.csproj" />
+    <ProjectReference Include="..\Modules\AI\UniHub.AI.Infrastructure\UniHub.AI.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\AI\UniHub.AI.Presentation\UniHub.AI.Presentation.csproj" />
   </ItemGroup>
 
 </Project>

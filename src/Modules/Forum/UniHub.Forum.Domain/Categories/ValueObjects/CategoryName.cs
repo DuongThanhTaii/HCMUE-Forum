@@ -10,6 +10,9 @@ public sealed class CategoryName : ValueObject
 
     public string Value { get; private set; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private CategoryName() { Value = string.Empty; }
+
     private CategoryName(string value)
     {
         Value = value;

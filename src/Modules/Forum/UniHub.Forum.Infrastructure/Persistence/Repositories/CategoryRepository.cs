@@ -1,80 +1,62 @@
+using Microsoft.EntityFrameworkCore;
 using UniHub.Forum.Application.Abstractions;
 using UniHub.Forum.Domain.Categories;
+using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Forum.Infrastructure.Persistence.Repositories;
 
 /// <summary>
-/// In-memory implementation of category repository for Forum module.
-/// TODO: Replace with EF Core implementation when database is configured.
+/// EF Core implementation of category repository for Forum module
 /// </summary>
 public sealed class CategoryRepository : ICategoryRepository
 {
-    private static readonly List<Category> _categories = new();
-    private static readonly object _lock = new();
+    private readonly ApplicationDbContext _context;
 
-    public Task<IReadOnlyList<Category>> GetAllAsync(CancellationToken cancellationToken = default)
+    public CategoryRepository(ApplicationDbContext context)
     {
-        lock (_lock)
-        {
-            return Task.FromResult<IReadOnlyList<Category>>(_categories.ToList().AsReadOnly());
-        }
+        _context = context;
     }
 
-    public Task<Category?> GetByIdAsync(CategoryId categoryId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Category>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var category = _categories.FirstOrDefault(c => c.Id == categoryId);
-            return Task.FromResult(category);
-        }
+        var categories = await _context.Categories
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+        return categories.AsReadOnly();
     }
 
-    public Task<Category?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
+    public async Task<Category?> GetByIdAsync(CategoryId categoryId, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var category = _categories.FirstOrDefault(c => c.Slug.Value == slug);
-            return Task.FromResult(category);
-        }
+        return await _context.Categories
+            .FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken);
     }
 
-    public Task<bool> ExistsAsync(CategoryId categoryId, CancellationToken cancellationToken = default)
+    public async Task<Category?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var exists = _categories.Any(c => c.Id == categoryId);
-            return Task.FromResult(exists);
-        }
+        return await _context.Categories
+            .FirstOrDefaultAsync(c => c.Slug.Value == slug, cancellationToken);
     }
 
-    public Task AddAsync(Category category, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(CategoryId categoryId, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _categories.Add(category);
-            return Task.CompletedTask;
-        }
+        return await _context.Categories
+            .AnyAsync(c => c.Id == categoryId, cancellationToken);
+    }
+
+    public async Task AddAsync(Category category, CancellationToken cancellationToken = default)
+    {
+        await _context.Categories.AddAsync(category, cancellationToken);
     }
 
     public Task UpdateAsync(Category category, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var index = _categories.FindIndex(c => c.Id == category.Id);
-            if (index >= 0)
-            {
-                _categories[index] = category;
-            }
-            return Task.CompletedTask;
-        }
+        _context.Categories.Update(category);
+        return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Category category, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _categories.RemoveAll(c => c.Id == category.Id);
-            return Task.CompletedTask;
-        }
+        _context.Categories.Remove(category);
+        return Task.CompletedTask;
     }
 }

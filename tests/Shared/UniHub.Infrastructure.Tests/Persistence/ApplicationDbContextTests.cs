@@ -1,7 +1,5 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using UniHub.Infrastructure.Persistence;
-using UniHub.Infrastructure.Persistence.Interceptors;
 using UniHub.SharedKernel.Domain;
 
 namespace UniHub.Infrastructure.Tests.Persistence;
@@ -37,7 +35,7 @@ public class ApplicationDbContextTests
 
         // Assert
         model.Should().NotBeNull();
-        // Configurations will be applied when entity configurations are added
+        model.GetEntityTypes().Should().NotBeEmpty();
     }
 
     [Fact]
@@ -53,19 +51,31 @@ public class ApplicationDbContextTests
 
     private static TestDbContext CreateTestDbContext()
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+        var options = new DbContextOptionsBuilder<TestDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
         return new TestDbContext(options);
     }
 
-    // Test DbContext that extends ApplicationDbContext
-    private class TestDbContext : ApplicationDbContext
+    /// <summary>
+    /// Standalone test DbContext — does NOT inherit from ApplicationDbContext
+    /// to avoid discovering 20+ module entities that require full infrastructure configs.
+    /// </summary>
+    private class TestDbContext : DbContext
     {
-        public TestDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public TestDbContext(DbContextOptions<TestDbContext> options) : base(options) { }
 
         public DbSet<TestAggregateRoot> TestAggregates => Set<TestAggregateRoot>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TestAggregateRoot>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name);
+            });
+        }
     }
 
     // Test aggregate root for testing purposes

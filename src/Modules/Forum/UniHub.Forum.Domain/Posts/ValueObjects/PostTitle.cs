@@ -10,6 +10,9 @@ public sealed class PostTitle : ValueObject
 
     public string Value { get; private set; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private PostTitle() { Value = string.Empty; }
+
     private PostTitle(string value)
     {
         Value = value;

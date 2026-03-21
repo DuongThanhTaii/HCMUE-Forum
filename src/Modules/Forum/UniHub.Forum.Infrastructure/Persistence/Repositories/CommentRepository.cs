@@ -1,108 +1,92 @@
+using Microsoft.EntityFrameworkCore;
 using UniHub.Forum.Application.Abstractions;
 using UniHub.Forum.Application.Queries.GetComments;
 using UniHub.Forum.Domain.Comments;
 using UniHub.Forum.Domain.Posts;
+using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Forum.Infrastructure.Persistence.Repositories;
 
 /// <summary>
-/// In-memory implementation of comment repository for Forum module.
-/// TODO: Replace with EF Core implementation when database is configured.
+/// EF Core implementation of comment repository for Forum module.
 /// </summary>
 public sealed class CommentRepository : ICommentRepository
 {
-    private static readonly List<Comment> _comments = new();
-    private static readonly object _lock = new();
+    private readonly ApplicationDbContext _context;
 
-    public Task<Comment?> GetByIdAsync(CommentId commentId, CancellationToken cancellationToken = default)
+    public CommentRepository(ApplicationDbContext context)
     {
-        lock (_lock)
-        {
-            var comment = _comments.FirstOrDefault(c => c.Id == commentId);
-            return Task.FromResult(comment);
-        }
+        _context = context;
     }
 
-    public Task<IReadOnlyList<Comment>> GetByPostIdAsync(PostId postId, CancellationToken cancellationToken = default)
+    public async Task<Comment?> GetByIdAsync(CommentId commentId, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var comments = _comments
-                .Where(c => c.PostId == postId)
-                .ToList();
-            return Task.FromResult<IReadOnlyList<Comment>>(comments.AsReadOnly());
-        }
+        return await _context.Comments
+            .FirstOrDefaultAsync(c => c.Id == commentId, cancellationToken);
     }
 
-    public Task AddAsync(Comment comment, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Comment>> GetByPostIdAsync(PostId postId, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _comments.Add(comment);
-            return Task.CompletedTask;
-        }
+        var comments = await _context.Comments
+            .Where(c => c.PostId == postId)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+        return comments.AsReadOnly();
+    }
+
+    public async Task AddAsync(Comment comment, CancellationToken cancellationToken = default)
+    {
+        await _context.Comments.AddAsync(comment, cancellationToken);
     }
 
     public Task UpdateAsync(Comment comment, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var index = _comments.FindIndex(c => c.Id == comment.Id);
-            if (index >= 0)
-            {
-                _comments[index] = comment;
-            }
-            return Task.CompletedTask;
-        }
+        _context.Comments.Update(comment);
+        return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Comment comment, CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            _comments.RemoveAll(c => c.Id == comment.Id);
-            return Task.CompletedTask;
-        }
+        _context.Comments.Remove(comment);
+        return Task.CompletedTask;
     }
 
-    public Task<GetCommentsResult> GetCommentsByPostIdAsync(
+    public async Task<GetCommentsResult> GetCommentsByPostIdAsync(
         PostId postId,
         int pageNumber = 1,
         int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        lock (_lock)
-        {
-            var query = _comments.Where(c => c.PostId == postId);
+        var query = _context.Comments.Where(c => c.PostId == postId);
 
-            var totalCount = query.Count();
+        var totalCount = await query.CountAsync(cancellationToken);
 
-            // Apply pagination and ordering
-            var items = query
-                .OrderBy(c => c.CreatedAt)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Select(c => new CommentItem
-                {
-                    Id = c.Id.Value,
-                    PostId = c.PostId.Value,
-                    AuthorId = c.AuthorId,
-                    Content = c.Content.Value,
-                    ParentCommentId = c.ParentCommentId?.Value,
-                    VoteScore = c.VoteScore,
-                    IsAcceptedAnswer = c.IsAcceptedAnswer,
-                    CreatedAt = c.CreatedAt,
-                    UpdatedAt = c.UpdatedAt
-                })
-                .ToList();
-
-            return Task.FromResult(new GetCommentsResult
+        // Apply pagination and ordering
+        var items = await query
+            .OrderBy(c => c.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .Select(c => new CommentItem
             {
-                Comments = items,
-                TotalCount = totalCount,
-                PageNumber = pageNumber,
-                PageSize = pageSize
-            });
-        }
+                Id = c.Id.Value,
+                PostId = c.PostId.Value,
+                AuthorId = c.AuthorId,
+                Content = c.Content.Value,
+                ParentCommentId = c.ParentCommentId != null ? c.ParentCommentId.Value : null,
+                VoteScore = c.VoteScore,
+                IsAcceptedAnswer = c.IsAcceptedAnswer,
+                CreatedAt = c.CreatedAt,
+                UpdatedAt = c.UpdatedAt
+            })
+            .ToListAsync(cancellationToken);
+
+        return new GetCommentsResult
+        {
+            Comments = items,
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
     }
 }

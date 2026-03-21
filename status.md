@@ -2,7 +2,9 @@
 
 > **HCMUE Forum - University Portal Development Status**
 >
-> Last Updated: February 6, 2026
+> Last Updated: March 20, 2026
+
+> ⚠️ **Note**: Source of truth is `docs/tasks/STATUS.md`. The detailed legacy sections below are pending full rewrite.
 
 ---
 
@@ -11,11 +13,11 @@
 | Metric               | Value                 |
 | -------------------- | --------------------- |
 | **Project Start**    | January 2026          |
-| **Current Phase**    | Phase 5 (IN_PROGRESS) |
-| **Overall Progress** | 59/131 tasks (45.0%)  |
-| **Total Tests**      | 806 tests             |
-| **Build Status**     | ✅ Passing            |
-| **Code Quality**     | ✅ All tests pass     |
+| **Current Phase**    | Phase 9 (IN_PROGRESS) |
+| **Overall Progress** | 99/131 tasks (75.6%)  |
+| **Total Tests**      | 208+ test files present |
+| **Build Status**     | Not re-verified in this snapshot |
+| **Code Quality**     | Not re-verified in this snapshot |
 
 ---
 

@@ -88,6 +88,11 @@ public class GlobalExceptionHandler : IExceptionHandler
                 "Unauthorized",
                 null),
 
+            ForbiddenException => (
+                StatusCodes.Status403Forbidden,
+                "Forbidden",
+                null),
+
             DomainException => (
                 StatusCodes.Status400BadRequest,
                 "Business Rule Violation",
@@ -106,6 +111,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         {
             StatusCodes.Status400BadRequest => "https://tools.ietf.org/html/rfc9110#section-15.5.1",
             StatusCodes.Status401Unauthorized => "https://tools.ietf.org/html/rfc9110#section-15.5.2",
+            StatusCodes.Status403Forbidden => "https://tools.ietf.org/html/rfc9110#section-15.5.4",
             StatusCodes.Status404NotFound => "https://tools.ietf.org/html/rfc9110#section-15.5.5",
             StatusCodes.Status500InternalServerError => "https://tools.ietf.org/html/rfc9110#section-15.6.1",
             _ => "https://tools.ietf.org/html/rfc9110"

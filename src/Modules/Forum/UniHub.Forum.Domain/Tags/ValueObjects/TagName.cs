@@ -10,6 +10,9 @@ public sealed class TagName : ValueObject
 
     public string Value { get; }
 
+    /// <summary>Private parameterless constructor for EF Core.</summary>
+    private TagName() { Value = string.Empty; }
+
     private TagName(string value)
     {
         Value = value;

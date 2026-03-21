@@ -73,12 +73,15 @@ public static class DependencyInjection
             }
         });
 
+        // Register DbContext base class for UnitOfWork
+        services.AddScoped<DbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
+
         // Register Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Add health checks
         services.AddHealthChecks()
-            .AddDbContextCheck<ApplicationDbContext>(
+            .AddCheck<PostgreSqlHealthCheck>(
                 name: "postgresql",
                 tags: new[] { "database", "postgresql" });
 
@@ -106,7 +109,7 @@ public static class DependencyInjection
         {
             var settings = serviceProvider.GetRequiredService<MongoDbSettings>();
             var mongoClientSettings = MongoClientSettings.FromConnectionString(settings.ConnectionString);
-            
+
             mongoClientSettings.ConnectTimeout = TimeSpan.FromSeconds(settings.ConnectionTimeoutSeconds);
             mongoClientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(settings.ServerSelectionTimeoutSeconds);
             mongoClientSettings.MaxConnectionPoolSize = settings.MaxConnectionPoolSize;
