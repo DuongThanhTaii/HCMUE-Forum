@@ -148,3 +148,9 @@ service-account.json
 *.db
 *.sqlite
 *.sqlite3
+
+# Local-only tooling / drafts (never push content here)
+.agent/
+.team_agent/
+backups/
+docs/superpowers/
