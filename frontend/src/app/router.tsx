@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { RequireAuth, RequireRole } from './guards';
+import { AdminGuard } from './guards/AdminGuard';
 import { AuthLayout } from '@shared/components/layouts/AuthLayout';
 import { MainLayout } from '@shared/components/layouts/MainLayout';
 import { ModLayout } from '@shared/components/layouts/ModLayout';
@@ -12,8 +13,9 @@ import { CareerJobsPage } from '@features/career/components/CareerJobsPage';
 import { LoginPage } from '@features/auth/components/LoginPage';
 import { RegisterPage } from '@features/auth/components/RegisterPage';
 
-export const appRouter = createBrowserRouter([
+export const appRoutes = [
   { path: '/', element: <Navigate to="/forum" replace /> },
+  { path: '/home', element: <Navigate to="/forum" replace /> },
   {
     path: '/',
     element: <AuthLayout />,
@@ -56,18 +58,26 @@ export const appRouter = createBrowserRouter([
   },
   {
     path: '/admin',
-    element: <RequireRole roles={['Admin']} />,
+    element: <AdminGuard />,
     children: [
       {
         path: '/admin',
         element: <AdminLayout />,
         children: [
+          { index: true, element: <Navigate to="/admin/users" replace /> },
           { path: 'users', element: <Placeholder titleKey="placeholders.admin.users" /> },
           { path: 'roles', element: <Placeholder titleKey="placeholders.admin.roles" /> },
           { path: 'permissions', element: <Placeholder titleKey="placeholders.admin.permissions" /> },
+          { path: 'overrides/users', element: <Placeholder titleKey="placeholders.admin.overridesUsers" /> },
+          { path: 'overrides/groups', element: <Placeholder titleKey="placeholders.admin.overridesGroups" /> },
+          { path: 'toggles', element: <Placeholder titleKey="placeholders.admin.toggles" /> },
+          { path: 'logs/actions', element: <Placeholder titleKey="placeholders.admin.logsActions" /> },
+          { path: 'logs/audit', element: <Placeholder titleKey="placeholders.admin.logsAudit" /> },
         ],
       },
     ],
   },
-]);
+];
+
+export const appRouter = createBrowserRouter(appRoutes);
 
