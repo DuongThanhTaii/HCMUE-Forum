@@ -30,7 +30,7 @@ describe('AdminSidebar', () => {
     expect(activeLink).toHaveAttribute('aria-current', 'page');
   });
 
-  it('renders a back button to /forum', () => {
+  it('renders a back button to /home', () => {
     render(
       <MemoryRouter initialEntries={['/admin/users']}>
         <AdminSidebar />
@@ -38,6 +38,6 @@ describe('AdminSidebar', () => {
     );
 
     const backButton = screen.getByRole('link', { name: 'common.back' });
-    expect(backButton).toHaveAttribute('href', '/forum');
+    expect(backButton).toHaveAttribute('href', '/home');
   });
 });

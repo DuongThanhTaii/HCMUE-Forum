@@ -52,7 +52,7 @@ export function AdminSidebar() {
   return (
     <aside className="w-72 shrink-0 rounded-xl border border-rose-200 bg-white p-4">
       <NavLink
-        to="/forum"
+        to="/home"
         className="mb-5 inline-flex items-center rounded-md border border-rose-200 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-50"
       >
         {t('common.back')}
