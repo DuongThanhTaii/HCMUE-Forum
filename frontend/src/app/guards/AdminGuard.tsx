@@ -3,6 +3,9 @@ import { useAuth } from '@features/auth/context/useAuth'
 import { selectUserRole } from '@features/auth/model/auth.slice'
 import { useAppSelector } from '@shared/hooks/useAppSelector'
 
+const AUTH_BYPASS_IN_DEV =
+  import.meta.env.DEV && import.meta.env.VITE_DEV_BYPASS_AUTH !== 'false'
+
 const normalizeRole = (role: unknown): string | null => {
   if (typeof role !== 'string') {
     return null
@@ -15,6 +18,10 @@ const normalizeRole = (role: unknown): string | null => {
 export function AdminGuard() {
   const { isAuthenticated } = useAuth()
   const userRoles = useAppSelector(selectUserRole)
+
+  if (AUTH_BYPASS_IN_DEV) {
+    return <Outlet />
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
