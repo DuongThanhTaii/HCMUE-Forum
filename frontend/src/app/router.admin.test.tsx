@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { render, screen } from '@testing-library/react'
 import type { RouteObject } from 'react-router-dom'
@@ -68,6 +68,10 @@ describe('admin routes in app router', () => {
     vi.stubEnv('VITE_DEV_BYPASS_AUTH', 'false')
     mockedUseAuth.mockReset()
     mockedUseAppSelector.mockReset()
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
   })
 
   it('redirects non-admin from /admin/users via actual router tree', async () => {
