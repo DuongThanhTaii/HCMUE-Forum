@@ -154,3 +154,6 @@ service-account.json
 .team_agent/
 backups/
 docs/superpowers/
+
+# Cursor IDE — commit `.cursor/rules/` only; skills stay local (large/bundled)
+.cursor/skills/
