@@ -18,7 +18,7 @@ public static class DependencyInjection
     {
         services.AddAuthentication(configuration);
         services.AddRepositories();
-        services.AddServices();
+        services.AddServices(configuration);
 
         return services;
     }
@@ -61,10 +61,26 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddServices(this IServiceCollection services)
+    private static IServiceCollection AddServices(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
+        services.Configure<PermissionCacheOptions>(
+            configuration.GetSection(PermissionCacheOptions.SectionName));
+
         services.AddScoped<IPasswordHasher, PasswordHasher>();
-        services.AddSingleton<IPermissionCache, InMemoryPermissionCache>();
+        var provider = configuration[$"{PermissionCacheOptions.SectionName}:Provider"];
+        var useRedis = string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase);
+
+        if (useRedis)
+        {
+            services.AddSingleton<IPermissionCache, RedisPermissionCache>();
+        }
+        else
+        {
+            services.AddSingleton<IPermissionCache, InMemoryPermissionCache>();
+        }
+
         services.AddScoped<IPermissionChecker, PermissionChecker>();
 
         return services;

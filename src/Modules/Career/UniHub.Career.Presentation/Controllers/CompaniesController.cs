@@ -7,6 +7,7 @@ using UniHub.Career.Application.Queries.Companies.GetCompanyById;
 using UniHub.Career.Application.Queries.Companies.GetCompanyStatistics;
 using UniHub.Career.Application.Queries.Companies.GetRecentApplications;
 using UniHub.Career.Application.Queries.JobPostings.GetJobPostings;
+using UniHub.Contracts;
 
 namespace UniHub.Career.Presentation.Controllers;
 
@@ -27,7 +28,7 @@ public class CompaniesController : ControllerBase
     /// Register a new company
     /// </summary>
     [HttpPost]
-    [ProducesResponseType(typeof(CompanyResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<CompanyResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register(
         [FromBody] RegisterCompanyCommand command,
@@ -37,13 +38,13 @@ public class CompaniesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         return CreatedAtAction(
             nameof(GetById),
             new { id = result.Value.CompanyId },
-            result.Value);
+            ApiResponses.Success(result.Value, "Company registered successfully"));
     }
 
     /// <summary>
@@ -51,7 +52,7 @@ public class CompaniesController : ControllerBase
     /// </summary>
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(CompanyDetailResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<CompanyDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
@@ -60,17 +61,17 @@ public class CompaniesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return NotFound(new { error = result.Error.Message });
+            return NotFound(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
     /// Get company statistics for dashboard
     /// </summary>
     [HttpGet("{id:guid}/statistics")]
-    [ProducesResponseType(typeof(CompanyStatisticsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<CompanyStatisticsResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetStatistics(Guid id, CancellationToken cancellationToken)
     {
@@ -79,10 +80,10 @@ public class CompaniesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return NotFound(new { error = result.Error.Message });
+            return NotFound(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
@@ -90,7 +91,7 @@ public class CompaniesController : ControllerBase
     /// </summary>
     [HttpGet("{id:guid}/jobs")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(JobPostingListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<JobPostingListResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetJobs(
         Guid id,
         [FromQuery] int page = 1,
@@ -112,17 +113,17 @@ public class CompaniesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
     /// Get recent applications for company
     /// </summary>
     [HttpGet("{id:guid}/applications")]
-    [ProducesResponseType(typeof(RecentApplicationsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<RecentApplicationsResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRecentApplications(
         Guid id,
@@ -135,9 +136,9 @@ public class CompaniesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return NotFound(new { error = result.Error.Message });
+            return NotFound(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 }

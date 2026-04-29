@@ -17,10 +17,10 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
         LoadModuleAssemblies();
 
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        
+
         // Use PostgreSQL with a default connection string for design-time
         optionsBuilder.UseNpgsql(
-            "Host=localhost;Port=5432;Database=unihub_db;Username=postgres;Password=postgres",
+            "Host=127.0.0.1;Port=5432;Database=unihub;Username=unihub;Password=unihub_dev_2026",
             npgsqlOptions =>
             {
                 npgsqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);

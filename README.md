@@ -166,6 +166,8 @@ dotnet run
 
 ### Frontend Setup
 
+Primary UI is **React + Vite** under `frontend/`. The former Next.js app lives in `frontend-next/` only for migration comparison.
+
 ```bash
 cd frontend
 
@@ -174,6 +176,9 @@ npm install
 
 # Run development server
 npm run dev
+
+# Lint + i18n parity + production build (recommended before PR)
+npm run verify
 ```
 
 ---
@@ -213,11 +218,8 @@ dotnet test
 # Run specific project
 dotnet run --project src/UniHub.API
 
-# Frontend lint
-cd frontend && npm run lint
-
-# Frontend build
-cd frontend && npm run build
+# Frontend verify (lint + i18n + build)
+cd frontend && npm run verify
 ```
 
 ---

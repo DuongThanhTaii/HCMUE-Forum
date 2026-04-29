@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UniHub.Contracts;
 using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Domain.Permissions;
 using UniHub.Identity.Presentation.DTOs.Permissions;
@@ -26,12 +27,12 @@ public class PermissionsController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of permissions</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<PermissionResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<PermissionResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var permissions = await _permissionRepository.GetAllAsync(cancellationToken);
         var response = permissions.Select(MapToPermissionResponse);
-        return Ok(response);
+        return Ok(ApiResponses.Success(response));
     }
 
     /// <summary>
@@ -41,20 +42,20 @@ public class PermissionsController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Permission information</returns>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(PermissionResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PermissionResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var permission = await _permissionRepository.GetByIdAsync(
-            new PermissionId(id), 
+            new PermissionId(id),
             cancellationToken);
-        
+
         if (permission is null)
         {
-            return NotFound(new { error = "Permission not found" });
+            return NotFound(ApiResponses.Failure("Permission not found"));
         }
 
-        return Ok(MapToPermissionResponse(permission));
+        return Ok(ApiResponses.Success(MapToPermissionResponse(permission)));
     }
 
     private static PermissionResponse MapToPermissionResponse(Permission permission)

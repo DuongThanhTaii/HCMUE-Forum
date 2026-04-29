@@ -36,7 +36,7 @@ public class ApplicationsController : BaseApiController
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The created application</returns>
     [HttpPost]
-    [ProducesResponseType(typeof(ApplicationResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<ApplicationResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SubmitApplication(
         [FromBody] SubmitApplicationCommand command,
@@ -46,13 +46,13 @@ public class ApplicationsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         return CreatedAtAction(
             nameof(GetApplicationById),
             new { id = result.Value.Id },
-            result.Value);
+            ApiResponses.Success(result.Value, "Application submitted successfully"));
     }
 
     /// <summary>
@@ -63,7 +63,7 @@ public class ApplicationsController : BaseApiController
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of user's applications</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(ApplicationListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ApplicationListResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetMyApplications(
         [FromQuery] int page = 1,
@@ -80,10 +80,10 @@ public class ApplicationsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public class ApplicationsController : BaseApiController
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Application details</returns>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(ApplicationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ApplicationResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetApplicationById(Guid id, CancellationToken cancellationToken = default)
@@ -104,10 +104,10 @@ public class ApplicationsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return NotFound(new { error = result.Error.Message });
+            return NotFound(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ public class ApplicationsController : BaseApiController
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPut("{id:guid}/status")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateApplicationStatus(
@@ -128,17 +128,17 @@ public class ApplicationsController : BaseApiController
     {
         if (id != command.ApplicationId)
         {
-            return BadRequest(new { error = "Application ID in route does not match the one in request body" });
+            return BadRequest(ApiResponses.Failure("Application ID in route does not match the one in request body"));
         }
 
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
-            return NotFound(new { error = result.Error.Message });
+            return NotFound(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Application status updated successfully" });
+        return Ok(ApiResponses.Success("Application status updated successfully"));
     }
 
     /// <summary>
@@ -149,7 +149,7 @@ public class ApplicationsController : BaseApiController
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPost("{id:guid}/withdraw")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> WithdrawApplication(
@@ -159,17 +159,17 @@ public class ApplicationsController : BaseApiController
     {
         if (id != command.ApplicationId)
         {
-            return BadRequest(new { error = "Application ID in route does not match the one in request body" });
+            return BadRequest(ApiResponses.Failure("Application ID in route does not match the one in request body"));
         }
 
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
-            return NotFound(new { error = result.Error.Message });
+            return NotFound(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Application withdrawn successfully" });
+        return Ok(ApiResponses.Success("Application withdrawn successfully"));
     }
 
     /// <summary>
@@ -180,7 +180,7 @@ public class ApplicationsController : BaseApiController
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPost("{id:guid}/accept")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AcceptApplication(
@@ -190,17 +190,17 @@ public class ApplicationsController : BaseApiController
     {
         if (id != command.ApplicationId)
         {
-            return BadRequest(new { error = "Application ID in route does not match the one in request body" });
+            return BadRequest(ApiResponses.Failure("Application ID in route does not match the one in request body"));
         }
 
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
-            return NotFound(new { error = result.Error.Message });
+            return NotFound(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Job offer accepted successfully" });
+        return Ok(ApiResponses.Success("Job offer accepted successfully"));
     }
 
     /// <summary>
@@ -211,7 +211,7 @@ public class ApplicationsController : BaseApiController
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPost("{id:guid}/reject")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RejectApplication(
@@ -221,17 +221,17 @@ public class ApplicationsController : BaseApiController
     {
         if (id != command.ApplicationId)
         {
-            return BadRequest(new { error = "Application ID in route does not match the one in request body" });
+            return BadRequest(ApiResponses.Failure("Application ID in route does not match the one in request body"));
         }
 
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
-            return NotFound(new { error = result.Error.Message });
+            return NotFound(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Application rejected successfully" });
+        return Ok(ApiResponses.Success("Application rejected successfully"));
     }
 
     /// <summary>
@@ -243,7 +243,7 @@ public class ApplicationsController : BaseApiController
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of applications for the job</returns>
     [HttpGet("jobs/{jobId:guid}")]
-    [ProducesResponseType(typeof(ApplicationListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ApplicationListResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetApplicationsByJob(
         Guid jobId,
@@ -261,9 +261,9 @@ public class ApplicationsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 }

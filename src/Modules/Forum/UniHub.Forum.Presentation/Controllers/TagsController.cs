@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UniHub.Contracts;
 using UniHub.Forum.Application.Queries.GetPopularTags;
 using UniHub.Forum.Application.Queries.GetTags;
 using UniHub.Forum.Presentation.DTOs.Tags;
@@ -25,7 +26,7 @@ public class TagsController : ControllerBase
     /// </summary>
     [HttpGet]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(TagListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<TagListResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetTags(
         [FromQuery] int pageNumber = 1,
@@ -39,7 +40,7 @@ public class TagsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         var response = new TagListResponse
@@ -57,7 +58,7 @@ public class TagsController : ControllerBase
             HasNextPage = result.Value.HasNextPage
         };
 
-        return Ok(response);
+        return Ok(ApiResponses.Success(response));
     }
 
     /// <summary>
@@ -65,7 +66,7 @@ public class TagsController : ControllerBase
     /// </summary>
     [HttpGet("popular")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(IEnumerable<PopularTagResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<PopularTagResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetPopularTags(
         [FromQuery] int count = 10,
@@ -76,7 +77,7 @@ public class TagsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         var response = result.Value.Select(t => new PopularTagResponse
@@ -86,7 +87,7 @@ public class TagsController : ControllerBase
             PopularityScore = t.UsageCount // Simple popularity calculation
         }).ToList();
 
-        return Ok(response);
+        return Ok(ApiResponses.Success(response));
     }
 }
 

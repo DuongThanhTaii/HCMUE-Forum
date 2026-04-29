@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using UniHub.Contracts;
 using UniHub.AI.Application.DTOs;
 using UniHub.AI.Application.Services;
 
@@ -31,7 +32,7 @@ public class SummarizationController : ControllerBase
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>SummarizationResponse with summary and key points.</returns>
     [HttpPost("summarize")]
-    [ProducesResponseType(typeof(SummarizationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<SummarizationResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Summarize(
@@ -40,38 +41,38 @@ public class SummarizationController : ControllerBase
     {
         if (request == null || string.IsNullOrWhiteSpace(request.Content))
         {
-            return BadRequest(new { error = "Content is required for summarization." });
+            return BadRequest(ApiResponses.Failure("Content is required for summarization."));
         }
 
         try
         {
             var response = await _summarizationService.SummarizeAsync(request, cancellationToken);
-            return Ok(response);
+            return Ok(ApiResponses.Success(response));
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiResponses.Failure(ex.Message));
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiResponses.Failure(ex.Message));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while summarizing content.", details = ex.Message });
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ApiResponses.Failure($"An error occurred while summarizing content. {ex.Message}"));
         }
     }
 
     /// <summary>
     /// Extract key points from text without full summarization.
     /// </summary>
-    /// <param name="content">Content to extract key points from.</param>
-    /// <param name="maxPoints">Maximum number of key points to extract.</param>
+    /// <param name="request">Request containing content and max points.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>List of key points.</returns>
     [HttpPost("summarize/keypoints")]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ExtractKeyPoints(
@@ -80,7 +81,7 @@ public class SummarizationController : ControllerBase
     {
         if (request == null || string.IsNullOrWhiteSpace(request.Content))
         {
-            return BadRequest(new { error = "Content is required." });
+            return BadRequest(ApiResponses.Failure("Content is required."));
         }
 
         try
@@ -90,12 +91,13 @@ public class SummarizationController : ControllerBase
                 request.MaxPoints,
                 cancellationToken);
             
-            return Ok(new { keyPoints });
+            return Ok(ApiResponses.Success((object)new { keyPoints }));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while extracting key points.", details = ex.Message });
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ApiResponses.Failure($"An error occurred while extracting key points. {ex.Message}"));
         }
     }
 
@@ -106,7 +108,7 @@ public class SummarizationController : ControllerBase
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Detected language code.</returns>
     [HttpGet("summarize/detect-language")]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DetectLanguage(
@@ -115,18 +117,19 @@ public class SummarizationController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(content))
         {
-            return BadRequest(new { error = "Content parameter is required." });
+            return BadRequest(ApiResponses.Failure("Content parameter is required."));
         }
 
         try
         {
             var language = await _summarizationService.DetectLanguageAsync(content, cancellationToken);
-            return Ok(new { language });
+            return Ok(ApiResponses.Success((object)new { language }));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while detecting language.", details = ex.Message });
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ApiResponses.Failure($"An error occurred while detecting language. {ex.Message}"));
         }
     }
 
@@ -135,9 +138,9 @@ public class SummarizationController : ControllerBase
     /// </summary>
     /// <param name="cacheKey">Optional specific cache key to clear. If omitted, clears all cache.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>No content on success.</returns>
+    /// <returns>Success result.</returns>
     [HttpDelete("summarize/cache")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ClearCache(
         [FromQuery] string? cacheKey = null,
@@ -154,12 +157,13 @@ public class SummarizationController : ControllerBase
                 await _summarizationService.ClearCacheAsync(cacheKey);
             }
 
-            return NoContent();
+            return Ok(ApiResponses.Success("Cache cleared successfully"));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while clearing cache.", details = ex.Message });
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ApiResponses.Failure($"An error occurred while clearing cache. {ex.Message}"));
         }
     }
 }

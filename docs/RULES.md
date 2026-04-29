@@ -292,40 +292,79 @@ POST   /api/v1/createPost
 GET    /api/v1/post/getById
 ```
 
-### 5.2 Response Format
+### 5.2 Response Format (MANDATORY)
 
-```csharp
-// ✅ Success Response
+Tất cả REST endpoint phải trả về envelope thống nhất `ApiResponse<T>`:
+
+```json
 {
     "success": true,
-    "data": { ... },
-    "message": null
+    "data": {},
+    "message": null,
+    "error": null
 }
+```
 
-// ✅ Error Response
-{
-    "success": false,
-    "data": null,
-    "error": {
-        "code": "User.NotFound",
-        "message": "User with ID 'xxx' was not found"
-    }
-}
+- `success`: bắt buộc, kiểu `boolean`
+- `data`: payload business (hoặc `null` với command endpoint không cần body dữ liệu)
+- `message`: thông điệp thành công dạng ngắn gọn (nullable)
+- `error`: chuỗi lỗi chuẩn hóa cho FE (nullable)
 
-// ✅ Pagination Response
+✅ **Success Response**
+
+```json
 {
     "success": true,
     "data": {
-        "items": [...],
+        "id": "..."
+    },
+    "message": null,
+    "error": null
+}
+```
+
+✅ **Command-style Success (no data)**
+
+```json
+{
+    "success": true,
+    "data": null,
+    "message": "Updated successfully",
+    "error": null
+}
+```
+
+✅ **Error Response**
+
+```json
+{
+    "success": false,
+    "data": null,
+    "message": null,
+    "error": "User with ID 'xxx' was not found"
+}
+```
+
+✅ **Pagination Response** (`data` chứa paging object)
+
+```json
+{
+    "success": true,
+    "data": {
+        "items": [],
         "pageNumber": 1,
         "pageSize": 10,
         "totalCount": 100,
         "totalPages": 10,
         "hasNextPage": true,
         "hasPreviousPage": false
-    }
+    },
+    "message": null,
+    "error": null
 }
 ```
+
+❌ Không trả raw object/list trực tiếp ở top-level cho API mới.
 
 ### 5.3 HTTP Status Codes
 
@@ -333,13 +372,19 @@ GET    /api/v1/post/getById
 | ---- | ------------------------------ |
 | 200  | Success (GET, PUT)             |
 | 201  | Created (POST)                 |
-| 204  | No Content (DELETE)            |
+| 204  | Legacy only (không dùng cho API mới nếu yêu cầu envelope) |
 | 400  | Bad Request (Validation error) |
 | 401  | Unauthorized                   |
 | 403  | Forbidden                      |
 | 404  | Not Found                      |
 | 409  | Conflict                       |
 | 500  | Internal Server Error          |
+
+### 5.4 Migration Enforcement Rule (NEW)
+
+- Từ thời điểm rule này có hiệu lực, mọi endpoint mới/refactor phải theo `ApiResponse<T>`.
+- Endpoint cũ chưa migrate phải được đưa vào backlog refactor theo wave và không mở rộng contract raw-response thêm nữa.
+- Khi update docs API, ví dụ response bắt buộc thể hiện envelope trước, payload business đặt trong `data`.
 
 ---
 

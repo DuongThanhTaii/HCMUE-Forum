@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using UniHub.Contracts;
 using UniHub.AI.Application.DTOs;
 using UniHub.AI.Application.Services;
 
@@ -36,7 +37,7 @@ public class SmartSearchController : ControllerBase
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>SearchResponse with results, pagination, and suggestions.</returns>
     [HttpGet("search")]
-    [ProducesResponseType(typeof(SearchResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<SearchResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Search(
@@ -50,7 +51,7 @@ public class SmartSearchController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(q))
         {
-            return BadRequest(new { error = "Search query 'q' parameter is required." });
+            return BadRequest(ApiResponses.Failure("Search query 'q' parameter is required."));
         }
 
         try
@@ -66,20 +67,21 @@ public class SmartSearchController : ControllerBase
             };
 
             var response = await _searchService.SearchAsync(request, cancellationToken);
-            return Ok(response);
+            return Ok(ApiResponses.Success(response));
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiResponses.Failure(ex.Message));
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiResponses.Failure(ex.Message));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while performing search.", details = ex.Message });
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ApiResponses.Failure($"An error occurred while performing search. {ex.Message}"));
         }
     }
 
@@ -91,7 +93,7 @@ public class SmartSearchController : ControllerBase
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>List of suggested queries.</returns>
     [HttpGet("search/suggestions")]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetSuggestions(
@@ -101,18 +103,19 @@ public class SmartSearchController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(q))
         {
-            return BadRequest(new { error = "Query 'q' parameter is required." });
+            return BadRequest(ApiResponses.Failure("Query 'q' parameter is required."));
         }
 
         try
         {
             var suggestions = await _searchService.GetSuggestionsAsync(q, limit, cancellationToken);
-            return Ok(new { query = q, suggestions });
+            return Ok(ApiResponses.Success((object)new { query = q, suggestions }));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while getting suggestions.", details = ex.Message });
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ApiResponses.Failure($"An error occurred while getting suggestions. {ex.Message}"));
         }
     }
 
@@ -123,7 +126,7 @@ public class SmartSearchController : ControllerBase
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>QueryUnderstanding with intent, expanded query, and entities.</returns>
     [HttpGet("search/understand")]
-    [ProducesResponseType(typeof(QueryUnderstanding), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<QueryUnderstanding>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UnderstandQuery(
@@ -132,18 +135,19 @@ public class SmartSearchController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(q))
         {
-            return BadRequest(new { error = "Query 'q' parameter is required." });
+            return BadRequest(ApiResponses.Failure("Query 'q' parameter is required."));
         }
 
         try
         {
             var understanding = await _searchService.UnderstandQueryAsync(q, cancellationToken);
-            return Ok(understanding);
+            return Ok(ApiResponses.Success(understanding));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while understanding query.", details = ex.Message });
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ApiResponses.Failure($"An error occurred while understanding query. {ex.Message}"));
         }
     }
 
@@ -154,7 +158,7 @@ public class SmartSearchController : ControllerBase
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>SearchResponse with results and metadata.</returns>
     [HttpPost("search")]
-    [ProducesResponseType(typeof(SearchResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<SearchResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AdvancedSearch(
@@ -163,26 +167,27 @@ public class SmartSearchController : ControllerBase
     {
         if (request == null || string.IsNullOrWhiteSpace(request.Query))
         {
-            return BadRequest(new { error = "Search query is required." });
+            return BadRequest(ApiResponses.Failure("Search query is required."));
         }
 
         try
         {
             var response = await _searchService.SearchAsync(request, cancellationToken);
-            return Ok(response);
+            return Ok(ApiResponses.Success(response));
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiResponses.Failure(ex.Message));
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiResponses.Failure(ex.Message));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while performing search.", details = ex.Message });
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ApiResponses.Failure($"An error occurred while performing search. {ex.Message}"));
         }
     }
 }

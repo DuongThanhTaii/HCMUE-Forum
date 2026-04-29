@@ -19,8 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\UniHub.API\UniHub.API.csproj" />
     <ProjectReference Include="..\..\..\..\src\Modules\Identity\UniHub.Identity.Infrastructure\UniHub.Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\..\src\Modules\Identity\UniHub.Identity.Domain\UniHub.Identity.Domain.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Modules\Identity\UniHub.Identity.Presentation\UniHub.Identity.Presentation.csproj" />
     <ProjectReference Include="..\..\..\..\src\Shared\UniHub.SharedKernel\UniHub.SharedKernel.csproj" />
   </ItemGroup>
 

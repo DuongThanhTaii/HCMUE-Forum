@@ -32,7 +32,7 @@ public class CommentsController : BaseApiController
     /// </summary>
     [HttpPost("posts/{postId:guid}")]
     [Authorize]
-    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddComment(
@@ -52,10 +52,10 @@ public class CommentsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Created(string.Empty, new { commentId = result.Value });
+        return Created(string.Empty, ApiResponses.Success((object)new { commentId = result.Value }, "Comment created successfully"));
     }
 
     /// <summary>
@@ -63,7 +63,7 @@ public class CommentsController : BaseApiController
     /// </summary>
     [HttpPut("{id:guid}")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateComment(
@@ -78,10 +78,10 @@ public class CommentsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Comment updated successfully"));
     }
 
     /// <summary>
@@ -89,7 +89,7 @@ public class CommentsController : BaseApiController
     /// </summary>
     [HttpDelete("{id:guid}")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteComment(
@@ -103,10 +103,10 @@ public class CommentsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Comment deleted successfully"));
     }
 
     /// <summary>
@@ -114,7 +114,7 @@ public class CommentsController : BaseApiController
     /// </summary>
     [HttpPost("{id:guid}/vote")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> VoteComment(
@@ -130,10 +130,10 @@ public class CommentsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Comment voted successfully"));
     }
 
     /// <summary>
@@ -141,7 +141,7 @@ public class CommentsController : BaseApiController
     /// </summary>
     [HttpPost("{id:guid}/accept")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AcceptAnswer(
@@ -156,10 +156,10 @@ public class CommentsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Answer accepted successfully"));
     }
 
     /// <summary>
@@ -167,7 +167,7 @@ public class CommentsController : BaseApiController
     /// </summary>
     [HttpPost("{id:guid}/report")]
     [Authorize]
-    [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ReportComment(
@@ -187,9 +187,9 @@ public class CommentsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Created(string.Empty, new { reportId = result.Value });
+        return Created(string.Empty, ApiResponses.Success((object)new { reportId = result.Value }, "Comment reported successfully"));
     }
 }

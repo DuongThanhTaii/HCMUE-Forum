@@ -39,7 +39,7 @@ public class PostsController : BaseApiController
     /// </summary>
     [HttpGet]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(PostListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PostListResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetPosts(
         [FromQuery] int pageNumber = 1,
@@ -54,7 +54,7 @@ public class PostsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         var response = new PostListResponse
@@ -85,7 +85,7 @@ public class PostsController : BaseApiController
             HasNextPage = result.Value.HasNextPage
         };
 
-        return Ok(response);
+        return Ok(ApiResponses.Success(response));
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public class PostsController : BaseApiController
     /// </summary>
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(PostResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PostResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetPostById(
         Guid id,
@@ -104,7 +104,7 @@ public class PostsController : BaseApiController
 
         if (result.IsFailure || result.Value == null)
         {
-            return NotFound(new { error = "Post not found" });
+            return NotFound(ApiResponses.Failure("Post not found"));
         }
 
         var response = new PostResponse
@@ -126,7 +126,7 @@ public class PostsController : BaseApiController
             PublishedAt = result.Value.PublishedAt
         };
 
-        return Ok(response);
+        return Ok(ApiResponses.Success(response));
     }
 
     /// <summary>
@@ -134,7 +134,7 @@ public class PostsController : BaseApiController
     /// </summary>
     [HttpPost]
     [Authorize]
-    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreatePost(
         [FromBody] CreatePostRequest request,
@@ -154,13 +154,14 @@ public class PostsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
+        var payload = ApiResponses.Success((object)new { postId = result.Value }, "Post created successfully");
         return CreatedAtAction(
             nameof(GetPostById),
             new { id = result.Value },
-            new { postId = result.Value });
+            payload);
     }
 
     /// <summary>
@@ -168,7 +169,7 @@ public class PostsController : BaseApiController
     /// </summary>
     [HttpPut("{id:guid}")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdatePost(
@@ -190,10 +191,10 @@ public class PostsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Post updated successfully"));
     }
 
     /// <summary>
@@ -201,7 +202,7 @@ public class PostsController : BaseApiController
     /// </summary>
     [HttpDelete("{id:guid}")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeletePost(
@@ -215,10 +216,10 @@ public class PostsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Post deleted successfully"));
     }
 
     /// <summary>
@@ -226,7 +227,7 @@ public class PostsController : BaseApiController
     /// </summary>
     [HttpPost("{id:guid}/publish")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PublishPost(
@@ -240,10 +241,10 @@ public class PostsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Post published successfully"));
     }
 
     /// <summary>
@@ -251,7 +252,7 @@ public class PostsController : BaseApiController
     /// </summary>
     [HttpPost("{id:guid}/pin")]
     [Authorize(Roles = "Admin,Moderator")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PinPost(
@@ -265,10 +266,10 @@ public class PostsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Post pin state updated successfully"));
     }
 
     /// <summary>
@@ -276,7 +277,7 @@ public class PostsController : BaseApiController
     /// </summary>
     [HttpPost("{id:guid}/vote")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> VotePost(
@@ -292,10 +293,10 @@ public class PostsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Post voted successfully"));
     }
 
     /// <summary>
@@ -303,7 +304,7 @@ public class PostsController : BaseApiController
     /// </summary>
     [HttpGet("{id:guid}/comments")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(CommentListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<CommentListResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetPostComments(
         Guid id,
@@ -316,7 +317,7 @@ public class PostsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         var response = new CommentListResponse
@@ -341,7 +342,7 @@ public class PostsController : BaseApiController
             HasNextPage = result.Value.HasNextPage
         };
 
-        return Ok(response);
+        return Ok(ApiResponses.Success(response));
     }
 
     /// <summary>
@@ -349,7 +350,7 @@ public class PostsController : BaseApiController
     /// </summary>
     [HttpPost("{id:guid}/bookmark")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> BookmarkPost(
@@ -363,10 +364,10 @@ public class PostsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Post bookmarked successfully"));
     }
 
     /// <summary>
@@ -374,7 +375,7 @@ public class PostsController : BaseApiController
     /// </summary>
     [HttpDelete("{id:guid}/bookmark")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UnbookmarkPost(
@@ -388,10 +389,10 @@ public class PostsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Post unbookmarked successfully"));
     }
 
     /// <summary>
@@ -399,7 +400,7 @@ public class PostsController : BaseApiController
     /// </summary>
     [HttpPost("{id:guid}/report")]
     [Authorize]
-    [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ReportPost(
@@ -419,9 +420,9 @@ public class PostsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Created(string.Empty, new { reportId = result.Value });
+        return Created(string.Empty, ApiResponses.Success((object)new { reportId = result.Value }, "Post reported successfully"));
     }
 }

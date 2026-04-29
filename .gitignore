@@ -39,6 +39,9 @@ packages/
 *.nuget.targets
 
 # Node.js / Frontend
+# Legacy Next.js copy for local migration comparison only (not pushed)
+frontend-next/
+
 node_modules/
 .next/
 out/

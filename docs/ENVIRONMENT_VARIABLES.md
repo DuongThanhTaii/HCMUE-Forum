@@ -60,6 +60,51 @@ localhost:6379
 
 ---
 
+## 🧠 Identity Permission Cache
+
+Control dynamic authorization permission cache provider and behavior.
+
+```bash
+IDENTITY__PERMISSIONCACHE__PROVIDER=InMemory
+IDENTITY__PERMISSIONCACHE__EXPIRATIONMINUTES=15
+IDENTITY__PERMISSIONCACHE__REDISINSTANCENAME=UniHub:Identity
+```
+
+**Recommended values:**
+- `InMemory` for local development and single-instance test runs.
+- `Redis` for staging/production multi-instance deployments.
+
+When using `Redis`, ensure `CONNECTIONSTRINGS__REDIS` is configured.
+
+---
+
+## 🧾 User Action Logging (Middleware)
+
+Enable detailed per-request action trace for auditing user behavior.
+
+```bash
+OBSERVABILITY__USERACTIONLOGGING__ENABLED=true
+OBSERVABILITY__USERACTIONLOGGING__PERSISTTOMONGO=true
+OBSERVABILITY__USERACTIONLOGGING__MONGOCOLLECTIONNAME=user_action_logs
+OBSERVABILITY__USERACTIONLOGGING__RETENTIONDAYS=90
+OBSERVABILITY__USERACTIONLOGGING__DEFAULTQUERYPAGESIZE=100
+OBSERVABILITY__USERACTIONLOGGING__MAXQUERYPAGESIZE=500
+OBSERVABILITY__USERACTIONLOGGING__CORRELATIONHEADERNAME=X-Correlation-Id
+OBSERVABILITY__USERACTIONLOGGING__EXCLUDEDPATHPREFIXES__0=/health
+OBSERVABILITY__USERACTIONLOGGING__EXCLUDEDPATHPREFIXES__1=/openapi
+OBSERVABILITY__USERACTIONLOGGING__EXCLUDEDPATHPREFIXES__2=/scalar
+OBSERVABILITY__USERACTIONLOGGING__EXCLUDEDPATHPREFIXES__3=/hubs
+```
+
+Logged fields include:
+- actor user id (`sub` / `nameidentifier` / anonymous)
+- method, path, endpoint display name
+- status code, duration, result
+- trace id + correlation id
+- remote IP + user agent
+
+---
+
 ## 🚀 Deployment Platforms
 
 ### Railway
@@ -79,6 +124,29 @@ Set environment variables in Railway dashboard:
 ```bash
 NEXT_PUBLIC_API_URL=https://your-api-url.railway.app
 ```
+
+---
+
+## 🌱 High-Volume Seeding (Local)
+
+Use these settings only for local performance testing datasets.
+
+```bash
+SEEDING__HIGHVOLUME__ENABLED=true
+SEEDING__HIGHVOLUME__FORCERESEED=true
+SEEDING__HIGHVOLUME__SKIPMIGRATIONS=true
+SEEDING__HIGHVOLUME__TARGETTOTALROWS=500000
+SEEDING__HIGHVOLUME__BATCHSIZE=5000
+SEEDING__HIGHVOLUME__EXITAFTERSEEDING=true
+```
+
+Notes:
+- `SEEDING__HIGHVOLUME__ENABLED`: bật chế độ seed dữ liệu lớn.
+- `SEEDING__HIGHVOLUME__FORCERESEED`: xóa và seed lại toàn bộ bảng trong shared PostgreSQL schema.
+- `SEEDING__HIGHVOLUME__SKIPMIGRATIONS`: bỏ qua `MigrateAsync()` trong lúc seed lớn nếu local DB đã có schema.
+- `SEEDING__HIGHVOLUME__TARGETTOTALROWS`: tổng số bản ghi mục tiêu (hệ thống sẽ scale theo tỷ lệ, mặc định ~500k).
+- `SEEDING__HIGHVOLUME__BATCHSIZE`: số record mỗi batch SQL (nên bắt đầu 2k-10k tùy máy).
+- `SEEDING__HIGHVOLUME__EXITAFTERSEEDING`: seed xong thì app tự thoát thay vì chạy server API (tránh cảm giác bị treo khi chỉ muốn seed).
 
 ---
 
