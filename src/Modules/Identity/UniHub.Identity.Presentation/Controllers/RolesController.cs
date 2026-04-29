@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UniHub.Contracts;
 using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Application.Commands.AssignScopedPermission;
 using UniHub.Identity.Application.Commands.RemoveScopedPermission;
@@ -34,12 +35,12 @@ public class RolesController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of roles</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<RoleResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<RoleResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var roles = await _roleRepository.GetAllAsync(cancellationToken);
         var response = roles.Select(MapToRoleResponse);
-        return Ok(response);
+        return Ok(ApiResponses.Success(response));
     }
 
     /// <summary>
@@ -49,18 +50,18 @@ public class RolesController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Role information</returns>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(RoleResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<RoleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdAsync(new RoleId(id), cancellationToken);
-        
+
         if (role is null)
         {
-            return NotFound(new { error = "Role not found" });
+            return NotFound(ApiResponses.Failure("Role not found"));
         }
 
-        return Ok(MapToRoleResponse(role));
+        return Ok(ApiResponses.Success(MapToRoleResponse(role)));
     }
 
     /// <summary>
@@ -82,19 +83,19 @@ public class RolesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         // Fetch the created role to return full response
         var role = await _roleRepository.GetByIdAsync(new RoleId(result.Value), cancellationToken);
         if (role is null)
         {
-            // Shouldn't happen, but handle gracefully
-            return CreatedAtAction(nameof(GetById), new { id = result.Value }, new { id = result.Value });
+            var fallbackPayload = ApiResponses.Success(new { id = result.Value }, "Role created successfully");
+            return CreatedAtAction(nameof(GetById), new { id = result.Value }, fallbackPayload);
         }
 
         var response = MapToRoleResponse(role);
-        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, ApiResponses.Success(response, "Role created successfully"));
     }
 
     /// <summary>
@@ -119,10 +120,10 @@ public class RolesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Role updated successfully" });
+        return Ok(ApiResponses.Success("Role updated successfully"));
     }
 
     /// <summary>
@@ -143,13 +144,12 @@ public class RolesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Role deleted successfully" });
+        return Ok(ApiResponses.Success("Role deleted successfully"));
     }
 
-    /// <summary>
     /// <summary>
     /// Assign permission to role (Admin only)
     /// </summary>
@@ -176,10 +176,10 @@ public class RolesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Permission assigned successfully" });
+        return Ok(ApiResponses.Success("Permission assigned successfully"));
     }
 
     /// <summary>
@@ -212,10 +212,10 @@ public class RolesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Permission removed successfully" });
+        return Ok(ApiResponses.Success("Permission removed successfully"));
     }
 
     private static RoleResponse MapToRoleResponse(Role role)

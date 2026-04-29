@@ -39,6 +39,9 @@ packages/
 *.nuget.targets
 
 # Node.js / Frontend
+# Legacy Next.js copy for local migration comparison only (not pushed)
+frontend-next/
+
 node_modules/
 .next/
 out/
@@ -145,3 +148,12 @@ service-account.json
 *.db
 *.sqlite
 *.sqlite3
+
+# Local-only tooling / drafts (never push content here)
+.agent/
+.team_agent/
+backups/
+docs/superpowers/
+
+# Cursor IDE — commit `.cursor/rules/` only; skills stay local (large/bundled)
+.cursor/skills/

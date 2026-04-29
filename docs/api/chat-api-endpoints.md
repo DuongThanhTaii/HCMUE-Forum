@@ -12,7 +12,33 @@ The Chat Module provides real-time messaging capabilities through REST APIs and 
 
 **Authentication:** All endpoints require JWT Bearer token authentication.
 
-**Response Format:** JSON
+**Response Format:** `ApiResponse<T>` envelope JSON
+
+> FE note: từ 2026-03-26, Chat endpoints đã migrate sang envelope. Các payload ví dụ cũ bên dưới nên được hiểu là phần `data` bên trong `ApiResponse<T>`.
+>
+> Frontend-friendly quick reference: `docs/api/chat-fe-api.md`.
+
+Envelope mẫu (success):
+
+```json
+{
+  "success": true,
+  "data": {},
+  "message": "optional",
+  "error": null
+}
+```
+
+Envelope mẫu (failure):
+
+```json
+{
+  "success": false,
+  "data": null,
+  "message": null,
+  "error": "Human readable message"
+}
+```
 
 ---
 

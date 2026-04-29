@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -18,12 +19,30 @@ public static class DatabaseSeeder
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<ApplicationDbContext>>();
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
         try
         {
-            logger.LogInformation("Applying database migrations...");
-            await context.Database.MigrateAsync();
-            logger.LogInformation("Database migrations applied successfully.");
+            var highVolumeEnabled = configuration.GetValue<bool>("Seeding:HighVolume:Enabled");
+            var skipMigrations = configuration.GetValue<bool>("Seeding:HighVolume:SkipMigrations");
+
+            if (!(highVolumeEnabled && skipMigrations))
+            {
+                logger.LogInformation("Applying database migrations...");
+                await context.Database.MigrateAsync();
+                logger.LogInformation("Database migrations applied successfully.");
+            }
+            else
+            {
+                logger.LogWarning("Skipping migrations before high-volume seed because Seeding:HighVolume:SkipMigrations=true.");
+            }
+
+            if (highVolumeEnabled)
+            {
+                await HighVolumeDatabaseSeed.SeedAsync(context, configuration, logger);
+                logger.LogInformation("High-volume database seeding completed successfully.");
+                return;
+            }
 
             // Seed data in order of dependencies
             await IdentitySeed.SeedAsync(context, logger);

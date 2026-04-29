@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using UniHub.Contracts;
 using UniHub.AI.Application.DTOs;
 using UniHub.AI.Application.Services;
 using UniHub.AI.Domain.Entities;
@@ -36,7 +37,7 @@ public class AIChatController : ControllerBase
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>ChatResponse with bot's reply.</returns>
     [HttpPost("chat")]
-    [ProducesResponseType(typeof(ChatResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ChatResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Chat(
@@ -45,22 +46,23 @@ public class AIChatController : ControllerBase
     {
         if (request == null || string.IsNullOrWhiteSpace(request.Message))
         {
-            return BadRequest(new { error = "Message is required." });
+            return BadRequest(ApiResponses.Failure("Message is required."));
         }
 
         try
         {
             var response = await _uniBotService.ChatAsync(request, cancellationToken);
-            return Ok(response);
+            return Ok(ApiResponses.Success(response));
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiResponses.Failure(ex.Message));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while processing your request.", details = ex.Message });
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ApiResponses.Failure($"An error occurred while processing your request. {ex.Message}"));
         }
     }
 
@@ -71,7 +73,7 @@ public class AIChatController : ControllerBase
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>List of conversations.</returns>
     [HttpGet("conversations")]
-    [ProducesResponseType(typeof(IReadOnlyList<Conversation>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<Conversation>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetConversations(
@@ -80,23 +82,24 @@ public class AIChatController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(userId))
         {
-            return BadRequest(new { error = "userId parameter is required." });
+            return BadRequest(ApiResponses.Failure("userId parameter is required."));
         }
 
         if (!Guid.TryParse(userId, out var userGuid))
         {
-            return BadRequest(new { error = "Invalid userId format." });
+            return BadRequest(ApiResponses.Failure("Invalid userId format."));
         }
 
         try
         {
             var conversations = await _conversationService.GetByUserIdAsync(userGuid, cancellationToken: cancellationToken);
-            return Ok(conversations);
+            return Ok(ApiResponses.Success(conversations));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while retrieving conversations.", details = ex.Message });
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ApiResponses.Failure($"An error occurred while retrieving conversations. {ex.Message}"));
         }
     }
 
@@ -107,7 +110,7 @@ public class AIChatController : ControllerBase
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Conversation details.</returns>
     [HttpGet("conversations/{id:guid}")]
-    [ProducesResponseType(typeof(Conversation), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<Conversation>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetConversation(
@@ -118,10 +121,10 @@ public class AIChatController : ControllerBase
         
         if (conversation == null)
         {
-            return NotFound(new { error = $"Conversation with ID '{id}' not found." });
+            return NotFound(ApiResponses.Failure($"Conversation with ID '{id}' not found."));
         }
 
-        return Ok(conversation);
+        return Ok(ApiResponses.Success(conversation));
     }
 
     /// <summary>
@@ -129,9 +132,9 @@ public class AIChatController : ControllerBase
     /// </summary>
     /// <param name="id">Conversation ID to close.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>No content on success.</returns>
+    /// <returns>Success result.</returns>
     [HttpDelete("conversations/{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteConversation(
         Guid id,
@@ -141,9 +144,9 @@ public class AIChatController : ControllerBase
         
         if (!closed)
         {
-            return NotFound(new { error = $"Conversation with ID '{id}' not found." });
+            return NotFound(ApiResponses.Failure($"Conversation with ID '{id}' not found."));
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Conversation deleted successfully"));
     }
 }

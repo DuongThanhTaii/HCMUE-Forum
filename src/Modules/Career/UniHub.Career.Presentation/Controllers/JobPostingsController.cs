@@ -34,7 +34,7 @@ public class JobPostingsController : BaseApiController
     /// </summary>
     [HttpGet]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(JobPostingListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<JobPostingListResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(
         [FromQuery] Guid? companyId,
         [FromQuery] string? jobType,
@@ -62,10 +62,10 @@ public class JobPostingsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ public class JobPostingsController : BaseApiController
     /// </summary>
     [HttpGet("search")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(JobPostingSearchResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<JobPostingSearchResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Search(
         [FromQuery] string? keywords,
         [FromQuery] Guid? companyId,
@@ -117,10 +117,10 @@ public class JobPostingsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ public class JobPostingsController : BaseApiController
     /// </summary>
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(JobPostingResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<JobPostingResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
@@ -137,17 +137,17 @@ public class JobPostingsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return NotFound(new { error = result.Error.Message });
+            return NotFound(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
     /// Create a new job posting
     /// </summary>
     [HttpPost]
-    [ProducesResponseType(typeof(JobPostingResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<JobPostingResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(
         [FromBody] CreateJobPostingCommand command,
@@ -157,20 +157,20 @@ public class JobPostingsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         return CreatedAtAction(
             nameof(GetById),
             new { id = result.Value.JobPostingId },
-            result.Value);
+            ApiResponses.Success(result.Value, "Job posting created successfully"));
     }
 
     /// <summary>
     /// Update an existing job posting
     /// </summary>
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(JobPostingResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<JobPostingResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(
@@ -180,24 +180,24 @@ public class JobPostingsController : BaseApiController
     {
         if (id != command.JobPostingId)
         {
-            return BadRequest(new { error = "ID mismatch" });
+            return BadRequest(ApiResponses.Failure("ID mismatch"));
         }
 
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
     /// Publish a job posting
     /// </summary>
     [HttpPost("{id:guid}/publish")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Publish(Guid id, CancellationToken cancellationToken)
     {
@@ -206,17 +206,17 @@ public class JobPostingsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Job posting published successfully" });
+        return Ok(ApiResponses.Success("Job posting published successfully"));
     }
 
     /// <summary>
     /// Close a job posting
     /// </summary>
     [HttpPost("{id:guid}/close")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Close(
         Guid id,
@@ -225,24 +225,24 @@ public class JobPostingsController : BaseApiController
     {
         if (id != command.JobPostingId)
         {
-            return BadRequest(new { error = "ID mismatch" });
+            return BadRequest(ApiResponses.Failure("ID mismatch"));
         }
 
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Job posting closed successfully" });
+        return Ok(ApiResponses.Success("Job posting closed successfully"));
     }
 
     /// <summary>
     /// Save a job posting to user's favorites
     /// </summary>
     [HttpPost("{id:guid}/save")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SaveJob(Guid id, CancellationToken cancellationToken)
     {
@@ -252,17 +252,17 @@ public class JobPostingsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Job saved successfully" });
+        return Ok(ApiResponses.Success("Job saved successfully"));
     }
 
     /// <summary>
     /// Remove a job posting from user's favorites
     /// </summary>
     [HttpDelete("{id:guid}/save")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UnsaveJob(Guid id, CancellationToken cancellationToken)
     {
@@ -272,17 +272,17 @@ public class JobPostingsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Job unsaved successfully" });
+        return Ok(ApiResponses.Success("Job unsaved successfully"));
     }
 
     /// <summary>
     /// Get user's saved jobs
     /// </summary>
     [HttpGet("saved")]
-    [ProducesResponseType(typeof(SavedJobsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<SavedJobsResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetSavedJobs(
         [FromQuery] Guid userId,
         [FromQuery] int page = 1,
@@ -294,17 +294,17 @@ public class JobPostingsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
     /// Check if a job is saved by user
     /// </summary>
     [HttpGet("{id:guid}/saved")]
-    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     public async Task<IActionResult> IsJobSaved(Guid id, [FromQuery] Guid userId, CancellationToken cancellationToken)
     {
         var query = new IsJobSavedQuery(userId, id);
@@ -312,9 +312,9 @@ public class JobPostingsController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { isSaved = result.Value });
+        return Ok(ApiResponses.Success((object)new { isSaved = result.Value }));
     }
 }

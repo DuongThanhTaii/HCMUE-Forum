@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
@@ -61,8 +62,9 @@ public static class DependencyInjection
 
             // Add interceptors
             var auditableInterceptor = serviceProvider.GetRequiredService<AuditableEntityInterceptor>();
-            var domainEventInterceptor = serviceProvider.GetRequiredService<DomainEventInterceptor>();
-            options.AddInterceptors(auditableInterceptor, domainEventInterceptor);
+                var domainEventInterceptor = serviceProvider.GetRequiredService<DomainEventInterceptor>();
+                options.AddInterceptors(auditableInterceptor, domainEventInterceptor);
+                options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
 
             // Enable detailed errors in development
             var detailedErrors = configuration.GetSection("DetailedErrors").Get<bool>();
@@ -101,6 +103,8 @@ public static class DependencyInjection
         // Register settings
         var mongoSettings = configuration.GetSection(MongoDbSettings.SectionName).Get<MongoDbSettings>()
             ?? throw new InvalidOperationException($"MongoDB settings section '{MongoDbSettings.SectionName}' not found.");
+        mongoSettings.ConnectionString = mongoSettings.ConnectionString.Trim();
+        mongoSettings.DatabaseName = mongoSettings.DatabaseName.Trim();
 
         services.AddSingleton(mongoSettings);
 

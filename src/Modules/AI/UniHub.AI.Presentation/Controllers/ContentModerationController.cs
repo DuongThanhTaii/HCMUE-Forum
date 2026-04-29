@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using UniHub.Contracts;
 using UniHub.AI.Application.DTOs;
 using UniHub.AI.Application.Services;
 
@@ -31,7 +32,7 @@ public class ContentModerationController : ControllerBase
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>ModerationResponse with violation details and action recommendation.</returns>
     [HttpPost("moderate")]
-    [ProducesResponseType(typeof(ModerationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ModerationResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ModerateContent(
@@ -40,22 +41,23 @@ public class ContentModerationController : ControllerBase
     {
         if (request == null || string.IsNullOrWhiteSpace(request.Content))
         {
-            return BadRequest(new { error = "Content is required for moderation." });
+            return BadRequest(ApiResponses.Failure("Content is required for moderation."));
         }
 
         try
         {
             var response = await _moderationService.ModerateAsync(request, cancellationToken);
-            return Ok(response);
+            return Ok(ApiResponses.Success(response));
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiResponses.Failure(ex.Message));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while moderating content.", details = ex.Message });
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ApiResponses.Failure($"An error occurred while moderating content. {ex.Message}"));
         }
     }
 
@@ -66,7 +68,7 @@ public class ContentModerationController : ControllerBase
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Simple boolean indicating if content is safe.</returns>
     [HttpGet("moderate/check")]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CheckContentSafety(
@@ -75,7 +77,7 @@ public class ContentModerationController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(content))
         {
-            return BadRequest(new { error = "Content parameter is required." });
+            return BadRequest(ApiResponses.Failure("Content parameter is required."));
         }
 
         try
@@ -88,18 +90,19 @@ public class ContentModerationController : ControllerBase
 
             var response = await _moderationService.ModerateAsync(request, cancellationToken);
             
-            return Ok(new 
-            { 
+            return Ok(ApiResponses.Success((object)new
+            {
                 isSafe = response.IsSafe,
                 riskScore = response.ConfidenceScore,
                 isBlocked = response.IsBlocked,
                 requiresReview = response.RequiresReview
-            });
+            }));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { error = "An error occurred while checking content safety.", details = ex.Message });
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ApiResponses.Failure($"An error occurred while checking content safety. {ex.Message}"));
         }
     }
 }

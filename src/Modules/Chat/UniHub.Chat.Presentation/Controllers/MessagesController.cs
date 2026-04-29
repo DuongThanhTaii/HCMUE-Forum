@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using UniHub.Contracts;
 using UniHub.Chat.Application.Commands.AddReaction;
 using UniHub.Chat.Application.Commands.MarkMessageAsRead;
 using UniHub.Chat.Application.Commands.RemoveReaction;
@@ -34,7 +35,7 @@ public class MessagesController : ControllerBase
     /// Get messages for a conversation with pagination
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResponse<MessageResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PagedResponse<MessageResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -51,20 +52,20 @@ public class MessagesController : ControllerBase
         {
             if (result.Error.Code == "Conversation.NotFound")
             {
-                return NotFound(new { error = result.Error.Message });
+                return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
     /// Send a text message to a conversation
     /// </summary>
     [HttpPost]
-    [ProducesResponseType(typeof(SendMessageResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<SendMessageResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -87,15 +88,15 @@ public class MessagesController : ControllerBase
         {
             if (result.Error.Code.Contains("NotFound"))
             {
-                return NotFound(new { error = result.Error.Message });
+                return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
             if (result.Error.Code.Contains("NotParticipant"))
             {
-                return Forbid();
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
             }
 
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         var response = new SendMessageResponse
@@ -107,14 +108,14 @@ public class MessagesController : ControllerBase
         return CreatedAtAction(
             nameof(GetMessages),
             new { conversationId = request.ConversationId },
-            response);
+            ApiResponses.Success(response, "Message sent successfully"));
     }
 
     /// <summary>
     /// Upload a file for chat
     /// </summary>
     [HttpPost("upload")]
-    [ProducesResponseType(typeof(UploadFileResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<UploadFileResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UploadFile(
@@ -123,7 +124,7 @@ public class MessagesController : ControllerBase
     {
         if (file == null || file.Length == 0)
         {
-            return BadRequest(new { error = "No file provided" });
+            return BadRequest(ApiResponses.Failure("No file provided"));
         }
 
         var userId = GetUserId();
@@ -141,7 +142,7 @@ public class MessagesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         var response = new UploadFileResponse
@@ -152,14 +153,14 @@ public class MessagesController : ControllerBase
             ContentType = result.Value.ContentType
         };
 
-        return Ok(response);
+        return Ok(ApiResponses.Success(response));
     }
 
     /// <summary>
     /// Send a message with file attachments
     /// </summary>
     [HttpPost("with-attachments")]
-    [ProducesResponseType(typeof(SendMessageResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<SendMessageResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -192,15 +193,15 @@ public class MessagesController : ControllerBase
         {
             if (result.Error.Code.Contains("NotFound"))
             {
-                return NotFound(new { error = result.Error.Message });
+                return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
             if (result.Error.Code.Contains("NotParticipant"))
             {
-                return Forbid();
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
             }
 
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         var response = new SendMessageResponse
@@ -212,14 +213,14 @@ public class MessagesController : ControllerBase
         return CreatedAtAction(
             nameof(GetMessages),
             new { conversationId = request.ConversationId },
-            response);
+            ApiResponses.Success(response, "Message sent successfully"));
     }
 
     /// <summary>
     /// Add an emoji reaction to a message
     /// </summary>
     [HttpPost("{messageId}/reactions")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -236,20 +237,20 @@ public class MessagesController : ControllerBase
         {
             if (result.Error.Code == "Message.NotFound")
             {
-                return NotFound(new { error = result.Error.Message });
+                return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { success = true });
+        return Ok(ApiResponses.Success("Reaction added successfully"));
     }
 
     /// <summary>
     /// Remove an emoji reaction from a message
     /// </summary>
     [HttpDelete("{messageId}/reactions/{emoji}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -266,20 +267,20 @@ public class MessagesController : ControllerBase
         {
             if (result.Error.Code == "Message.NotFound")
             {
-                return NotFound(new { error = result.Error.Message });
+                return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { success = true });
+        return Ok(ApiResponses.Success("Reaction removed successfully"));
     }
 
     /// <summary>
     /// Mark a message as read
     /// </summary>
     [HttpPost("{messageId}/read")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -295,20 +296,20 @@ public class MessagesController : ControllerBase
         {
             if (result.Error.Code == "Message.NotFound")
             {
-                return NotFound(new { error = result.Error.Message });
+                return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { success = true });
+        return Ok(ApiResponses.Success("Message marked as read"));
     }
 
     /// <summary>
     /// Get read receipts for a message
     /// </summary>
     [HttpGet("{messageId}/read-receipts")]
-    [ProducesResponseType(typeof(List<ReadReceiptResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<List<ReadReceiptResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -323,13 +324,13 @@ public class MessagesController : ControllerBase
         {
             if (result.Error.Code == "Message.NotFound")
             {
-                return NotFound(new { error = result.Error.Message });
+                return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     private Guid GetUserId()

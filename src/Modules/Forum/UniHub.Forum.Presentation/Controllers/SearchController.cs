@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UniHub.Contracts;
 using UniHub.Forum.Application.Queries.SearchPosts;
 using UniHub.Forum.Presentation.DTOs.Posts;
 
@@ -24,7 +25,7 @@ public class SearchController : ControllerBase
     /// </summary>
     [HttpGet]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(SearchPostsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<SearchPostsResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SearchPosts(
         [FromQuery] string q,
@@ -37,7 +38,7 @@ public class SearchController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(q))
         {
-            return BadRequest(new { error = "Search term is required" });
+            return BadRequest(ApiResponses.Failure("Search term is required"));
         }
 
         var tagList = string.IsNullOrWhiteSpace(tags)
@@ -56,7 +57,7 @@ public class SearchController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         var response = new SearchPostsResponse
@@ -86,7 +87,7 @@ public class SearchController : ControllerBase
             HasNextPage = result.Value.HasNextPage
         };
 
-        return Ok(response);
+        return Ok(ApiResponses.Success(response));
     }
 }
 

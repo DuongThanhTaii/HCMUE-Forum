@@ -5,7 +5,6 @@ namespace UniHub.Identity.Infrastructure.Caching;
 
 /// <summary>
 /// In-memory implementation of permission cache
-/// TODO: Replace with Redis implementation in production
 /// </summary>
 public sealed class InMemoryPermissionCache : IPermissionCache
 {

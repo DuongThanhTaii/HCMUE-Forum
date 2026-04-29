@@ -14,6 +14,7 @@ using UniHub.Career.Infrastructure;
 using UniHub.Notification.Infrastructure;
 using UniHub.Notification.Presentation.Hubs;
 using UniHub.AI.Infrastructure;
+using UniHub.API.Middlewares;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -137,6 +138,9 @@ try
     // Add exception handler
     builder.Services.AddExceptionHandler<UniHub.API.Middlewares.GlobalExceptionHandler>();
     builder.Services.AddProblemDetails();
+    builder.Services.Configure<UserActionLoggingOptions>(
+        builder.Configuration.GetSection(UserActionLoggingOptions.SectionName));
+    builder.Services.AddSingleton<IUserActionLogStore, MongoUserActionLogStore>();
 
     // Add response compression
     builder.Services.AddResponseCompression(options =>
@@ -225,6 +229,7 @@ try
 
     // Authentication & Authorization
     app.UseAuthentication();
+    app.UseMiddleware<UserActionLoggingMiddleware>();
     app.UseMiddleware<UniHub.API.Middlewares.EndpointToggleMiddleware>();
     app.UseAuthorization();
 
@@ -266,6 +271,13 @@ try
     if (app.Environment.IsDevelopment())
     {
         await UniHub.Infrastructure.Persistence.Seeding.DatabaseSeeder.SeedAsync(app.Services);
+
+        var exitAfterSeeding = app.Configuration.GetValue<bool>("Seeding:HighVolume:ExitAfterSeeding");
+        if (exitAfterSeeding)
+        {
+            Log.Information("Seeding completed with ExitAfterSeeding=true. Shutting down host.");
+            return;
+        }
     }
 
     app.Run();

@@ -26,7 +26,7 @@ public class FacultiesController : BaseApiController
     /// Get all faculties
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(List<FacultyListItemResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<List<FacultyListItemResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFaculties(CancellationToken cancellationToken)
     {
         var query = new GetFacultiesQuery();
@@ -34,17 +34,17 @@ public class FacultiesController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
     /// Get a faculty by its ID
     /// </summary>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(FacultyDetailResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FacultyDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFacultyById(
         Guid id,
@@ -55,10 +55,10 @@ public class FacultiesController : BaseApiController
 
         if (result.IsFailure)
         {
-            return NotFound(new { error = result.Error.Message });
+            return NotFound(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ public class FacultiesController : BaseApiController
     /// </summary>
     [HttpPost]
     [Authorize]
-    [ProducesResponseType(typeof(CreateFacultyResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<CreateFacultyResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateFaculty(
         [FromBody] CreateFacultyRequest request,
@@ -84,7 +84,7 @@ public class FacultiesController : BaseApiController
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         var response = new CreateFacultyResponse(result.Value, request.Code, request.Name);
@@ -92,6 +92,6 @@ public class FacultiesController : BaseApiController
         return CreatedAtAction(
             nameof(GetFaculties),
             new { id = response.FacultyId },
-            response);
+            ApiResponses.Success(response, "Faculty created successfully"));
     }
 }

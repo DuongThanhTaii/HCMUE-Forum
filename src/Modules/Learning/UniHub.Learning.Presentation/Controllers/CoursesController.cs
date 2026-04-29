@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UniHub.Contracts;
 using UniHub.Learning.Application.Commands.CourseManagement;
 using UniHub.Learning.Application.Commands.ModeratorAssignment;
 using UniHub.Learning.Application.Queries.Courses.GetCourseById;
@@ -26,7 +27,7 @@ public class CoursesController : ControllerBase
     /// Get all courses with optional filtering
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(List<CourseListItemResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<List<CourseListItemResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCourses(
         [FromQuery] Guid? facultyId = null,
         [FromQuery] string? semester = null,
@@ -37,17 +38,17 @@ public class CoursesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
     /// Get course details by ID
     /// </summary>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(CourseDetailResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<CourseDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCourseById(
         Guid id,
@@ -58,10 +59,10 @@ public class CoursesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return NotFound(new { error = result.Error.Message });
+            return NotFound(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
@@ -69,7 +70,7 @@ public class CoursesController : ControllerBase
     /// </summary>
     [HttpPost]
     [Authorize]
-    [ProducesResponseType(typeof(CreateCourseResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<CreateCourseResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateCourse(
         [FromBody] CreateCourseRequest request,
@@ -88,12 +89,12 @@ public class CoursesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         var response = new CreateCourseResponse(result.Value, request.Code, request.Name);
 
-        return CreatedAtAction(nameof(CreateCourse), new { id = response.CourseId }, response);
+        return CreatedAtAction(nameof(CreateCourse), new { id = response.CourseId }, ApiResponses.Success(response, "Course created successfully"));
     }
 
     /// <summary>
@@ -101,7 +102,7 @@ public class CoursesController : ControllerBase
     /// </summary>
     [HttpPut("{id}")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateCourse(
         Guid id,
@@ -119,10 +120,10 @@ public class CoursesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Course updated successfully" });
+        return Ok(ApiResponses.Success("Course updated successfully"));
     }
 
     /// <summary>
@@ -130,7 +131,7 @@ public class CoursesController : ControllerBase
     /// </summary>
     [HttpDelete("{id}")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeleteCourse(
         Guid id,
@@ -142,10 +143,10 @@ public class CoursesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Course deleted successfully" });
+        return Ok(ApiResponses.Success("Course deleted successfully"));
     }
 
     /// <summary>
@@ -153,7 +154,7 @@ public class CoursesController : ControllerBase
     /// </summary>
     [HttpPost("{id}/moderators")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AssignModerator(
         Guid id,
@@ -165,10 +166,10 @@ public class CoursesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Moderator assigned successfully" });
+        return Ok(ApiResponses.Success("Moderator assigned successfully"));
     }
 
     /// <summary>
@@ -176,7 +177,7 @@ public class CoursesController : ControllerBase
     /// </summary>
     [HttpDelete("{id}/moderators/{moderatorId}")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RemoveModerator(
         Guid id,
@@ -189,9 +190,9 @@ public class CoursesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Moderator removed successfully" });
+        return Ok(ApiResponses.Success("Moderator removed successfully"));
     }
 }

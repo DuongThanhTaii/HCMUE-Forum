@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using UniHub.Contracts;
 using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Application.Commands.Users.AssignBadge;
 using UniHub.Identity.Application.Commands.Users.AssignRole;
@@ -34,12 +35,12 @@ public class UsersController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of users</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<UserResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<UserResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var users = await _userRepository.GetAllAsync(cancellationToken);
         var response = users.Select(MapToUserResponse);
-        return Ok(response);
+        return Ok(ApiResponses.Success(response));
     }
 
     /// <summary>
@@ -49,18 +50,18 @@ public class UsersController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>User information</returns>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<UserResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(new UserId(id), cancellationToken);
-        
+
         if (user is null)
         {
-            return NotFound(new { error = "User not found" });
+            return NotFound(ApiResponses.Failure("User not found"));
         }
 
-        return Ok(MapToUserResponse(user));
+        return Ok(ApiResponses.Success(MapToUserResponse(user)));
     }
 
     /// <summary>
@@ -69,25 +70,25 @@ public class UsersController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Current user information</returns>
     [HttpGet("me")]
-    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<UserResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetMe(CancellationToken cancellationToken)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        
+
         if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
         {
-            return Unauthorized(new { error = "Invalid user token" });
+            return Unauthorized(ApiResponses.Failure("Invalid user token"));
         }
 
         var user = await _userRepository.GetByIdAsync(new UserId(userId), cancellationToken);
-        
+
         if (user is null)
         {
-            return NotFound(new { error = "User not found" });
+            return NotFound(ApiResponses.Failure("User not found"));
         }
 
-        return Ok(MapToUserResponse(user));
+        return Ok(ApiResponses.Success(MapToUserResponse(user)));
     }
 
     /// <summary>
@@ -105,17 +106,17 @@ public class UsersController : ControllerBase
         CancellationToken cancellationToken)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        
+
         if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
         {
-            return Unauthorized(new { error = "Invalid user token" });
+            return Unauthorized(ApiResponses.Failure("Invalid user token"));
         }
 
         var user = await _userRepository.GetByIdAsync(new UserId(userId), cancellationToken);
-        
+
         if (user is null)
         {
-            return NotFound(new { error = "User not found" });
+            return NotFound(ApiResponses.Failure("User not found"));
         }
 
         var profileResult = Domain.Users.ValueObjects.UserProfile.Create(
@@ -125,19 +126,19 @@ public class UsersController : ControllerBase
 
         if (profileResult.IsFailure)
         {
-            return BadRequest(new { error = profileResult.Error.Message });
+            return BadRequest(ApiResponses.Failure(profileResult.Error.Message));
         }
 
         var updateResult = user.UpdateProfile(profileResult.Value);
-        
+
         if (updateResult.IsFailure)
         {
-            return BadRequest(new { error = updateResult.Error.Message });
+            return BadRequest(ApiResponses.Failure(updateResult.Error.Message));
         }
 
         await _userRepository.UpdateAsync(user, cancellationToken);
 
-        return Ok(new { message = "Profile updated successfully" });
+        return Ok(ApiResponses.Success("Profile updated successfully"));
     }
 
     /// <summary>
@@ -148,6 +149,7 @@ public class UsersController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPost("{id:guid}/roles")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -161,10 +163,10 @@ public class UsersController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Role assigned successfully" });
+        return Ok(ApiResponses.Success("Role assigned successfully"));
     }
 
     /// <summary>
@@ -175,6 +177,7 @@ public class UsersController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpDelete("{id:guid}/roles/{roleId:guid}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -188,10 +191,10 @@ public class UsersController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Role removed successfully" });
+        return Ok(ApiResponses.Success("Role removed successfully"));
     }
 
     /// <summary>
@@ -202,6 +205,7 @@ public class UsersController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPost("{id:guid}/badge")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AssignBadge(
@@ -212,12 +216,12 @@ public class UsersController : ControllerBase
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var verifierId))
         {
-            return Unauthorized(new { error = "Invalid user token" });
+            return Unauthorized(ApiResponses.Failure("Invalid user token"));
         }
 
         if (!Enum.TryParse<Domain.Users.ValueObjects.BadgeType>(request.BadgeType, ignoreCase: true, out var badgeType))
         {
-            return BadRequest(new { error = "Invalid badge type. Valid values: Department, Club, BoardOfDirectors, Faculty, Company" });
+            return BadRequest(ApiResponses.Failure("Invalid badge type. Valid values: Department, Club, BoardOfDirectors, Faculty, Company"));
         }
 
         var command = new AssignBadgeCommand(
@@ -231,10 +235,10 @@ public class UsersController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Badge assigned successfully" });
+        return Ok(ApiResponses.Success("Badge assigned successfully"));
     }
 
     /// <summary>
@@ -244,6 +248,7 @@ public class UsersController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpDelete("{id:guid}/badge")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RemoveBadge(
@@ -255,10 +260,10 @@ public class UsersController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Badge removed successfully" });
+        return Ok(ApiResponses.Success("Badge removed successfully"));
     }
 
     private static UserResponse MapToUserResponse(User user)

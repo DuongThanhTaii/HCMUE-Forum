@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using UniHub.Contracts;
 using UniHub.Chat.Application.Commands.AddModerator;
 using UniHub.Chat.Application.Commands.CreateChannel;
 using UniHub.Chat.Application.Commands.JoinChannel;
@@ -33,7 +34,7 @@ public class ChannelsController : ControllerBase
     /// Get all public channels (for discovery)
     /// </summary>
     [HttpGet("public")]
-    [ProducesResponseType(typeof(IReadOnlyList<ChannelResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ChannelResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetPublicChannels(CancellationToken cancellationToken = default)
     {
@@ -42,17 +43,17 @@ public class ChannelsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
     /// Get channels where the current user is a member
     /// </summary>
     [HttpGet("my-channels")]
-    [ProducesResponseType(typeof(IReadOnlyList<ChannelResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ChannelResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetMyChannels(CancellationToken cancellationToken = default)
     {
@@ -62,10 +63,10 @@ public class ChannelsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
@@ -74,7 +75,7 @@ public class ChannelsController : ControllerBase
     /// <param name="request">Request containing channel information</param>
     /// <param name="cancellationToken">Cancellation token</param>
     [HttpPost]
-    [ProducesResponseType(typeof(CreateChannelResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<CreateChannelResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> CreateChannel(
@@ -93,7 +94,7 @@ public class ChannelsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         var response = new CreateChannelResponse
@@ -104,7 +105,7 @@ public class ChannelsController : ControllerBase
         return CreatedAtAction(
             nameof(GetMyChannels),
             new { id = result.Value },
-            response);
+            ApiResponses.Success(response, "Channel created successfully"));
     }
 
     /// <summary>
@@ -113,7 +114,7 @@ public class ChannelsController : ControllerBase
     /// <param name="id">Channel ID</param>
     /// <param name="cancellationToken">Cancellation token</param>
     [HttpPost("{id:guid}/join")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -131,13 +132,13 @@ public class ChannelsController : ControllerBase
         {
             if (result.Error.Code == "Channel.NotFound")
             {
-                return NotFound(new { error = result.Error.Message });
+                return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Successfully joined channel" });
+        return Ok(ApiResponses.Success("Successfully joined channel"));
     }
 
     /// <summary>
@@ -146,7 +147,7 @@ public class ChannelsController : ControllerBase
     /// <param name="id">Channel ID</param>
     /// <param name="cancellationToken">Cancellation token</param>
     [HttpPost("{id:guid}/leave")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -164,13 +165,13 @@ public class ChannelsController : ControllerBase
         {
             if (result.Error.Code == "Channel.NotFound")
             {
-                return NotFound(new { error = result.Error.Message });
+                return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Successfully left channel" });
+        return Ok(ApiResponses.Success("Successfully left channel"));
     }
 
     /// <summary>
@@ -180,7 +181,7 @@ public class ChannelsController : ControllerBase
     /// <param name="request">Request containing the user ID to promote</param>
     /// <param name="cancellationToken">Cancellation token</param>
     [HttpPost("{id:guid}/moderators")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -200,18 +201,18 @@ public class ChannelsController : ControllerBase
         {
             if (result.Error.Code == "Channel.NotFound")
             {
-                return NotFound(new { error = result.Error.Message });
+                return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
             if (result.Error.Code.Contains("NotAuthorized") || result.Error.Code.Contains("NotOwner"))
             {
-                return Forbid();
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
             }
 
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Moderator added successfully" });
+        return Ok(ApiResponses.Success("Moderator added successfully"));
     }
 
     /// <summary>
@@ -221,7 +222,7 @@ public class ChannelsController : ControllerBase
     /// <param name="moderatorId">Moderator ID to remove</param>
     /// <param name="cancellationToken">Cancellation token</param>
     [HttpDelete("{id:guid}/moderators/{moderatorId:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -241,18 +242,18 @@ public class ChannelsController : ControllerBase
         {
             if (result.Error.Code == "Channel.NotFound")
             {
-                return NotFound(new { error = result.Error.Message });
+                return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
             if (result.Error.Code.Contains("NotAuthorized") || result.Error.Code.Contains("NotOwner"))
             {
-                return Forbid();
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
             }
 
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Moderator removed successfully" });
+        return Ok(ApiResponses.Success("Moderator removed successfully"));
     }
 
     /// <summary>
@@ -262,7 +263,7 @@ public class ChannelsController : ControllerBase
     /// <param name="request">Request containing updated information</param>
     /// <param name="cancellationToken">Cancellation token</param>
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -286,18 +287,18 @@ public class ChannelsController : ControllerBase
         {
             if (result.Error.Code == "Channel.NotFound")
             {
-                return NotFound(new { error = result.Error.Message });
+                return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
             if (result.Error.Code.Contains("NotAuthorized") || result.Error.Code.Contains("NotModerator"))
             {
-                return Forbid();
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
             }
 
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Channel updated successfully" });
+        return Ok(ApiResponses.Success("Channel updated successfully"));
     }
 
     private Guid GetUserId()

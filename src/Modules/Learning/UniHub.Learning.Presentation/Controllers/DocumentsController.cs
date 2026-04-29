@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UniHub.Contracts;
 using UniHub.Learning.Application.Commands.DocumentDownload;
 using UniHub.Learning.Application.Commands.DocumentRating;
 using UniHub.Learning.Application.Commands.UploadDocument;
@@ -30,7 +31,7 @@ public class DocumentsController : ControllerBase
     /// </summary>
     [HttpGet]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(SearchDocumentsResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<SearchDocumentsResult>), StatusCodes.Status200OK)]
     public async Task<IActionResult> SearchDocuments(
         [FromQuery] SearchDocumentsRequest request,
         CancellationToken cancellationToken)
@@ -50,10 +51,10 @@ public class DocumentsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
@@ -61,7 +62,7 @@ public class DocumentsController : ControllerBase
     /// </summary>
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(DocumentDetailResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<DocumentDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetDocumentById(
         Guid id,
@@ -72,10 +73,10 @@ public class DocumentsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return NotFound(new { error = result.Error.Message });
+            return NotFound(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
@@ -83,7 +84,7 @@ public class DocumentsController : ControllerBase
     /// </summary>
     [HttpPost("upload")]
     [Authorize]
-    [ProducesResponseType(typeof(UploadDocumentResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<UploadDocumentResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UploadDocument(
         [FromForm] UploadDocumentRequest request,
@@ -104,12 +105,12 @@ public class DocumentsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
         var response = new UploadDocumentResponse(result.Value, request.Title);
 
-        return CreatedAtAction(nameof(UploadDocument), new { id = response.DocumentId }, response);
+        return CreatedAtAction(nameof(UploadDocument), new { id = response.DocumentId }, ApiResponses.Success(response, "Document uploaded successfully"));
     }
 
     /// <summary>
@@ -117,7 +118,7 @@ public class DocumentsController : ControllerBase
     /// </summary>
     [HttpPost("{id}/rate")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RateDocument(
         Guid id,
@@ -129,10 +130,10 @@ public class DocumentsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Document rated successfully" });
+        return Ok(ApiResponses.Success("Document rated successfully"));
     }
 
     /// <summary>
@@ -140,7 +141,7 @@ public class DocumentsController : ControllerBase
     /// </summary>
     [HttpPost("{id}/download")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DownloadDocument(
         Guid id,
@@ -152,10 +153,10 @@ public class DocumentsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Document download tracked successfully" });
+        return Ok(ApiResponses.Success("Document download tracked successfully"));
     }
 
     /// <summary>
@@ -163,7 +164,7 @@ public class DocumentsController : ControllerBase
     /// </summary>
     [HttpPost("{id}/approve")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ApproveDocument(
         Guid id,
@@ -175,10 +176,10 @@ public class DocumentsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Document approved successfully" });
+        return Ok(ApiResponses.Success("Document approved successfully"));
     }
 
     /// <summary>
@@ -186,7 +187,7 @@ public class DocumentsController : ControllerBase
     /// </summary>
     [HttpPost("{id}/reject")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RejectDocument(
         Guid id,
@@ -198,10 +199,10 @@ public class DocumentsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Document rejected successfully" });
+        return Ok(ApiResponses.Success("Document rejected successfully"));
     }
 
     /// <summary>
@@ -209,7 +210,7 @@ public class DocumentsController : ControllerBase
     /// </summary>
     [HttpPost("{id}/request-revision")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RequestRevision(
         Guid id,
@@ -221,9 +222,9 @@ public class DocumentsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { message = "Revision requested successfully" });
+        return Ok(ApiResponses.Success("Revision requested successfully"));
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using UniHub.Contracts;
 using UniHub.Notification.Application.Commands.DeleteNotification;
 using UniHub.Notification.Application.Commands.MarkAllNotificationsAsRead;
 using UniHub.Notification.Application.Commands.MarkNotificationAsRead;
@@ -35,7 +36,7 @@ public class NotificationsController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Paginated list of notifications</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(GetNotificationsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<GetNotificationsResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetNotifications(
@@ -46,7 +47,7 @@ public class NotificationsController : ControllerBase
         var userId = GetCurrentUserId();
         if (userId == Guid.Empty)
         {
-            return Unauthorized();
+            return Unauthorized(ApiResponses.Failure("Invalid user token"));
         }
 
         var query = new GetNotificationsQuery(userId, pageNumber, pageSize);
@@ -54,10 +55,10 @@ public class NotificationsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
@@ -66,14 +67,14 @@ public class NotificationsController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Number of unread notifications</returns>
     [HttpGet("unread-count")]
-    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetUnreadCount(CancellationToken cancellationToken = default)
     {
         var userId = GetCurrentUserId();
         if (userId == Guid.Empty)
         {
-            return Unauthorized();
+            return Unauthorized(ApiResponses.Failure("Invalid user token"));
         }
 
         var query = new GetUnreadCountQuery(userId);
@@ -81,10 +82,10 @@ public class NotificationsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { count = result.Value });
+        return Ok(ApiResponses.Success((object)new { count = result.Value }));
     }
 
     /// <summary>
@@ -92,9 +93,9 @@ public class NotificationsController : ControllerBase
     /// </summary>
     /// <param name="id">Notification ID</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>No content on success</returns>
+    /// <returns>Success result</returns>
     [HttpPost("{id}/read")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -104,7 +105,7 @@ public class NotificationsController : ControllerBase
         var userId = GetCurrentUserId();
         if (userId == Guid.Empty)
         {
-            return Unauthorized();
+            return Unauthorized(ApiResponses.Failure("Invalid user token"));
         }
 
         var command = new MarkNotificationAsReadCommand(id, userId);
@@ -114,13 +115,13 @@ public class NotificationsController : ControllerBase
         {
             return result.Error.Code switch
             {
-                "Notification.NotFound" => NotFound(new { error = result.Error.Message }),
-                "Notification.Forbidden" => StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error.Message }),
-                _ => BadRequest(new { error = result.Error.Message })
+                "Notification.NotFound" => NotFound(ApiResponses.Failure(result.Error.Message)),
+                "Notification.Forbidden" => StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message)),
+                _ => BadRequest(ApiResponses.Failure(result.Error.Message))
             };
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Notification marked as read"));
     }
 
     /// <summary>
@@ -129,14 +130,14 @@ public class NotificationsController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Number of notifications marked as read</returns>
     [HttpPost("read-all")]
-    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> MarkAllAsRead(CancellationToken cancellationToken = default)
     {
         var userId = GetCurrentUserId();
         if (userId == Guid.Empty)
         {
-            return Unauthorized();
+            return Unauthorized(ApiResponses.Failure("Invalid user token"));
         }
 
         var command = new MarkAllNotificationsAsReadCommand(userId);
@@ -144,10 +145,10 @@ public class NotificationsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(new { count = result.Value });
+        return Ok(ApiResponses.Success((object)new { count = result.Value }, "Notifications marked as read"));
     }
 
     /// <summary>
@@ -155,9 +156,9 @@ public class NotificationsController : ControllerBase
     /// </summary>
     /// <param name="id">Notification ID</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>No content on success</returns>
+    /// <returns>Success result</returns>
     [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -167,7 +168,7 @@ public class NotificationsController : ControllerBase
         var userId = GetCurrentUserId();
         if (userId == Guid.Empty)
         {
-            return Unauthorized();
+            return Unauthorized(ApiResponses.Failure("Invalid user token"));
         }
 
         var command = new DeleteNotificationCommand(id, userId);
@@ -177,13 +178,13 @@ public class NotificationsController : ControllerBase
         {
             return result.Error.Code switch
             {
-                "Notification.NotFound" => NotFound(new { error = result.Error.Message }),
-                "Notification.Forbidden" => StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error.Message }),
-                _ => BadRequest(new { error = result.Error.Message })
+                "Notification.NotFound" => NotFound(ApiResponses.Failure(result.Error.Message)),
+                "Notification.Forbidden" => StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message)),
+                _ => BadRequest(ApiResponses.Failure(result.Error.Message))
             };
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Notification deleted successfully"));
     }
 
     /// <summary>
@@ -192,14 +193,14 @@ public class NotificationsController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Notification preferences</returns>
     [HttpGet("preferences")]
-    [ProducesResponseType(typeof(NotificationPreferencesDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<NotificationPreferencesDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetPreferences(CancellationToken cancellationToken = default)
     {
         var userId = GetCurrentUserId();
         if (userId == Guid.Empty)
         {
-            return Unauthorized();
+            return Unauthorized(ApiResponses.Failure("Invalid user token"));
         }
 
         var query = new GetNotificationPreferencesQuery(userId);
@@ -207,10 +208,10 @@ public class NotificationsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return Ok(result.Value);
+        return Ok(ApiResponses.Success(result.Value));
     }
 
     /// <summary>
@@ -218,9 +219,9 @@ public class NotificationsController : ControllerBase
     /// </summary>
     /// <param name="request">Notification preferences update request</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>No content on success</returns>
+    /// <returns>Success result</returns>
     [HttpPut("preferences")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UpdatePreferences(
@@ -230,7 +231,7 @@ public class NotificationsController : ControllerBase
         var userId = GetCurrentUserId();
         if (userId == Guid.Empty)
         {
-            return Unauthorized();
+            return Unauthorized(ApiResponses.Failure("Invalid user token"));
         }
 
         var command = new UpdateNotificationPreferencesCommand(
@@ -243,10 +244,10 @@ public class NotificationsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(new { error = result.Error.Message });
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
         }
 
-        return NoContent();
+        return Ok(ApiResponses.Success("Notification preferences updated successfully"));
     }
 
     private Guid GetCurrentUserId()
