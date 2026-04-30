@@ -11,6 +11,8 @@ export const baseApi = createApi({
     'Job',
     'Notification',
     'UserProfile',
+    'Role',
+    'Permission',
   ],
   endpoints: () => ({}),
 })
