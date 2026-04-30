@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UniHub.Identity.Domain.Users;
 using UniHub.Identity.Domain.Users.ValueObjects;
 
@@ -19,16 +20,21 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                 value => UserId.Create(value))
             .HasColumnName("id");
 
-        // Owned: Email (single column)
-        builder.OwnsOne(u => u.Email, email =>
-        {
-            email.Property(e => e.Value)
-                .HasColumnName("email")
-                .HasMaxLength(256)
-                .IsRequired();
+        // Email — scalar column with value converter (avoids EF Core 10 shadow FK bug on OwnsOne).
+        // Physical schema unchanged: single "email" column on identity.users.
+        var emailConverter = new ValueConverter<Email, string>(
+            email => email.Value,
+            value => Email.Create(value).Value!);
 
-            email.HasIndex(e => e.Value).IsUnique();
-        });
+        builder.Property(u => u.Email)
+            .HasConversion(emailConverter)
+            .HasColumnName("email")
+            .HasMaxLength(256)
+            .IsRequired();
+
+        builder.HasIndex(u => u.Email)
+            .IsUnique()
+            .HasDatabaseName("IX_users_email");
 
         // PasswordHash
         builder.Property(u => u.PasswordHash)

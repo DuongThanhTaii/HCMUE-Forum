@@ -48,6 +48,7 @@ public static class DatabaseSeeder
             await IdentitySeed.SeedAsync(context, logger);
             await ForumSeed.SeedAsync(context, logger);
             await LearningSeed.SeedAsync(context, logger);
+            await LearningBulkSeed.SeedAsync(context, configuration, logger);
 
             logger.LogInformation("Database seeding completed successfully.");
         }

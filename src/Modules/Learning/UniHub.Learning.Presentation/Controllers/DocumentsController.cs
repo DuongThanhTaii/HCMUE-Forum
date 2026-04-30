@@ -14,10 +14,9 @@ using UniHub.Learning.Presentation.DTOs.Documents;
 
 namespace UniHub.Learning.Presentation.Controllers;
 
-[ApiController]
 [Route("api/v1/documents")]
 [Produces("application/json")]
-public class DocumentsController : ControllerBase
+public class DocumentsController : BaseApiController
 {
     private readonly ISender _sender;
 
@@ -125,7 +124,22 @@ public class DocumentsController : ControllerBase
         [FromBody] RateDocumentRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new RateDocumentCommand(id, request.UserId, request.Rating);
+        Guid userId;
+        try
+        {
+            userId = GetCurrentUserId();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized(ApiResponses.Failure("User is not authenticated."));
+        }
+
+        if (request.UserId != userId)
+        {
+            return BadRequest(ApiResponses.Failure("UserId in request must match the authenticated user."));
+        }
+
+        var command = new RateDocumentCommand(id, userId, request.Rating);
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
@@ -148,7 +162,22 @@ public class DocumentsController : ControllerBase
         [FromBody] DownloadDocumentRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new DownloadDocumentCommand(id, request.UserId);
+        Guid userId;
+        try
+        {
+            userId = GetCurrentUserId();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized(ApiResponses.Failure("User is not authenticated."));
+        }
+
+        if (request.UserId != userId)
+        {
+            return BadRequest(ApiResponses.Failure("UserId in request must match the authenticated user."));
+        }
+
+        var command = new DownloadDocumentCommand(id, userId);
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
