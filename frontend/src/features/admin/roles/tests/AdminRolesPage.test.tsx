@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import * as React from 'react'
-import type { PermissionDto, RoleDto } from '../types/admin.types'
-import { AdminRolesPage } from './AdminRolesPage'
+import type { PermissionDto, RoleDto } from '../../types/admin.types'
+import { AdminRolesPage } from '../components/AdminRolesPage'
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),

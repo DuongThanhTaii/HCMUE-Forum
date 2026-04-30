@@ -1,4 +1,4 @@
-import type { PermissionDto, RoleDto } from '../types/admin.types'
+import type { PermissionDto, RoleDto } from '../../types/admin.types'
 
 type RolePermissionGridProps = {
   permissions: PermissionDto[]
