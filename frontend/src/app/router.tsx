@@ -9,6 +9,9 @@ import { ForumListPage } from '@features/forum/components/ForumListPage';
 import { ForumDetailPage } from '@features/forum/components/ForumDetailPage';
 import { Placeholder } from './components/Placeholder';
 import { LearningDocumentsPage } from '@features/learning/components/LearningDocumentsPage';
+import { LearningDocumentDetailPage } from '@features/learning/components/LearningDocumentDetailPage';
+import { LearningFacultiesPage } from '@features/learning/components/LearningFacultiesPage';
+import { LearningCoursesPage } from '@features/learning/components/LearningCoursesPage';
 import { CareerJobsPage } from '@features/career/components/CareerJobsPage';
 import { LoginPage } from '@features/auth/components/LoginPage';
 import { RegisterPage } from '@features/auth/components/RegisterPage';
@@ -32,15 +35,21 @@ export const appRoutes = [
   },
   {
     path: '/',
-    element: <RequireAuth />,
+    element: <MainLayout />,
     children: [
       {
-        path: '/',
-        element: <MainLayout />,
+        path: 'learning/documents/:id',
+        element: <LearningDocumentDetailPage />,
+      },
+      { path: 'learning/documents', element: <LearningDocumentsPage /> },
+      { path: 'learning/faculties', element: <LearningFacultiesPage /> },
+      { path: 'learning/courses', element: <LearningCoursesPage /> },
+      {
+        element: <RequireAuth />,
         children: [
+          { path: 'home', element: <Placeholder titleKey="placeholders.main.home" /> },
           { path: 'forum', element: <ForumListPage /> },
           { path: 'forum/:id', element: <ForumDetailPage /> },
-          { path: 'learning/documents', element: <LearningDocumentsPage /> },
           { path: 'career/jobs', element: <CareerJobsPage /> },
           { path: 'chat', element: <Placeholder titleKey="placeholders.main.chat" /> },
           { path: 'chat/ai', element: <Placeholder titleKey="placeholders.main.aiAssistant" /> },
@@ -86,4 +95,3 @@ export const appRoutes = [
 ];
 
 export const appRouter = createBrowserRouter(appRoutes);
-

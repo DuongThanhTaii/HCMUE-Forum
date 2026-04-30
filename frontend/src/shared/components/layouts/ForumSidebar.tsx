@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Hash, Layers3, MessageSquare, Tag } from 'lucide-react';
+import { BookOpen, Building2, Hash, Home, Layers3, MessageSquare, Tag } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -9,6 +9,11 @@ type SidebarItem = {
   icon: ComponentType<{ className?: string }>;
 };
 
+const MAIN_ITEMS: SidebarItem[] = [
+  { to: '/home', labelKey: 'nav.home', icon: Home },
+  { to: '/forum', labelKey: 'nav.forum', icon: MessageSquare },
+];
+
 const TOPIC_ITEMS: SidebarItem[] = [
   { to: '/forum?topic=all', labelKey: 'forum.sidebar.topics.all', icon: MessageSquare },
   { to: '/forum?topic=thong-bao', labelKey: 'forum.sidebar.topics.announcements', icon: Hash },
@@ -16,6 +21,8 @@ const TOPIC_ITEMS: SidebarItem[] = [
 
 const CATEGORY_ITEMS: SidebarItem[] = [
   { to: '/learning/documents', labelKey: 'forum.sidebar.categories.learningDocs', icon: Layers3 },
+  { to: '/learning/faculties', labelKey: 'forum.sidebar.categories.learningFaculties', icon: Building2 },
+  { to: '/learning/courses', labelKey: 'forum.sidebar.categories.learningCourses', icon: BookOpen },
   { to: '/career/jobs', labelKey: 'forum.sidebar.categories.career', icon: Layers3 },
 ];
 
@@ -93,6 +100,7 @@ export function ForumSidebar() {
   return (
     <aside className="fixed left-0 top-[52px] z-30 hidden h-[calc(100vh-52px)] w-[250px] border-r border-slate-200 bg-white lg:block">
       <div className="h-full space-y-4 overflow-y-auto p-3">
+        <SidebarSection title={t('forum.sidebar.sections.main')} items={MAIN_ITEMS} pathname={pathname} search={search} />
         <SidebarSection title={t('forum.sidebar.sections.topics')} items={TOPIC_ITEMS} pathname={pathname} search={search} />
         <SidebarSection title={t('forum.sidebar.sections.categories')} items={CATEGORY_ITEMS} pathname={pathname} search={search} />
         <SidebarSection title={t('forum.sidebar.sections.tags')} items={TAG_ITEMS} pathname={pathname} search={search} />

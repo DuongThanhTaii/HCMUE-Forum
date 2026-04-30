@@ -296,6 +296,7 @@
     },
     "sidebar": {
       "sections": {
+        "main": "Main",
         "topics": "Topics",
         "categories": "Categories",
         "tags": "Tags"
@@ -306,6 +307,8 @@
       },
       "categories": {
         "learningDocs": "Learning documents",
+        "learningFaculties": "Learning · faculties",
+        "learningCourses": "Learning · courses",
         "career": "Career opportunities"
       },
       "tags": {
@@ -395,9 +398,12 @@
       "other": "Other"
     },
     "documentStatus": {
+      "draft": "Draft",
+      "pendingApproval": "Pending approval",
       "pending": "Pending",
       "approved": "Approved",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "deleted": "Deleted"
     },
     "filters": {
       "search": "Search documents...",
@@ -423,6 +429,7 @@
       "ratingsLabel": "Rating"
     },
     "documentDetailPage": {
+      "downloadHint": "Recording a download updates statistics. Actual file access may be provided separately.",
       "downloadDocument": "Download document",
       "rateDocument": "Rate document",
       "yourRating": "Your rating",
@@ -437,7 +444,8 @@
       "uploader": "Uploaded by",
       "course": "Course",
       "faculty": "Faculty",
-      "code": "Code"
+      "code": "Code",
+      "starRatingAria": "Rate {{count}} out of 5 stars"
     },
     "fileUploader": {
       "dragDrop": "Drag and drop file here or click to select",
@@ -485,6 +493,11 @@
       "rejectError": "Cannot reject document"
     },
     "messages": {
+      "rateSuccess": "Thanks for your rating.",
+      "rateError": "Could not submit rating.",
+      "downloadTracked": "Download recorded successfully.",
+      "downloadError": "Could not record download.",
+      "loginToInteract": "Sign in to rate or record downloads.",
       "noDocuments": "No documents found",
       "noCourses": "No courses found",
       "noFaculties": "No faculties",
@@ -911,6 +924,7 @@
       "register": "Register Page"
     },
     "main": {
+      "home": "Home feed — personalized posts and announcements (coming soon).",
       "chat": "Chat",
       "aiAssistant": "AI Assistant"
     },

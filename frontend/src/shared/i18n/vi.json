@@ -296,6 +296,7 @@
     },
     "sidebar": {
       "sections": {
+        "main": "Chính",
         "topics": "Chủ đề",
         "categories": "Danh mục",
         "tags": "Thẻ"
@@ -306,6 +307,8 @@
       },
       "categories": {
         "learningDocs": "Tài liệu học tập",
+        "learningFaculties": "Học tập · các khoa",
+        "learningCourses": "Học tập · môn học",
         "career": "Cơ hội nghề nghiệp"
       },
       "tags": {
@@ -395,9 +398,12 @@
       "other": "Khác"
     },
     "documentStatus": {
+      "draft": "Bản nháp",
+      "pendingApproval": "Chờ duyệt",
       "pending": "Chờ duyệt",
       "approved": "Đã duyệt",
-      "rejected": "Đã từ chối"
+      "rejected": "Đã từ chối",
+      "deleted": "Đã xóa"
     },
     "filters": {
       "search": "Tìm kiếm tài liệu...",
@@ -423,6 +429,7 @@
       "ratingsLabel": "Đánh giá"
     },
     "documentDetailPage": {
+      "downloadHint": "Ghi nhận lượt tải để thống kê. Việc cấp file có thể được triển khai riêng.",
       "downloadDocument": "Tải xuống tài liệu",
       "rateDocument": "Đánh giá tài liệu",
       "yourRating": "Đánh giá của bạn",
@@ -437,7 +444,8 @@
       "uploader": "Tải lên bởi",
       "course": "Môn học",
       "faculty": "Khoa",
-      "code": "Mã"
+      "code": "Mã",
+      "starRatingAria": "Đánh giá {{count}} trên 5 sao"
     },
     "fileUploader": {
       "dragDrop": "Kéo thả file vào đây hoặc click để chọn",
@@ -485,6 +493,11 @@
       "rejectError": "Không thể từ chối tài liệu"
     },
     "messages": {
+      "rateSuccess": "Cảm ơn bạn đã đánh giá.",
+      "rateError": "Không thể gửi đánh giá.",
+      "downloadTracked": "Đã ghi nhận lượt tải.",
+      "downloadError": "Không thể ghi nhận lượt tải.",
+      "loginToInteract": "Đăng nhập để đánh giá hoặc ghi nhận lượt tải.",
       "noDocuments": "Không tìm thấy tài liệu nào",
       "noCourses": "Không tìm thấy môn học nào",
       "noFaculties": "Không có khoa nào",
@@ -911,6 +924,7 @@
       "register": "Trang đăng ký"
     },
     "main": {
+      "home": "Bảng tin — bài viết và thông báo cá nhân hóa (sắp ra mắt).",
       "chat": "Trò chuyện",
       "aiAssistant": "Trợ lý AI"
     },
