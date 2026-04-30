@@ -118,6 +118,19 @@ export function buildRevokeUserOverrideRequest(userId: string, query: RevokePerm
   }
 }
 
+export function buildUserOverridesProvidesTags(userId: string, result?: PermissionOverrideDto[]) {
+  const listTag = { type: 'UserOverride' as const, id: `LIST:${userId}` }
+  if (!result?.length) return [listTag]
+  return [
+    ...result.map((item) => ({ type: 'UserOverride' as const, id: `${userId}:${item.permissionId}:${item.scopeType}:${normalizeScopeValue(item.scopeValue)}` })),
+    listTag,
+  ]
+}
+
+export function buildUserOverridesInvalidatesTags(userId: string) {
+  return [{ type: 'UserOverride' as const, id: `LIST:${userId}` }]
+}
+
 export const adminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getPermissions: builder.query<PermissionDto[], void>({
@@ -273,16 +286,17 @@ export const adminApi = baseApi.injectEndpoints({
     getUserOverrides: builder.query<PermissionOverrideDto[], string>({
       query: (userId) => getUserOverridesPath(userId),
       transformResponse: (response: unknown) => unwrapApiList<PermissionOverrideDto>(response),
+      providesTags: (result, _error, userId) => buildUserOverridesProvidesTags(userId, result),
     }),
 
     upsertUserOverride: builder.mutation<void, { userId: string; body: UpsertPermissionOverrideRequest }>({
       query: ({ userId, body }) => buildUpsertUserOverrideRequest(userId, body),
-      invalidatesTags: (_result, _error, { userId }) => [{ type: 'UserProfile', id: userId }],
+      invalidatesTags: (_result, _error, { userId }) => buildUserOverridesInvalidatesTags(userId),
     }),
 
     revokeUserOverride: builder.mutation<void, { userId: string; query: RevokePermissionOverrideRequest }>({
       query: ({ userId, query }) => buildRevokeUserOverrideRequest(userId, query),
-      invalidatesTags: (_result, _error, { userId }) => [{ type: 'UserProfile', id: userId }],
+      invalidatesTags: (_result, _error, { userId }) => buildUserOverridesInvalidatesTags(userId),
     }),
   }),
 })

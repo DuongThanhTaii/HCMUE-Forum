@@ -11,6 +11,7 @@ export const baseApi = createApi({
     'Job',
     'Notification',
     'UserProfile',
+    'UserOverride',
     'Role',
     'Permission',
   ],
