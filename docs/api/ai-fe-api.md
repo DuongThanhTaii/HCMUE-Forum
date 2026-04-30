@@ -29,6 +29,7 @@ Error sample:
 ## Chat
 
 ### `POST /api/v1/ai/chat`
+- **Body**: `ChatRequest` (requires `message`)
 - **200**: `ApiResponse<ChatResponse>`
 - **400**: failure envelope (`Message is required`, validation errors)
 
@@ -48,6 +49,7 @@ Error sample:
 ## Content Moderation
 
 ### `POST /api/v1/ai/moderate`
+- **Body**: `ModerationRequest` (requires `content`)
 - **200**: `ApiResponse<ModerationResponse>`
 
 ### `GET /api/v1/ai/moderate/check?content=`
@@ -75,6 +77,7 @@ Error sample:
 ## Summarization
 
 ### `POST /api/v1/ai/summarize`
+- **Body**: `SummarizationRequest` (requires `content`)
 - **200**: `ApiResponse<SummarizationResponse>`
 
 ### `POST /api/v1/ai/summarize/keypoints`
@@ -88,3 +91,161 @@ Error sample:
 ### `DELETE /api/v1/ai/summarize/cache?cacheKey=`
 - **Query**: `cacheKey` (optional)
 - **200**: `ApiResponse<null>` with message `Cache cleared successfully`
+
+## Schemas
+
+### `ChatRequest`
+- `message` (string)
+- `conversationId` (guid | null, optional)
+- `userId` (guid | null, optional)
+- `sessionId` (string | null, optional)
+- `includeHistory` (boolean, optional; default `true`)
+- `maxHistoryMessages` (int, optional; default `10`)
+
+### `ChatResponse`
+- `isSuccess` (boolean)
+- `message` (string)
+- `conversationId` (guid)
+- `messageId` (guid)
+- `confidenceScore` (number | null)
+- `sourceFAQ` (FAQItemDto | null)
+- `suggestedQuestions` (string[])
+- `suggestHandoff` (boolean)
+- `handoffReason` (string | null)
+- `errorMessage` (string | null)
+- `timestamp` (datetime)
+
+### `FAQItemDto`
+- `id` (guid)
+- `question` (string)
+- `answer` (string)
+- `category` (string)
+- `tags` (string[])
+- `priority` (int)
+- `usageCount` (int)
+- `averageRating` (number | null)
+
+### `Conversation`
+- `id` (guid)
+- `userId` (guid | null)
+- `sessionId` (string | null)
+- `title` (string | null)
+- `messages` (ConversationMessage[])
+- `handedOffToSupport` (boolean)
+- `handoffReason` (string | null)
+- `supportAgentId` (guid | null)
+- `startedAt` (datetime)
+- `lastActiveAt` (datetime)
+- `isClosed` (boolean)
+- `closedAt` (datetime | null)
+
+### `ConversationMessage`
+- `id` (guid)
+- `conversationId` (guid)
+- `role` (string)
+- `content` (string)
+- `sourceFAQId` (guid | null)
+- `confidenceScore` (number | null)
+- `isHelpful` (boolean | null)
+- `sentAt` (datetime)
+
+### `ModerationRequest`
+- `content` (string)
+- `contentType` (string enum)
+- `userId` (guid | null)
+- `context` (string | null)
+
+### `ModerationResponse`
+- `isSuccess` (boolean)
+- `isSafe` (boolean)
+- `requiresReview` (boolean)
+- `isBlocked` (boolean)
+- `confidenceScore` (number)
+- `violations` (ModerationViolation[])
+- `reason` (string | null)
+- `errorMessage` (string | null)
+- `timestamp` (datetime)
+
+### `ModerationViolation`
+- `type` (string)
+- `severity` (number)
+- `confidence` (number)
+- `description` (string)
+
+### `SearchRequest`
+- `query` (string)
+- `searchType` (string enum)
+- `category` (string | null)
+- `tags` (string[] | null)
+- `startDate` (datetime | null)
+- `endDate` (datetime | null)
+- `userId` (string | null)
+- `page` (int)
+- `pageSize` (int)
+- `includeSuggestions` (boolean)
+- `minRelevanceScore` (number)
+- `language` (string | null)
+
+### `SearchResponse`
+- `results` (SearchResult[])
+- `totalCount` (int)
+- `page` (int)
+- `pageSize` (int)
+- `totalPages` (int)
+- `suggestions` (string[])
+- `queryUnderstanding` (QueryUnderstanding | null)
+- `processingTimeMs` (long)
+- `timestamp` (datetime)
+
+### `SearchResult`
+- `id` (string)
+- `contentType` (string)
+- `title` (string)
+- `snippet` (string)
+- `relevanceScore` (number)
+- `url` (string)
+- `author` (string | null)
+- `createdAt` (datetime)
+- `category` (string | null)
+- `tags` (string[] | null)
+- `viewCount` (int | null)
+- `metadata` (object | null)
+
+### `QueryUnderstanding`
+- `originalQuery` (string)
+- `expandedQuery` (string)
+- `intent` (string)
+- `entities` (string[])
+- `language` (string)
+- `suggestedCorrection` (string | null)
+
+### `SummarizationRequest`
+- `content` (string)
+- `documentUrl` (string | null)
+- `title` (string | null)
+- `documentType` (string enum)
+- `length` (string enum)
+- `targetLanguage` (string | null)
+- `sourceLanguage` (string | null)
+- `maxTokens` (int | null)
+- `enableCaching` (boolean)
+- `userId` (guid | null)
+
+### `SummarizationResponse`
+- `isSuccess` (boolean)
+- `summary` (string)
+- `detectedLanguage` (string | null)
+- `keyPoints` (string[])
+- `originalLength` (int)
+- `summaryLength` (int)
+- `compressionRatio` (number)
+- `tokensUsed` (int | null)
+- `fromCache` (boolean)
+- `cacheKey` (string | null)
+- `errorMessage` (string | null)
+- `timestamp` (datetime)
+- `processingTimeMs` (long)
+
+### `KeyPointsRequest`
+- `content` (string)
+- `maxPoints` (int)

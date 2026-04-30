@@ -76,3 +76,37 @@ GET /api/v1/admin/observability/user-actions?actorUserId=user-123&viewType=Devel
 - Nếu persistence tắt (`PersistToMongo=false`) endpoint vẫn trả hợp lệ nhưng danh sách rỗng.
 - `Developer` view trả full technical detail (query/ip/user-agent/exception message).
 - `Administrator` view ẩn bớt dữ liệu kỹ thuật nhạy cảm để phù hợp dashboard vận hành.
+
+## Schemas
+
+### `UserActionLogSearchResponse`
+- `items` (UserActionLogItemResponse[])
+- `total` (long)
+- `page` (int)
+- `pageSize` (int)
+- `viewType` (string)
+- `availableViewTypes` (string[])
+- `persistToMongo` (boolean)
+- `mongoCollectionName` (string)
+
+### `UserActionLogItemResponse`
+- `id` (string)
+- `actorUserId` (string)
+- `method` (string)
+- `path` (string)
+- `queryString` (string)
+- `endpoint` (string)
+- `statusCode` (int)
+- `durationMs` (long)
+- `traceId` (string)
+- `correlationId` (string)
+- `remoteIp` (string)
+- `userAgent` (string)
+- `scheme` (string)
+- `host` (string)
+- `startedAtUtc` (datetime)
+- `completedAtUtc` (datetime)
+- `result` (string)
+- `exceptionType` (string | null)
+- `exceptionMessage` (string | null)
+- `terminalLine` (string)

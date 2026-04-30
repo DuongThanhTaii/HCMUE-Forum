@@ -815,6 +815,115 @@ Update channel name and/or description. Only moderators and owner can perform th
 
 ---
 
+## 📦 Schemas
+
+All schemas below describe the `data` object inside the `ApiResponse<T>` envelope.
+
+### `ConversationResponse`
+- `id` (guid)
+- `type` (string)
+- `participantIds` (guid[])
+- `lastMessageAt` (datetime | null)
+- `createdAt` (datetime)
+- `isArchived` (boolean)
+
+### `CreateDirectConversationRequest`
+- `otherUserId` (guid)
+
+### `CreateDirectConversationResponse`
+- `conversationId` (guid)
+
+### `CreateGroupConversationRequest`
+- `title` (string)
+- `participantIds` (guid[])
+
+### `CreateGroupConversationResponse`
+- `conversationId` (guid)
+
+### `AddParticipantRequest`
+- `participantId` (guid)
+
+### `PagedResponse<MessageResponse>`
+- `items` (MessageResponse[])
+- `page` (int)
+- `pageSize` (int)
+- `totalCount` (int)
+- `totalPages` (int)
+
+### `MessageResponse`
+- `id` (guid)
+- `conversationId` (guid)
+- `senderId` (guid)
+- `content` (string)
+- `type` (string)
+- `sentAt` (datetime)
+- `editedAt` (datetime | null)
+- `isDeleted` (boolean)
+- `replyToMessageId` (guid | null)
+- `reactions` (object: emoji -> userId[])
+
+### `SendMessageRequest`
+- `conversationId` (guid)
+- `content` (string)
+- `replyToMessageId` (guid | null)
+
+### `SendMessageWithAttachmentsRequest`
+- `conversationId` (guid)
+- `content` (string | null)
+- `attachments` (AttachmentRequest[])
+- `replyToMessageId` (guid | null)
+
+### `AttachmentRequest`
+- `fileName` (string)
+- `fileUrl` (string)
+- `fileSize` (long)
+- `mimeType` (string)
+- `thumbnailUrl` (string | null)
+
+### `SendMessageResponse`
+- `messageId` (guid)
+- `sentAt` (datetime)
+
+### `UploadFileResponse`
+- `fileName` (string)
+- `fileUrl` (string)
+- `fileSize` (long)
+- `contentType` (string)
+
+### `AddReactionRequest`
+- `emoji` (string)
+
+### `ReadReceiptResponse`
+- `userId` (guid)
+- `readAt` (datetime)
+
+### `ChannelResponse`
+- `id` (guid)
+- `name` (string)
+- `description` (string | null)
+- `type` (string)
+- `ownerId` (guid)
+- `memberCount` (int)
+- `createdAt` (datetime)
+- `isArchived` (boolean)
+
+### `CreateChannelRequest`
+- `name` (string)
+- `description` (string | null)
+- `isPublic` (boolean)
+
+### `CreateChannelResponse`
+- `channelId` (guid)
+
+### `ModeratorRequest`
+- `userId` (guid)
+
+### `UpdateChannelRequest`
+- `name` (string | null)
+- `description` (string | null)
+
+---
+
 ## ❌ Error Responses
 
 All endpoints follow consistent error response format:

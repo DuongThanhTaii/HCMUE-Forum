@@ -148,6 +148,23 @@ Notes:
 - `SEEDING__HIGHVOLUME__BATCHSIZE`: số record mỗi batch SQL (nên bắt đầu 2k-10k tùy máy).
 - `SEEDING__HIGHVOLUME__EXITAFTERSEEDING`: seed xong thì app tự thoát thay vì chạy server API (tránh cảm giác bị treo khi chỉ muốn seed).
 
+### Learning bulk (DEV — courses + tài liệu đã duyệt)
+
+Dùng cho FE/API cần **nhiều** dòng trong `learning.courses` / `learning.documents` (phân trang, filter) **không** xóa toàn DB như HighVolume.
+
+Trong `appsettings.Development.json` hoặc biến môi trường:
+
+| Key | Ý nghĩa |
+|-----|---------|
+| `Seeding:Learning:Bulk:Enabled` | Bật seed nhiều course + document (mặc định `true` trong file dev mẫu). |
+| `Seeding:Learning:Bulk:OnlyIfEmpty` | `true`: chỉ chạy khi **chưa có** document (tránh nhân đôi mỗi lần chạy API). Đặt `false` nếu muốn chạy lại (cần xóa dữ liệu learning trước để tránh trùng mã course). |
+| `Seeding:Learning:Bulk:CoursesPerFaculty` | Số môn seed **mỗi khoa** (mặc định 10). |
+| `Seeding:Learning:Bulk:DocumentsPerCourse` | Số tài liệu **mỗi môn** (mặc định 15). |
+| `Seeding:Learning:Bulk:MaxDocuments` | Giới hạn tổng số document sinh ra (mặc định 8000). |
+| `Seeding:Learning:Bulk:SaveBatchSize` | Kích thước batch `SaveChanges` (100–500). |
+
+Biến môi trường (uppercase, `__`): ví dụ `SEEDING__LEARNING__BULK__ENABLED=true`.
+
 ---
 
 ## 🔒 User Secrets (Local Development)

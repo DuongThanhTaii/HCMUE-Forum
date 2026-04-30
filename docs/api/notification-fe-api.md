@@ -1,7 +1,7 @@
 # Notification API for Frontend (`ApiResponse` Envelope)
 
 ## Base URL
-- `api/v1/notifications`
+- `/api/v1/notifications`
 
 ## Auth
 - Required (JWT Bearer) for all endpoints.
@@ -30,6 +30,7 @@ Error example:
 
 ### `GET /api/v1/notifications`
 - **Auth**: required
+- **Query**: `pageNumber`, `pageSize`
 - **200**: `ApiResponse<GetNotificationsResponse>`
 - **400**: failure envelope
 - **401**: failure envelope (`Invalid user token`)
@@ -61,4 +62,39 @@ Error example:
 
 ### `PUT /api/v1/notifications/preferences`
 - **Auth**: required
+- **Body**: `UpdateNotificationPreferencesRequest`
 - **200**: `ApiResponse<null>` with message `Notification preferences updated successfully`
+
+## Schemas
+
+### `GetNotificationsResponse`
+- `notifications` (NotificationDto[])
+- `totalCount` (int)
+- `pageNumber` (int)
+- `pageSize` (int)
+- `totalPages` (int)
+
+### `NotificationDto`
+- `id` (guid)
+- `subject` (string)
+- `body` (string)
+- `actionUrl` (string | null)
+- `iconUrl` (string | null)
+- `status` (string)
+- `channel` (string)
+- `createdAt` (datetime)
+- `readAt` (datetime | null)
+- `isRead` (boolean)
+
+### `NotificationPreferencesDto`
+- `userId` (guid)
+- `emailEnabled` (boolean)
+- `pushEnabled` (boolean)
+- `inAppEnabled` (boolean)
+- `createdAt` (datetime)
+- `updatedAt` (datetime | null)
+
+### `UpdateNotificationPreferencesRequest`
+- `emailEnabled` (boolean)
+- `pushEnabled` (boolean)
+- `inAppEnabled` (boolean)

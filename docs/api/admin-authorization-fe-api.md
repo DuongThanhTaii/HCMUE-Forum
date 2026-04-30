@@ -85,6 +85,25 @@ Tài liệu này dành cho màn **Admin tổng / phân quyền** phía FE.
 ]
 ```
 
+### 2.1.1 Get permission by id
+
+- **GET** `/api/v1/permissions/{id}`
+- Response `200`:
+
+```json
+{
+  "id": "9cf74b9e-9f5c-46dc-9e28-e196fa2d03f9",
+  "code": "forum.post.create",
+  "name": "Create forum post",
+  "description": "Allows creating forum post",
+  "module": "Forum",
+  "resource": "Post",
+  "action": "Create"
+}
+```
+
+- `404`: failure envelope
+
 ### 2.3 Get users list
 
 - **GET** `/api/v1/users`
@@ -103,6 +122,25 @@ Tài liệu này dành cho màn **Admin tổng / phân quyền** phía FE.
   }
 ]
 ```
+
+### 2.2.1 Get role by id
+
+- **GET** `/api/v1/roles/{id}`
+- Response `200`:
+
+```json
+{
+  "id": "3f77f97d-b0d7-493f-befa-bf66640dfcc6",
+  "name": "Moderator",
+  "description": "Forum moderation role",
+  "isDefault": false,
+  "isSystemRole": false,
+  "permissionCount": 12,
+  "createdAt": "2026-03-24T08:00:00Z"
+}
+```
+
+- `404`: failure envelope
 
 ---
 
@@ -338,6 +376,25 @@ Base route: `/api/v1/admin/authorization`
 ]
 ```
 
+### 2.3.1 Get user by id
+
+- **GET** `/api/v1/users/{id}`
+- Response `200`:
+
+```json
+{
+  "id": "f7dd2ca4-7f4a-4cc7-a9f7-f0f343d27433",
+  "email": "user@example.com",
+  "fullName": "Nguyen Van A",
+  "bio": "Student",
+  "status": "Active",
+  "badge": null,
+  "createdAt": "2026-03-24T08:00:00Z"
+}
+```
+
+- `404`: failure envelope
+
 #### Upsert user override
 
 - **POST** `/api/v1/admin/authorization/users/{userId}/overrides`
@@ -435,18 +492,23 @@ Base route: `/api/v1/admin/authorization`
 - Response `200`:
 
 ```json
-[
-  {
-    "auditLogId": "8c4e5f67-f51b-4b80-b99b-42f1f891b478",
-    "actorUserId": "f7dd2ca4-7f4a-4cc7-a9f7-f0f343d27433",
-    "action": "EndpointToggle.Update",
-    "targetType": "EndpointToggle",
-    "targetKey": "Api.Identity.AuthorizationAdmin.SetEndpointToggle",
-    "isSuccess": true,
-    "detail": "Endpoint set to disabled",
-    "occurredAtUtc": "2026-03-24T09:35:00Z"
-  }
-]
+{
+  "success": true,
+  "data": [
+    {
+      "auditLogId": "8c4e5f67-f51b-4b80-b99b-42f1f891b478",
+      "actorUserId": "f7dd2ca4-7f4a-4cc7-a9f7-f0f343d27433",
+      "action": "EndpointToggle.Update",
+      "targetType": "EndpointToggle",
+      "targetKey": "Api.Identity.AuthorizationAdmin.SetEndpointToggle",
+      "isSuccess": true,
+      "detail": "Endpoint set to disabled",
+      "occurredAtUtc": "2026-03-24T09:35:00Z"
+    }
+  ],
+  "message": null,
+  "error": null
+}
 ```
 
 ---
@@ -469,37 +531,42 @@ Base route: `/api/v1/admin/observability/user-actions`
 
 ```json
 {
-  "items": [
-    {
-      "id": "67e0a6a5b58d674d0c8f8fbe",
-      "actorUserId": "user-123",
-      "method": "PUT",
-      "path": "/api/v1/admin/authorization/toggles/Api.Identity.AuthorizationAdmin.SetEndpointToggle",
-      "queryString": "",
-      "endpoint": "...AuthorizationAdminController.SetEndpointToggle...",
-      "statusCode": 200,
-      "durationMs": 42,
-      "traceId": "00-...",
-      "correlationId": "6f9a2d4d8e5e4f68a2d6d9fcb9c9b4f1",
-      "remoteIp": "127.0.0.1",
-      "userAgent": "Mozilla/5.0",
-      "scheme": "https",
-      "host": "localhost:5001",
-      "startedAtUtc": "2026-03-24T08:12:11.123Z",
-      "completedAtUtc": "2026-03-24T08:12:11.165Z",
-      "result": "Success",
-      "exceptionType": null,
-      "exceptionMessage": null,
-      "terminalLine": "[2026-03-24 08:12:11.165] [200] PUT /api/..."
-    }
-  ],
-  "total": 124,
-  "page": 1,
-  "pageSize": 50,
-  "viewType": "Developer",
-  "availableViewTypes": ["Developer", "Administrator"],
-  "persistToMongo": true,
-  "mongoCollectionName": "user_action_logs"
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "67e0a6a5b58d674d0c8f8fbe",
+        "actorUserId": "user-123",
+        "method": "PUT",
+        "path": "/api/v1/admin/authorization/toggles/Api.Identity.AuthorizationAdmin.SetEndpointToggle",
+        "queryString": "",
+        "endpoint": "...AuthorizationAdminController.SetEndpointToggle...",
+        "statusCode": 200,
+        "durationMs": 42,
+        "traceId": "00-...",
+        "correlationId": "6f9a2d4d8e5e4f68a2d6d9fcb9c9b4f1",
+        "remoteIp": "127.0.0.1",
+        "userAgent": "Mozilla/5.0",
+        "scheme": "https",
+        "host": "localhost:5001",
+        "startedAtUtc": "2026-03-24T08:12:11.123Z",
+        "completedAtUtc": "2026-03-24T08:12:11.165Z",
+        "result": "Success",
+        "exceptionType": null,
+        "exceptionMessage": null,
+        "terminalLine": "[2026-03-24 08:12:11.165] [200] PUT /api/..."
+      }
+    ],
+    "total": 124,
+    "page": 1,
+    "pageSize": 50,
+    "viewType": "Developer",
+    "availableViewTypes": ["Developer", "Administrator"],
+    "persistToMongo": true,
+    "mongoCollectionName": "user_action_logs"
+  },
+  "message": null,
+  "error": null
 }
 ```
 
@@ -515,3 +582,114 @@ Base route: `/api/v1/admin/observability/user-actions`
   - tab **Dev** => `Developer`
   - tab **Admin** => `Administrator`
 - `terminalLine` đã format sẵn để render nhanh kiểu terminal; FE vẫn có full fields để custom UI.
+
+---
+
+## 8) Schemas
+
+### `PermissionResponse`
+- `id` (guid)
+- `code` (string)
+- `name` (string)
+- `description` (string | null)
+- `module` (string)
+- `resource` (string)
+- `action` (string)
+
+### `RoleResponse`
+- `id` (guid)
+- `name` (string)
+- `description` (string | null)
+- `isDefault` (boolean)
+- `isSystemRole` (boolean)
+- `permissionCount` (int)
+- `createdAt` (datetime)
+
+### `CreateRoleRequest`
+- `name` (string)
+- `description` (string | null)
+
+### `UpdateRoleRequest`
+- `name` (string)
+- `description` (string | null)
+
+### `AssignPermissionRequest`
+- `permissionId` (guid)
+- `scopeType` (string)
+- `scopeValue` (string | null)
+
+### `UserResponse`
+- `id` (guid)
+- `email` (string)
+- `fullName` (string)
+- `bio` (string | null)
+- `status` (string)
+- `badge` (OfficialBadgeDto | null)
+- `createdAt` (datetime)
+
+### `OfficialBadgeDto`
+- `type` (string)
+- `name` (string)
+- `description` (string | null)
+- `emoji` (string)
+
+### `AssignRoleRequest`
+- `roleId` (guid)
+
+### `AssignBadgeRequest`
+- `badgeType` (string)
+- `badgeName` (string)
+- `description` (string | null)
+
+### `UpdateProfileRequest`
+- `firstName` (string)
+- `lastName` (string)
+- `bio` (string | null)
+
+### `PermissionOverrideResponse`
+- `overrideId` (guid)
+- `permissionId` (guid)
+- `permissionCode` (string)
+- `scopeType` (string)
+- `scopeValue` (string | null)
+- `effect` (string)
+- `reason` (string | null)
+- `expiresAtUtc` (datetime | null)
+- `createdAtUtc` (datetime)
+- `updatedAtUtc` (datetime | null)
+- `isRevoked` (boolean)
+
+### `UpsertPermissionOverrideRequest`
+- `permissionId` (guid)
+- `scopeType` (string)
+- `scopeValue` (string | null)
+- `effect` (string)
+- `reason` (string | null)
+- `expiresAtUtc` (datetime | null)
+
+### `RevokePermissionOverrideRequest`
+- `permissionId` (guid)
+- `scopeType` (string)
+- `scopeValue` (string | null)
+
+### `EndpointToggleResponse`
+- `endpointKey` (string)
+- `isEnabled` (boolean)
+- `reason` (string | null)
+- `updatedBy` (string)
+- `updatedAtUtc` (datetime)
+- `version` (int)
+
+### `SetEndpointToggleRequest`
+- `isEnabled` (boolean)
+- `reason` (string | null)
+
+### `AuthorizationAuditLogResponse`
+- `auditLogId` (guid)
+- `actorUserId` (guid | null)
+- `action` (string)
+- `targetType` (string)
+- `targetKey` (string | null)
+- `isSuccess` (boolean)
+- `detail` (string | null)
+- `occurredAtUtc` (datetime)
