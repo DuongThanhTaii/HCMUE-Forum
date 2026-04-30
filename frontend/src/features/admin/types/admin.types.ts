@@ -80,3 +80,34 @@ export interface AssignBadgeRequest {
   badgeName: string
   description: string
 }
+
+export type OverrideEffect = 'Allow' | 'Deny'
+
+export interface PermissionOverrideDto {
+  overrideId: string
+  permissionId: string
+  permissionCode: string
+  scopeType: string
+  scopeValue: string | null
+  effect: OverrideEffect
+  reason: string | null
+  expiresAtUtc: string | null
+  createdAtUtc: string
+  updatedAtUtc: string | null
+  isRevoked: boolean
+}
+
+export interface UpsertPermissionOverrideRequest {
+  permissionId: string
+  scopeType: string
+  scopeValue: string | null
+  effect: OverrideEffect
+  reason: string | null
+  expiresAtUtc: string | null
+}
+
+export interface RevokePermissionOverrideRequest {
+  permissionId: string
+  scopeType: string
+  scopeValue: string | null
+}

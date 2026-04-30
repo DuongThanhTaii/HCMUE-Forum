@@ -4,10 +4,13 @@ import type {
   AssignPermissionRequest,
   AssignRoleToUserRequest,
   CreateRoleRequest,
+  PermissionOverrideDto,
   PermissionDto,
+  RevokePermissionOverrideRequest,
   RemovePermissionRequest,
   RoleDetailDto,
   RoleDto,
+  UpsertPermissionOverrideRequest,
   UserDto,
   UpdateRoleRequest,
 } from '../types/admin.types'
@@ -54,6 +57,14 @@ export function getUserBadgePath(userId: string): string {
   return `/api/v1/users/${userId}/badge`
 }
 
+export function getUserOverridesPath(userId: string): string {
+  return `/api/v1/admin/authorization/users/${userId}/overrides`
+}
+
+export function getGroupOverridesPath(groupId: string): string {
+  return `/api/v1/admin/authorization/groups/${groupId}/overrides`
+}
+
 export function buildAssignRoleToUserRequest(userId: string, body: AssignRoleToUserRequest) {
   return {
     url: getAssignUserRolePath(userId),
@@ -81,6 +92,29 @@ export function buildRemoveBadgeRequest(userId: string) {
   return {
     url: getUserBadgePath(userId),
     method: 'DELETE' as const,
+  }
+}
+
+export function buildUpsertUserOverrideRequest(userId: string, body: UpsertPermissionOverrideRequest) {
+  return {
+    url: getUserOverridesPath(userId),
+    method: 'POST' as const,
+    body: {
+      ...body,
+      scopeValue: normalizeScopeValue(body.scopeValue),
+    },
+  }
+}
+
+export function buildRevokeUserOverrideRequest(userId: string, query: RevokePermissionOverrideRequest) {
+  return {
+    url: getUserOverridesPath(userId),
+    method: 'DELETE' as const,
+    params: {
+      permissionId: query.permissionId,
+      scopeType: query.scopeType,
+      scopeValue: normalizeScopeValue(query.scopeValue),
+    },
   }
 }
 
@@ -235,6 +269,21 @@ export const adminApi = baseApi.injectEndpoints({
         { type: 'UserProfile', id: 'LIST' },
       ],
     }),
+
+    getUserOverrides: builder.query<PermissionOverrideDto[], string>({
+      query: (userId) => getUserOverridesPath(userId),
+      transformResponse: (response: unknown) => unwrapApiList<PermissionOverrideDto>(response),
+    }),
+
+    upsertUserOverride: builder.mutation<void, { userId: string; body: UpsertPermissionOverrideRequest }>({
+      query: ({ userId, body }) => buildUpsertUserOverrideRequest(userId, body),
+      invalidatesTags: (_result, _error, { userId }) => [{ type: 'UserProfile', id: userId }],
+    }),
+
+    revokeUserOverride: builder.mutation<void, { userId: string; query: RevokePermissionOverrideRequest }>({
+      query: ({ userId, query }) => buildRevokeUserOverrideRequest(userId, query),
+      invalidatesTags: (_result, _error, { userId }) => [{ type: 'UserProfile', id: userId }],
+    }),
   }),
 })
 
@@ -254,4 +303,7 @@ export const {
   useRemoveRoleFromUserMutation,
   useAssignBadgeMutation,
   useRemoveBadgeMutation,
+  useGetUserOverridesQuery,
+  useUpsertUserOverrideMutation,
+  useRevokeUserOverrideMutation,
 } = adminApi
