@@ -1,7 +1,7 @@
+import { useAdminRolesPage } from '../hooks/useAdminRolesPage'
 import { CreateRoleModal } from './CreateRoleModal'
 import { RoleList } from './RoleList'
 import { RolePermissionGrid } from './RolePermissionGrid'
-import { useAdminRolesPage } from '../hooks/useAdminRolesPage'
 
 export function AdminRolesPage() {
   const {
