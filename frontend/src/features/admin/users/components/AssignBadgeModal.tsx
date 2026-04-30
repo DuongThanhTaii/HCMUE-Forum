@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import type { AssignBadgeRequest } from '../types/admin.types'
+import type { AssignBadgeRequest } from '../../types/admin.types'
 
 type AssignBadgeModalProps = {
   isOpen: boolean

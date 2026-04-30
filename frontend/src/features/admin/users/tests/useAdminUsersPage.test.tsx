@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { useAdminUsersPage } from './useAdminUsersPage'
+import { useAdminUsersPage } from '../hooks/useAdminUsersPage'
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -12,7 +12,7 @@ const mockAssignRoleMutation = vi.fn()
 const mockAssignBadgeMutation = vi.fn()
 const mockRemoveBadgeMutation = vi.fn()
 
-vi.mock('../api/admin.api', () => ({
+vi.mock('../../api/admin.api', () => ({
   useGetUsersQuery: () => mockUseGetUsersQuery(),
   useGetRolesQuery: () => mockUseGetRolesQuery(),
   useAssignRoleToUserMutation: () => mockAssignRoleMutation(),

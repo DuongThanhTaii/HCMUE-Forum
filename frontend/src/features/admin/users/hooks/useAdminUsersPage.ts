@@ -6,8 +6,8 @@ import {
   useGetRolesQuery,
   useGetUsersQuery,
   useRemoveBadgeMutation,
-} from '../api/admin.api'
-import type { AssignBadgeRequest, UserDto, UserStatus } from '../types/admin.types'
+} from '../../api/admin.api'
+import type { AssignBadgeRequest, UserDto, UserStatus } from '../../types/admin.types'
 
 type FilterOption = { value: string; label: string }
 

@@ -45,7 +45,7 @@ vi.mock('@features/auth/components/LoginPage', () => ({
 vi.mock('@features/auth/components/RegisterPage', () => ({
   RegisterPage: () => <div>Register page</div>,
 }))
-vi.mock('@features/admin/components/AdminUsersPage', () => ({
+vi.mock('@features/admin/users/components/AdminUsersPage', () => ({
   AdminUsersPage: () => <div>Admin users page</div>,
 }))
 
