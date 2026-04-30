@@ -21,6 +21,7 @@ export function AdminUsersPage() {
     setSearchValue,
     setRoleFilter,
     setStatusFilter,
+    canFilterByRole,
     openAssignRoleModal,
     closeAssignRoleModal,
     openAssignBadgeModal,
@@ -67,6 +68,7 @@ export function AdminUsersPage() {
             value={roleFilter}
             onChange={(event) => setRoleFilter(event.target.value)}
             aria-label={t('admin.usersPage.filters.role')}
+            disabled={!canFilterByRole}
           >
             {roleOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -74,6 +76,11 @@ export function AdminUsersPage() {
               </option>
             ))}
           </select>
+          {!canFilterByRole ? (
+            <p className="mt-1 text-xs font-normal text-slate-500">
+              {t('admin.usersPage.filters.roleUnavailable')}
+            </p>
+          ) : null}
         </label>
         <label className="text-sm font-medium text-slate-700">
           {t('admin.usersPage.filters.status')}

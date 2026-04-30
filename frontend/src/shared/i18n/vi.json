@@ -719,7 +719,8 @@
         "role": "Vai trò",
         "status": "Trạng thái",
         "allRoles": "Tất cả vai trò",
-        "allStatuses": "Tất cả trạng thái"
+        "allStatuses": "Tất cả trạng thái",
+        "roleUnavailable": "Bộ lọc vai trò sẽ khả dụng khi dữ liệu thành viên vai trò được cung cấp."
       },
       "table": {
         "user": "Người dùng",

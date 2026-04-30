@@ -719,7 +719,8 @@
         "role": "Role",
         "status": "Status",
         "allRoles": "All roles",
-        "allStatuses": "All statuses"
+        "allStatuses": "All statuses",
+        "roleUnavailable": "Role filter is unavailable until role memberships are provided."
       },
       "table": {
         "user": "User",

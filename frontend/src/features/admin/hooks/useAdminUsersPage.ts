@@ -30,6 +30,7 @@ export function useAdminUsersPage() {
   const users = useMemo(() => usersData ?? [], [usersData])
   const roles = useMemo(() => rolesData ?? [], [rolesData])
   const normalizedSearch = searchValue.trim().toLowerCase()
+  const canFilterByRole = false
 
   const filteredUsers = useMemo(
     () =>
@@ -39,11 +40,10 @@ export function useAdminUsersPage() {
           user.fullName.toLowerCase().includes(normalizedSearch) ||
           user.email.toLowerCase().includes(normalizedSearch)
         const byStatus = statusFilter === 'all' || user.status === statusFilter
-        // Role membership is not included in A3 list payload yet.
-        const byRole = roleFilter === 'all'
+        const byRole = !canFilterByRole || roleFilter === 'all'
         return bySearch && byStatus && byRole
       }),
-    [users, normalizedSearch, statusFilter, roleFilter],
+    [users, normalizedSearch, statusFilter, roleFilter, canFilterByRole],
   )
 
   const roleOptions: FilterOption[] = useMemo(
@@ -108,8 +108,12 @@ export function useAdminUsersPage() {
     isLoading: isUsersLoading || isRolesLoading,
     isError: isUsersError || isRolesError,
     setSearchValue,
-    setRoleFilter,
+    setRoleFilter: (value: string) => {
+      if (!canFilterByRole) return
+      setRoleFilter(value)
+    },
     setStatusFilter: (value: string) => setStatusFilter(value as 'all' | UserStatus),
+    canFilterByRole,
     openAssignRoleModal,
     closeAssignRoleModal,
     openAssignBadgeModal,
