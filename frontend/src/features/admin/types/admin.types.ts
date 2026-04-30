@@ -18,8 +18,16 @@ export interface RoleDto {
   createdAt: string
 }
 
-/** Same payload as list item for GET /roles/{id} per API doc */
-export type RoleDetailDto = RoleDto
+export interface RolePermissionAssignmentDto {
+  permissionId?: string
+  id?: string
+  scopeType?: string
+  scopeValue?: string | null
+}
+
+export interface RoleDetailDto extends RoleDto {
+  permissions?: RolePermissionAssignmentDto[]
+}
 
 export interface CreateRoleRequest {
   name: string

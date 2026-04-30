@@ -4,10 +4,11 @@ import {
   useAssignPermissionToRoleMutation,
   useCreateRoleMutation,
   useGetPermissionsQuery,
+  useGetRoleQuery,
   useGetRolesQuery,
   useRemovePermissionFromRoleMutation,
 } from '../api/admin.api'
-import type { RoleDto } from '../types/admin.types'
+import type { RoleDetailDto, RoleDto } from '../types/admin.types'
 
 type AssignedPermissionsByRole = Record<string, string[]>
 
@@ -36,14 +37,31 @@ export function useAdminRolesPage() {
     () => roles.find((role) => role.id === effectiveSelectedRoleId) ?? null,
     [roles, effectiveSelectedRoleId],
   )
+  const { data: selectedRoleDetail, isLoading: isRoleDetailLoading, isError: isRoleDetailError } = useGetRoleQuery(
+    effectiveSelectedRoleId ?? '',
+    { skip: !effectiveSelectedRoleId },
+  )
+
+  const hydratedAssignedPermissionIds = useMemo(() => {
+    if (!selectedRoleDetail) return []
+    return extractPermissionIdsFromRoleDetail(selectedRoleDetail)
+  }, [selectedRoleDetail])
+
+  const getAssignedPermissionIds = (roleId: string) => {
+    const localAssigned = assignedPermissionsByRole[roleId]
+    if (localAssigned) return localAssigned
+    if (roleId === effectiveSelectedRoleId) return hydratedAssignedPermissionIds
+    return []
+  }
 
   const isPermissionAssigned = (roleId: string, permissionId: string) =>
-    (assignedPermissionsByRole[roleId] ?? []).includes(permissionId)
+    getAssignedPermissionIds(roleId).includes(permissionId)
 
   const togglePermission = async (permissionId: string) => {
     if (!effectiveSelectedRoleId) return
 
-    const assigned = isPermissionAssigned(effectiveSelectedRoleId, permissionId)
+    const currentAssigned = getAssignedPermissionIds(effectiveSelectedRoleId)
+    const assigned = currentAssigned.includes(permissionId)
     if (assigned) {
       await removePermissionMutation({
         roleId: effectiveSelectedRoleId,
@@ -53,7 +71,7 @@ export function useAdminRolesPage() {
       }).unwrap()
       setAssignedPermissionsByRole((prev) => ({
         ...prev,
-        [effectiveSelectedRoleId]: (prev[effectiveSelectedRoleId] ?? []).filter((id) => id !== permissionId),
+        [effectiveSelectedRoleId]: currentAssigned.filter((id) => id !== permissionId),
       }))
       return
     }
@@ -68,7 +86,7 @@ export function useAdminRolesPage() {
     }).unwrap()
     setAssignedPermissionsByRole((prev) => ({
       ...prev,
-      [effectiveSelectedRoleId]: [...(prev[effectiveSelectedRoleId] ?? []), permissionId],
+      [effectiveSelectedRoleId]: [...currentAssigned, permissionId],
     }))
   }
 
@@ -89,8 +107,8 @@ export function useAdminRolesPage() {
     permissions,
     selectedRoleId: effectiveSelectedRoleId,
     selectedRole,
-    isLoading: isRolesLoading || isPermissionsLoading,
-    isError: isRolesError || isPermissionsError,
+    isLoading: isRolesLoading || isPermissionsLoading || isRoleDetailLoading,
+    isError: isRolesError || isPermissionsError || isRoleDetailError,
     isCreateModalOpen,
     isCreatingRole,
     isAssigningPermission,
@@ -102,4 +120,13 @@ export function useAdminRolesPage() {
     isPermissionAssigned,
     togglePermission,
   }
+}
+
+function extractPermissionIdsFromRoleDetail(roleDetail: RoleDetailDto): string[] {
+  const assignments = roleDetail.permissions
+  if (!Array.isArray(assignments)) return []
+
+  return assignments
+    .map((assignment) => assignment.permissionId ?? assignment.id ?? null)
+    .filter((permissionId): permissionId is string => typeof permissionId === 'string' && permissionId.length > 0)
 }
