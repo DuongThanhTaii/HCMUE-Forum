@@ -29,7 +29,7 @@ describe('admin overrides endpoints (A4)', () => {
       body: {
         permissionId: 'p1',
         scopeType: 'Global',
-        scopeValue: '',
+        scopeValue: null,
         effect: 'Deny',
         reason: 'block',
         expiresAtUtc: null,

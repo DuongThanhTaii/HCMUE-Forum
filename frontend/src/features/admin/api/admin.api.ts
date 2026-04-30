@@ -99,10 +99,7 @@ export function buildUpsertUserOverrideRequest(userId: string, body: UpsertPermi
   return {
     url: getUserOverridesPath(userId),
     method: 'POST' as const,
-    body: {
-      ...body,
-      scopeValue: normalizeScopeValue(body.scopeValue),
-    },
+    body,
   }
 }
 
