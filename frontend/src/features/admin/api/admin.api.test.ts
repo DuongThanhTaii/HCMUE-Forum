@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { unwrapApiData, unwrapApiList } from './admin.api'
+import { normalizeScopeValue, unwrapApiData, unwrapApiList } from './admin.api'
 
 describe('admin.api envelope helpers', () => {
   it('unwraps { success, data } envelope for roles list', () => {
@@ -28,5 +28,15 @@ describe('admin.api envelope helpers', () => {
       id: 'r1',
       name: 'Mod',
     })
+  })
+})
+
+describe('normalizeScopeValue', () => {
+  it('normalizes null scope to empty string for query params', () => {
+    expect(normalizeScopeValue(null)).toBe('')
+  })
+
+  it('preserves non-null scope values', () => {
+    expect(normalizeScopeValue('faculty:it')).toBe('faculty:it')
   })
 })

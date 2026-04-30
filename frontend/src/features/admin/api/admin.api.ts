@@ -26,6 +26,11 @@ export function unwrapApiList<T>(response: unknown): T[] {
   return []
 }
 
+/** Backend expects empty string for "global" scope in query params. */
+export function normalizeScopeValue(scopeValue: string | null): string {
+  return scopeValue ?? ''
+}
+
 export const adminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getPermissions: builder.query<PermissionDto[], void>({
@@ -118,7 +123,7 @@ export const adminApi = baseApi.injectEndpoints({
         method: 'DELETE',
         params: {
           scopeType,
-          scopeValue,
+          scopeValue: normalizeScopeValue(scopeValue),
         },
       }),
       invalidatesTags: (_result, _error, { roleId }) => [{ type: 'Role', id: roleId }],

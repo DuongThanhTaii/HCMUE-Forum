@@ -41,5 +41,5 @@ export interface RemovePermissionRequest {
   roleId: string
   permissionId: string
   scopeType: string
-  scopeValue: string
+  scopeValue: string | null
 }
