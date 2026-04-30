@@ -696,6 +696,20 @@
     "roles": "Vai trò",
     "reports": "Báo cáo",
     "analytics": "Phân tích",
+    "rolesPage": {
+      "title": "Quản lý vai trò",
+      "subtitle": "Chọn vai trò và cấu hình quyền truy cập.",
+      "createRole": "Tạo vai trò",
+      "messages": {
+        "loadError": "Không thể tải dữ liệu vai trò.",
+        "noRoleSelected": "Chưa chọn vai trò."
+      },
+      "createModal": {
+        "title": "Tạo vai trò",
+        "name": "Tên vai trò",
+        "description": "Mô tả"
+      }
+    },
     "layout": {
       "title": "Khu vực quản trị"
     }

@@ -12,6 +12,7 @@ import { LearningDocumentsPage } from '@features/learning/components/LearningDoc
 import { CareerJobsPage } from '@features/career/components/CareerJobsPage';
 import { LoginPage } from '@features/auth/components/LoginPage';
 import { RegisterPage } from '@features/auth/components/RegisterPage';
+import { AdminRolesPage } from '@features/admin/components/AdminRolesPage';
 
 export const appRoutes = [
   { path: '/', element: <Navigate to="/forum" replace /> },
@@ -66,7 +67,7 @@ export const appRoutes = [
         children: [
           { index: true, element: <Navigate to="/admin/users" replace /> },
           { path: 'users', element: <Placeholder titleKey="placeholders.admin.users" /> },
-          { path: 'roles', element: <Placeholder titleKey="placeholders.admin.roles" /> },
+          { path: 'roles', element: <AdminRolesPage /> },
           { path: 'permissions', element: <Placeholder titleKey="placeholders.admin.permissions" /> },
           { path: 'overrides/users', element: <Placeholder titleKey="placeholders.admin.overridesUsers" /> },
           { path: 'overrides/groups', element: <Placeholder titleKey="placeholders.admin.overridesGroups" /> },

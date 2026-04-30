@@ -696,6 +696,20 @@
     "roles": "Roles",
     "reports": "Reports",
     "analytics": "Analytics",
+    "rolesPage": {
+      "title": "Role management",
+      "subtitle": "Select a role and configure permissions.",
+      "createRole": "Create role",
+      "messages": {
+        "loadError": "Failed to load roles data.",
+        "noRoleSelected": "No role selected."
+      },
+      "createModal": {
+        "title": "Create role",
+        "name": "Role name",
+        "description": "Description"
+      }
+    },
     "layout": {
       "title": "Admin Zone"
     }
