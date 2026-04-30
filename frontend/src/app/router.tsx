@@ -15,6 +15,9 @@ import { RegisterPage } from '@features/auth/components/RegisterPage';
 import { AdminRolesPage } from '@features/admin/components/AdminRolesPage';
 import { AdminUsersPage } from '@features/admin/components/AdminUsersPage';
 import { AdminOverridesPage } from '@features/admin/components/AdminOverridesPage';
+import { AdminTogglesPage } from '@features/admin/components/AdminTogglesPage';
+import { AdminActionLogsPage } from '@features/admin/components/AdminActionLogsPage';
+import { AdminAuditLogsPage } from '@features/admin/components/AdminAuditLogsPage';
 
 export const appRoutes = [
   { path: '/', element: <Navigate to="/forum" replace /> },
@@ -73,9 +76,9 @@ export const appRoutes = [
           { path: 'permissions', element: <Placeholder titleKey="placeholders.admin.permissions" /> },
           { path: 'overrides/users', element: <AdminOverridesPage /> },
           { path: 'overrides/groups', element: <AdminOverridesPage /> },
-          { path: 'toggles', element: <Placeholder titleKey="placeholders.admin.toggles" /> },
-          { path: 'logs/actions', element: <Placeholder titleKey="placeholders.admin.logsActions" /> },
-          { path: 'logs/audit', element: <Placeholder titleKey="placeholders.admin.logsAudit" /> },
+          { path: 'toggles', element: <AdminTogglesPage /> },
+          { path: 'logs/actions', element: <AdminActionLogsPage /> },
+          { path: 'logs/audit', element: <AdminAuditLogsPage /> },
         ],
       },
     ],
