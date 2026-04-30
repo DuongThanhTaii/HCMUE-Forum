@@ -19,6 +19,29 @@ vi.mock('../api/admin.observability.api', () => ({
 }))
 
 describe('useAdminLogsPage', () => {
+  it('uses default action page size 100', () => {
+    mockUseGetTogglesQuery.mockReturnValue({ data: [], isLoading: false, isError: false })
+    mockUseSetToggleMutation.mockReturnValue([vi.fn(), { isLoading: false }])
+    mockUseGetAuditLogsQuery.mockReturnValue({ data: [], isLoading: false, isError: false })
+    mockUseGetUserActionLogsQuery.mockReturnValue({
+      data: {
+        items: [],
+        total: 0,
+        page: 1,
+        pageSize: 100,
+        viewType: 'Developer',
+        availableViewTypes: ['Developer', 'Administrator'],
+        persistToMongo: true,
+        mongoCollectionName: 'user_action_logs',
+      },
+      isLoading: false,
+      isError: false,
+    })
+
+    const { result } = renderHook(() => useAdminLogsPage())
+    expect(result.current.actionPageSize).toBe(100)
+  })
+
   it('switches view type and resets action logs page', () => {
     mockUseGetTogglesQuery.mockReturnValue({ data: [], isLoading: false, isError: false })
     mockUseSetToggleMutation.mockReturnValue([vi.fn(), { isLoading: false }])
@@ -30,7 +53,7 @@ describe('useAdminLogsPage', () => {
         items: [],
         total: 0,
         page: parsed.page ?? 1,
-        pageSize: parsed.pageSize ?? 20,
+        pageSize: parsed.pageSize ?? 100,
         viewType: parsed.viewType ?? 'Developer',
         availableViewTypes: ['Developer', 'Administrator'],
         persistToMongo: true,

@@ -36,7 +36,7 @@ export function useAdminLogsPage() {
 
   const [actionViewType, setActionViewTypeState] = useState<UserActionLogsViewType>('Developer')
   const [actionPage, setActionPage] = useState(1)
-  const [actionPageSize, setActionPageSize] = useState(20)
+  const [actionPageSize, setActionPageSize] = useState(100)
   const [actionActorUserId, setActionActorUserId] = useState('')
   const [actionMethod, setActionMethod] = useState('')
   const [actionPathContains, setActionPathContains] = useState('')
