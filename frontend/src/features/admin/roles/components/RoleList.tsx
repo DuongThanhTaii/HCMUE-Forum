@@ -1,4 +1,4 @@
-import type { RoleDto } from '../types/admin.types'
+import type { RoleDto } from '../../types/admin.types'
 
 type RoleListProps = {
   roles: RoleDto[]

@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { useAdminLogsPage } from './useAdminLogsPage'
+import { useAdminLogsPage } from '../hooks/useAdminLogsPage'
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -11,7 +11,7 @@ const mockUseSetToggleMutation = vi.fn()
 const mockUseGetAuditLogsQuery = vi.fn()
 const mockUseGetUserActionLogsQuery = vi.fn()
 
-vi.mock('../api/admin.observability.api', () => ({
+vi.mock('../../api/admin.observability.api', () => ({
   useGetTogglesQuery: () => mockUseGetTogglesQuery(),
   useSetToggleMutation: () => mockUseSetToggleMutation(),
   useGetAuditLogsQuery: (params: unknown) => mockUseGetAuditLogsQuery(params),

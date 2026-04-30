@@ -7,8 +7,8 @@ import {
   useGetRoleQuery,
   useGetRolesQuery,
   useRemovePermissionFromRoleMutation,
-} from '../api/admin.api'
-import type { RoleDetailDto, RoleDto } from '../types/admin.types'
+} from '../../api/admin.api'
+import type { RoleDetailDto, RoleDto } from '../../types/admin.types'
 
 type AssignedPermissionsByRole = Record<string, string[]>
 

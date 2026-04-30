@@ -7,8 +7,8 @@ import {
   useGetUsersQuery,
   useRevokeUserOverrideMutation,
   useUpsertUserOverrideMutation,
-} from '../api/admin.api'
-import type { OverrideEffect, RevokePermissionOverrideRequest, UpsertPermissionOverrideRequest } from '../types/admin.types'
+} from '../../api/admin.api'
+import type { OverrideEffect, RevokePermissionOverrideRequest, UpsertPermissionOverrideRequest } from '../../types/admin.types'
 
 type OverrideTab = 'users' | 'groups'
 

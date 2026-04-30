@@ -12,12 +12,12 @@ import { LearningDocumentsPage } from '@features/learning/components/LearningDoc
 import { CareerJobsPage } from '@features/career/components/CareerJobsPage';
 import { LoginPage } from '@features/auth/components/LoginPage';
 import { RegisterPage } from '@features/auth/components/RegisterPage';
-import { AdminRolesPage } from '@features/admin/components/AdminRolesPage';
-import { AdminUsersPage } from '@features/admin/components/AdminUsersPage';
-import { AdminOverridesPage } from '@features/admin/components/AdminOverridesPage';
-import { AdminTogglesPage } from '@features/admin/components/AdminTogglesPage';
-import { AdminActionLogsPage } from '@features/admin/components/AdminActionLogsPage';
-import { AdminAuditLogsPage } from '@features/admin/components/AdminAuditLogsPage';
+import { AdminRolesPage } from '@features/admin/roles/components/AdminRolesPage';
+import { AdminUsersPage } from '@features/admin/users/components/AdminUsersPage';
+import { AdminOverridesPage } from '@features/admin/overrides/components/AdminOverridesPage';
+import { AdminTogglesPage } from '@features/admin/observability/components/AdminTogglesPage';
+import { AdminActionLogsPage } from '@features/admin/observability/components/AdminActionLogsPage';
+import { AdminAuditLogsPage } from '@features/admin/observability/components/AdminAuditLogsPage';
 
 export const appRoutes = [
   { path: '/', element: <Navigate to="/forum" replace /> },

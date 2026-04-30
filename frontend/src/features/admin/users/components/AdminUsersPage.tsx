@@ -1,6 +1,6 @@
+import { useAdminUsersPage } from '../hooks/useAdminUsersPage'
 import { AssignBadgeModal } from './AssignBadgeModal'
 import { AssignRoleModal } from './AssignRoleModal'
-import { useAdminUsersPage } from '../hooks/useAdminUsersPage'
 
 export function AdminUsersPage() {
   const {

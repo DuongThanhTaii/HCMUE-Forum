@@ -1,4 +1,4 @@
-import type { UserActionLogsViewType } from '../types/admin.types'
+import type { UserActionLogsViewType } from '../../types/admin.types'
 import { LogsFilterBar } from './LogsFilterBar'
 import { useAdminLogsPage } from '../hooks/useAdminLogsPage'
 

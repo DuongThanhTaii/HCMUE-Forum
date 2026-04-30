@@ -1,5 +1,5 @@
-import { EndpointToggleRow } from './EndpointToggleRow'
 import { useAdminLogsPage } from '../hooks/useAdminLogsPage'
+import { EndpointToggleRow } from './EndpointToggleRow'
 
 export function AdminTogglesPage() {
   const { t, toggles, isTogglesLoading, isTogglesError, isSetToggleLoading, submitToggle } = useAdminLogsPage()
