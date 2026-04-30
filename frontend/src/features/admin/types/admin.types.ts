@@ -51,3 +51,32 @@ export interface RemovePermissionRequest {
   scopeType: string
   scopeValue: string | null
 }
+
+export interface BadgeDto {
+  type: string
+  name: string
+  description: string
+  emoji: string
+}
+
+export type UserStatus = 'Active' | 'Inactive' | 'Banned'
+
+export interface UserDto {
+  id: string
+  email: string
+  fullName: string
+  bio: string | null
+  status: UserStatus
+  badge: BadgeDto | null
+  createdAt: string
+}
+
+export interface AssignRoleToUserRequest {
+  roleId: string
+}
+
+export interface AssignBadgeRequest {
+  badgeType: string
+  badgeName: string
+  description: string
+}

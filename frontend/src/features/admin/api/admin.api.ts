@@ -1,11 +1,14 @@
 import { baseApi } from '@shared/lib/api/baseApi'
 import type {
+  AssignBadgeRequest,
   AssignPermissionRequest,
+  AssignRoleToUserRequest,
   CreateRoleRequest,
   PermissionDto,
   RemovePermissionRequest,
   RoleDetailDto,
   RoleDto,
+  UserDto,
   UpdateRoleRequest,
 } from '../types/admin.types'
 
@@ -29,6 +32,56 @@ export function unwrapApiList<T>(response: unknown): T[] {
 /** Backend expects empty string for "global" scope in query params. */
 export function normalizeScopeValue(scopeValue: string | null): string {
   return scopeValue ?? ''
+}
+
+export function getUsersPath(): string {
+  return '/api/v1/users'
+}
+
+export function getUserPath(id: string): string {
+  return `/api/v1/users/${id}`
+}
+
+export function getAssignUserRolePath(userId: string): string {
+  return `/api/v1/users/${userId}/roles`
+}
+
+export function getRemoveUserRolePath(userId: string, roleId: string): string {
+  return `/api/v1/users/${userId}/roles/${roleId}`
+}
+
+export function getUserBadgePath(userId: string): string {
+  return `/api/v1/users/${userId}/badge`
+}
+
+export function buildAssignRoleToUserRequest(userId: string, body: AssignRoleToUserRequest) {
+  return {
+    url: getAssignUserRolePath(userId),
+    method: 'POST' as const,
+    body,
+  }
+}
+
+export function buildRemoveRoleFromUserRequest(userId: string, roleId: string) {
+  return {
+    url: getRemoveUserRolePath(userId, roleId),
+    method: 'DELETE' as const,
+  }
+}
+
+export function buildAssignBadgeRequest(userId: string, body: AssignBadgeRequest) {
+  return {
+    url: getUserBadgePath(userId),
+    method: 'POST' as const,
+    body,
+  }
+}
+
+export function buildRemoveBadgeRequest(userId: string) {
+  return {
+    url: getUserBadgePath(userId),
+    method: 'DELETE' as const,
+  }
 }
 
 export const adminApi = baseApi.injectEndpoints({
@@ -128,6 +181,60 @@ export const adminApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: (_result, _error, { roleId }) => [{ type: 'Role', id: roleId }],
     }),
+
+    getUsers: builder.query<UserDto[], void>({
+      query: getUsersPath,
+      transformResponse: (response: unknown) => unwrapApiList<UserDto>(response),
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map((user) => ({ type: 'UserProfile' as const, id: user.id })),
+              { type: 'UserProfile' as const, id: 'LIST' },
+            ]
+          : [{ type: 'UserProfile' as const, id: 'LIST' }],
+    }),
+
+    getUser: builder.query<UserDto, string>({
+      query: getUserPath,
+      transformResponse: (response: unknown) => {
+        const user = unwrapApiData<UserDto>(response)
+        if (!user) throw new Error('MISSING_USER')
+        return user
+      },
+      providesTags: (_result, _err, id) => [{ type: 'UserProfile', id }],
+    }),
+
+    assignRoleToUser: builder.mutation<void, { userId: string; body: AssignRoleToUserRequest }>({
+      query: ({ userId, body }) => buildAssignRoleToUserRequest(userId, body),
+      invalidatesTags: (_result, _error, { userId }) => [
+        { type: 'UserProfile', id: userId },
+        { type: 'UserProfile', id: 'LIST' },
+      ],
+    }),
+
+    removeRoleFromUser: builder.mutation<void, { userId: string; roleId: string }>({
+      query: ({ userId, roleId }) => buildRemoveRoleFromUserRequest(userId, roleId),
+      invalidatesTags: (_result, _error, { userId }) => [
+        { type: 'UserProfile', id: userId },
+        { type: 'UserProfile', id: 'LIST' },
+      ],
+    }),
+
+    assignBadge: builder.mutation<void, { userId: string; body: AssignBadgeRequest }>({
+      query: ({ userId, body }) => buildAssignBadgeRequest(userId, body),
+      invalidatesTags: (_result, _error, { userId }) => [
+        { type: 'UserProfile', id: userId },
+        { type: 'UserProfile', id: 'LIST' },
+      ],
+    }),
+
+    removeBadge: builder.mutation<void, string>({
+      query: (userId) => buildRemoveBadgeRequest(userId),
+      invalidatesTags: (_result, _error, userId) => [
+        { type: 'UserProfile', id: userId },
+        { type: 'UserProfile', id: 'LIST' },
+      ],
+    }),
   }),
 })
 
@@ -141,4 +248,10 @@ export const {
   useDeleteRoleMutation,
   useAssignPermissionToRoleMutation,
   useRemovePermissionFromRoleMutation,
+  useGetUsersQuery,
+  useGetUserQuery,
+  useAssignRoleToUserMutation,
+  useRemoveRoleFromUserMutation,
+  useAssignBadgeMutation,
+  useRemoveBadgeMutation,
 } = adminApi
