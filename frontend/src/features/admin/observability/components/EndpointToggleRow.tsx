@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { EndpointToggleDto } from '../types/admin.types'
+import type { EndpointToggleDto } from '../../types/admin.types'
 
 interface EndpointToggleRowProps {
   toggle: EndpointToggleDto

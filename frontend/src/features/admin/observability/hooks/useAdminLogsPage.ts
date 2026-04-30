@@ -5,8 +5,8 @@ import {
   useGetTogglesQuery,
   useGetUserActionLogsQuery,
   useSetToggleMutation,
-} from '../api/admin.observability.api'
-import type { SetEndpointToggleRequest, UserActionLogsViewType } from '../types/admin.types'
+} from '../../api/admin.observability.api'
+import type { SetEndpointToggleRequest, UserActionLogsViewType } from '../../types/admin.types'
 
 export function useAdminLogsPage() {
   const { t } = useTranslation()

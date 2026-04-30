@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { EndpointToggleRow } from './EndpointToggleRow'
-import type { EndpointToggleDto } from '../types/admin.types'
+import { EndpointToggleRow } from '../components/EndpointToggleRow'
+import type { EndpointToggleDto } from '../../types/admin.types'
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
