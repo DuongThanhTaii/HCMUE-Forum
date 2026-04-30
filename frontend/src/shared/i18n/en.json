@@ -694,8 +694,208 @@
     "dashboard": "Dashboard",
     "users": "Users",
     "roles": "Roles",
+    "permissions": "Permissions",
+    "toggles": "Feature toggles",
+    "logs": {
+      "actions": "Action logs",
+      "audit": "Audit logs"
+    },
+    "overrides": {
+      "users": "Per User",
+      "groups": "Per Group"
+    },
     "reports": "Reports",
     "analytics": "Analytics",
+    "sidebar": {
+      "groups": {
+        "access": "Access control",
+        "overrides": "Overrides",
+        "observability": "Observability"
+      }
+    },
+    "rolesPage": {
+      "title": "Role management",
+      "subtitle": "Select a role and configure permissions.",
+      "createRole": "Create role",
+      "messages": {
+        "loadError": "Failed to load roles data.",
+        "noRoleSelected": "No role selected."
+      },
+      "createModal": {
+        "title": "Create role",
+        "name": "Role name",
+        "description": "Description"
+      }
+    },
+    "overridesPage": {
+      "title": "Permission overrides",
+      "subtitle": "Apply per-user exceptions before group-level rules.",
+      "messages": {
+        "loadError": "Failed to load overrides data."
+      },
+      "groups": {
+        "available": "Group overrides source is available, but UI wiring is intentionally deferred in Task 7.",
+        "unavailable": "Group override source is currently unavailable. User override workflow remains fully operational."
+      },
+      "form": {
+        "title": "Add override",
+        "permission": "Permission",
+        "selectPermission": "Select permission",
+        "effect": "Effect",
+        "effectOptions": {
+          "allow": "Allow",
+          "deny": "Deny"
+        },
+        "scopeType": "Scope type",
+        "scopeTypeOptions": {
+          "global": "Global",
+          "faculty": "Faculty",
+          "course": "Course"
+        },
+        "scopeValue": "Scope value",
+        "scopeValuePlaceholderGlobal": "(empty for Global)",
+        "scopeValuePlaceholder": "e.g. faculty:it",
+        "reason": "Reason",
+        "reasonPlaceholder": "Optional reason",
+        "expiresAt": "Expires at (UTC ISO)",
+        "expiresAtPlaceholder": "2026-12-31T23:59:59Z",
+        "submit": "Add override"
+      },
+      "userPanel": {
+        "searchUser": "Search user",
+        "searchPlaceholder": "Name or email",
+        "table": {
+          "permission": "Permission",
+          "scope": "Scope",
+          "effect": "Effect",
+          "action": "Action"
+        },
+        "actions": {
+          "revoke": "Revoke"
+        },
+        "messages": {
+          "noUsers": "No users found.",
+          "selectUser": "Select a user to manage overrides.",
+          "noOverrides": "No overrides."
+        }
+      }
+    },
+    "togglesPage": {
+      "title": "Endpoint toggles",
+      "subtitle": "Temporarily enable or disable protected admin endpoints.",
+      "messages": {
+        "loadError": "Failed to load endpoint toggles.",
+        "empty": "No toggles found."
+      },
+      "row": {
+        "version": "Version",
+        "enable": "Enable",
+        "disable": "Disable",
+        "lastReason": "Last reason",
+        "notAvailable": "N/A",
+        "disableReason": "Disable reason",
+        "reasonRequired": "Reason is required.",
+        "confirmDisable": "Confirm disable"
+      }
+    },
+    "auditLogsPage": {
+      "title": "Authorization audit logs",
+      "filters": {
+        "userId": "User ID",
+        "endpointKey": "Endpoint key",
+        "result": "Result",
+        "resultOptions": {
+          "all": "All",
+          "success": "Success",
+          "failure": "Failure"
+        },
+        "take": "Take"
+      },
+      "table": {
+        "action": "Action",
+        "target": "Target",
+        "result": "Result",
+        "when": "When"
+      },
+      "result": {
+        "success": "Success",
+        "failure": "Failure"
+      },
+      "messages": {
+        "loadError": "Failed to load audit logs.",
+        "empty": "No audit logs found."
+      }
+    },
+    "actionLogsPage": {
+      "title": "User action logs",
+      "filters": {
+        "actorUserId": "Actor user ID",
+        "method": "Method",
+        "pathContains": "Path contains",
+        "pageSize": "Page size"
+      },
+      "table": {
+        "method": "Method",
+        "path": "Path",
+        "status": "Status",
+        "durationMs": "Duration (ms)"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next",
+        "page": "Page"
+      },
+      "messages": {
+        "loadError": "Failed to load action logs.",
+        "empty": "No action logs found."
+      }
+    },
+    "usersPage": {
+      "title": "User management",
+      "subtitle": "Filter users and assign roles or badges.",
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search by name or email",
+        "role": "Role",
+        "status": "Status",
+        "allRoles": "All roles",
+        "allStatuses": "All statuses",
+        "roleUnavailable": "Role filter is unavailable until role memberships are provided."
+      },
+      "table": {
+        "user": "User",
+        "status": "Status",
+        "badge": "Badge",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "banned": "Banned"
+      },
+      "badge": {
+        "none": "No badge"
+      },
+      "actions": {
+        "assignRole": "Assign role",
+        "assignBadge": "Assign badge",
+        "removeBadge": "Remove badge"
+      },
+      "assignRoleModal": {
+        "title": "Assign role",
+        "role": "Role"
+      },
+      "assignBadgeModal": {
+        "title": "Assign badge",
+        "type": "Badge type",
+        "name": "Badge name",
+        "description": "Description"
+      },
+      "messages": {
+        "loadError": "Failed to load users data.",
+        "noResults": "No users found."
+      }
+    },
     "layout": {
       "title": "Admin Zone"
     }

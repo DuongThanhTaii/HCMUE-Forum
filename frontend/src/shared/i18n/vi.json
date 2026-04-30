@@ -694,8 +694,208 @@
     "dashboard": "Bảng điều khiển",
     "users": "Người dùng",
     "roles": "Vai trò",
+    "permissions": "Quyền",
+    "toggles": "Bật/tắt tính năng",
+    "logs": {
+      "actions": "Nhật ký hành động",
+      "audit": "Nhật ký kiểm tra"
+    },
+    "overrides": {
+      "users": "Theo người dùng",
+      "groups": "Theo nhóm"
+    },
     "reports": "Báo cáo",
     "analytics": "Phân tích",
+    "sidebar": {
+      "groups": {
+        "access": "Kiểm soát truy cập",
+        "overrides": "Ghi đè quyền",
+        "observability": "Giám sát"
+      }
+    },
+    "rolesPage": {
+      "title": "Quản lý vai trò",
+      "subtitle": "Chọn vai trò và cấu hình quyền truy cập.",
+      "createRole": "Tạo vai trò",
+      "messages": {
+        "loadError": "Không thể tải dữ liệu vai trò.",
+        "noRoleSelected": "Chưa chọn vai trò."
+      },
+      "createModal": {
+        "title": "Tạo vai trò",
+        "name": "Tên vai trò",
+        "description": "Mô tả"
+      }
+    },
+    "overridesPage": {
+      "title": "Ghi đè quyền",
+      "subtitle": "Áp dụng ngoại lệ theo người dùng trước khi xét quy tắc theo nhóm.",
+      "messages": {
+        "loadError": "Không thể tải dữ liệu ghi đè quyền."
+      },
+      "groups": {
+        "available": "Nguồn dữ liệu ghi đè theo nhóm đã sẵn sàng, nhưng phần UI được chủ động hoãn ở Task 7.",
+        "unavailable": "Nguồn dữ liệu ghi đè theo nhóm hiện chưa khả dụng. Luồng ghi đè theo người dùng vẫn hoạt động đầy đủ."
+      },
+      "form": {
+        "title": "Thêm ghi đè",
+        "permission": "Quyền",
+        "selectPermission": "Chọn quyền",
+        "effect": "Hiệu lực",
+        "effectOptions": {
+          "allow": "Cho phép",
+          "deny": "Từ chối"
+        },
+        "scopeType": "Loại phạm vi",
+        "scopeTypeOptions": {
+          "global": "Toàn cục",
+          "faculty": "Khoa",
+          "course": "Môn học"
+        },
+        "scopeValue": "Giá trị phạm vi",
+        "scopeValuePlaceholderGlobal": "(để trống cho Toàn cục)",
+        "scopeValuePlaceholder": "vd. faculty:it",
+        "reason": "Lý do",
+        "reasonPlaceholder": "Lý do (không bắt buộc)",
+        "expiresAt": "Hết hạn lúc (UTC ISO)",
+        "expiresAtPlaceholder": "2026-12-31T23:59:59Z",
+        "submit": "Thêm ghi đè"
+      },
+      "userPanel": {
+        "searchUser": "Tìm người dùng",
+        "searchPlaceholder": "Tên hoặc email",
+        "table": {
+          "permission": "Quyền",
+          "scope": "Phạm vi",
+          "effect": "Hiệu lực",
+          "action": "Thao tác"
+        },
+        "actions": {
+          "revoke": "Thu hồi"
+        },
+        "messages": {
+          "noUsers": "Không tìm thấy người dùng.",
+          "selectUser": "Chọn người dùng để quản lý ghi đè quyền.",
+          "noOverrides": "Không có ghi đè."
+        }
+      }
+    },
+    "togglesPage": {
+      "title": "Bật/tắt endpoint",
+      "subtitle": "Tạm thời bật hoặc tắt các endpoint quản trị được bảo vệ.",
+      "messages": {
+        "loadError": "Không thể tải danh sách bật/tắt endpoint.",
+        "empty": "Không có cấu hình bật/tắt nào."
+      },
+      "row": {
+        "version": "Phiên bản",
+        "enable": "Bật",
+        "disable": "Tắt",
+        "lastReason": "Lý do gần nhất",
+        "notAvailable": "Không có",
+        "disableReason": "Lý do tắt",
+        "reasonRequired": "Bắt buộc nhập lý do.",
+        "confirmDisable": "Xác nhận tắt"
+      }
+    },
+    "auditLogsPage": {
+      "title": "Nhật ký kiểm tra phân quyền",
+      "filters": {
+        "userId": "ID người dùng",
+        "endpointKey": "Khóa endpoint",
+        "result": "Kết quả",
+        "resultOptions": {
+          "all": "Tất cả",
+          "success": "Thành công",
+          "failure": "Thất bại"
+        },
+        "take": "Số lượng"
+      },
+      "table": {
+        "action": "Hành động",
+        "target": "Mục tiêu",
+        "result": "Kết quả",
+        "when": "Thời điểm"
+      },
+      "result": {
+        "success": "Thành công",
+        "failure": "Thất bại"
+      },
+      "messages": {
+        "loadError": "Không thể tải nhật ký kiểm tra.",
+        "empty": "Không có nhật ký kiểm tra."
+      }
+    },
+    "actionLogsPage": {
+      "title": "Nhật ký hành động người dùng",
+      "filters": {
+        "actorUserId": "ID người thực hiện",
+        "method": "Phương thức",
+        "pathContains": "Đường dẫn chứa",
+        "pageSize": "Kích thước trang"
+      },
+      "table": {
+        "method": "Phương thức",
+        "path": "Đường dẫn",
+        "status": "Trạng thái",
+        "durationMs": "Thời lượng (ms)"
+      },
+      "pagination": {
+        "previous": "Trước",
+        "next": "Sau",
+        "page": "Trang"
+      },
+      "messages": {
+        "loadError": "Không thể tải nhật ký hành động.",
+        "empty": "Không có nhật ký hành động."
+      }
+    },
+    "usersPage": {
+      "title": "Quản lý người dùng",
+      "subtitle": "Lọc người dùng và gán vai trò hoặc huy hiệu.",
+      "filters": {
+        "search": "Tìm kiếm",
+        "searchPlaceholder": "Tìm theo tên hoặc email",
+        "role": "Vai trò",
+        "status": "Trạng thái",
+        "allRoles": "Tất cả vai trò",
+        "allStatuses": "Tất cả trạng thái",
+        "roleUnavailable": "Bộ lọc vai trò sẽ khả dụng khi dữ liệu thành viên vai trò được cung cấp."
+      },
+      "table": {
+        "user": "Người dùng",
+        "status": "Trạng thái",
+        "badge": "Huy hiệu",
+        "actions": "Thao tác"
+      },
+      "status": {
+        "active": "Hoạt động",
+        "inactive": "Không hoạt động",
+        "banned": "Bị khóa"
+      },
+      "badge": {
+        "none": "Chưa có huy hiệu"
+      },
+      "actions": {
+        "assignRole": "Gán vai trò",
+        "assignBadge": "Gán huy hiệu",
+        "removeBadge": "Gỡ huy hiệu"
+      },
+      "assignRoleModal": {
+        "title": "Gán vai trò",
+        "role": "Vai trò"
+      },
+      "assignBadgeModal": {
+        "title": "Gán huy hiệu",
+        "type": "Loại huy hiệu",
+        "name": "Tên huy hiệu",
+        "description": "Mô tả"
+      },
+      "messages": {
+        "loadError": "Không thể tải dữ liệu người dùng.",
+        "noResults": "Không tìm thấy người dùng."
+      }
+    },
     "layout": {
       "title": "Khu vực quản trị"
     }

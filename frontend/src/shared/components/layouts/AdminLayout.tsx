@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { AdminSidebar } from '@features/admin/components/AdminSidebar';
 
 // Layout Tree:
 // AdminLayout [min-h-screen bg-rose-50]
@@ -14,7 +15,12 @@ export function AdminLayout() {
         <h1 className="text-base font-semibold text-rose-700">{t('admin.layout.title')}</h1>
       </header>
       <main className="p-6">
-        <Outlet />
+        <div className="mx-auto flex max-w-7xl gap-6">
+          <AdminSidebar />
+          <section className="min-w-0 flex-1 rounded-xl border border-rose-200 bg-white p-5">
+            <Outlet />
+          </section>
+        </div>
       </main>
     </div>
   );

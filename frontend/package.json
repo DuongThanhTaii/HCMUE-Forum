@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "test": "vitest run",
     "lint": "eslint .",
     "verify:i18n": "node scripts/verify-i18n.mjs",
     "verify": "npm run lint && npm run verify:i18n && npm run build",
@@ -31,6 +32,8 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
@@ -42,6 +45,8 @@
     "globals": "^17.5.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
-    "vite": "^8.0.10"
+    "vite": "^8.0.10",
+    "vitest": "^3.2.4",
+    "jsdom": "^26.1.0"
   }
 }
