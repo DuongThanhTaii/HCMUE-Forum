@@ -45,6 +45,9 @@ vi.mock('@features/auth/components/LoginPage', () => ({
 vi.mock('@features/auth/components/RegisterPage', () => ({
   RegisterPage: () => <div>Register page</div>,
 }))
+vi.mock('@features/admin/components/AdminUsersPage', () => ({
+  AdminUsersPage: () => <div>Admin users page</div>,
+}))
 
 const mockedUseAppSelector = vi.fn()
 const mockedUseAuth = vi.fn()
@@ -94,7 +97,7 @@ describe('admin routes in app router', () => {
 
     render(<RouterProvider router={router} />)
 
-    await screen.findByText('placeholders.admin.users')
+    await screen.findByText('Admin users page')
     expect(router.state.location.pathname).toBe('/admin/users')
   })
 

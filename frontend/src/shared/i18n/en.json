@@ -710,6 +710,51 @@
         "description": "Description"
       }
     },
+    "usersPage": {
+      "title": "User management",
+      "subtitle": "Filter users and assign roles or badges.",
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search by name or email",
+        "role": "Role",
+        "status": "Status",
+        "allRoles": "All roles",
+        "allStatuses": "All statuses"
+      },
+      "table": {
+        "user": "User",
+        "status": "Status",
+        "badge": "Badge",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "banned": "Banned"
+      },
+      "badge": {
+        "none": "No badge"
+      },
+      "actions": {
+        "assignRole": "Assign role",
+        "assignBadge": "Assign badge",
+        "removeBadge": "Remove badge"
+      },
+      "assignRoleModal": {
+        "title": "Assign role",
+        "role": "Role"
+      },
+      "assignBadgeModal": {
+        "title": "Assign badge",
+        "type": "Badge type",
+        "name": "Badge name",
+        "description": "Description"
+      },
+      "messages": {
+        "loadError": "Failed to load users data.",
+        "noResults": "No users found."
+      }
+    },
     "layout": {
       "title": "Admin Zone"
     }

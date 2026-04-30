@@ -13,6 +13,7 @@ import { CareerJobsPage } from '@features/career/components/CareerJobsPage';
 import { LoginPage } from '@features/auth/components/LoginPage';
 import { RegisterPage } from '@features/auth/components/RegisterPage';
 import { AdminRolesPage } from '@features/admin/components/AdminRolesPage';
+import { AdminUsersPage } from '@features/admin/components/AdminUsersPage';
 
 export const appRoutes = [
   { path: '/', element: <Navigate to="/forum" replace /> },
@@ -66,7 +67,7 @@ export const appRoutes = [
         element: <AdminLayout />,
         children: [
           { index: true, element: <Navigate to="/admin/users" replace /> },
-          { path: 'users', element: <Placeholder titleKey="placeholders.admin.users" /> },
+          { path: 'users', element: <AdminUsersPage /> },
           { path: 'roles', element: <AdminRolesPage /> },
           { path: 'permissions', element: <Placeholder titleKey="placeholders.admin.permissions" /> },
           { path: 'overrides/users', element: <Placeholder titleKey="placeholders.admin.overridesUsers" /> },

@@ -710,6 +710,51 @@
         "description": "Mô tả"
       }
     },
+    "usersPage": {
+      "title": "Quản lý người dùng",
+      "subtitle": "Lọc người dùng và gán vai trò hoặc huy hiệu.",
+      "filters": {
+        "search": "Tìm kiếm",
+        "searchPlaceholder": "Tìm theo tên hoặc email",
+        "role": "Vai trò",
+        "status": "Trạng thái",
+        "allRoles": "Tất cả vai trò",
+        "allStatuses": "Tất cả trạng thái"
+      },
+      "table": {
+        "user": "Người dùng",
+        "status": "Trạng thái",
+        "badge": "Huy hiệu",
+        "actions": "Thao tác"
+      },
+      "status": {
+        "active": "Hoạt động",
+        "inactive": "Không hoạt động",
+        "banned": "Bị khóa"
+      },
+      "badge": {
+        "none": "Chưa có huy hiệu"
+      },
+      "actions": {
+        "assignRole": "Gán vai trò",
+        "assignBadge": "Gán huy hiệu",
+        "removeBadge": "Gỡ huy hiệu"
+      },
+      "assignRoleModal": {
+        "title": "Gán vai trò",
+        "role": "Vai trò"
+      },
+      "assignBadgeModal": {
+        "title": "Gán huy hiệu",
+        "type": "Loại huy hiệu",
+        "name": "Tên huy hiệu",
+        "description": "Mô tả"
+      },
+      "messages": {
+        "loadError": "Không thể tải dữ liệu người dùng.",
+        "noResults": "Không tìm thấy người dùng."
+      }
+    },
     "layout": {
       "title": "Khu vực quản trị"
     }
