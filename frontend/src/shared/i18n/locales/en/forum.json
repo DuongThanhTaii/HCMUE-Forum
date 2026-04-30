@@ -1,0 +1,165 @@
+{
+  "title": "Forum",
+  "createPost": "Create post",
+  "editPost": "Edit post",
+  "deletePost": "Delete post",
+  "allPosts": "All posts",
+  "myPosts": "My posts",
+  "trending": "Trending",
+  "recent": "Recent",
+  "post": "Post",
+  "posts": "posts",
+  "comment": "Comment",
+  "comments": "comments",
+  "vote": "Vote",
+  "votes": "votes",
+  "upvote": "Upvote",
+  "downvote": "Downvote",
+  "share": "Share",
+  "bookmark": "Bookmark",
+  "unbookmark": "Remove bookmark",
+  "report": "Report",
+  "pinned": "Pinned",
+  "pin": "Pin post",
+  "category": "Category",
+  "categories": "Categories",
+  "allCategories": "All categories",
+  "tag": "Tag",
+  "tags": "Tags",
+  "popularTags": "Popular tags",
+  "addTag": "Add tag",
+  "type": {
+    "discussion": "Discussion",
+    "question": "Question",
+    "announcement": "Announcement"
+  },
+  "status": {
+    "draft": "Draft",
+    "published": "Published",
+    "archived": "Archived"
+  },
+  "filter": {
+    "allTypes": "All types",
+    "clearFilters": "Clear filters"
+  },
+  "form": {
+    "title": "Title",
+    "titlePlaceholder": "Enter post title...",
+    "content": "Content",
+    "contentPlaceholder": "Write your post content...",
+    "selectCategory": "Select category",
+    "selectType": "Select post type",
+    "tagPlaceholder": "Enter tag and press Enter...",
+    "saveDraft": "Save draft",
+    "publish": "Publish post",
+    "update": "Update post",
+    "minTitleLength": "Title must be at least 10 characters",
+    "maxTitleLength": "Title must not exceed 200 characters",
+    "minContentLength": "Content must be at least 50 characters",
+    "minTags": "Please add at least 1 tag",
+    "maxTags": "Maximum 5 tags"
+  },
+  "commentSection": {
+    "title": "Comments",
+    "noComments": "No comments yet. Be the first!",
+    "writeComment": "Write your comment...",
+    "minLength": "Minimum 10 characters",
+    "postComment": "Post comment",
+    "reply": "Reply",
+    "cancelReply": "Cancel reply",
+    "acceptedAnswer": "Accepted answer",
+    "author": "Author"
+  },
+  "meta": {
+    "views": "views",
+    "postedBy": "Posted by",
+    "lastUpdated": "Last updated",
+    "createdAt": "Created at"
+  },
+  "empty": {
+    "noPosts": "No posts yet",
+    "noPostsDescription": "Be the first to share your knowledge",
+    "createFirstPost": "Create first post"
+  },
+  "error": {
+    "loadFailed": "Failed to load posts",
+    "notFound": "Post not found",
+    "notFoundDescription": "The post may have been deleted or you don't have access",
+    "createFailed": "Failed to create post",
+    "updateFailed": "Failed to update post",
+    "deleteFailed": "Failed to delete post",
+    "voteFailed": "Failed to vote",
+    "bookmarkFailed": "Failed to bookmark",
+    "commentFailed": "Failed to add comment"
+  },
+  "success": {
+    "created": "Post created successfully!",
+    "updated": "Post updated successfully!",
+    "deleted": "Post deleted successfully!",
+    "commented": "Comment added successfully!"
+  },
+  "confirm": {
+    "delete": "Are you sure you want to delete this post?"
+  },
+  "topbar": {
+    "brand": "UniHub Forum",
+    "searchPlaceholder": "Search topics..."
+  },
+  "sidebar": {
+    "sections": {
+      "main": "Main",
+      "topics": "Topics",
+      "categories": "Categories",
+      "tags": "Tags"
+    },
+    "topics": {
+      "all": "All topics",
+      "announcements": "Announcements"
+    },
+    "categories": {
+      "learningDocs": "Learning documents",
+      "learningFaculties": "Learning · faculties",
+      "learningCourses": "Learning · courses",
+      "career": "Career opportunities"
+    },
+    "tags": {
+      "hot": "hot",
+      "qa": "q&a"
+    },
+    "notice": "Note: new content is updated in real time."
+  },
+  "actions": {
+    "reply": "Reply",
+    "upvote": "Upvote",
+    "report": "Report",
+    "share": "Share",
+    "bookmark": "Bookmark",
+    "unbookmark": "Remove bookmark"
+  },
+  "feedback": {
+    "loginRequired": "Please sign in to perform this action.",
+    "actionFailed": "Action failed. Please try again.",
+    "commentRequired": "Please enter a comment.",
+    "commentSuccess": "Comment submitted successfully.",
+    "commentFailed": "Unable to submit comment. Please try again.",
+    "voteSuccess": "Your upvote has been recorded.",
+    "voteFailed": "Unable to record your upvote.",
+    "bookmarkSuccess": "Post saved.",
+    "bookmarkFailed": "Unable to save this post.",
+    "unbookmarkSuccess": "Post removed from saved items.",
+    "unbookmarkFailed": "Unable to remove saved post.",
+    "reportSuccess": "Report submitted. Thank you!",
+    "reportFailed": "Unable to submit report right now.",
+    "shareSuccess": "Post link copied to clipboard.",
+    "shareUnavailable": "Cannot copy link in this browser."
+  },
+  "detail": {
+    "fallbackTitle": "Forum topic detail",
+    "fallbackContent": "This discussion highlights key updates from the forum thread. Open comments below for follow-up points and additional context from members.",
+    "commentPlaceholder": "Write your comment...",
+    "sampleComment1": "Thanks for sharing. I agree this should be prioritized for the next sprint.",
+    "sampleComment2": "Could you add more details about expected timeline and impact?",
+    "sampleTime1": "2 hours ago",
+    "sampleTime2": "1 hour ago"
+  }
+}

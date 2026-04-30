@@ -1,0 +1,165 @@
+{
+  "title": "Diễn đàn",
+  "createPost": "Tạo bài viết",
+  "editPost": "Chỉnh sửa bài viết",
+  "deletePost": "Xóa bài viết",
+  "allPosts": "Tất cả bài viết",
+  "myPosts": "Bài viết của tôi",
+  "trending": "Xu hướng",
+  "recent": "Gần đây",
+  "post": "Bài viết",
+  "posts": "bài viết",
+  "comment": "Bình luận",
+  "comments": "bình luận",
+  "vote": "Bình chọn",
+  "votes": "lượt bình chọn",
+  "upvote": "Upvote",
+  "downvote": "Downvote",
+  "share": "Chia sẻ",
+  "bookmark": "Đánh dấu",
+  "unbookmark": "Bỏ lưu",
+  "report": "Báo cáo",
+  "pinned": "Đã ghim",
+  "pin": "Ghim bài viết",
+  "category": "Danh mục",
+  "categories": "Danh mục",
+  "allCategories": "Tất cả danh mục",
+  "tag": "Tag",
+  "tags": "Tags",
+  "popularTags": "Tags phổ biến",
+  "addTag": "Thêm tag",
+  "type": {
+    "discussion": "Thảo luận",
+    "question": "Câu hỏi",
+    "announcement": "Thông báo"
+  },
+  "status": {
+    "draft": "Nháp",
+    "published": "Đã đăng",
+    "archived": "Lưu trữ"
+  },
+  "filter": {
+    "allTypes": "Tất cả loại",
+    "clearFilters": "Xóa bộ lọc"
+  },
+  "form": {
+    "title": "Tiêu đề",
+    "titlePlaceholder": "Nhập tiêu đề bài viết...",
+    "content": "Nội dung",
+    "contentPlaceholder": "Viết nội dung bài viết của bạn...",
+    "selectCategory": "Chọn danh mục",
+    "selectType": "Chọn loại bài viết",
+    "tagPlaceholder": "Nhập tag và nhấn Enter...",
+    "saveDraft": "Lưu nháp",
+    "publish": "Đăng bài viết",
+    "update": "Cập nhật bài viết",
+    "minTitleLength": "Tiêu đề phải có ít nhất 10 ký tự",
+    "maxTitleLength": "Tiêu đề không được vượt quá 200 ký tự",
+    "minContentLength": "Nội dung phải có ít nhất 50 ký tự",
+    "minTags": "Vui lòng thêm ít nhất 1 tag",
+    "maxTags": "Tối đa 5 tags"
+  },
+  "commentSection": {
+    "title": "Bình luận",
+    "noComments": "Chưa có bình luận nào. Hãy là người đầu tiên!",
+    "writeComment": "Viết bình luận của bạn...",
+    "minLength": "Tối thiểu 10 ký tự",
+    "postComment": "Gửi bình luận",
+    "reply": "Trả lời",
+    "cancelReply": "Hủy trả lời",
+    "acceptedAnswer": "Câu trả lời đúng",
+    "author": "Tác giả"
+  },
+  "meta": {
+    "views": "lượt xem",
+    "postedBy": "Đăng bởi",
+    "lastUpdated": "Cập nhật lần cuối",
+    "createdAt": "Tạo lúc"
+  },
+  "empty": {
+    "noPosts": "Chưa có bài viết nào",
+    "noPostsDescription": "Hãy là người đầu tiên chia sẻ kiến thức của bạn",
+    "createFirstPost": "Tạo bài viết đầu tiên"
+  },
+  "error": {
+    "loadFailed": "Không thể tải bài viết",
+    "notFound": "Không tìm thấy bài viết",
+    "notFoundDescription": "Bài viết có thể đã bị xóa hoặc bạn không có quyền truy cập",
+    "createFailed": "Không thể tạo bài viết",
+    "updateFailed": "Không thể cập nhật bài viết",
+    "deleteFailed": "Không thể xóa bài viết",
+    "voteFailed": "Không thể vote",
+    "bookmarkFailed": "Không thể bookmark",
+    "commentFailed": "Không thể thêm bình luận"
+  },
+  "success": {
+    "created": "Tạo bài viết thành công!",
+    "updated": "Cập nhật bài viết thành công!",
+    "deleted": "Xóa bài viết thành công!",
+    "commented": "Thêm bình luận thành công!"
+  },
+  "confirm": {
+    "delete": "Bạn có chắc muốn xóa bài viết này?"
+  },
+  "topbar": {
+    "brand": "UniHub Forum",
+    "searchPlaceholder": "Tìm chủ đề..."
+  },
+  "sidebar": {
+    "sections": {
+      "main": "Chính",
+      "topics": "Chủ đề",
+      "categories": "Danh mục",
+      "tags": "Thẻ"
+    },
+    "topics": {
+      "all": "Tất cả chủ đề",
+      "announcements": "Thông báo"
+    },
+    "categories": {
+      "learningDocs": "Tài liệu học tập",
+      "learningFaculties": "Học tập · các khoa",
+      "learningCourses": "Học tập · môn học",
+      "career": "Cơ hội nghề nghiệp"
+    },
+    "tags": {
+      "hot": "hot",
+      "qa": "hỏi-đáp"
+    },
+    "notice": "Lưu ý: nội dung mới được cập nhật theo thời gian thực."
+  },
+  "actions": {
+    "reply": "Trả lời",
+    "upvote": "Thích",
+    "report": "Báo cáo",
+    "share": "Chia sẻ",
+    "bookmark": "Lưu bài",
+    "unbookmark": "Bỏ lưu"
+  },
+  "feedback": {
+    "loginRequired": "Bạn cần đăng nhập để thực hiện thao tác này.",
+    "actionFailed": "Thao tác thất bại, vui lòng thử lại.",
+    "commentRequired": "Vui lòng nhập nội dung bình luận.",
+    "commentSuccess": "Đã gửi bình luận thành công.",
+    "commentFailed": "Không thể gửi bình luận, vui lòng thử lại.",
+    "voteSuccess": "Đã ghi nhận lượt thích.",
+    "voteFailed": "Không thể ghi nhận lượt thích.",
+    "bookmarkSuccess": "Đã lưu bài viết.",
+    "bookmarkFailed": "Không thể lưu bài viết.",
+    "unbookmarkSuccess": "Đã bỏ lưu bài viết.",
+    "unbookmarkFailed": "Không thể bỏ lưu bài viết.",
+    "reportSuccess": "Đã gửi báo cáo. Cảm ơn bạn!",
+    "reportFailed": "Không thể gửi báo cáo lúc này.",
+    "shareSuccess": "Đã sao chép liên kết bài viết.",
+    "shareUnavailable": "Không thể sao chép liên kết trên trình duyệt hiện tại."
+  },
+  "detail": {
+    "fallbackTitle": "Chi tiết chủ đề",
+    "fallbackContent": "Chủ đề này đang tổng hợp các cập nhật chính từ thảo luận. Xem phần bình luận để theo dõi các ý kiến bổ sung từ thành viên.",
+    "commentPlaceholder": "Viết bình luận của bạn...",
+    "sampleComment1": "Cảm ơn bạn đã chia sẻ. Mình đồng ý nên ưu tiên nội dung này trong sprint tới.",
+    "sampleComment2": "Bạn có thể bổ sung thêm mốc thời gian dự kiến và mức độ ảnh hưởng không?",
+    "sampleTime1": "2 giờ trước",
+    "sampleTime2": "1 giờ trước"
+  }
+}

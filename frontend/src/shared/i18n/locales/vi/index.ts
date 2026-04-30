@@ -1,0 +1,35 @@
+import common from './common.json';
+import navigation from './navigation.json';
+import nav from './nav.json';
+import footer from './footer.json';
+import auth from './auth.json';
+import components from './components.json';
+import forum from './forum.json';
+import learning from './learning.json';
+import career from './career.json';
+import chat from './chat.json';
+import profile from './profile.json';
+import settings from './settings.json';
+import admin from './admin.json';
+import mod from './mod.json';
+import placeholders from './placeholders.json';
+
+const vi = {
+  common,
+  navigation,
+  nav,
+  footer,
+  auth,
+  components,
+  forum,
+  learning,
+  career,
+  chat,
+  profile,
+  settings,
+  admin,
+  mod,
+  placeholders,
+};
+
+export default vi;
