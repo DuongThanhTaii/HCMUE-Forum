@@ -15,6 +15,9 @@ describe('admin observability endpoints (A5)', () => {
     expect(getTogglePath('Api.Identity.AuthorizationAdmin.SetEndpointToggle')).toBe(
       '/api/v1/admin/authorization/toggles/Api.Identity.AuthorizationAdmin.SetEndpointToggle',
     )
+    expect(getTogglePath('Api Identity/AuthorizationAdmin.SetEndpointToggle')).toBe(
+      '/api/v1/admin/authorization/toggles/Api%20Identity%2FAuthorizationAdmin.SetEndpointToggle',
+    )
   })
 
   it('defines setToggle payload route and body', () => {

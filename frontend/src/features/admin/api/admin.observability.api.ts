@@ -22,7 +22,7 @@ export function getTogglesPath(): string {
 }
 
 export function getTogglePath(endpointKey: string): string {
-  return `${getTogglesPath()}/${endpointKey}`
+  return `${getTogglesPath()}/${encodeURIComponent(endpointKey)}`
 }
 
 export function buildSetToggleRequest(endpointKey: string, body: SetEndpointToggleRequest) {
