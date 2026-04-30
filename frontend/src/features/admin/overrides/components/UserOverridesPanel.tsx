@@ -1,6 +1,6 @@
 import { AddOverrideForm } from './AddOverrideForm'
 import { useTranslation } from 'react-i18next'
-import type { PermissionDto, PermissionOverrideDto, UserDto } from '../types/admin.types'
+import type { PermissionDto, PermissionOverrideDto, UserDto } from '../../types/admin.types'
 
 type SubmitOverrideInput = {
   permissionId: string

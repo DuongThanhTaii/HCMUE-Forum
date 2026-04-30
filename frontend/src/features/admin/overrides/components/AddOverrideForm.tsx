@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { OverrideEffect, PermissionDto } from '../types/admin.types'
+import type { OverrideEffect, PermissionDto } from '../../types/admin.types'
 
 type AddOverrideFormProps = {
   permissions: PermissionDto[]

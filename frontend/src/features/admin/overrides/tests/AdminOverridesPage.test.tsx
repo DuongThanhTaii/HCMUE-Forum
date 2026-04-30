@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
-import { AdminOverridesPage } from './AdminOverridesPage'
+import { AdminOverridesPage } from '../components/AdminOverridesPage'
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

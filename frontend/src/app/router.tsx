@@ -14,7 +14,7 @@ import { LoginPage } from '@features/auth/components/LoginPage';
 import { RegisterPage } from '@features/auth/components/RegisterPage';
 import { AdminRolesPage } from '@features/admin/roles/components/AdminRolesPage';
 import { AdminUsersPage } from '@features/admin/users/components/AdminUsersPage';
-import { AdminOverridesPage } from '@features/admin/components/AdminOverridesPage';
+import { AdminOverridesPage } from '@features/admin/overrides/components/AdminOverridesPage';
 import { AdminTogglesPage } from '@features/admin/components/AdminTogglesPage';
 import { AdminActionLogsPage } from '@features/admin/components/AdminActionLogsPage';
 import { AdminAuditLogsPage } from '@features/admin/components/AdminAuditLogsPage';
