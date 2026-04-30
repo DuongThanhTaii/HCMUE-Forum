@@ -37,15 +37,15 @@ export function AdminOverridesPage() {
   }, [location.pathname, setActiveTab])
 
   if (isError) {
-    return <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-700">Failed to load overrides data.</div>
+    return <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-700">{t('admin.overridesPage.messages.loadError')}</div>
   }
 
   return (
     <div className="space-y-4">
       <header className="rounded-xl border border-slate-200 bg-white p-4">
-        <h1 className="text-lg font-semibold text-slate-900">{t('admin.overridesPage.title', { defaultValue: 'Permission overrides' })}</h1>
+        <h1 className="text-lg font-semibold text-slate-900">{t('admin.overridesPage.title')}</h1>
         <p className="mt-1 text-sm text-slate-500">
-          {t('admin.overridesPage.subtitle', { defaultValue: 'Apply per-user exceptions before group-level rules.' })}
+          {t('admin.overridesPage.subtitle')}
         </p>
       </header>
 
@@ -55,14 +55,14 @@ export function AdminOverridesPage() {
           className={`rounded-md px-3 py-1.5 text-sm ${activeTab === 'users' ? 'bg-rose-100 text-rose-700' : 'text-slate-700'}`}
           onClick={() => setActiveTab('users')}
         >
-          {t('admin.overrides.users', { defaultValue: 'Per User' })}
+          {t('admin.overrides.users')}
         </button>
         <button
           type="button"
           className={`rounded-md px-3 py-1.5 text-sm ${activeTab === 'groups' ? 'bg-rose-100 text-rose-700' : 'text-slate-700'}`}
           onClick={() => setActiveTab('groups')}
         >
-          {t('admin.overrides.groups', { defaultValue: 'Per Group' })}
+          {t('admin.overrides.groups')}
         </button>
       </div>
 

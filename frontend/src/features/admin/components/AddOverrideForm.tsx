@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { OverrideEffect, PermissionDto } from '../types/admin.types'
 
 type AddOverrideFormProps = {
@@ -15,6 +16,7 @@ type AddOverrideFormProps = {
 }
 
 export function AddOverrideForm({ permissions, isSubmitting, onSubmit }: AddOverrideFormProps) {
+  const { t } = useTranslation()
   const [permissionId, setPermissionId] = useState('')
   const [scopeType, setScopeType] = useState('Global')
   const [scopeValue, setScopeValue] = useState('')
@@ -39,17 +41,17 @@ export function AddOverrideForm({ permissions, isSubmitting, onSubmit }: AddOver
 
   return (
     <form className="space-y-3 rounded-xl border border-slate-200 bg-white p-4" onSubmit={(event) => void submit(event)}>
-      <h3 className="text-sm font-semibold text-slate-900">Add override</h3>
+      <h3 className="text-sm font-semibold text-slate-900">{t('admin.overridesPage.form.title')}</h3>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="text-sm font-medium text-slate-700">
-          Permission
+          {t('admin.overridesPage.form.permission')}
           <select
             className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
             value={permissionId}
             onChange={(event) => setPermissionId(event.target.value)}
             required
           >
-            <option value="">Select permission</option>
+            <option value="">{t('admin.overridesPage.form.selectPermission')}</option>
             {permissions.map((permission) => (
               <option key={permission.id} value={permission.id}>
                 {permission.code}
@@ -58,55 +60,55 @@ export function AddOverrideForm({ permissions, isSubmitting, onSubmit }: AddOver
           </select>
         </label>
         <label className="text-sm font-medium text-slate-700">
-          Effect
+          {t('admin.overridesPage.form.effect')}
           <select
             className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
             value={effect}
             onChange={(event) => setEffect(event.target.value as OverrideEffect)}
           >
-            <option value="Allow">Allow</option>
-            <option value="Deny">Deny</option>
+            <option value="Allow">{t('admin.overridesPage.form.effectOptions.allow')}</option>
+            <option value="Deny">{t('admin.overridesPage.form.effectOptions.deny')}</option>
           </select>
         </label>
         <label className="text-sm font-medium text-slate-700">
-          Scope type
+          {t('admin.overridesPage.form.scopeType')}
           <select
             className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
             value={scopeType}
             onChange={(event) => setScopeType(event.target.value)}
           >
-            <option value="Global">Global</option>
-            <option value="Faculty">Faculty</option>
-            <option value="Course">Course</option>
+            <option value="Global">{t('admin.overridesPage.form.scopeTypeOptions.global')}</option>
+            <option value="Faculty">{t('admin.overridesPage.form.scopeTypeOptions.faculty')}</option>
+            <option value="Course">{t('admin.overridesPage.form.scopeTypeOptions.course')}</option>
           </select>
         </label>
         <label className="text-sm font-medium text-slate-700">
-          Scope value
+          {t('admin.overridesPage.form.scopeValue')}
           <input
             className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
             value={scopeValue}
             onChange={(event) => setScopeValue(event.target.value)}
             disabled={scopeType === 'Global'}
-            placeholder={scopeType === 'Global' ? '(empty for Global)' : 'e.g. faculty:it'}
+            placeholder={scopeType === 'Global' ? t('admin.overridesPage.form.scopeValuePlaceholderGlobal') : t('admin.overridesPage.form.scopeValuePlaceholder')}
           />
         </label>
       </div>
       <label className="block text-sm font-medium text-slate-700">
-        Reason
+        {t('admin.overridesPage.form.reason')}
         <input
           className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
           value={reason}
           onChange={(event) => setReason(event.target.value)}
-          placeholder="Optional reason"
+          placeholder={t('admin.overridesPage.form.reasonPlaceholder')}
         />
       </label>
       <label className="block text-sm font-medium text-slate-700">
-        Expires at (UTC ISO)
+        {t('admin.overridesPage.form.expiresAt')}
         <input
           className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
           value={expiresAtUtc}
           onChange={(event) => setExpiresAtUtc(event.target.value)}
-          placeholder="2026-12-31T23:59:59Z"
+          placeholder={t('admin.overridesPage.form.expiresAtPlaceholder')}
         />
       </label>
       <button
@@ -114,7 +116,7 @@ export function AddOverrideForm({ permissions, isSubmitting, onSubmit }: AddOver
         className="rounded-md bg-rose-600 px-3 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
         disabled={isSubmitting || !permissionId}
       >
-        Add override
+        {t('admin.overridesPage.form.submit')}
       </button>
     </form>
   )

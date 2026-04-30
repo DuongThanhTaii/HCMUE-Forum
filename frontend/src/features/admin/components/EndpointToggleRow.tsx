@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { EndpointToggleDto } from '../types/admin.types'
 
 interface EndpointToggleRowProps {
@@ -8,6 +9,7 @@ interface EndpointToggleRowProps {
 }
 
 export function EndpointToggleRow({ toggle, isSubmitting, onSubmit }: EndpointToggleRowProps) {
+  const { t } = useTranslation()
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [reason, setReason] = useState('')
   const [isReasonInvalid, setIsReasonInvalid] = useState(false)
@@ -33,7 +35,7 @@ export function EndpointToggleRow({ toggle, isSubmitting, onSubmit }: EndpointTo
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="font-medium text-slate-900">{toggle.endpointKey}</p>
-          <p className="text-xs text-slate-500">Version {toggle.version}</p>
+          <p className="text-xs text-slate-500">{t('admin.togglesPage.row.version')} {toggle.version}</p>
         </div>
         {toggle.isEnabled ? (
           <button
@@ -42,7 +44,7 @@ export function EndpointToggleRow({ toggle, isSubmitting, onSubmit }: EndpointTo
             onClick={() => setIsConfirmOpen((value) => !value)}
             disabled={isSubmitting}
           >
-            Disable
+            {t('admin.togglesPage.row.disable')}
           </button>
         ) : (
           <button
@@ -51,17 +53,17 @@ export function EndpointToggleRow({ toggle, isSubmitting, onSubmit }: EndpointTo
             onClick={() => void enableToggle()}
             disabled={isSubmitting}
           >
-            Enable
+            {t('admin.togglesPage.row.enable')}
           </button>
         )}
       </div>
 
-      <p className="mt-2 text-xs text-slate-500">Last reason: {toggle.reason || 'N/A'}</p>
+      <p className="mt-2 text-xs text-slate-500">{t('admin.togglesPage.row.lastReason')}: {toggle.reason || t('admin.togglesPage.row.notAvailable')}</p>
 
       {toggle.isEnabled && isConfirmOpen ? (
         <div className="mt-3 space-y-2 rounded-md border border-rose-200 bg-rose-50 p-3">
           <label className="block text-sm font-medium text-rose-900" htmlFor={`disable-reason-${toggle.endpointKey}`}>
-            Disable reason
+            {t('admin.togglesPage.row.disableReason')}
           </label>
           <textarea
             id={`disable-reason-${toggle.endpointKey}`}
@@ -73,7 +75,7 @@ export function EndpointToggleRow({ toggle, isSubmitting, onSubmit }: EndpointTo
               if (event.target.value.trim()) setIsReasonInvalid(false)
             }}
           />
-          {isReasonInvalid ? <p className="text-xs text-rose-700">Reason is required.</p> : null}
+          {isReasonInvalid ? <p className="text-xs text-rose-700">{t('admin.togglesPage.row.reasonRequired')}</p> : null}
           <div className="flex gap-2">
             <button
               type="button"
@@ -81,7 +83,7 @@ export function EndpointToggleRow({ toggle, isSubmitting, onSubmit }: EndpointTo
               onClick={() => void disableWithReason()}
               disabled={isSubmitting}
             >
-              Confirm disable
+              {t('admin.togglesPage.row.confirmDisable')}
             </button>
             <button
               type="button"
@@ -89,7 +91,7 @@ export function EndpointToggleRow({ toggle, isSubmitting, onSubmit }: EndpointTo
               onClick={() => setIsConfirmOpen(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </div>

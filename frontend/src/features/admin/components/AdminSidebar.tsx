@@ -62,7 +62,7 @@ export function AdminSidebar() {
         {adminNavGroups.map((group) => (
           <div key={group.titleKey}>
             <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-              {t(group.titleKey, { defaultValue: group.fallbackTitle })}
+              {t(group.titleKey)}
             </p>
             <div className="space-y-1">
               {group.items.map((item) => (
@@ -79,7 +79,7 @@ export function AdminSidebar() {
                     }`;
                   }}
                 >
-                  {t(item.labelKey, { defaultValue: item.fallbackLabel })}
+                  {t(item.labelKey)}
                 </NavLink>
               ))}
             </div>

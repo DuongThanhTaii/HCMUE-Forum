@@ -31,7 +31,7 @@ export function AdminRolesPage() {
   if (isError) {
     return (
       <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-700">
-        {t('admin.rolesPage.messages.loadError', { defaultValue: 'Failed to load roles data.' })}
+        {t('admin.rolesPage.messages.loadError')}
       </div>
     )
   }
@@ -41,10 +41,10 @@ export function AdminRolesPage() {
       <header className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4">
         <div>
           <h1 className="text-lg font-semibold text-slate-900">
-            {t('admin.rolesPage.title', { defaultValue: 'Role management' })}
+            {t('admin.rolesPage.title')}
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            {t('admin.rolesPage.subtitle', { defaultValue: 'Select a role and configure permissions.' })}
+            {t('admin.rolesPage.subtitle')}
           </p>
         </div>
         <button
@@ -52,7 +52,7 @@ export function AdminRolesPage() {
           className="rounded-md bg-rose-600 px-3 py-2 text-sm font-medium text-white hover:bg-rose-700"
           onClick={openCreateModal}
         >
-          {t('admin.rolesPage.createRole', { defaultValue: 'Create role' })}
+          {t('admin.rolesPage.createRole')}
         </button>
       </header>
 
@@ -63,7 +63,7 @@ export function AdminRolesPage() {
         <RolePermissionGrid
           permissions={permissions}
           selectedRole={selectedRole}
-          noRoleText={t('admin.rolesPage.messages.noRoleSelected', { defaultValue: 'No role selected.' })}
+          noRoleText={t('admin.rolesPage.messages.noRoleSelected')}
           isPermissionAssigned={isPermissionAssigned}
           onTogglePermission={togglePermission}
           isBusy={isAssigningPermission || isRemovingPermission}
@@ -73,9 +73,9 @@ export function AdminRolesPage() {
       <CreateRoleModal
         isOpen={isCreateModalOpen}
         isSubmitting={isCreatingRole}
-        title={t('admin.rolesPage.createModal.title', { defaultValue: 'Create role' })}
-        nameLabel={t('admin.rolesPage.createModal.name', { defaultValue: 'Role name' })}
-        descriptionLabel={t('admin.rolesPage.createModal.description', { defaultValue: 'Description' })}
+        title={t('admin.rolesPage.createModal.title')}
+        nameLabel={t('admin.rolesPage.createModal.name')}
+        descriptionLabel={t('admin.rolesPage.createModal.description')}
         cancelLabel={t('common.cancel')}
         submitLabel={t('common.create')}
         onClose={closeCreateModal}

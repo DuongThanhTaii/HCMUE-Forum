@@ -1,4 +1,5 @@
 import { AddOverrideForm } from './AddOverrideForm'
+import { useTranslation } from 'react-i18next'
 import type { PermissionDto, PermissionOverrideDto, UserDto } from '../types/admin.types'
 
 type SubmitOverrideInput = {
@@ -39,16 +40,17 @@ export function UserOverridesPanel({
   onSubmitOverride,
   onRevokeOverride,
 }: UserOverridesPanelProps) {
+  const { t } = useTranslation()
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
       <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
         <label className="block text-sm font-medium text-slate-700">
-          Search user
+          {t('admin.overridesPage.userPanel.searchUser')}
           <input
             className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
             value={searchValue}
             onChange={(event) => onSearchValueChange(event.target.value)}
-            placeholder="Name or email"
+            placeholder={t('admin.overridesPage.userPanel.searchPlaceholder')}
           />
         </label>
         <div className="max-h-96 space-y-2 overflow-y-auto">
@@ -65,13 +67,13 @@ export function UserOverridesPanel({
               <p className="text-xs text-slate-500">{user.email}</p>
             </button>
           ))}
-          {!users.length ? <p className="text-sm text-slate-500">No users found.</p> : null}
+          {!users.length ? <p className="text-sm text-slate-500">{t('admin.overridesPage.userPanel.messages.noUsers')}</p> : null}
         </div>
       </section>
 
       <section className="space-y-4">
         {!selectedUser ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-500">Select a user to manage overrides.</div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-500">{t('admin.overridesPage.userPanel.messages.selectUser')}</div>
         ) : (
           <>
             <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -85,17 +87,17 @@ export function UserOverridesPanel({
               <table className="min-w-full divide-y divide-slate-200">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Permission</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Scope</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Effect</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Action</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">{t('admin.overridesPage.userPanel.table.permission')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">{t('admin.overridesPage.userPanel.table.scope')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">{t('admin.overridesPage.userPanel.table.effect')}</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">{t('admin.overridesPage.userPanel.table.action')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {isLoading ? (
                     <tr>
                       <td colSpan={4} className="px-4 py-6 text-center text-sm text-slate-500">
-                        Loading...
+                        {t('common.loading')}
                       </td>
                     </tr>
                   ) : null}
@@ -120,7 +122,7 @@ export function UserOverridesPanel({
                               })
                             }
                           >
-                            Revoke
+                            {t('admin.overridesPage.userPanel.actions.revoke')}
                           </button>
                         </td>
                       </tr>
@@ -128,7 +130,7 @@ export function UserOverridesPanel({
                   {!isLoading && !overrides.length ? (
                     <tr>
                       <td colSpan={4} className="px-4 py-6 text-center text-sm text-slate-500">
-                        No overrides.
+                        {t('admin.overridesPage.userPanel.messages.noOverrides')}
                       </td>
                     </tr>
                   ) : null}

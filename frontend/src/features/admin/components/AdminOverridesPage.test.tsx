@@ -3,8 +3,29 @@ import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { AdminOverridesPage } from './AdminOverridesPage'
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) =>
+      (
+        {
+          'admin.overridesPage.userPanel.searchUser': 'Search user',
+          'admin.overridesPage.userPanel.searchPlaceholder': 'Name or email',
+          'admin.overridesPage.userPanel.messages.noUsers': 'No users found.',
+          'admin.overridesPage.userPanel.messages.selectUser': 'Select a user to manage overrides.',
+        } as Record<string, string>
+      )[key] ?? key,
+  }),
+}))
+
 const mockHookResult = {
-  t: (key: string, opts?: { defaultValue?: string }) => opts?.defaultValue ?? key,
+  t: (key: string) =>
+    (
+      {
+        'admin.overrides.users': 'Per User',
+        'admin.overrides.groups': 'Per Group',
+        'admin.overridesPage.userPanel.messages.selectUser': 'Select a user to manage overrides.',
+      } as Record<string, string>
+    )[key] ?? key,
   activeTab: 'users' as const,
   setActiveTab: vi.fn(),
   searchValue: '',

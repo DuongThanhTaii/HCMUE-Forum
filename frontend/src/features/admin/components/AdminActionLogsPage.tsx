@@ -31,7 +31,7 @@ export function AdminActionLogsPage() {
   if (isActionLogsError) {
     return (
       <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-700">
-        {t('admin.actionLogsPage.messages.loadError', { defaultValue: 'Failed to load action logs.' })}
+        {t('admin.actionLogsPage.messages.loadError')}
       </div>
     )
   }
@@ -41,7 +41,7 @@ export function AdminActionLogsPage() {
   return (
     <div className="space-y-4">
       <header className="rounded-xl border border-slate-200 bg-white p-4">
-        <h1 className="text-lg font-semibold text-slate-900">{t('admin.actionLogsPage.title', { defaultValue: 'User action logs' })}</h1>
+        <h1 className="text-lg font-semibold text-slate-900">{t('admin.actionLogsPage.title')}</h1>
       </header>
 
       <div className="inline-flex rounded-lg border border-slate-200 bg-white p-1">
@@ -59,19 +59,19 @@ export function AdminActionLogsPage() {
 
       <LogsFilterBar>
         <label className="text-sm font-medium text-slate-700">
-          Actor user ID
+          {t('admin.actionLogsPage.filters.actorUserId')}
           <input className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" value={actionActorUserId} onChange={(event) => setActionActorUserId(event.target.value)} />
         </label>
         <label className="text-sm font-medium text-slate-700">
-          Method
+          {t('admin.actionLogsPage.filters.method')}
           <input className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" value={actionMethod} onChange={(event) => setActionMethod(event.target.value)} />
         </label>
         <label className="text-sm font-medium text-slate-700">
-          Path contains
+          {t('admin.actionLogsPage.filters.pathContains')}
           <input className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" value={actionPathContains} onChange={(event) => setActionPathContains(event.target.value)} />
         </label>
         <label className="text-sm font-medium text-slate-700">
-          Page size
+          {t('admin.actionLogsPage.filters.pageSize')}
           <select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" value={actionPageSize} onChange={(event) => setActionPageSize(Number(event.target.value))}>
             <option value={20}>20</option>
             <option value={50}>50</option>
@@ -84,10 +84,10 @@ export function AdminActionLogsPage() {
         <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Method</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Path</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Duration (ms)</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">{t('admin.actionLogsPage.table.method')}</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">{t('admin.actionLogsPage.table.path')}</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">{t('admin.actionLogsPage.table.status')}</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">{t('admin.actionLogsPage.table.durationMs')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -102,7 +102,7 @@ export function AdminActionLogsPage() {
             {!actionItems.length ? (
               <tr>
                 <td colSpan={4} className="px-4 py-8 text-center text-sm text-slate-500">
-                  {t('admin.actionLogsPage.messages.empty', { defaultValue: 'No action logs found.' })}
+                  {t('admin.actionLogsPage.messages.empty')}
                 </td>
               </tr>
             ) : null}
@@ -117,10 +117,10 @@ export function AdminActionLogsPage() {
           onClick={() => setActionPage(Math.max(1, actionPage - 1))}
           disabled={actionPage <= 1}
         >
-          Previous
+          {t('admin.actionLogsPage.pagination.previous')}
         </button>
         <p className="text-sm text-slate-600">
-          Page {actionPage} / {pageCount}
+          {t('admin.actionLogsPage.pagination.page')} {actionPage} / {pageCount}
         </p>
         <button
           type="button"
@@ -128,7 +128,7 @@ export function AdminActionLogsPage() {
           onClick={() => setActionPage(Math.min(pageCount, actionPage + 1))}
           disabled={actionPage >= pageCount}
         >
-          Next
+          {t('admin.actionLogsPage.pagination.next')}
         </button>
       </div>
     </div>

@@ -3,6 +3,19 @@ import { describe, expect, it, vi } from 'vitest'
 import { EndpointToggleRow } from './EndpointToggleRow'
 import type { EndpointToggleDto } from '../types/admin.types'
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) =>
+      (
+        {
+          'admin.togglesPage.row.disable': 'Disable',
+          'admin.togglesPage.row.confirmDisable': 'Confirm disable',
+          'admin.togglesPage.row.disableReason': 'Disable reason',
+        } as Record<string, string>
+      )[key] ?? key,
+  }),
+}))
+
 function makeToggle(overrides?: Partial<EndpointToggleDto>): EndpointToggleDto {
   return {
     endpointKey: 'Api.Identity.AuthorizationAdmin.SetEndpointToggle',
