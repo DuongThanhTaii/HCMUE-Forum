@@ -101,9 +101,17 @@ internal sealed class DocumentRepository : IDocumentRepository
 
         if (facultyId.HasValue)
         {
-            // Join with Courses to filter by FacultyId
-            query = query.Where(d => _context.Courses
-                .Any(c => c.Id.Value == d.CourseId));
+            var fid = facultyId.Value;
+            // Select CourseId entity (translates to "id" column). c.Id.Value is not reliably translatable with value converters.
+            var courseKeys = await _context.Courses
+                .AsNoTracking()
+                .Where(c => c.FacultyId == fid)
+                .Select(c => c.Id)
+                .ToListAsync(cancellationToken);
+            var courseGuids = courseKeys.Select(k => k.Value).ToList();
+
+            query = query.Where(d =>
+                d.CourseId != null && courseGuids.Contains(d.CourseId.Value));
         }
 
         if (documentType.HasValue)

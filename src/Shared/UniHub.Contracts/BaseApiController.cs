@@ -31,4 +31,18 @@ public abstract class BaseApiController : ControllerBase
 
         return userId;
     }
+
+    /// <summary>
+    /// Returns the current user ID when authenticated; otherwise null (for optional per-user fields on anonymous endpoints).
+    /// </summary>
+    protected Guid? TryGetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            return null;
+        }
+
+        return userId;
+    }
 }

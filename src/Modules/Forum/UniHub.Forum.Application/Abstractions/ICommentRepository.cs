@@ -39,6 +39,7 @@ public interface ICommentRepository
     /// </summary>
     Task<Queries.GetComments.GetCommentsResult> GetCommentsByPostIdAsync(
         PostId postId,
+        Guid? currentUserId = null,
         int pageNumber = 1,
         int pageSize = 20,
         CancellationToken cancellationToken = default);

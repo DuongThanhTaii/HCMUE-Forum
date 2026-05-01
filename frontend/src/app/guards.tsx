@@ -50,7 +50,7 @@ export function RequireRole({ roles }: { roles: string[] }) {
     return normalizedRole !== null && allowedRoles.has(normalizedRole)
   })
   if (!hasRole) {
-    return <Navigate to="/forum" replace />
+    return <Navigate to="/home" replace />
   }
   return <Outlet />
 }

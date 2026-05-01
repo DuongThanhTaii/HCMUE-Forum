@@ -12,10 +12,14 @@ internal sealed class GetDocumentByIdQueryHandler
     : IRequestHandler<GetDocumentByIdQuery, Result<DocumentDetailResponse>>
 {
     private readonly IDocumentRepository _documentRepository;
+    private readonly IDocumentDetailEnricher _documentDetailEnricher;
 
-    public GetDocumentByIdQueryHandler(IDocumentRepository documentRepository)
+    public GetDocumentByIdQueryHandler(
+        IDocumentRepository documentRepository,
+        IDocumentDetailEnricher documentDetailEnricher)
     {
         _documentRepository = documentRepository;
+        _documentDetailEnricher = documentDetailEnricher;
     }
 
     public async Task<Result<DocumentDetailResponse>> Handle(
@@ -30,6 +34,12 @@ internal sealed class GetDocumentByIdQueryHandler
             return Result.Failure<DocumentDetailResponse>(
                 new Error("Document.NotFound", $"Document with ID {request.DocumentId} not found"));
         }
+
+        var (uploaderName, courseName, reviewerName) = await _documentDetailEnricher.EnrichAsync(
+            document.UploaderId,
+            document.CourseId,
+            document.ReviewerId,
+            cancellationToken);
 
         var response = new DocumentDetailResponse(
             document.Id.Value,
@@ -52,7 +62,10 @@ internal sealed class GetDocumentByIdQueryHandler
             document.CreatedAt,
             document.UpdatedAt,
             document.SubmittedAt,
-            document.ReviewedAt);
+            document.ReviewedAt,
+            uploaderName,
+            courseName,
+            reviewerName);
 
         return Result.Success(response);
     }

@@ -84,20 +84,23 @@ internal static class ForumSeed
         // 3. Seed Posts + Comments for quick local FE testing.
         if (!await context.Posts.AnyAsync())
         {
-            var systemAuthorId = await context.Users
+            // Select strongly-typed ids only; .Id.Value is not translatable with EF value converters.
+            var firstAuthorKey = await context.Users
                 .AsNoTracking()
-                .Select(user => user.Id.Value)
+                .Select(user => user.Id)
                 .FirstOrDefaultAsync();
+            var systemAuthorId = firstAuthorKey?.Value ?? Guid.Parse("00000000-0000-0000-0000-000000000001");
             if (systemAuthorId == Guid.Empty)
             {
                 systemAuthorId = Guid.Parse("00000000-0000-0000-0000-000000000001");
             }
 
-            var categoryIds = await context.Categories
+            var categoryKeys = await context.Categories
                 .AsNoTracking()
-                .Select(category => category.Id.Value)
+                .Select(category => category.Id)
                 .Take(3)
                 .ToListAsync();
+            var categoryIds = categoryKeys.Select(id => id.Value).ToList();
 
             var postSeedData = new[]
             {

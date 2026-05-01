@@ -79,12 +79,16 @@ export function LearningDocumentDetailPage() {
             </div>
             <div>
               <dt className="text-slate-500">{t('learning.documentDetailPage.uploader')}</dt>
-              <dd className="font-mono text-[12px] text-slate-800">{doc.uploaderId}</dd>
+              <dd className="font-medium text-slate-900">
+                {doc.uploaderDisplayName?.trim() || doc.uploaderId}
+              </dd>
             </div>
             {doc.courseId ? (
               <div className="sm:col-span-2">
                 <dt className="text-slate-500">{t('learning.documentDetailPage.course')}</dt>
-                <dd className="font-mono text-[12px] text-slate-800">{doc.courseId}</dd>
+                <dd className="font-medium text-slate-900">
+                  {doc.courseName?.trim() || doc.courseId}
+                </dd>
               </div>
             ) : null}
           </dl>

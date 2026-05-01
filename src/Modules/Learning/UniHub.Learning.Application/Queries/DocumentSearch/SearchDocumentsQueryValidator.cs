@@ -28,5 +28,13 @@ public sealed class SearchDocumentsQueryValidator : AbstractValidator<SearchDocu
             .InclusiveBetween(0, 4)
             .When(x => x.Status.HasValue)
             .WithMessage("Status must be a valid value (0-4)");
+
+        RuleFor(x => x.FacultyId)
+            .Must(id => !id.HasValue || id.Value != Guid.Empty)
+            .WithMessage("Faculty id cannot be empty.");
+
+        RuleFor(x => x.CourseId)
+            .Must(id => !id.HasValue || id.Value != Guid.Empty)
+            .WithMessage("Course id cannot be empty.");
     }
 }

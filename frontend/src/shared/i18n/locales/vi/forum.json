@@ -11,6 +11,7 @@
   "posts": "bài viết",
   "comment": "Bình luận",
   "comments": "bình luận",
+  "replies": "Trả lời",
   "vote": "Bình chọn",
   "votes": "lượt bình chọn",
   "upvote": "Upvote",
@@ -128,9 +129,28 @@
     },
     "notice": "Lưu ý: nội dung mới được cập nhật theo thời gian thực."
   },
+  "reportModal": {
+    "title": "Báo cáo bài viết",
+    "subtitle": "Đội ngũ kiểm duyệt sẽ xem xét. Mô tả thêm (nếu có) giúp xử lý nhanh hơn.",
+    "reasonLabel": "Lý do",
+    "detailsLabel": "Chi tiết (không bắt buộc)",
+    "detailsPlaceholder": "Mô tả vấn đề…",
+    "cancel": "Hủy",
+    "submit": "Gửi báo cáo",
+    "reasons": {
+      "spam": "Spam / quảng cáo",
+      "harassment": "Quấy rối",
+      "inappropriate": "Nội dung không phù hợp",
+      "misinformation": "Thông tin sai lệch",
+      "offTopic": "Không đúng chủ đề",
+      "copyright": "Vi phạm bản quyền",
+      "other": "Khác"
+    }
+  },
   "actions": {
     "reply": "Trả lời",
     "upvote": "Thích",
+    "downvote": "Không thích",
     "report": "Báo cáo",
     "share": "Chia sẻ",
     "bookmark": "Lưu bài",

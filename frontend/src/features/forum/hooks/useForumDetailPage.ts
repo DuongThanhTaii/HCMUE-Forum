@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '@features/auth/context/useAuth'
+import type { ForumCommentItem } from '../api/forum.list.api'
 import {
   useAddCommentMutation,
   useBookmarkPostMutation,
@@ -10,8 +11,32 @@ import {
   useGetPostCommentsQuery,
   useReportPostMutation,
   useUnbookmarkPostMutation,
+  useVoteCommentMutation,
   useVotePostMutation,
 } from '../api/forum.list.api'
+
+export type CommentThreadNode = ForumCommentItem & { children: CommentThreadNode[] }
+
+function buildCommentThreads(flat: ForumCommentItem[]): CommentThreadNode[] {
+  const sorted = [...flat].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  )
+  const map = new Map<string, CommentThreadNode>()
+  for (const c of sorted) {
+    map.set(c.id, { ...c, children: [] })
+  }
+  const roots: CommentThreadNode[] = []
+  for (const c of sorted) {
+    const node = map.get(c.id)!
+    const pid = c.parentCommentId
+    if (pid && map.has(pid)) {
+      map.get(pid)!.children.push(node)
+    } else {
+      roots.push(node)
+    }
+  }
+  return roots
+}
 
 function formatDateTime(value: string) {
   const date = new Date(value)
@@ -34,15 +59,22 @@ export function useForumDetailPage() {
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [interactionErrorKey, setInteractionErrorKey] = useState<string | null>(null)
   const [interactionSuccessKey, setInteractionSuccessKey] = useState<string | null>(null)
+  const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(null)
+  const [replyDraft, setReplyDraft] = useState('')
+  const [hasTriedReplySubmit, setHasTriedReplySubmit] = useState(false)
   const { data: post, isLoading, isError } = useGetForumPostByIdQuery(id, {
     skip: !id,
   })
+  useEffect(() => {
+    setIsBookmarked(post?.isBookmarked === true)
+  }, [post?.isBookmarked])
   const { data: commentData = [], isLoading: isCommentsLoading } = useGetPostCommentsQuery(
     { postId: id, pageNumber: 1, pageSize: 30 },
     { skip: !id },
   )
   const [addComment, { isLoading: isSubmittingComment }] = useAddCommentMutation()
   const [votePost, { isLoading: isVoting }] = useVotePostMutation()
+  const [voteComment, { isLoading: isVotingComment }] = useVoteCommentMutation()
   const [bookmarkPost, { isLoading: isBookmarking }] = useBookmarkPostMutation()
   const [unbookmarkPost, { isLoading: isUnbookmarking }] = useUnbookmarkPostMutation()
   const [reportPost, { isLoading: isReporting }] = useReportPostMutation()
@@ -50,23 +82,20 @@ export function useForumDetailPage() {
   const fallbackTitle = t('forum.detail.fallbackTitle')
   const title = post?.title || `${fallbackTitle} #${id || t('common.noData')}`
   const category = post?.category || t('forum.categories')
+  const authorLine = post?.authorName?.trim() || null
   const activityText = post?.activityAt ? formatDateTime(post.activityAt) : t('common.noData')
   const realPostContent =
     (post as { content?: string } | undefined)?.content?.trim() ||
     (post as { body?: string } | undefined)?.body?.trim() ||
     ''
   const postContent = realPostContent || t('forum.detail.fallbackContent')
+  const voteScore = typeof post?.voteScore === 'number' ? post.voteScore : 0
 
-  const comments = useMemo(
-    () =>
-      commentData.map((comment) => ({
-        id: comment.id,
-        author: comment.authorName,
-        content: comment.content,
-        time: formatDateTime(comment.createdAt),
-      })),
-    [commentData],
-  )
+  const commentThreads = useMemo(() => buildCommentThreads(commentData), [commentData])
+
+  const [reportOpen, setReportOpen] = useState(false)
+  const [reportReason, setReportReason] = useState<number>(1)
+  const [reportDescription, setReportDescription] = useState('')
 
   function setFeedback(successKey: string | null, errorKey: string | null) {
     setInteractionSuccessKey(successKey)
@@ -136,6 +165,47 @@ export function useForumDetailPage() {
     }
   }
 
+  async function onVoteComment(commentId: string, voteType: 1 | 2) {
+    if (!id || !commentId || isVotingComment) return
+    if (!ensureAuthenticated()) return
+    try {
+      await voteComment({ commentId, postId: id, voteType }).unwrap()
+    } catch {
+      /* optimistic update already rolled back by RTK Query */
+    }
+  }
+
+  function onStartReply(commentId: string) {
+    if (!ensureAuthenticated()) return
+    setReplyingToCommentId(commentId)
+    setReplyDraft('')
+    setHasTriedReplySubmit(false)
+  }
+
+  function onCancelReply() {
+    setReplyingToCommentId(null)
+    setReplyDraft('')
+    setHasTriedReplySubmit(false)
+  }
+
+  async function onSubmitReply(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setHasTriedReplySubmit(true)
+    if (!replyDraft.trim() || !replyingToCommentId || !id) return
+    try {
+      await addComment({
+        postId: id,
+        content: replyDraft.trim(),
+        parentCommentId: replyingToCommentId,
+      }).unwrap()
+      setReplyingToCommentId(null)
+      setReplyDraft('')
+      setHasTriedReplySubmit(false)
+    } catch (error) {
+      setFeedback(null, getMutationErrorKey(error, 'forum.feedback.commentFailed'))
+    }
+  }
+
   async function onToggleBookmark() {
     setFeedback(null, null)
     if (!id || isBookmarking || isUnbookmarking) {
@@ -168,20 +238,36 @@ export function useForumDetailPage() {
     }
   }
 
-  async function onReportPost() {
+  function onOpenReportModal() {
     setFeedback(null, null)
-    if (!id || isReporting) {
+    if (!id) {
       return
     }
     if (!ensureAuthenticated()) {
       return
     }
+    setReportReason(1)
+    setReportDescription('')
+    setReportOpen(true)
+  }
+
+  function onCloseReportModal() {
+    setReportOpen(false)
+  }
+
+  async function onSubmitReportModal() {
+    setFeedback(null, null)
+    if (!id || isReporting) {
+      return
+    }
     try {
       await reportPost({
         postId: id,
-        reason: 2,
-        description: 'Reported from forum detail UI',
+        reason: reportReason,
+        description: reportDescription.trim() || undefined,
       }).unwrap()
+      setReportOpen(false)
+      setReportDescription('')
       setFeedback('forum.feedback.reportSuccess', null)
     } catch (error) {
       setFeedback(null, getMutationErrorKey(error, 'forum.feedback.reportFailed'))
@@ -213,9 +299,11 @@ export function useForumDetailPage() {
     post,
     title,
     category,
+    authorLine,
     activityText,
     postContent,
-    comments,
+    voteScore,
+    commentThreads,
     commentDraft,
     setCommentDraft,
     onCommentDraftChange,
@@ -223,14 +311,30 @@ export function useForumDetailPage() {
     canSubmitComment,
     onSubmitComment,
     onUpvotePost,
+    onVoteComment,
+    replyingToCommentId,
+    replyDraft,
+    setReplyDraft,
+    hasTriedReplySubmit,
+    onStartReply,
+    onCancelReply,
+    onSubmitReply,
     onToggleBookmark,
-    onReportPost,
+    onOpenReportModal,
+    onCloseReportModal,
+    onSubmitReportModal,
+    reportOpen,
+    reportReason,
+    setReportReason,
+    reportDescription,
+    setReportDescription,
     onSharePost,
     interactionErrorKey,
     interactionSuccessKey,
     isBookmarked,
     isCommentsLoading,
     isSubmittingComment,
+    isVotingComment,
     isVoting,
     isBookmarking,
     isUnbookmarking,

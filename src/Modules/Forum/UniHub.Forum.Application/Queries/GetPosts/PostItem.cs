@@ -13,6 +13,10 @@ public sealed record PostItem
     public int Status { get; init; }
     public Guid AuthorId { get; init; }
     public Guid? CategoryId { get; init; }
+    /// <summary>Resolved category title for API consumers.</summary>
+    public string? CategoryName { get; init; }
+    /// <summary>Resolved author display name.</summary>
+    public string? AuthorName { get; init; }
     public IReadOnlyList<string> Tags { get; init; } = Array.Empty<string>();
     public int VoteScore { get; init; }
     public int CommentCount { get; init; }

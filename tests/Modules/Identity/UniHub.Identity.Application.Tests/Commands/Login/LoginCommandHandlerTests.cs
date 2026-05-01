@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Application.Commands.Login;
+using UniHub.Identity.Domain.Roles;
 using UniHub.Identity.Domain.Tokens;
 using UniHub.Identity.Domain.Users;
 using UniHub.Identity.Domain.Users.ValueObjects;
@@ -15,6 +16,7 @@ public sealed class LoginCommandHandlerTests
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtService _jwtService;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly IRoleRepository _roleRepository;
     private readonly LoginCommandHandler _handler;
 
     public LoginCommandHandlerTests()
@@ -23,11 +25,15 @@ public sealed class LoginCommandHandlerTests
         _passwordHasher = Substitute.For<IPasswordHasher>();
         _jwtService = Substitute.For<IJwtService>();
         _refreshTokenRepository = Substitute.For<IRefreshTokenRepository>();
+        _roleRepository = Substitute.For<IRoleRepository>();
+        _roleRepository.GetByIdsAsync(Arg.Any<IEnumerable<RoleId>>(), Arg.Any<CancellationToken>())
+            .Returns([]);
         _handler = new LoginCommandHandler(
-            _userRepository, 
-            _passwordHasher, 
+            _userRepository,
+            _passwordHasher,
             _jwtService,
-            _refreshTokenRepository);
+            _refreshTokenRepository,
+            _roleRepository);
     }
 
     [Fact]
@@ -45,9 +51,9 @@ public sealed class LoginCommandHandlerTests
             .Returns(user);
         _passwordHasher.VerifyPassword(command.Password, user.PasswordHash)
             .Returns(true);
-        _jwtService.GenerateAccessToken(user)
+        _jwtService.GenerateAccessToken(user, Arg.Any<IEnumerable<string>?>())
             .Returns(Result.Success("access_token"));
-        _jwtService.GenerateRefreshToken(Arg.Any<UserId>(), Arg.Any<string>())
+        _jwtService.GenerateRefreshToken(Arg.Any<UserId>())
             .Returns(refreshToken);
         _jwtService.AccessTokenExpiry.Returns(TimeSpan.FromMinutes(15));
         _jwtService.RefreshTokenExpiry.Returns(TimeSpan.FromDays(7));
@@ -159,9 +165,9 @@ public sealed class LoginCommandHandlerTests
             .Returns(user);
         _passwordHasher.VerifyPassword(command.Password, user.PasswordHash)
             .Returns(true);
-        _jwtService.GenerateAccessToken(user)
+        _jwtService.GenerateAccessToken(user, Arg.Any<IEnumerable<string>?>())
             .Returns(Result.Success("access_token_123"));
-        _jwtService.GenerateRefreshToken(Arg.Any<UserId>(), Arg.Any<string>())
+        _jwtService.GenerateRefreshToken(Arg.Any<UserId>())
             .Returns(refreshToken);
         _jwtService.AccessTokenExpiry.Returns(TimeSpan.FromMinutes(15));
         _jwtService.RefreshTokenExpiry.Returns(TimeSpan.FromDays(7));
@@ -173,8 +179,8 @@ public sealed class LoginCommandHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.Value.AccessToken.Should().Be("access_token_123");
         result.Value.RefreshToken.Should().NotBeNullOrEmpty();
-        _jwtService.Received(1).GenerateAccessToken(user);
-        _jwtService.Received(1).GenerateRefreshToken(Arg.Any<UserId>(), Arg.Any<string>());
+        _jwtService.Received(1).GenerateAccessToken(user, Arg.Any<IEnumerable<string>?>());
+        _jwtService.Received(1).GenerateRefreshToken(Arg.Any<UserId>());
         await _refreshTokenRepository.Received(1).AddAsync(Arg.Any<RefreshToken>(), Arg.Any<CancellationToken>());
     }
 }

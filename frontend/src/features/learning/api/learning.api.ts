@@ -114,9 +114,19 @@ export const learningApi = baseApi.injectEndpoints({
     getDocumentById: builder.query<DocumentDetail, string>({
       query: (id) => `/api/v1/documents/${id}`,
       transformResponse: (response: unknown) => {
-        const d = unwrapData<DocumentDetail>(response)
-        if (!d) throw new Error('MISSING_DOCUMENT')
-        return d
+        const raw = unwrapData<Record<string, unknown>>(response)
+        if (!raw || typeof raw !== 'object') throw new Error('MISSING_DOCUMENT')
+        const d = raw as DocumentDetail & Record<string, unknown>
+        const pickStr = (a: string, b: string) => {
+          const v = d[a] ?? d[b]
+          return typeof v === 'string' && v.trim().length > 0 ? v : null
+        }
+        return {
+          ...d,
+          uploaderDisplayName: pickStr('uploaderDisplayName', 'UploaderDisplayName'),
+          courseName: pickStr('courseName', 'CourseName'),
+          reviewerDisplayName: pickStr('reviewerDisplayName', 'ReviewerDisplayName'),
+        }
       },
       providesTags: (_result, _err, id) => [{ type: 'Document', id }],
     }),

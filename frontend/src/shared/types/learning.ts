@@ -71,8 +71,11 @@ export type DocumentDetail = {
   viewCount: number
   downloadCount: number
   uploaderId: string
+  uploaderDisplayName?: string | null
   courseId: string | null
+  courseName?: string | null
   reviewerId: string | null
+  reviewerDisplayName?: string | null
   reviewComment: string | null
   rejectionReason: string | null
   createdAt: string

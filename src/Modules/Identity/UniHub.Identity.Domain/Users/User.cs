@@ -58,6 +58,21 @@ public sealed class User : AggregateRoot<UserId>
         return Result.Success(user);
     }
 
+    /// <summary>
+    /// Creates a user with a pre-determined ID. Intended only for deterministic data seeding.
+    /// </summary>
+    public static Result<User> CreateWithId(UserId id, Email email, string passwordHash, UserProfile profile)
+    {
+        if (string.IsNullOrWhiteSpace(passwordHash))
+        {
+            return Result.Failure<User>(new Error("User.PasswordHash.Empty", "Password hash cannot be empty"));
+        }
+
+        var user = new User(id, email, passwordHash, profile);
+        user.AddDomainEvent(new UserRegisteredEvent(user.Id, user.Email));
+        return Result.Success(user);
+    }
+
     public Result UpdateProfile(UserProfile newProfile)
     {
         var oldProfile = Profile;

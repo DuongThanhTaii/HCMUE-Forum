@@ -49,6 +49,7 @@ public static class DependencyInjection
         // User tracking services
         services.AddScoped<IUserRatingService, UserRatingService>();
         services.AddScoped<IUserDownloadService, UserDownloadService>();
+        services.AddScoped<IDocumentDetailEnricher, DocumentDetailEnricher>();
         
         // Permission services
         services.AddScoped<IModeratorPermissionService, ModeratorPermissionService>();

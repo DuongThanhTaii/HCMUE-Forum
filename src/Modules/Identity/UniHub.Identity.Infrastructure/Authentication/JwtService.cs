@@ -34,7 +34,7 @@ public sealed class JwtService : IJwtService
             SecurityAlgorithms.HmacSha256);
     }
 
-    public Result<string> GenerateAccessToken(User user)
+    public Result<string> GenerateAccessToken(User user, IEnumerable<string>? roleNames = null)
     {
         try
         {
@@ -48,10 +48,13 @@ public sealed class JwtService : IJwtService
                 new("jti", Guid.NewGuid().ToString()) // JWT ID for token uniqueness
             };
 
-            // Add role claims if user has roles
-            foreach (var userRole in user.Roles)
+            // Add role claims by name so FE can read them
+            if (roleNames is not null)
             {
-                claims.Add(new Claim(ClaimTypes.Role, userRole.RoleId.Value.ToString()));
+                foreach (var roleName in roleNames)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, roleName));
+                }
             }
 
             var tokenDescriptor = new SecurityTokenDescriptor

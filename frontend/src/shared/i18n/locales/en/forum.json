@@ -11,6 +11,7 @@
   "posts": "posts",
   "comment": "Comment",
   "comments": "comments",
+  "replies": "Replies",
   "vote": "Vote",
   "votes": "votes",
   "upvote": "Upvote",
@@ -128,9 +129,28 @@
     },
     "notice": "Note: new content is updated in real time."
   },
+  "reportModal": {
+    "title": "Report this post",
+    "subtitle": "Moderators will review your report. Optional details help us act faster.",
+    "reasonLabel": "Reason",
+    "detailsLabel": "Details (optional)",
+    "detailsPlaceholder": "Describe what is wrong…",
+    "cancel": "Cancel",
+    "submit": "Submit report",
+    "reasons": {
+      "spam": "Spam",
+      "harassment": "Harassment",
+      "inappropriate": "Inappropriate content",
+      "misinformation": "Misinformation",
+      "offTopic": "Off-topic",
+      "copyright": "Copyright violation",
+      "other": "Other"
+    }
+  },
   "actions": {
     "reply": "Reply",
     "upvote": "Upvote",
+    "downvote": "Downvote",
     "report": "Report",
     "share": "Share",
     "bookmark": "Bookmark",

@@ -13,7 +13,7 @@ export function ForumFiltersRow({
 }: ForumFiltersRowProps) {
   const { t } = useTranslation()
   const tabBaseClass =
-    'rounded-md border px-3 py-1.5 text-[13px] font-medium transition-colors'
+    'cursor-pointer rounded-md border px-3 py-1.5 text-[13px] font-medium transition-colors'
   const activeTabClass = 'border-primary bg-primary text-white'
   const inactiveTabClass = 'border-slate-200 bg-white text-slate-600 hover:border-primary hover:text-primary'
 

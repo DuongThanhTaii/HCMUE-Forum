@@ -12,6 +12,8 @@ public interface IRoleRepository
     /// </summary>
     Task<Role?> GetByIdAsync(RoleId roleId, CancellationToken cancellationToken = default);
 
+    Task<List<Role>> GetByIdsAsync(IEnumerable<RoleId> roleIds, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Gets a role by its name
     /// </summary>

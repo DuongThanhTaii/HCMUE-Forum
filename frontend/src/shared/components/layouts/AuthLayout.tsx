@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
 
@@ -14,10 +14,13 @@ export function AuthLayout() {
         <LanguageSwitcher />
       </div>
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
-        <div className="mb-6 flex items-center gap-3">
-          <img src="/logohcmue.png" alt="HCMUE" className="h-10 w-auto" />
+        <Link
+          to="/home"
+          className="mb-6 flex items-center gap-3 rounded-md text-slate-900 no-underline outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        >
+          <img src="/logohcmue.png" alt="" className="h-10 w-auto" />
           <h1 className="text-xl font-semibold">{t('auth.layout.brand')}</h1>
-        </div>
+        </Link>
         <Outlet />
       </div>
     </div>

@@ -47,9 +47,10 @@ public class PostsController : BaseApiController
         [FromQuery] Guid? categoryId = null,
         [FromQuery] int? type = null,
         [FromQuery] int? status = null,
+        [FromQuery] int sortBy = 0,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetPostsQuery(pageNumber, pageSize, categoryId, type, status);
+        var query = new GetPostsQuery(pageNumber, pageSize, categoryId, type, status, sortBy);
         var result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
@@ -69,6 +70,8 @@ public class PostsController : BaseApiController
                 Status = p.Status,
                 AuthorId = p.AuthorId,
                 CategoryId = p.CategoryId,
+                CategoryName = p.CategoryName,
+                AuthorName = p.AuthorName,
                 Tags = p.Tags,
                 VoteScore = p.VoteScore,
                 CommentCount = p.CommentCount,
@@ -99,7 +102,7 @@ public class PostsController : BaseApiController
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetPostByIdQuery(id);
+        var query = new GetPostByIdQuery(id, TryGetCurrentUserId());
         var result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure || result.Value == null)
@@ -117,9 +120,12 @@ public class PostsController : BaseApiController
             Status = result.Value.Status,
             AuthorId = result.Value.AuthorId,
             CategoryId = result.Value.CategoryId,
+            CategoryName = result.Value.CategoryName,
+            AuthorName = result.Value.AuthorName,
             Tags = result.Value.Tags,
             VoteScore = result.Value.VoteScore,
             CommentCount = result.Value.CommentCount,
+            IsBookmarked = result.Value.IsBookmarkedByCurrentUser,
             IsPinned = result.Value.IsPinned,
             CreatedAt = result.Value.CreatedAt,
             UpdatedAt = result.Value.UpdatedAt,
@@ -312,7 +318,7 @@ public class PostsController : BaseApiController
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetCommentsQuery(id, pageNumber, pageSize);
+        var query = new GetCommentsQuery(id, TryGetCurrentUserId(), pageNumber, pageSize);
         var result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
@@ -327,9 +333,11 @@ public class PostsController : BaseApiController
                 Id = c.Id,
                 PostId = c.PostId,
                 AuthorId = c.AuthorId,
+                AuthorName = string.IsNullOrWhiteSpace(c.AuthorName) ? null : c.AuthorName,
                 Content = c.Content,
                 ParentCommentId = c.ParentCommentId,
                 VoteScore = c.VoteScore,
+                CurrentUserVote = c.CurrentUserVote,
                 IsAcceptedAnswer = c.IsAcceptedAnswer,
                 CreatedAt = c.CreatedAt,
                 UpdatedAt = c.UpdatedAt

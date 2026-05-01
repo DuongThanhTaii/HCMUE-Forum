@@ -27,6 +27,9 @@ vi.mock('@shared/components/layouts/AdminLayout', async () => {
   return { AdminLayout: () => <Outlet /> }
 })
 
+vi.mock('@features/forum/components/HomePage', () => ({
+  HomePage: () => <div>Home page</div>,
+}))
 vi.mock('@features/forum/components/ForumListPage', () => ({
   ForumListPage: () => <div>Forum page</div>,
 }))
@@ -85,8 +88,8 @@ describe('admin routes in app router', () => {
 
     render(<RouterProvider router={router} />)
 
-    await screen.findByText('Forum page')
-    expect(router.state.location.pathname).toBe('/forum')
+    await screen.findByText('Home page')
+    expect(router.state.location.pathname).toBe('/home')
   })
 
   it('allows authenticated admin to access /admin/users', async () => {

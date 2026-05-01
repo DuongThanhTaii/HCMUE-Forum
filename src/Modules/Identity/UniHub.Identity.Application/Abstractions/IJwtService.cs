@@ -14,7 +14,7 @@ public interface IJwtService
     /// </summary>
     /// <param name="user">The user to generate token for</param>
     /// <returns>JWT token string</returns>
-    Result<string> GenerateAccessToken(User user);
+    Result<string> GenerateAccessToken(User user, IEnumerable<string>? roleNames = null);
 
     /// <summary>
     /// Validates a JWT token and returns the user ID if valid

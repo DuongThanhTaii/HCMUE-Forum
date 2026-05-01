@@ -95,11 +95,12 @@ try
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Career.Application.Commands.JobPostings.CreateJobPosting.CreateJobPostingCommand>();
         cfg.RegisterServicesFromAssemblyContaining<UniHub.Notification.Application.EventHandlers.UserRegisteredEventHandler>();
 
-        // Register pipeline behaviors (order matters: validation → logging → performance → unhandled)
+        // Register pipeline behaviors (order matters: validation → logging → performance → unhandled → unit of work)
         cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
         cfg.AddOpenBehavior(typeof(PerformanceBehavior<,>));
         cfg.AddOpenBehavior(typeof(UnhandledExceptionBehavior<,>));
+        cfg.AddOpenBehavior(typeof(UnitOfWorkBehavior<,>));
     });
 
     // Register FluentValidation validators from all module assemblies

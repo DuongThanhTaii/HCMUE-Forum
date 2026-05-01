@@ -306,6 +306,16 @@ internal sealed class InMemoryRoleRepository(InMemoryPermissionStore store) : IR
         return Task.FromResult(role);
     }
 
+    public Task<List<Role>> GetByIdsAsync(IEnumerable<RoleId> roleIds, CancellationToken cancellationToken = default)
+    {
+        var list = roleIds
+            .Select(id => store.Roles.TryGetValue(id.Value, out var r) ? r : null)
+            .Where(r => r is not null)
+            .Cast<Role>()
+            .ToList();
+        return Task.FromResult(list);
+    }
+
     public Task<Role?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
     {
         var role = store.Roles.Values.FirstOrDefault(item => string.Equals(item.Name, name, StringComparison.OrdinalIgnoreCase));

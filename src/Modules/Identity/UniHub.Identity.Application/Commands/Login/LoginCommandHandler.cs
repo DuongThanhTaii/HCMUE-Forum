@@ -14,17 +14,20 @@ public sealed class LoginCommandHandler : ICommandHandler<LoginCommand, LoginRes
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtService _jwtService;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly IRoleRepository _roleRepository;
 
     public LoginCommandHandler(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
         IJwtService jwtService,
-        IRefreshTokenRepository refreshTokenRepository)
+        IRefreshTokenRepository refreshTokenRepository,
+        IRoleRepository roleRepository)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _jwtService = jwtService;
         _refreshTokenRepository = refreshTokenRepository;
+        _roleRepository = roleRepository;
     }
 
     public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -55,8 +58,13 @@ public sealed class LoginCommandHandler : ICommandHandler<LoginCommand, LoginRes
             return Result.Failure<LoginResponse>(LoginErrors.UserNotActive);
         }
 
-        // Generate JWT access token
-        var accessTokenResult = _jwtService.GenerateAccessToken(user);
+        // Resolve role names in a single query
+        var roleIds = user.Roles.Select(ur => ur.RoleId);
+        var roles = await _roleRepository.GetByIdsAsync(roleIds, cancellationToken);
+        var roleNames = roles.Select(r => r.Name);
+
+        // Generate JWT access token with role names
+        var accessTokenResult = _jwtService.GenerateAccessToken(user, roleNames);
         if (accessTokenResult.IsFailure)
         {
             return Result.Failure<LoginResponse>(accessTokenResult.Error);

@@ -98,7 +98,7 @@ export function ForumSidebar() {
   const { t } = useTranslation();
 
   return (
-    <aside className="fixed left-0 top-[52px] z-30 hidden h-[calc(100vh-52px)] w-[250px] border-r border-slate-200 bg-white lg:block">
+    <aside className="fixed left-0 top-14 z-30 hidden h-[calc(100dvh-3.5rem)] w-64 border-r border-slate-200 bg-white lg:block">
       <div className="h-full space-y-4 overflow-y-auto p-3">
         <SidebarSection title={t('forum.sidebar.sections.main')} items={MAIN_ITEMS} pathname={pathname} search={search} />
         <SidebarSection title={t('forum.sidebar.sections.topics')} items={TOPIC_ITEMS} pathname={pathname} search={search} />

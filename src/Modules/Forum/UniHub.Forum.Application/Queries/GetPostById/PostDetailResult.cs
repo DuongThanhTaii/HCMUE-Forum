@@ -13,9 +13,12 @@ public sealed record PostDetailResult
     public int Status { get; init; }
     public Guid AuthorId { get; init; }
     public Guid? CategoryId { get; init; }
+    public string? CategoryName { get; init; }
+    public string? AuthorName { get; init; }
     public IReadOnlyList<string> Tags { get; init; } = Array.Empty<string>();
     public int VoteScore { get; init; }
     public int CommentCount { get; init; }
+    public bool IsBookmarkedByCurrentUser { get; init; }
     public bool IsPinned { get; init; }
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }

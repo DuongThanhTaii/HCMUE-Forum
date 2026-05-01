@@ -23,8 +23,8 @@ internal sealed class UserRatingService : IUserRatingService
         CancellationToken cancellationToken = default)
     {
         var sql = @"
-            SELECT COUNT(1) 
-            FROM learning.user_document_ratings 
+            SELECT COUNT(1) AS ""Value""
+            FROM user_document_ratings
             WHERE user_id = {0} AND document_id = {1}";
 
         var count = await _context.Database
@@ -48,7 +48,7 @@ internal sealed class UserRatingService : IUserRatingService
         }
 
         var sql = @"
-            INSERT INTO learning.user_document_ratings (user_id, document_id, rating, rated_at)
+            INSERT INTO user_document_ratings (user_id, document_id, rating, rated_at)
             VALUES ({0}, {1}, {2}, {3})
             ON CONFLICT (user_id, document_id) DO NOTHING";
 

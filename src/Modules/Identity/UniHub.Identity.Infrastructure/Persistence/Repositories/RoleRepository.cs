@@ -36,6 +36,20 @@ public sealed class RoleRepository : IRoleRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<Role>> GetByIdsAsync(IEnumerable<RoleId> roleIds, CancellationToken cancellationToken = default)
+    {
+        var idList = roleIds.Distinct().ToList();
+        if (idList.Count == 0)
+        {
+            return new List<Role>();
+        }
+
+        return await _context.Roles
+            .AsNoTracking()
+            .Where(r => idList.Contains(r.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddAsync(Role role, CancellationToken cancellationToken = default)
     {
         await _context.Roles.AddAsync(role, cancellationToken);

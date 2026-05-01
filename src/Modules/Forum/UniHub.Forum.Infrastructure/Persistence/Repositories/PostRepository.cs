@@ -4,7 +4,10 @@ using UniHub.Forum.Application.Queries;
 using UniHub.Forum.Application.Queries.GetPostById;
 using UniHub.Forum.Application.Queries.GetPosts;
 using UniHub.Forum.Application.Queries.SearchPosts;
+using UniHub.Forum.Domain.Categories;
 using UniHub.Forum.Domain.Posts;
+using UniHub.Forum.Domain.Votes;
+using UniHub.Forum.Infrastructure.Persistence;
 using UniHub.Infrastructure.Persistence;
 
 namespace UniHub.Forum.Infrastructure.Persistence.Repositories;
@@ -32,6 +35,7 @@ public sealed class PostRepository : IPostRepository
     public async Task<Post?> GetByIdAsync(PostId postId, CancellationToken cancellationToken = default)
     {
         return await _context.Posts
+            .Include(p => p.Votes)
             .FirstOrDefaultAsync(p => p.Id == postId, cancellationToken);
     }
 
@@ -53,10 +57,40 @@ public sealed class PostRepository : IPostRepository
         await _context.Posts.AddAsync(post, cancellationToken);
     }
 
-    public Task UpdateAsync(Post post, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(Post post, CancellationToken cancellationToken = default)
     {
-        _context.Posts.Update(post);
-        return Task.CompletedTask;
+        // Aggregate mutations are expected to happen on tracked entities loaded in this UoW.
+        // Avoid DbSet.Update() because it can force owned Vote rows into Modified state.
+        await EnsureNewPostVotesAreInsertedAsync(post, cancellationToken);
+    }
+
+    private async Task EnsureNewPostVotesAreInsertedAsync(Post post, CancellationToken cancellationToken)
+    {
+        var voteEntries = _context.ChangeTracker.Entries<Vote>()
+            .Where(e => e.State == EntityState.Modified)
+            .Where(e => e.Metadata.GetTableName() == "post_votes")
+            .ToList();
+
+        if (voteEntries.Count == 0)
+        {
+            return;
+        }
+
+        var existingUserIds = await _context.Posts
+            .AsNoTracking()
+            .Where(p => p.Id == post.Id)
+            .SelectMany(p => p.Votes.Select(v => v.UserId))
+            .ToListAsync(cancellationToken);
+
+        var existingSet = existingUserIds.ToHashSet();
+        foreach (var entry in voteEntries)
+        {
+            var userId = entry.Entity.UserId;
+            if (!existingSet.Contains(userId))
+            {
+                entry.State = EntityState.Added;
+            }
+        }
     }
 
     public Task DeleteAsync(Post post, CancellationToken cancellationToken = default)
@@ -144,6 +178,7 @@ public sealed class PostRepository : IPostRepository
         Guid? categoryId = null,
         int? type = null,
         int? status = null,
+        int sortBy = 0,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Posts.AsQueryable();
@@ -169,8 +204,11 @@ public sealed class PostRepository : IPostRepository
         var totalCount = await query.CountAsync(cancellationToken);
 
         // Apply pagination and ordering
-        var items = await query
-            .OrderByDescending(p => p.CreatedAt)
+        var orderedQuery = sortBy == 1
+            ? query.OrderByDescending(p => p.IsPinned).ThenByDescending(p => p.VoteScore).ThenByDescending(p => p.CreatedAt)
+            : query.OrderByDescending(p => p.IsPinned).ThenByDescending(p => p.CreatedAt);
+
+        var items = await orderedQuery
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
@@ -186,12 +224,38 @@ public sealed class PostRepository : IPostRepository
                 CategoryId = p.CategoryId.Value,
                 Tags = p.Tags.ToList(),
                 VoteScore = p.VoteScore,
-                CommentCount = 0, // TODO: Calculate from Comments table
+                CommentCount = 0,
                 IsPinned = p.IsPinned,
                 CreatedAt = p.CreatedAt,
                 UpdatedAt = p.UpdatedAt
             })
             .ToListAsync(cancellationToken);
+
+        // Batch-load comment counts via raw SQL.
+        // EF Core 10 cannot translate Contains/GroupBy on value-object-converted FK columns (PostId).
+        // EF.Property<Guid> also fails because CLR type is PostId, not Guid.
+        // Raw SQL with PostgreSQL ANY(@array) is the reliable alternative.
+        var postIdGuids = items.Select(p => p.Id).ToList();
+        var commentCounts = new Dictionary<Guid, int>();
+        if (postIdGuids.Count > 0)
+        {
+            var guidArray = postIdGuids.ToArray();
+            var rows = await _context.Database
+                .SqlQuery<CommentCountRow>($"""
+                    SELECT post_id AS "PostId", COUNT(*)::int AS "Count"
+                    FROM forum.comments
+                    WHERE post_id = ANY({guidArray})
+                    GROUP BY post_id
+                    """)
+                .ToListAsync(cancellationToken);
+            commentCounts = rows.ToDictionary(r => r.PostId, r => r.Count);
+        }
+
+        items = items
+            .Select(p => p with { CommentCount = commentCounts.GetValueOrDefault(p.Id, 0) })
+            .ToList();
+
+        await EnrichPostItemsAsync(items, cancellationToken);
 
         return new GetPostsResult
         {
@@ -215,6 +279,26 @@ public sealed class PostRepository : IPostRepository
             return null;
         }
 
+        var commentCount = await _context.Comments
+            .AsNoTracking()
+            .CountAsync(c => c.PostId == postId, cancellationToken);
+
+        string? categoryName = null;
+        if (post.CategoryId.HasValue)
+        {
+            categoryName = await _context.Categories
+                .AsNoTracking()
+                .Where(c => c.Id == CategoryId.Create(post.CategoryId.Value))
+                .Select(c => c.Name.Value)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        var authorMap = await DisplayNameLookup.LoadAuthorNamesAsync(
+            _context,
+            new[] { post.AuthorId },
+            cancellationToken);
+        authorMap.TryGetValue(post.AuthorId, out var authorName);
+
         var result = new PostDetailResult
         {
             Id = post.Id.Value,
@@ -225,9 +309,11 @@ public sealed class PostRepository : IPostRepository
             Status = (int)post.Status,
             AuthorId = post.AuthorId,
             CategoryId = post.CategoryId.Value,
+            CategoryName = categoryName,
+            AuthorName = authorName,
             Tags = post.Tags.ToList(),
             VoteScore = post.VoteScore,
-            CommentCount = 0, // TODO: Calculate from Comments table
+            CommentCount = commentCount,
             IsPinned = post.IsPinned,
             CreatedAt = post.CreatedAt,
             UpdatedAt = post.UpdatedAt
@@ -235,4 +321,35 @@ public sealed class PostRepository : IPostRepository
 
         return result;
     }
+
+    private async Task EnrichPostItemsAsync(List<PostItem> items, CancellationToken cancellationToken)
+    {
+        if (items.Count == 0)
+        {
+            return;
+        }
+
+        var catIds = items
+            .Select(i => i.CategoryId)
+            .Where(id => id.HasValue)
+            .Select(id => id!.Value)
+            .Distinct()
+            .ToList();
+        var authorIds = items.Select(i => i.AuthorId).Distinct().ToList();
+
+        var catMap = await DisplayNameLookup.LoadCategoryNamesAsync(_context, catIds, cancellationToken);
+        var authorMap = await DisplayNameLookup.LoadAuthorNamesAsync(_context, authorIds, cancellationToken);
+
+        for (var i = 0; i < items.Count; i++)
+        {
+            var p = items[i];
+            var cn = p.CategoryId.HasValue && catMap.TryGetValue(p.CategoryId.Value, out var cname)
+                ? cname
+                : null;
+            var an = authorMap.TryGetValue(p.AuthorId, out var aname) ? aname : null;
+            items[i] = p with { CategoryName = cn, AuthorName = an };
+        }
+    }
+
+    private sealed record CommentCountRow(Guid PostId, int Count);
 }

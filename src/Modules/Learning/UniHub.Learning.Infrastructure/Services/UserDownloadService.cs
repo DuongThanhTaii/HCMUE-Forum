@@ -23,8 +23,8 @@ internal sealed class UserDownloadService : IUserDownloadService
         CancellationToken cancellationToken = default)
     {
         var sql = @"
-            SELECT COUNT(1) 
-            FROM learning.user_document_downloads 
+            SELECT COUNT(1) AS ""Value""
+            FROM user_document_downloads
             WHERE user_id = {0} AND document_id = {1}";
 
         var count = await _context.Database
@@ -47,7 +47,7 @@ internal sealed class UserDownloadService : IUserDownloadService
         }
 
         var sql = @"
-            INSERT INTO learning.user_document_downloads (user_id, document_id, downloaded_at)
+            INSERT INTO user_document_downloads (user_id, document_id, downloaded_at)
             VALUES ({0}, {1}, {2})
             ON CONFLICT (user_id, document_id) DO NOTHING";
 

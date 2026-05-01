@@ -7,6 +7,7 @@ import { ModLayout } from '@shared/components/layouts/ModLayout';
 import { AdminLayout } from '@shared/components/layouts/AdminLayout';
 import { ForumListPage } from '@features/forum/components/ForumListPage';
 import { ForumDetailPage } from '@features/forum/components/ForumDetailPage';
+import { HomePage } from '@features/forum/components/HomePage';
 import { Placeholder } from './components/Placeholder';
 import { LearningDocumentsPage } from '@features/learning/components/LearningDocumentsPage';
 import { LearningDocumentDetailPage } from '@features/learning/components/LearningDocumentDetailPage';
@@ -22,37 +23,46 @@ import { AdminTogglesPage } from '@features/admin/observability/components/Admin
 import { AdminActionLogsPage } from '@features/admin/observability/components/AdminActionLogsPage';
 import { AdminAuditLogsPage } from '@features/admin/observability/components/AdminAuditLogsPage';
 
+/**
+ * Single root `path: '/'` tree so `/home`, `/login`, and `navigate('/home')` resolve reliably.
+ * Multiple sibling `{ path: '/' }` route objects confused matching for nested paths in RR 6/7.
+ */
 export const appRoutes = [
-  { path: '/', element: <Navigate to="/forum" replace /> },
-  { path: '/home', element: <Navigate to="/forum" replace /> },
   {
     path: '/',
-    element: <AuthLayout />,
     children: [
-      { path: 'login', element: <LoginPage /> },
-      { path: 'register', element: <RegisterPage /> },
-    ],
-  },
-  {
-    path: '/',
-    element: <MainLayout />,
-    children: [
+      { index: true, element: <Navigate to="/home" replace /> },
       {
-        path: 'learning/documents/:id',
-        element: <LearningDocumentDetailPage />,
+        path: 'login',
+        element: <AuthLayout />,
+        children: [{ index: true, element: <LoginPage /> }],
       },
-      { path: 'learning/documents', element: <LearningDocumentsPage /> },
-      { path: 'learning/faculties', element: <LearningFacultiesPage /> },
-      { path: 'learning/courses', element: <LearningCoursesPage /> },
       {
-        element: <RequireAuth />,
+        path: 'register',
+        element: <AuthLayout />,
+        children: [{ index: true, element: <RegisterPage /> }],
+      },
+      {
+        element: <MainLayout />,
         children: [
-          { path: 'home', element: <Placeholder titleKey="placeholders.main.home" /> },
-          { path: 'forum', element: <ForumListPage /> },
-          { path: 'forum/:id', element: <ForumDetailPage /> },
-          { path: 'career/jobs', element: <CareerJobsPage /> },
-          { path: 'chat', element: <Placeholder titleKey="placeholders.main.chat" /> },
-          { path: 'chat/ai', element: <Placeholder titleKey="placeholders.main.aiAssistant" /> },
+          {
+            path: 'learning/documents/:id',
+            element: <LearningDocumentDetailPage />,
+          },
+          { path: 'learning/documents', element: <LearningDocumentsPage /> },
+          { path: 'learning/faculties', element: <LearningFacultiesPage /> },
+          { path: 'learning/courses', element: <LearningCoursesPage /> },
+          { path: 'home', element: <HomePage /> },
+          {
+            element: <RequireAuth />,
+            children: [
+              { path: 'forum', element: <ForumListPage /> },
+              { path: 'forum/:id', element: <ForumDetailPage /> },
+              { path: 'career/jobs', element: <CareerJobsPage /> },
+              { path: 'chat', element: <Placeholder titleKey="placeholders.main.chat" /> },
+              { path: 'chat/ai', element: <Placeholder titleKey="placeholders.main.aiAssistant" /> },
+            ],
+          },
         ],
       },
     ],

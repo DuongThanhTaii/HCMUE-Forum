@@ -32,4 +32,7 @@ public sealed record DocumentDetailResponse(
     DateTime CreatedAt,
     DateTime? UpdatedAt,
     DateTime? SubmittedAt,
-    DateTime? ReviewedAt);
+    DateTime? ReviewedAt,
+    string? UploaderDisplayName,
+    string? CourseName,
+    string? ReviewerDisplayName);

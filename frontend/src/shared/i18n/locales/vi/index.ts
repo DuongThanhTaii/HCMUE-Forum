@@ -5,6 +5,7 @@ import footer from './footer.json';
 import auth from './auth.json';
 import components from './components.json';
 import forum from './forum.json';
+import home from './home.json';
 import learning from './learning.json';
 import career from './career.json';
 import chat from './chat.json';
@@ -22,6 +23,7 @@ const vi = {
   auth,
   components,
   forum,
+  home,
   learning,
   career,
   chat,

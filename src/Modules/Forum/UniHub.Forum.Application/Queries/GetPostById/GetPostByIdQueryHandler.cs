@@ -11,10 +11,14 @@ namespace UniHub.Forum.Application.Queries.GetPostById;
 public sealed class GetPostByIdQueryHandler : IQueryHandler<GetPostByIdQuery, PostDetailResult?>
 {
     private readonly IPostRepository _postRepository;
+    private readonly IBookmarkRepository _bookmarkRepository;
 
-    public GetPostByIdQueryHandler(IPostRepository postRepository)
+    public GetPostByIdQueryHandler(
+        IPostRepository postRepository,
+        IBookmarkRepository bookmarkRepository)
     {
         _postRepository = postRepository;
+        _bookmarkRepository = bookmarkRepository;
     }
 
     public async Task<Result<PostDetailResult?>> Handle(
@@ -27,10 +31,26 @@ public sealed class GetPostByIdQueryHandler : IQueryHandler<GetPostByIdQuery, Po
                 new Error("GetPostById.InvalidId", "Post ID cannot be empty"));
         }
 
+        var postIdVo = new PostId(request.PostId);
         var result = await _postRepository.GetPostDetailsAsync(
-            new PostId(request.PostId),
+            postIdVo,
             cancellationToken);
 
-        return Result.Success(result);
+        if (result is null)
+        {
+            return Result.Success(result);
+        }
+
+        var isBookmarked = false;
+        if (request.CurrentUserId is { } userId)
+        {
+            var bookmark = await _bookmarkRepository.GetByUserAndPostAsync(
+                userId,
+                postIdVo,
+                cancellationToken);
+            isBookmarked = bookmark is not null;
+        }
+
+        return Result.Success(result with { IsBookmarkedByCurrentUser = isBookmarked });
     }
 }

@@ -57,7 +57,8 @@ public interface IPostRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets a paginated list of posts with optional filtering
+    /// Gets a paginated list of posts with optional filtering.
+    /// sortBy: 0 = newest, 1 = top (VoteScore desc)
     /// </summary>
     Task<Queries.GetPosts.GetPostsResult> GetPostsAsync(
         int pageNumber = 1,
@@ -65,6 +66,7 @@ public interface IPostRepository
         Guid? categoryId = null,
         int? type = null,
         int? status = null,
+        int sortBy = 0,
         CancellationToken cancellationToken = default);
 
     /// <summary>

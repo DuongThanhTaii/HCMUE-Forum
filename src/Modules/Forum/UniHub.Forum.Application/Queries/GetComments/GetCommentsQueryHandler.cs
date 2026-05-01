@@ -44,6 +44,7 @@ public sealed class GetCommentsQueryHandler : IQueryHandler<GetCommentsQuery, Ge
 
         var result = await _commentRepository.GetCommentsByPostIdAsync(
             new PostId(request.PostId),
+            request.CurrentUserId,
             request.PageNumber,
             request.PageSize,
             cancellationToken);

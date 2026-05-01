@@ -1610,41 +1610,6 @@ namespace UniHub.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UniHub.Career.Domain.JobPostings.JobPosting", b =>
                 {
-                    b.OwnsOne("UniHub.Career.Domain.JobPostings.SalaryRange", "Salary", b1 =>
-                        {
-                            b1.Property<Guid>("JobPostingId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(10)
-                                .HasColumnType("character varying(10)")
-                                .HasColumnName("salary_currency");
-
-                            b1.Property<decimal>("MaxAmount")
-                                .HasPrecision(18, 2)
-                                .HasColumnType("numeric(18,2)")
-                                .HasColumnName("salary_max_amount");
-
-                            b1.Property<decimal>("MinAmount")
-                                .HasPrecision(18, 2)
-                                .HasColumnType("numeric(18,2)")
-                                .HasColumnName("salary_min_amount");
-
-                            b1.Property<string>("Period")
-                                .IsRequired()
-                                .HasMaxLength(20)
-                                .HasColumnType("character varying(20)")
-                                .HasColumnName("salary_period");
-
-                            b1.HasKey("JobPostingId");
-
-                            b1.ToTable("job_postings", "career");
-
-                            b1.WithOwner()
-                                .HasForeignKey("JobPostingId");
-                        });
-
                     b.OwnsOne("UniHub.Career.Domain.JobPostings.WorkLocation", "Location", b1 =>
                         {
                             b1.Property<Guid>("JobPostingId")
@@ -1671,6 +1636,41 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                                 .HasColumnType("boolean")
                                 .HasDefaultValue(false)
                                 .HasColumnName("location_is_remote");
+
+                            b1.HasKey("JobPostingId");
+
+                            b1.ToTable("job_postings", "career");
+
+                            b1.WithOwner()
+                                .HasForeignKey("JobPostingId");
+                        });
+
+                    b.OwnsOne("UniHub.Career.Domain.JobPostings.SalaryRange", "Salary", b1 =>
+                        {
+                            b1.Property<Guid>("JobPostingId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(10)
+                                .HasColumnType("character varying(10)")
+                                .HasColumnName("salary_currency");
+
+                            b1.Property<decimal>("MaxAmount")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("numeric(18,2)")
+                                .HasColumnName("salary_max_amount");
+
+                            b1.Property<decimal>("MinAmount")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("numeric(18,2)")
+                                .HasColumnName("salary_min_amount");
+
+                            b1.Property<string>("Period")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("salary_period");
 
                             b1.HasKey("JobPostingId");
 
@@ -1853,28 +1853,6 @@ namespace UniHub.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UniHub.Forum.Domain.Categories.Category", b =>
                 {
-                    b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.Slug", "Slug", b1 =>
-                        {
-                            b1.Property<Guid>("CategoryId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(250)
-                                .HasColumnType("character varying(250)")
-                                .HasColumnName("slug");
-
-                            b1.HasKey("CategoryId");
-
-                            b1.HasIndex("Value")
-                                .IsUnique();
-
-                            b1.ToTable("categories", "forum");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CategoryId");
-                        });
-
                     b.OwnsOne("UniHub.Forum.Domain.Categories.ValueObjects.CategoryDescription", "Description", b1 =>
                         {
                             b1.Property<Guid>("CategoryId")
@@ -1904,6 +1882,28 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                                 .HasMaxLength(100)
                                 .HasColumnType("character varying(100)")
                                 .HasColumnName("name");
+
+                            b1.HasKey("CategoryId");
+
+                            b1.HasIndex("Value")
+                                .IsUnique();
+
+                            b1.ToTable("categories", "forum");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CategoryId");
+                        });
+
+                    b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.Slug", "Slug", b1 =>
+                        {
+                            b1.Property<Guid>("CategoryId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(250)
+                                .HasColumnType("character varying(250)")
+                                .HasColumnName("slug");
 
                             b1.HasKey("CategoryId");
 
@@ -1985,6 +1985,25 @@ namespace UniHub.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UniHub.Forum.Domain.Posts.Post", b =>
                 {
+                    b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.PostContent", "Content", b1 =>
+                        {
+                            b1.Property<Guid>("PostId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(50000)
+                                .HasColumnType("character varying(50000)")
+                                .HasColumnName("content");
+
+                            b1.HasKey("PostId");
+
+                            b1.ToTable("posts", "forum");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PostId");
+                        });
+
                     b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.Slug", "Slug", b1 =>
                         {
                             b1.Property<Guid>("PostId")
@@ -2000,25 +2019,6 @@ namespace UniHub.Infrastructure.Persistence.Migrations
 
                             b1.HasIndex("Value")
                                 .IsUnique();
-
-                            b1.ToTable("posts", "forum");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PostId");
-                        });
-
-                    b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.PostContent", "Content", b1 =>
-                        {
-                            b1.Property<Guid>("PostId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(50000)
-                                .HasColumnType("character varying(50000)")
-                                .HasColumnName("content");
-
-                            b1.HasKey("PostId");
 
                             b1.ToTable("posts", "forum");
 
@@ -2089,28 +2089,6 @@ namespace UniHub.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UniHub.Forum.Domain.Tags.Tag", b =>
                 {
-                    b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.Slug", "Slug", b1 =>
-                        {
-                            b1.Property<int>("TagId")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(250)
-                                .HasColumnType("character varying(250)")
-                                .HasColumnName("slug");
-
-                            b1.HasKey("TagId");
-
-                            b1.HasIndex("Value")
-                                .IsUnique();
-
-                            b1.ToTable("tags", "forum");
-
-                            b1.WithOwner()
-                                .HasForeignKey("TagId");
-                        });
-
                     b.OwnsOne("UniHub.Forum.Domain.Tags.ValueObjects.TagDescription", "Description", b1 =>
                         {
                             b1.Property<int>("TagId")
@@ -2140,6 +2118,28 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                                 .HasMaxLength(50)
                                 .HasColumnType("character varying(50)")
                                 .HasColumnName("name");
+
+                            b1.HasKey("TagId");
+
+                            b1.HasIndex("Value")
+                                .IsUnique();
+
+                            b1.ToTable("tags", "forum");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TagId");
+                        });
+
+                    b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.Slug", "Slug", b1 =>
+                        {
+                            b1.Property<int>("TagId")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(250)
+                                .HasColumnType("character varying(250)")
+                                .HasColumnName("slug");
 
                             b1.HasKey("TagId");
 
@@ -2207,28 +2207,6 @@ namespace UniHub.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UniHub.Identity.Domain.Users.User", b =>
                 {
-                    b.OwnsOne("UniHub.Identity.Domain.Users.ValueObjects.Email", "Email", b1 =>
-                        {
-                            b1.Property<Guid>("UserId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(256)
-                                .HasColumnType("character varying(256)")
-                                .HasColumnName("email");
-
-                            b1.HasKey("UserId");
-
-                            b1.HasIndex("Value")
-                                .IsUnique();
-
-                            b1.ToTable("users", "identity");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserId");
-                        });
-
                     b.OwnsOne("UniHub.Identity.Domain.Users.ValueObjects.OfficialBadge", "Badge", b1 =>
                         {
                             b1.Property<Guid>("UserId")
@@ -2260,6 +2238,28 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                                 .HasColumnName("badge_verified_by");
 
                             b1.HasKey("UserId");
+
+                            b1.ToTable("users", "identity");
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserId");
+                        });
+
+                    b.OwnsOne("UniHub.Identity.Domain.Users.ValueObjects.Email", "Email", b1 =>
+                        {
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(256)
+                                .HasColumnType("character varying(256)")
+                                .HasColumnName("email");
+
+                            b1.HasKey("UserId");
+
+                            b1.HasIndex("Value")
+                                .IsUnique();
 
                             b1.ToTable("users", "identity");
 
