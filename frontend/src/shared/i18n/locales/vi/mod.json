@@ -1,5 +1,9 @@
 {
   "layout": {
-    "title": "Khu vực kiểm duyệt"
+    "title": "Khu vực kiểm duyệt",
+    "home": "Trang chủ",
+    "forum": "Diễn đàn",
+    "reports": "Báo cáo",
+    "pendingPosts": "Bài chờ duyệt"
   }
 }

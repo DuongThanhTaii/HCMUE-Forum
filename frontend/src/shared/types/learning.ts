@@ -57,6 +57,24 @@ export type CourseListItem = {
   documentCount: number
 }
 
+/** GET /api/v1/courses paged envelope */
+export type PagedCoursesResult = {
+  items: CourseListItem[]
+  page: number
+  pageSize: number
+  totalCount: number
+  totalPages: number
+}
+
+/** GET /api/v1/courses paged envelope */
+export type PagedCoursesResult = {
+  items: CourseListItem[]
+  page: number
+  pageSize: number
+  totalCount: number
+  totalPages: number
+}
+
 export type DocumentDetail = {
   id: string
   title: string

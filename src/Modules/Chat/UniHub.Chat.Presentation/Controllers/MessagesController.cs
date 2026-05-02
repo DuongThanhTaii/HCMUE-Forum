@@ -2,9 +2,13 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.StaticFiles;
 using System.Security.Claims;
 using UniHub.Contracts;
 using UniHub.Chat.Application.Commands.AddReaction;
+using UniHub.Chat.Application.Commands.DeleteMessage;
+using UniHub.Chat.Application.Commands.EditMessage;
 using UniHub.Chat.Application.Commands.MarkMessageAsRead;
 using UniHub.Chat.Application.Commands.RemoveReaction;
 using UniHub.Chat.Application.Commands.SendMessage;
@@ -12,6 +16,7 @@ using UniHub.Chat.Application.Commands.SendMessageWithAttachments;
 using UniHub.Chat.Application.Commands.UploadFile;
 using UniHub.Chat.Application.Queries.GetMessageReadReceipts;
 using UniHub.Chat.Application.Queries.GetMessages;
+using UniHub.Chat.Presentation.Hubs;
 
 namespace UniHub.Chat.Presentation.Controllers;
 
@@ -25,11 +30,15 @@ namespace UniHub.Chat.Presentation.Controllers;
 public class MessagesController : ControllerBase
 {
     private readonly ISender _sender;
+    private readonly IHubContext<ChatHub, IChatClient> _chatHub;
 
-    public MessagesController(ISender sender)
+    public MessagesController(ISender sender, IHubContext<ChatHub, IChatClient> chatHub)
     {
         _sender = sender;
+        _chatHub = chatHub;
     }
+
+    private static string ConversationGroupName(Guid conversationId) => $"conversation:{conversationId}";
 
     /// <summary>
     /// Get messages for a conversation with pagination
@@ -59,6 +68,92 @@ public class MessagesController : ControllerBase
         }
 
         return Ok(ApiResponses.Success(result.Value));
+    }
+
+    /// <summary>
+    /// Edit an existing message (sender only).
+    /// </summary>
+    [HttpPatch("{messageId:guid}")]
+    [ProducesResponseType(typeof(ApiResponse<EditMessageResult>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> EditMessage(
+        Guid messageId,
+        [FromBody] EditMessageRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetUserId();
+        var result = await _sender.Send(
+            new EditMessageCommand(messageId, userId, request.Content),
+            cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error.Code == "Message.NotFound")
+            {
+                return NotFound(ApiResponses.Failure(result.Error.Message));
+            }
+
+            if (result.Error.Code is "Message.NotSender" or "Message.CannotEditSystem" or "Message.AlreadyDeleted")
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
+            }
+
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
+        }
+
+        var v = result.Value;
+        await _chatHub.Clients.Group(ConversationGroupName(v.ConversationId))
+            .MessageEdited(new MessageEditedNotification(
+                v.MessageId,
+                v.ConversationId,
+                v.Content,
+                v.EditedAt));
+
+        return Ok(ApiResponses.Success(v));
+    }
+
+    /// <summary>
+    /// Soft-delete (recall) a message (sender only).
+    /// </summary>
+    [HttpDelete("{messageId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteMessage(
+        Guid messageId,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetUserId();
+        var result = await _sender.Send(
+            new DeleteMessageCommand(messageId, userId),
+            cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error.Code == "Message.NotFound")
+            {
+                return NotFound(ApiResponses.Failure(result.Error.Message));
+            }
+
+            if (result.Error.Code is "Message.NotSender" or "Message.CannotDeleteSystem" or "Message.AlreadyDeleted")
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
+            }
+
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
+        }
+
+        var v = result.Value;
+        await _chatHub.Clients.Group(ConversationGroupName(v.ConversationId))
+            .MessageDeleted(new MessageDeletedNotification(
+                v.MessageId,
+                v.ConversationId,
+                v.DeletedAt));
+
+        return Ok(ApiResponses.Success(v));
     }
 
     /// <summary>
@@ -119,7 +214,7 @@ public class MessagesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UploadFile(
-        IFormFile file,
+        [FromForm] IFormFile file,
         CancellationToken cancellationToken = default)
     {
         if (file == null || file.Length == 0)
@@ -129,12 +224,26 @@ public class MessagesController : ControllerBase
 
         var userId = GetUserId();
 
+        var contentType = file.ContentType?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(contentType))
+        {
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(file.FileName, out var inferred) ||
+                string.IsNullOrWhiteSpace(inferred))
+            {
+                return BadRequest(
+                    ApiResponses.Failure("Could not determine content type; use a file with a known extension."));
+            }
+
+            contentType = inferred;
+        }
+
         using var stream = file.OpenReadStream();
 
         var command = new UploadFileCommand(
             file.FileName,
             stream,
-            file.ContentType,
+            contentType,
             file.Length,
             userId);
 
@@ -339,6 +448,11 @@ public class MessagesController : ControllerBase
         return Guid.Parse(userIdClaim!);
     }
 }
+
+/// <summary>
+/// Body for editing a message
+/// </summary>
+public record EditMessageRequest(string Content);
 
 /// <summary>
 /// Request to send a message

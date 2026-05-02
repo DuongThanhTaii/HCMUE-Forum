@@ -23,6 +23,268 @@ namespace UniHub.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("UniHub.AI.Domain.Entities.Conversation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("HandedOffToSupport")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("HandoffReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastActiveAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SessionId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("SupportAgentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsClosed");
+
+                    b.HasIndex("LastActiveAt");
+
+                    b.HasIndex("SessionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AIConversations", (string)null);
+                });
+
+            modelBuilder.Entity("UniHub.AI.Domain.Entities.ConversationMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<double?>("ConfidenceScore")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<Guid>("ConversationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool?>("IsHelpful")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("SourceFAQId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConversationId");
+
+                    b.HasIndex("Role");
+
+                    b.HasIndex("SentAt");
+
+                    b.HasIndex("SourceFAQId");
+
+                    b.ToTable("AIConversationMessages", (string)null);
+                });
+
+            modelBuilder.Entity("UniHub.AI.Domain.Entities.FAQItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasMaxLength(12000)
+                        .HasColumnType("character varying(12000)");
+
+                    b.Property<double?>("AverageRating")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UsageCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Priority");
+
+                    b.ToTable("AIFAQItems", (string)null);
+                });
+
+            modelBuilder.Entity("UniHub.AI.Domain.Entities.SearchHistory", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ClickedResultId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("HadClickthrough")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("NormalizedQuery")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<long>("ProcessingTimeMs")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Query")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int>("ResultCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SearchType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("SearchedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SessionId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedQuery");
+
+                    b.HasIndex("SearchType");
+
+                    b.HasIndex("SearchedAt");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AISearchHistories", (string)null);
+                });
+
+            modelBuilder.Entity("UniHub.AI.Domain.Entities.SummaryCacheEntry", b =>
+                {
+                    b.Property<string>("CacheKey")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("AccessCount")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("CompressionRatio")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DetectedLanguage")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("KeyPoints")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime?>("LastAccessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("OriginalLength")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(16000)
+                        .HasColumnType("character varying(16000)");
+
+                    b.Property<int>("SummaryLength")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TokensUsed")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CacheKey");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.ToTable("AISummaryCacheEntries", (string)null);
+                });
+
             modelBuilder.Entity("UniHub.Career.Domain.Applications.Application", b =>
                 {
                     b.Property<Guid>("Id")
@@ -726,6 +988,10 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("reporter_id");
 
+                    b.Property<int?>("ResolutionDecision")
+                        .HasColumnType("integer")
+                        .HasColumnName("resolution_decision");
+
                     b.Property<DateTime?>("ReviewedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("reviewed_at");
@@ -1045,6 +1311,12 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("email");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -1060,6 +1332,10 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasDatabaseName("IX_users_email");
 
                     b.ToTable("users", "identity");
                 });
@@ -1241,6 +1517,48 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                     b.HasIndex("UploaderId");
 
                     b.ToTable("documents", "learning");
+                });
+
+            modelBuilder.Entity("UniHub.Learning.Domain.EventSourcing.StoredEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AggregateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AggregateType")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("EventData")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("OccurredOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("StoredOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AggregateId");
+
+                    b.HasIndex("EventType");
+
+                    b.HasIndex("OccurredOn");
+
+                    b.ToTable("LearningStoredEvents", (string)null);
                 });
 
             modelBuilder.Entity("UniHub.Learning.Domain.Faculties.Faculty", b =>
@@ -1470,6 +1788,15 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                     b.ToTable("notifications", "notification");
                 });
 
+            modelBuilder.Entity("UniHub.AI.Domain.Entities.ConversationMessage", b =>
+                {
+                    b.HasOne("UniHub.AI.Domain.Entities.Conversation", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("UniHub.Career.Domain.Applications.Application", b =>
                 {
                     b.OwnsOne("UniHub.Career.Domain.Applications.CoverLetter", "CoverLetter", b1 =>
@@ -1610,41 +1937,6 @@ namespace UniHub.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UniHub.Career.Domain.JobPostings.JobPosting", b =>
                 {
-                    b.OwnsOne("UniHub.Career.Domain.JobPostings.WorkLocation", "Location", b1 =>
-                        {
-                            b1.Property<Guid>("JobPostingId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Address")
-                                .HasMaxLength(300)
-                                .HasColumnType("character varying(300)")
-                                .HasColumnName("location_address");
-
-                            b1.Property<string>("City")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("character varying(100)")
-                                .HasColumnName("location_city");
-
-                            b1.Property<string>("District")
-                                .HasMaxLength(100)
-                                .HasColumnType("character varying(100)")
-                                .HasColumnName("location_district");
-
-                            b1.Property<bool>("IsRemote")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("boolean")
-                                .HasDefaultValue(false)
-                                .HasColumnName("location_is_remote");
-
-                            b1.HasKey("JobPostingId");
-
-                            b1.ToTable("job_postings", "career");
-
-                            b1.WithOwner()
-                                .HasForeignKey("JobPostingId");
-                        });
-
                     b.OwnsOne("UniHub.Career.Domain.JobPostings.SalaryRange", "Salary", b1 =>
                         {
                             b1.Property<Guid>("JobPostingId")
@@ -1671,6 +1963,41 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                                 .HasMaxLength(20)
                                 .HasColumnType("character varying(20)")
                                 .HasColumnName("salary_period");
+
+                            b1.HasKey("JobPostingId");
+
+                            b1.ToTable("job_postings", "career");
+
+                            b1.WithOwner()
+                                .HasForeignKey("JobPostingId");
+                        });
+
+                    b.OwnsOne("UniHub.Career.Domain.JobPostings.WorkLocation", "Location", b1 =>
+                        {
+                            b1.Property<Guid>("JobPostingId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Address")
+                                .HasMaxLength(300)
+                                .HasColumnType("character varying(300)")
+                                .HasColumnName("location_address");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("location_city");
+
+                            b1.Property<string>("District")
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("location_district");
+
+                            b1.Property<bool>("IsRemote")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("boolean")
+                                .HasDefaultValue(false)
+                                .HasColumnName("location_is_remote");
 
                             b1.HasKey("JobPostingId");
 
@@ -1853,6 +2180,28 @@ namespace UniHub.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UniHub.Forum.Domain.Categories.Category", b =>
                 {
+                    b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.Slug", "Slug", b1 =>
+                        {
+                            b1.Property<Guid>("CategoryId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(250)
+                                .HasColumnType("character varying(250)")
+                                .HasColumnName("slug");
+
+                            b1.HasKey("CategoryId");
+
+                            b1.HasIndex("Value")
+                                .IsUnique();
+
+                            b1.ToTable("categories", "forum");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CategoryId");
+                        });
+
                     b.OwnsOne("UniHub.Forum.Domain.Categories.ValueObjects.CategoryDescription", "Description", b1 =>
                         {
                             b1.Property<Guid>("CategoryId")
@@ -1882,28 +2231,6 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                                 .HasMaxLength(100)
                                 .HasColumnType("character varying(100)")
                                 .HasColumnName("name");
-
-                            b1.HasKey("CategoryId");
-
-                            b1.HasIndex("Value")
-                                .IsUnique();
-
-                            b1.ToTable("categories", "forum");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CategoryId");
-                        });
-
-                    b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.Slug", "Slug", b1 =>
-                        {
-                            b1.Property<Guid>("CategoryId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(250)
-                                .HasColumnType("character varying(250)")
-                                .HasColumnName("slug");
 
                             b1.HasKey("CategoryId");
 
@@ -1985,25 +2312,6 @@ namespace UniHub.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UniHub.Forum.Domain.Posts.Post", b =>
                 {
-                    b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.PostContent", "Content", b1 =>
-                        {
-                            b1.Property<Guid>("PostId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(50000)
-                                .HasColumnType("character varying(50000)")
-                                .HasColumnName("content");
-
-                            b1.HasKey("PostId");
-
-                            b1.ToTable("posts", "forum");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PostId");
-                        });
-
                     b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.Slug", "Slug", b1 =>
                         {
                             b1.Property<Guid>("PostId")
@@ -2019,6 +2327,25 @@ namespace UniHub.Infrastructure.Persistence.Migrations
 
                             b1.HasIndex("Value")
                                 .IsUnique();
+
+                            b1.ToTable("posts", "forum");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PostId");
+                        });
+
+                    b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.PostContent", "Content", b1 =>
+                        {
+                            b1.Property<Guid>("PostId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(50000)
+                                .HasColumnType("character varying(50000)")
+                                .HasColumnName("content");
+
+                            b1.HasKey("PostId");
 
                             b1.ToTable("posts", "forum");
 
@@ -2089,6 +2416,28 @@ namespace UniHub.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UniHub.Forum.Domain.Tags.Tag", b =>
                 {
+                    b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.Slug", "Slug", b1 =>
+                        {
+                            b1.Property<int>("TagId")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(250)
+                                .HasColumnType("character varying(250)")
+                                .HasColumnName("slug");
+
+                            b1.HasKey("TagId");
+
+                            b1.HasIndex("Value")
+                                .IsUnique();
+
+                            b1.ToTable("tags", "forum");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TagId");
+                        });
+
                     b.OwnsOne("UniHub.Forum.Domain.Tags.ValueObjects.TagDescription", "Description", b1 =>
                         {
                             b1.Property<int>("TagId")
@@ -2118,28 +2467,6 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                                 .HasMaxLength(50)
                                 .HasColumnType("character varying(50)")
                                 .HasColumnName("name");
-
-                            b1.HasKey("TagId");
-
-                            b1.HasIndex("Value")
-                                .IsUnique();
-
-                            b1.ToTable("tags", "forum");
-
-                            b1.WithOwner()
-                                .HasForeignKey("TagId");
-                        });
-
-                    b.OwnsOne("UniHub.Forum.Domain.Posts.ValueObjects.Slug", "Slug", b1 =>
-                        {
-                            b1.Property<int>("TagId")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(250)
-                                .HasColumnType("character varying(250)")
-                                .HasColumnName("slug");
 
                             b1.HasKey("TagId");
 
@@ -2245,28 +2572,6 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("UserId");
                         });
 
-                    b.OwnsOne("UniHub.Identity.Domain.Users.ValueObjects.Email", "Email", b1 =>
-                        {
-                            b1.Property<Guid>("UserId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(256)
-                                .HasColumnType("character varying(256)")
-                                .HasColumnName("email");
-
-                            b1.HasKey("UserId");
-
-                            b1.HasIndex("Value")
-                                .IsUnique();
-
-                            b1.ToTable("users", "identity");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserId");
-                        });
-
                     b.OwnsOne("UniHub.Identity.Domain.Users.ValueObjects.UserProfile", "Profile", b1 =>
                         {
                             b1.Property<Guid>("UserId")
@@ -2312,9 +2617,6 @@ namespace UniHub.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("Badge");
-
-                    b.Navigation("Email")
-                        .IsRequired();
 
                     b.Navigation("Profile")
                         .IsRequired();
@@ -2792,6 +3094,11 @@ namespace UniHub.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Metadata")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("UniHub.AI.Domain.Entities.Conversation", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("UniHub.Identity.Domain.Roles.Role", b =>

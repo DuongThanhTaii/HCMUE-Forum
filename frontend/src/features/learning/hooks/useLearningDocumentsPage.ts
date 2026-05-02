@@ -85,9 +85,10 @@ export function useLearningDocumentsPage() {
   }, [setSearchParams])
 
   const { data: faculties = [], isLoading: loadingFaculties } = useGetFacultiesQuery()
-  const { data: courses = [], isLoading: loadingCourses } = useGetCoursesQuery(
-    facultyId ? { facultyId } : undefined,
+  const { data: coursesPaged, isLoading: loadingCourses } = useGetCoursesQuery(
+    facultyId ? { facultyId, page: 1, pageSize: 200 } : undefined,
   )
+  const courses = useMemo(() => coursesPaged?.items ?? [], [coursesPaged])
 
   useEffect(() => {
     if (!courseId) return

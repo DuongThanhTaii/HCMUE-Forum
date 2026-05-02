@@ -3,6 +3,16 @@ using UniHub.SharedKernel.CQRS;
 namespace UniHub.Chat.Application.Queries.GetMessages;
 
 /// <summary>
+/// File attachment in a message (for images, voice, documents).
+/// </summary>
+public sealed record AttachmentResponse(
+    string FileName,
+    string FileUrl,
+    long FileSize,
+    string MimeType,
+    string? ThumbnailUrl);
+
+/// <summary>
 /// Response for a message
 /// </summary>
 public sealed record MessageResponse(
@@ -15,7 +25,9 @@ public sealed record MessageResponse(
     DateTime? EditedAt,
     bool IsDeleted,
     Guid? ReplyToMessageId,
-    Dictionary<string, List<Guid>> Reactions);
+    Dictionary<string, List<Guid>> Reactions,
+    IReadOnlyList<AttachmentResponse> Attachments,
+    string? SenderDisplayName);
 
 /// <summary>
 /// Query to get messages for a conversation

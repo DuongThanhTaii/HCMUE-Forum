@@ -58,5 +58,72 @@
     "reconnecting": "Reconnecting...",
     "disconnected": "Disconnected",
     "connectionFailed": "Failed to connect to chat server"
+  },
+  "channelHistoryNotice": "REST history for channels is not wired yet. Messages here are live-only until the backend links channels to conversations.",
+  "channelEmptyLive": "No messages yet. Say hello!",
+  "mobile": {
+    "back": "Back"
+  },
+  "dm": {
+    "search": "Start a direct message",
+    "searchPlaceholder": "Search by name or email…",
+    "createError": "Could not start conversation",
+    "newChat": "New message",
+    "closePicker": "Close dialog",
+    "searchHint": "Type at least 2 characters to search people.",
+    "typeToSearch": "Type at least 2 letters to search.",
+    "noResults": "No one matches that search.",
+    "directChat": "Direct message"
+  },
+  "thread": {
+    "noMessagesYet": "No messages yet. Send the first one below.",
+    "pickConversation": "Select a chat on the left, or use “New message” to find someone."
+  },
+  "notifications": {
+    "enable": "Enable browser notifications"
+  },
+  "dock": {
+    "open": "Open chat dock",
+    "backToList": "Back to conversation list",
+    "emptyConversations": "No conversations yet.",
+    "minimize": "Minimize dock",
+    "expandFull": "Open full chat page",
+    "hint": "Use the full chat page for threads, attachments, and voice notes.",
+    "hintShort": "Open the full page to read threads, send files, and record voice messages.",
+    "openFullCta": "Open full messages"
+  },
+  "message": {
+    "actions": "Message actions",
+    "edit": "Edit",
+    "unsend": "Unsend",
+    "saveEdit": "Save",
+    "confirmUnsend": "Remove this message for everyone?",
+    "removedSelf": "You unsent a message",
+    "removedOther": "This message was removed",
+    "editedLabel": "Edited"
+  },
+  "outbox": {
+    "full": "Too many messages queued offline. Try again when online."
+  },
+  "voice": {
+    "start": "Voice note",
+    "stop": "Stop",
+    "discard": "Discard",
+    "recording": "Recording",
+    "preview": "Voice note ready",
+    "send": "Send",
+    "empty": "Recording was empty. Please try again.",
+    "play": "Play voice message",
+    "pause": "Pause",
+    "messageBubble": "Voice message",
+    "loadError": "Could not load audio (check server static files / URL)"
+  },
+  "uploadNeedLogin": "Sign in to upload files and voice notes (API requires a token).",
+  "calls": {
+    "voice": "Voice call",
+    "video": "Video call",
+    "screen": "Share screen",
+    "comingSoon": "Coming soon",
+    "comingSoonDetail": "Calls, screen share, and video will use WebRTC and signaling in a later release. Voice notes and file upload work in this version."
   }
 }

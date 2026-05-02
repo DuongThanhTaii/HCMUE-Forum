@@ -6,6 +6,7 @@ using UniHub.Contracts;
 using UniHub.Learning.Application.Commands.CourseManagement;
 using UniHub.Learning.Application.Commands.ModeratorAssignment;
 using UniHub.Learning.Application.Queries.Courses.GetCourseById;
+using UniHub.Learning.Application.Queries.Courses.GetCourseSemesters;
 using UniHub.Learning.Application.Queries.Courses.GetCourses;
 using UniHub.Learning.Presentation.DTOs.Courses;
 
@@ -24,16 +25,39 @@ public class CoursesController : ControllerBase
     }
 
     /// <summary>
-    /// Get all courses with optional filtering
+    /// List courses with optional filtering and pagination
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<List<CourseListItemResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PagedCourseListResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCourses(
         [FromQuery] Guid? facultyId = null,
         [FromQuery] string? semester = null,
+        [FromQuery] string? searchTerm = null,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetCoursesQuery(facultyId, semester);
+        var query = new GetCoursesQuery(facultyId, semester, searchTerm, page, pageSize);
+        var result = await _sender.Send(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
+        }
+
+        return Ok(ApiResponses.Success(result.Value));
+    }
+
+    /// <summary>
+    /// Distinct semester values for filter dropdown (optional faculty scope).
+    /// </summary>
+    [HttpGet("semesters")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<string>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCourseSemesters(
+        [FromQuery] Guid? facultyId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetCourseSemestersQuery(facultyId);
         var result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)

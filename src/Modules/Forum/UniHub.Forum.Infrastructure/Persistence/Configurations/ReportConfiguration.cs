@@ -45,6 +45,10 @@ public class ReportConfiguration : IEntityTypeConfiguration<Report>
             .HasConversion<int>()
             .IsRequired();
 
+        builder.Property(r => r.ResolutionDecision)
+            .HasColumnName("resolution_decision")
+            .HasConversion<int?>();
+
         // Description (nullable)
         builder.Property(r => r.Description)
             .HasColumnName("description")

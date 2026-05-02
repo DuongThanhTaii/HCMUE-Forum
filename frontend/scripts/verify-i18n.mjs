@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -6,8 +6,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 
-const viPath = path.join(projectRoot, 'src', 'shared', 'i18n', 'vi.json');
-const enPath = path.join(projectRoot, 'src', 'shared', 'i18n', 'en.json');
+const viLocalesDir = path.join(projectRoot, 'src', 'shared', 'i18n', 'locales', 'vi');
+const enLocalesDir = path.join(projectRoot, 'src', 'shared', 'i18n', 'locales', 'en');
+
 const targetedFiles = [
   path.join(projectRoot, 'src', 'features', 'forum', 'components', 'ForumDetailPage.tsx'),
   path.join(projectRoot, 'src', 'features', 'forum', 'components', 'ForumListPage.tsx'),
@@ -19,8 +20,15 @@ const targetedFiles = [
   path.join(projectRoot, 'src', 'shared', 'components', 'layouts', 'AuthLayout.tsx'),
 ];
 
-function readJson(filePath) {
-  return JSON.parse(readFileSync(filePath, 'utf-8'));
+function loadLocaleBundle(localesDir) {
+  const bundle = {};
+  const files = readdirSync(localesDir).filter((f) => f.endsWith('.json'));
+  for (const file of files) {
+    const ns = path.basename(file, '.json');
+    const fullPath = path.join(localesDir, file);
+    bundle[ns] = JSON.parse(readFileSync(fullPath, 'utf-8'));
+  }
+  return bundle;
 }
 
 function flattenKeys(source, prefix = '') {
@@ -50,8 +58,8 @@ function checkDefaultValueDebt(files) {
   return offenders;
 }
 
-const vi = readJson(viPath);
-const en = readJson(enPath);
+const vi = loadLocaleBundle(viLocalesDir);
+const en = loadLocaleBundle(enLocalesDir);
 const viKeys = Array.from(new Set(flattenKeys(vi))).sort();
 const enKeys = Array.from(new Set(flattenKeys(en))).sort();
 const viSet = new Set(viKeys);
@@ -71,14 +79,14 @@ const hasError =
 if (hasError) {
   console.error('i18n verification failed.');
   if (missingInEn.length > 0) {
-    console.error('\nKeys missing in en.json:');
+    console.error('\nKeys missing in English locales (vs vi):');
     for (const key of missingInEn) {
       console.error(`- ${key}`);
     }
   }
 
   if (missingInVi.length > 0) {
-    console.error('\nKeys missing in vi.json:');
+    console.error('\nKeys missing in Vietnamese locales (vs en):');
     for (const key of missingInVi) {
       console.error(`- ${key}`);
     }

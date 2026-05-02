@@ -32,6 +32,7 @@ public sealed class Report : Entity<ReportId>
     public ReportReason Reason { get; private set; }
     public string? Description { get; private set; }
     public ReportStatus Status { get; private set; }
+    public ReportResolutionDecision? ResolutionDecision { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? ReviewedAt { get; private set; }
     public Guid? ReviewedBy { get; private set; }
@@ -93,17 +94,23 @@ public sealed class Report : Entity<ReportId>
         }
 
         Status = ReportStatus.UnderReview;
+        ResolutionDecision = null;
         ReviewedBy = reviewerId;
         ReviewedAt = DateTime.UtcNow;
 
         return Result.Success();
     }
 
-    public Result Resolve(Guid reviewerId)
+    public Result Resolve(Guid reviewerId, ReportResolutionDecision decision)
     {
         if (reviewerId == Guid.Empty)
         {
             return Result.Failure(ReportErrors.InvalidReviewerId);
+        }
+
+        if (!Enum.IsDefined(typeof(ReportResolutionDecision), decision))
+        {
+            return Result.Failure(ReportErrors.InvalidResolutionDecision);
         }
 
         if (Status == ReportStatus.Resolved)
@@ -117,6 +124,7 @@ public sealed class Report : Entity<ReportId>
         }
 
         Status = ReportStatus.Resolved;
+        ResolutionDecision = decision;
         ReviewedBy = reviewerId;
         ReviewedAt = DateTime.UtcNow;
 
@@ -141,6 +149,7 @@ public sealed class Report : Entity<ReportId>
         }
 
         Status = ReportStatus.Dismissed;
+        ResolutionDecision = null;
         ReviewedBy = reviewerId;
         ReviewedAt = DateTime.UtcNow;
 

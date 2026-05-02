@@ -32,6 +32,7 @@ public sealed class GetReportsQueryHandler : IQueryHandler<GetReportsQuery, GetR
             request.PageNumber,
             request.PageSize,
             request.Status,
+            request.ResolutionDecision,
             cancellationToken);
 
         var reportDtos = reports.Select(r => new ReportDto
@@ -43,6 +44,7 @@ public sealed class GetReportsQueryHandler : IQueryHandler<GetReportsQuery, GetR
             Reason = r.Reason,
             Description = r.Description,
             Status = r.Status,
+            ResolutionDecision = r.ResolutionDecision,
             CreatedAt = r.CreatedAt,
             ReviewedAt = r.ReviewedAt,
             ReviewedBy = r.ReviewedBy

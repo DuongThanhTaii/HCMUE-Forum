@@ -15,5 +15,9 @@ public sealed class GetReportsQueryValidator : AbstractValidator<GetReportsQuery
         RuleFor(x => x.Status)
             .IsInEnum().WithMessage("Invalid report status")
             .When(x => x.Status.HasValue);
+
+        RuleFor(x => x.ResolutionDecision)
+            .IsInEnum().WithMessage("Invalid report resolution decision")
+            .When(x => x.ResolutionDecision.HasValue);
     }
 }

@@ -67,6 +67,7 @@ public interface IPostRepository
         int? type = null,
         int? status = null,
         int sortBy = 0,
+        IReadOnlyList<Guid>? categoryIds = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>

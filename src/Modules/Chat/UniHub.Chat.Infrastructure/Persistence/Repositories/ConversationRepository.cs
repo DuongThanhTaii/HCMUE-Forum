@@ -10,6 +10,9 @@ namespace UniHub.Chat.Infrastructure.Persistence.Repositories;
 /// </summary>
 public sealed class ConversationRepository : IConversationRepository
 {
+    /// <summary>Backing field name for JSONB participants (must match EF configuration); use in LINQ instead of <see cref="Conversation.Participants"/>.</summary>
+    private const string ParticipantsBackingField = "_participants";
+
     private readonly ApplicationDbContext _context;
 
     public ConversationRepository(ApplicationDbContext context)
@@ -26,7 +29,8 @@ public sealed class ConversationRepository : IConversationRepository
     public async Task<IReadOnlyList<Conversation>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var conversations = await _context.Conversations
-            .Where(c => c.Participants.Contains(userId) && !c.IsArchived)
+            .Where(c =>
+                EF.Property<List<Guid>>(c, ParticipantsBackingField).Contains(userId) && !c.IsArchived)
             .OrderByDescending(c => c.LastMessageAt ?? c.CreatedAt)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
@@ -39,8 +43,8 @@ public sealed class ConversationRepository : IConversationRepository
         return await _context.Conversations
             .FirstOrDefaultAsync(c =>
                 c.Type == ConversationType.Direct &&
-                c.Participants.Contains(user1Id) &&
-                c.Participants.Contains(user2Id),
+                EF.Property<List<Guid>>(c, ParticipantsBackingField).Contains(user1Id) &&
+                EF.Property<List<Guid>>(c, ParticipantsBackingField).Contains(user2Id),
                 cancellationToken);
     }
 

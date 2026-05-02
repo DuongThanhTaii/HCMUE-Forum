@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UniHub.Chat.Application\UniHub.Chat.Application.csproj" />
+    <ProjectReference Include="..\..\Identity\UniHub.Identity.Domain\UniHub.Identity.Domain.csproj" />
     <ProjectReference Include="..\..\..\Shared\UniHub.Infrastructure\UniHub.Infrastructure.csproj" />
   </ItemGroup>
 

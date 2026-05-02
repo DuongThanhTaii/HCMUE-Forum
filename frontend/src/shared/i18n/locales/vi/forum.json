@@ -1,6 +1,36 @@
 {
   "title": "Diễn đàn",
-  "createPost": "Tạo bài viết",
+  "createPost": {
+    "pageTitle": "Tạo bài viết",
+    "title": "Đăng bài lên diễn đàn",
+    "subtitle": "Chọn danh mục và nhập nội dung — bài sẽ ở trạng thái chờ duyệt trước khi hiển thị công khai.",
+    "backToList": "Quay lại danh sách",
+    "submit": "Gửi bài",
+    "pendingNote": "Sau khi gửi, ban kiểm duyệt sẽ xem xét. Bạn có thể tiếp tục xem diễn đàn và các bài đã được duyệt.",
+    "noticeAttachments": "Đính kèm ảnh hoặc file trong bài viết diễn đàn hiện chưa được hỗ trợ (API chỉ nhận văn bản và danh sách thẻ).",
+    "noticeMentions": "Gắn thẻ người dùng (@username) và thông báo tự động hiện chưa có — có thể bổ sung sau khi có API người dùng và thông báo.",
+    "noticeChat": "Nhắn tin realtime giữa người dùng/nhóm: backend đã có module Chat và SignalR, nhưng trang /chat trên web vẫn là placeholder — UI tin nhắn chưa được nối vào.",
+    "fields": {
+      "title": "Tiêu đề",
+      "type": "Loại bài",
+      "category": "Danh mục",
+      "categoryPlaceholder": "— Chọn danh mục —",
+      "content": "Nội dung",
+      "tagPicker": "Thẻ — chọn gợi ý hoặc thêm tay",
+      "noSuggestedTags": "Chưa có thẻ gợi ý từ hệ thống. Bạn có thể thêm thẻ bên dưới.",
+      "addCustomTags": "Thêm thẻ khác (Enter để thêm từng thẻ)",
+      "addCustomTagsPlaceholder": "ví dụ: hoc-bu — Enter",
+      "removeTag": "Xóa thẻ"
+    },
+    "types": {
+      "discussion": "Thảo luận",
+      "question": "Hỏi đáp"
+    },
+    "validation": {
+      "required": "Vui lòng nhập đủ tiêu đề và nội dung.",
+      "submitFailed": "Không thể gửi bài. Vui lòng thử lại."
+    }
+  },
   "editPost": "Chỉnh sửa bài viết",
   "deletePost": "Xóa bài viết",
   "allPosts": "Tất cả bài viết",
@@ -104,7 +134,11 @@
   },
   "topbar": {
     "brand": "UniHub Forum",
-    "searchPlaceholder": "Tìm chủ đề..."
+    "searchPlaceholder": "Tìm chủ đề...",
+    "moderation": "Kiểm duyệt",
+    "admin": "Quản trị",
+    "backToForum": "Về diễn đàn",
+    "backHome": "Trang chủ"
   },
   "sidebar": {
     "sections": {
@@ -172,6 +206,42 @@
     "reportFailed": "Không thể gửi báo cáo lúc này.",
     "shareSuccess": "Đã sao chép liên kết bài viết.",
     "shareUnavailable": "Không thể sao chép liên kết trên trình duyệt hiện tại."
+  },
+  "mod": {
+    "reportsTitle": "Báo cáo kiểm duyệt",
+    "pendingPostsTitle": "Bài viết chờ duyệt",
+    "totalReports": "Tổng báo cáo",
+    "noReports": "Không có báo cáo ở trạng thái này.",
+    "noPendingPosts": "Hiện không có bài chờ duyệt.",
+    "targetDeleted": "[đã gỡ]",
+    "status": {
+      "pending": "Chờ xử lý",
+      "resolvedKeep": "Đã xử lý (Giữ lại)",
+      "resolvedRemove": "Đã xử lý (Gỡ bỏ)"
+    },
+    "columns": {
+      "type": "Loại",
+      "reason": "Lý do",
+      "preview": "Xem trước nội dung",
+      "createdAt": "Thời gian tạo",
+      "actions": "Thao tác",
+      "title": "Tiêu đề",
+      "author": "Tác giả",
+      "category": "Danh mục",
+      "comments": "Bình luận"
+    },
+    "actions": {
+      "keep": "Xử lý giữ lại",
+      "remove": "Xử lý gỡ bỏ",
+      "approve": "Duyệt & đăng"
+    },
+    "feedback": {
+      "loadFailed": "Không thể tải dữ liệu kiểm duyệt.",
+      "resolveSuccess": "Đã xử lý báo cáo thành công.",
+      "resolveFailed": "Không thể xử lý báo cáo.",
+      "approveSuccess": "Đã duyệt và đăng bài.",
+      "approveFailed": "Không thể duyệt bài lúc này."
+    }
   },
   "detail": {
     "fallbackTitle": "Chi tiết chủ đề",

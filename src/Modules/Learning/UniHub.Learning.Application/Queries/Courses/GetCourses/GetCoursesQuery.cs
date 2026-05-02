@@ -4,12 +4,25 @@ using UniHub.SharedKernel.Results;
 namespace UniHub.Learning.Application.Queries.Courses.GetCourses;
 
 /// <summary>
-/// Query to get all courses with optional filtering
+/// Query courses with optional filtering and pagination.
 /// </summary>
 public sealed record GetCoursesQuery(
     Guid? FacultyId = null,
-    string? Semester = null
-) : IRequest<Result<List<CourseListItemResponse>>>;
+    string? Semester = null,
+    string? SearchTerm = null,
+    int Page = 1,
+    int PageSize = 20
+) : IRequest<Result<PagedCourseListResponse>>;
+
+/// <summary>
+/// Paginated course list (same shape as other modules using page/pageSize).
+/// </summary>
+public sealed record PagedCourseListResponse(
+    IReadOnlyList<CourseListItemResponse> Items,
+    int Page,
+    int PageSize,
+    int TotalCount,
+    int TotalPages);
 
 /// <summary>
 /// Response for course list item

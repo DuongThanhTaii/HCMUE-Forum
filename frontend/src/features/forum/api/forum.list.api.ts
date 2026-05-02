@@ -95,6 +95,29 @@ type ReportPostRequest = {
   description?: string
 }
 
+export type ForumCategoryOption = {
+  id: string
+  name: string
+  description: string
+}
+
+export type ForumPopularTag = {
+  name: string
+  postCount: number
+}
+
+type CreatePostRequest = {
+  title: string
+  content: string
+  type: number
+  categoryId?: string | null
+  tags?: string[]
+}
+
+type CreatePostResponseData = {
+  postId?: string
+}
+
 /** Single cache key for post detail + mutations (GUID casing from URL vs API was breaking invalidation). */
 export function normalizeForumPostId(raw: string): string {
   if (typeof raw !== 'string') {
@@ -185,6 +208,80 @@ function toSafeForumCommentItem(comment: RawForumComment, postIdFallback: string
 
 export const forumListApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    getForumCategories: builder.query<ForumCategoryOption[], void>({
+      query: () => '/api/v1/categories',
+      transformResponse: (response: ApiSuccessEnvelope<{ categories?: unknown }>) => {
+        const raw = response?.data as { categories?: unknown[] } | undefined
+        const list = raw?.categories
+        if (!Array.isArray(list)) return []
+        return list
+          .map((c) => {
+            const row = c as { id?: string; name?: string; description?: string }
+            const id = typeof row.id === 'string' && row.id.trim() ? row.id.trim() : ''
+            if (!id) return null
+            return {
+              id,
+              name: row.name?.trim() || 'Category',
+              description: row.description?.trim() || '',
+            } satisfies ForumCategoryOption
+          })
+          .filter((x): x is ForumCategoryOption => x !== null)
+      },
+      providesTags: [{ type: 'ForumCategory' as const, id: 'LIST' }],
+    }),
+    createForumPost: builder.mutation<string, CreatePostRequest>({
+      query: (body) => ({
+        url: '/api/v1/posts',
+        method: 'POST',
+        body: {
+          title: body.title,
+          content: body.content,
+          type: body.type,
+          categoryId: body.categoryId || undefined,
+          tags: body.tags,
+        },
+      }),
+      transformResponse: (response: ApiSuccessEnvelope<CreatePostResponseData>) => {
+        const id = response?.data?.postId
+        if (typeof id === 'string' && id.trim()) return normalizeForumPostId(id)
+        return ''
+      },
+      invalidatesTags: [{ type: 'ForumPost', id: 'LIST' }],
+    }),
+    publishForumPost: builder.mutation<void, { postId: string }>({
+      query: ({ postId }) => {
+        const pid = normalizeForumPostId(postId)
+        return {
+          url: `/api/v1/posts/${pid}/publish`,
+          method: 'POST',
+        }
+      },
+      invalidatesTags: (_r, _e, { postId }) => [
+        { type: 'ForumPost', id: normalizeForumPostId(postId) },
+        { type: 'ForumPost', id: 'LIST' },
+        { type: 'ModerationPost', id: 'LIST' },
+      ],
+    }),
+    getPopularForumTags: builder.query<ForumPopularTag[], { count?: number } | void>({
+      query: (arg) => ({
+        url: '/api/v1/tags/popular',
+        params: { count: arg && typeof arg === 'object' ? (arg.count ?? 24) : 24 },
+      }),
+      transformResponse: (response: ApiSuccessEnvelope<unknown>) => {
+        const raw = response?.data
+        if (!Array.isArray(raw)) return []
+        return raw
+          .map((row) => {
+            const r = row as { name?: string; Name?: string; postCount?: number; PostCount?: number }
+            const name = (r.name ?? r.Name ?? '').trim()
+            if (!name) return null
+            const postCount = typeof r.postCount === 'number' ? r.postCount : Number(r.PostCount ?? 0) || 0
+            return { name, postCount } satisfies ForumPopularTag
+          })
+          .filter((x): x is ForumPopularTag => x !== null)
+      },
+      providesTags: [{ type: 'ForumTag' as const, id: 'POPULAR' }],
+    }),
     // FE vote value (1 up, 2 down) to score delta value (+1 / -1).
     // API currently returns current user vote as 1 or -1.
     // We normalize comment.currentUserVote to FE space (1 / 2 / 0).
@@ -394,4 +491,8 @@ export const {
   useBookmarkPostMutation,
   useUnbookmarkPostMutation,
   useReportPostMutation,
+  useGetForumCategoriesQuery,
+  useCreateForumPostMutation,
+  usePublishForumPostMutation,
+  useGetPopularForumTagsQuery,
 } = forumListApi

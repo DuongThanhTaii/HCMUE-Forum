@@ -62,6 +62,13 @@ internal sealed class CourseRepository : ICourseRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Course>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Courses
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<bool> ExistsByCodeAsync(string code, CancellationToken cancellationToken = default)
     {
         return await _context.Courses
@@ -80,5 +87,77 @@ internal sealed class CourseRepository : ICourseRepository
         return allCourses
             .Where(c => c.ModeratorIds.Contains(moderatorId))
             .ToList();
+    }
+
+    public async Task<(IReadOnlyList<Course> Items, int TotalCount)> SearchPagedAsync(
+        Guid? facultyId,
+        string? semester,
+        string? searchTerm,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var query = _context.Courses.AsNoTracking();
+
+        if (facultyId.HasValue)
+        {
+            query = query.Where(c => c.FacultyId == facultyId.Value);
+        }
+
+        var semesterFilter = semester?.Trim();
+        if (!string.IsNullOrEmpty(semesterFilter))
+        {
+            query = query.Where(c =>
+                EF.Functions.ILike(c.Semester.Value, semesterFilter));
+        }
+
+        var search = searchTerm?.Trim();
+        if (!string.IsNullOrEmpty(search))
+        {
+            var pattern = $"%{EscapeForLike(search)}%";
+            query = query.Where(c =>
+                EF.Functions.ILike(c.Name.Value, pattern) ||
+                EF.Functions.ILike(c.Code.Value, pattern));
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderBy(c => c.Code.Value)
+            .ThenBy(c => c.Name.Value)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
+
+    public async Task<IReadOnlyList<string>> GetDistinctSemestersAsync(
+        Guid? facultyId,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Courses.AsNoTracking();
+
+        if (facultyId.HasValue)
+        {
+            query = query.Where(c => c.FacultyId == facultyId.Value);
+        }
+
+        return await query
+            .Select(c => c.Semester.Value)
+            .Distinct()
+            .OrderBy(s => s)
+            .ToListAsync(cancellationToken);
+    }
+
+    private static string EscapeForLike(string value)
+    {
+        return value
+            .Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("%", "\\%", StringComparison.Ordinal)
+            .Replace("_", "\\_", StringComparison.Ordinal);
     }
 }

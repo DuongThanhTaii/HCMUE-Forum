@@ -7,44 +7,32 @@ namespace UniHub.Learning.Application.Queries.Courses.GetCourses;
 /// <summary>
 /// Handler for GetCoursesQuery
 /// </summary>
-internal sealed class GetCoursesQueryHandler : IRequestHandler<GetCoursesQuery, Result<List<CourseListItemResponse>>>
+internal sealed class GetCoursesQueryHandler : IRequestHandler<GetCoursesQuery, Result<PagedCourseListResponse>>
 {
     private readonly ICourseRepository _courseRepository;
-    private readonly IDocumentRepository _documentRepository;
 
-    public GetCoursesQueryHandler(
-        ICourseRepository courseRepository,
-        IDocumentRepository documentRepository)
+    public GetCoursesQueryHandler(ICourseRepository courseRepository)
     {
         _courseRepository = courseRepository;
-        _documentRepository = documentRepository;
     }
 
-    public async Task<Result<List<CourseListItemResponse>>> Handle(
+    public async Task<Result<PagedCourseListResponse>> Handle(
         GetCoursesQuery request,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<Domain.Courses.Course> courses;
+        var page = Math.Max(1, request.Page);
+        var pageSize = Math.Clamp(request.PageSize, 1, 100);
 
-        if (request.FacultyId.HasValue)
-        {
-            courses = await _courseRepository.GetByFacultyIdAsync(request.FacultyId.Value, cancellationToken);
-        }
-        else
-        {
-            // If no faculty filter, get all courses via faculty ID null check
-            // Note: This is a simplified approach. In production, add GetAllAsync method to ICourseRepository
-            courses = new List<Domain.Courses.Course>();
-        }
+        var (courses, totalCount) = await _courseRepository.SearchPagedAsync(
+            request.FacultyId,
+            request.Semester,
+            request.SearchTerm,
+            page,
+            pageSize,
+            cancellationToken);
 
-        var responses = new List<CourseListItemResponse>();
-
-        foreach (var course in courses)
-        {
-            // Get document count for this course
-            var documents = await _documentRepository.GetByCourseIdAsync(course.Id.Value, cancellationToken);
-            
-            responses.Add(new CourseListItemResponse(
+        var responses = courses
+            .Select(course => new CourseListItemResponse(
                 course.Id.Value,
                 course.Code,
                 course.Name,
@@ -53,10 +41,18 @@ internal sealed class GetCoursesQueryHandler : IRequestHandler<GetCoursesQuery, 
                 course.Credits,
                 course.FacultyId,
                 course.CreatedAt,
-                documents.Count
-            ));
-        }
+                course.DocumentCount))
+            .ToList();
 
-        return Result.Success(responses);
+        var totalPages = totalCount == 0
+            ? 0
+            : (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        return Result.Success(new PagedCourseListResponse(
+            responses,
+            page,
+            pageSize,
+            totalCount,
+            totalPages));
     }
 }

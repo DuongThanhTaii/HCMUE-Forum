@@ -42,6 +42,10 @@ export function ForumTopbar() {
 
   const displayName = auth.user?.fullName || auth.user?.email || 'User';
 
+  const normalizedRoles = (auth.user?.roles ?? []).map((r) => r.toLowerCase());
+  const showModerationLink = normalizedRoles.some((r) => r === 'moderator' || r === 'admin');
+  const showAdminLink = normalizedRoles.some((r) => r === 'admin');
+
   const onLogout = () => {
     dispatch(logout());
   };
@@ -91,7 +95,23 @@ export function ForumTopbar() {
             })}
           </nav>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+            {isAuthenticated && showModerationLink ? (
+              <Link
+                to="/mod/reports"
+                className="hidden rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-900 hover:bg-amber-100 sm:inline-flex"
+              >
+                {t('forum.topbar.moderation')}
+              </Link>
+            ) : null}
+            {isAuthenticated && showAdminLink ? (
+              <Link
+                to="/admin/users"
+                className="hidden rounded-md border border-slate-200 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50 sm:inline-flex"
+              >
+                {t('forum.topbar.admin')}
+              </Link>
+            ) : null}
             <LanguageSwitcher />
             <label className="flex h-8 items-center gap-2 rounded-md border border-slate-300 bg-white px-2 text-slate-500">
               <Search className="h-3.5 w-3.5" />

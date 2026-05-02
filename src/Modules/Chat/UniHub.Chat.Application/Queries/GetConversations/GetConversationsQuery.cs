@@ -11,7 +11,11 @@ public sealed record ConversationResponse(
     List<Guid> ParticipantIds,
     DateTime? LastMessageAt,
     DateTime CreatedAt,
-    bool IsArchived);
+    bool IsArchived,
+    string? Title,
+    Guid? DirectPeerUserId,
+    string? DirectPeerFullName,
+    string? DirectPeerEmail);
 
 /// <summary>
 /// Query to get all conversations for a user

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { startTransition, useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
@@ -66,7 +66,9 @@ export function useForumDetailPage() {
     skip: !id,
   })
   useEffect(() => {
-    setIsBookmarked(post?.isBookmarked === true)
+    startTransition(() => {
+      setIsBookmarked(post?.isBookmarked === true)
+    })
   }, [post?.isBookmarked])
   const { data: commentData = [], isLoading: isCommentsLoading } = useGetPostCommentsQuery(
     { postId: id, pageNumber: 1, pageSize: 30 },

@@ -16,6 +16,10 @@ public static class ReportErrors
         "Report.InvalidReviewerId",
         "Reviewer ID cannot be empty");
 
+    public static readonly Error InvalidResolutionDecision = new(
+        "Report.InvalidResolutionDecision",
+        "Resolution decision is required");
+
     public static readonly Error InvalidReason = new(
         "Report.InvalidReason",
         "Invalid report reason");
@@ -47,6 +51,10 @@ public static class ReportErrors
     public static readonly Error CannotDismissAfterResolve = new(
         "Report.CannotDismissAfterResolve",
         "Cannot dismiss a resolved report");
+
+    public static readonly Error ResolutionDecisionRequired = new(
+        "Report.ResolutionDecisionRequired",
+        "Resolved reports must include a resolution decision");
 
     public static readonly Error ReportNotFound = new(
         "Report.NotFound",

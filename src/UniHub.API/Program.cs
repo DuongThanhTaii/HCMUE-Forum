@@ -123,8 +123,7 @@ try
     builder.Services.AddLearningInfrastructure();
 
     // Add Chat module (repositories + SignalR with Redis backplane)
-    var chatBaseUrl = builder.Configuration["Chat:BaseUrl"] ?? "http://localhost:5000";
-    builder.Services.AddChatInfrastructure(baseUrl: chatBaseUrl);
+    builder.Services.AddChatInfrastructure();
     builder.Services.AddChatPresentation(builder.Configuration);
 
     // Add Career module
@@ -224,6 +223,9 @@ try
 
     // Use CORS
     app.UseCors("DefaultCorsPolicy");
+
+    // wwwroot/uploads/chat (and other public assets) — required for <audio>/<img> URLs returned by chat upload
+    app.UseStaticFiles();
 
     // Use rate limiting
     app.UseRateLimiter();

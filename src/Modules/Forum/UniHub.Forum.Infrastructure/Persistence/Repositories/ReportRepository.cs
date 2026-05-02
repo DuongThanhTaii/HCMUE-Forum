@@ -41,6 +41,7 @@ public sealed class ReportRepository : IReportRepository
         int pageNumber,
         int pageSize,
         ReportStatus? status = null,
+        ReportResolutionDecision? resolutionDecision = null,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Reports.AsQueryable();
@@ -49,6 +50,11 @@ public sealed class ReportRepository : IReportRepository
         if (status.HasValue)
         {
             query = query.Where(r => r.Status == status.Value);
+        }
+
+        if (resolutionDecision.HasValue)
+        {
+            query = query.Where(r => r.ResolutionDecision == resolutionDecision.Value);
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
