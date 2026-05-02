@@ -58,5 +58,72 @@
     "reconnecting": "Đang kết nối lại...",
     "disconnected": "Mất kết nối",
     "connectionFailed": "Không thể kết nối đến máy chủ chat"
+  },
+  "channelHistoryNotice": "Lịch sử kênh qua REST chưa được nối. Tin nhắn hiển thị ở đây là realtime tới khi backend gắn kênh với cuộc trò chuyện.",
+  "channelEmptyLive": "Chưa có tin nhắn. Chào một tiếng nhé!",
+  "mobile": {
+    "back": "Quay lại"
+  },
+  "dm": {
+    "search": "Nhắn riêng",
+    "searchPlaceholder": "Tìm theo tên hoặc email…",
+    "createError": "Không thể tạo cuộc trò chuyện",
+    "newChat": "Tin nhắn mới",
+    "closePicker": "Đóng hộp thoại",
+    "searchHint": "Gõ ít nhất 2 ký tự để tìm người.",
+    "typeToSearch": "Gõ ít nhất 2 chữ cái để tìm.",
+    "noResults": "Không tìm thấy người phù hợp.",
+    "directChat": "Nhắn trực tiếp"
+  },
+  "thread": {
+    "noMessagesYet": "Chưa có tin nhắn. Hãy gửi tin đầu tiên bên dưới.",
+    "pickConversation": "Chọn cuộc trò chuyện bên trái, hoặc bấm “Tin nhắn mới” để tìm người."
+  },
+  "notifications": {
+    "enable": "Bật thông báo trình duyệt"
+  },
+  "dock": {
+    "open": "Mở ô chat",
+    "backToList": "Về danh sách hội thoại",
+    "emptyConversations": "Chưa có cuộc trò chuyện nào.",
+    "minimize": "Thu nhỏ ô chat",
+    "expandFull": "Mở trang chat đầy đủ",
+    "hint": "Dùng trang chat đầy đủ cho hội thoại, file đính kèm và ghi âm.",
+    "hintShort": "Mở trang đầy đủ để xem cuộc trò chuyện, gửi file và ghi âm.",
+    "openFullCta": "Mở trang tin nhắn"
+  },
+  "message": {
+    "actions": "Thao tác tin nhắn",
+    "edit": "Chỉnh sửa",
+    "unsend": "Thu hồi",
+    "saveEdit": "Lưu",
+    "confirmUnsend": "Thu hồi tin nhắn này cho mọi người?",
+    "removedSelf": "Bạn đã thu hồi một tin nhắn",
+    "removedOther": "Tin nhắn đã bị thu hồi",
+    "editedLabel": "Đã chỉnh sửa"
+  },
+  "outbox": {
+    "full": "Hàng đợi offline đầy. Thử lại khi có mạng."
+  },
+  "voice": {
+    "start": "Ghi âm",
+    "stop": "Dừng",
+    "discard": "Huỷ",
+    "recording": "Đang ghi",
+    "preview": "Sẵn sàng gửi ghi âm",
+    "send": "Gửi",
+    "empty": "Bản ghi rỗng. Hãy thử lại.",
+    "play": "Phát tin thoại",
+    "pause": "Tạm dừng",
+    "messageBubble": "Tin nhắn thoại",
+    "loadError": "Không phát được — kiểm tra API đã bật phục vụ wwwroot chưa"
+  },
+  "uploadNeedLogin": "Hãy đăng nhập để tải file hoặc ghi âm (API cần token).",
+  "calls": {
+    "voice": "Gọi thoại",
+    "video": "Gọi video",
+    "screen": "Chia sẻ màn hình",
+    "comingSoon": "Sắp có",
+    "comingSoonDetail": "Gọi thoại, gọi video và chia sẻ màn hình sẽ dùng WebRTC và tín hiệu ở phiên bản sau. Phiên bản này đã hỗ trợ ghi âm và đính kèm file."
   }
 }
