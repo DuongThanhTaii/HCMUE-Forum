@@ -36,9 +36,24 @@ public class UsersController : ControllerBase
     /// <returns>List of users</returns>
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<IEnumerable<UserResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+        [FromQuery] string? search,
+        [FromQuery] int? take,
+        CancellationToken cancellationToken)
     {
-        var users = await _userRepository.GetAllAsync(cancellationToken);
+        IReadOnlyList<User> users;
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            users = await _userRepository.SearchAsync(
+                search.Trim(),
+                take ?? 30,
+                cancellationToken);
+        }
+        else
+        {
+            users = await _userRepository.GetAllAsync(cancellationToken);
+        }
+
         var response = users.Select(MapToUserResponse);
         return Ok(ApiResponses.Success(response));
     }

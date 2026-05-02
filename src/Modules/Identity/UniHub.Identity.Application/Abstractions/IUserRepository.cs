@@ -14,6 +14,11 @@ public interface IUserRepository
     Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Search users by name or email (for messaging picker). Case-insensitive contains match.
+    /// </summary>
+    Task<IReadOnlyList<User>> SearchAsync(string searchTerm, int take, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Gets a user by their unique ID
     /// </summary>
     Task<User?> GetByIdAsync(UserId userId, CancellationToken cancellationToken = default);
