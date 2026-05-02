@@ -1,6 +1,36 @@
 {
   "title": "Forum",
-  "createPost": "Create post",
+  "createPost": {
+    "pageTitle": "Create post",
+    "title": "New topic",
+    "subtitle": "Pick a category and write your content. Submissions stay pending until a moderator approves them.",
+    "backToList": "Back to list",
+    "submit": "Submit",
+    "pendingNote": "After you submit, moderators will review. You can keep browsing published topics in the forum.",
+    "noticeAttachments": "Image and file attachments for forum posts are not supported yet (the API accepts plain text and tags only).",
+    "noticeMentions": "@username mentions and notifications are not implemented yet.",
+    "noticeChat": "Real-time messaging: the backend includes a Chat module and SignalR hub, but the /chat route in the web app is still a placeholder — the inbox UI is not wired up yet.",
+    "fields": {
+      "title": "Title",
+      "type": "Type",
+      "category": "Category",
+      "categoryPlaceholder": "— Select category —",
+      "content": "Content",
+      "tagPicker": "Tags — pick suggestions or add your own",
+      "noSuggestedTags": "No suggested tags yet. Add tags using the field below.",
+      "addCustomTags": "Add more tags (press Enter to add each)",
+      "addCustomTagsPlaceholder": "e.g. makeup-class — Enter",
+      "removeTag": "Remove tag"
+    },
+    "types": {
+      "discussion": "Discussion",
+      "question": "Q&A"
+    },
+    "validation": {
+      "required": "Please enter both title and content.",
+      "submitFailed": "Could not submit. Please try again."
+    }
+  },
   "editPost": "Edit post",
   "deletePost": "Delete post",
   "allPosts": "All posts",
@@ -104,7 +134,11 @@
   },
   "topbar": {
     "brand": "UniHub Forum",
-    "searchPlaceholder": "Search topics..."
+    "searchPlaceholder": "Search topics...",
+    "moderation": "Moderation",
+    "admin": "Admin",
+    "backToForum": "Forum",
+    "backHome": "Home"
   },
   "sidebar": {
     "sections": {
@@ -172,6 +206,42 @@
     "reportFailed": "Unable to submit report right now.",
     "shareSuccess": "Post link copied to clipboard.",
     "shareUnavailable": "Cannot copy link in this browser."
+  },
+  "mod": {
+    "reportsTitle": "Moderation reports",
+    "pendingPostsTitle": "Pending posts",
+    "totalReports": "Total reports",
+    "noReports": "No reports in this status.",
+    "noPendingPosts": "No pending posts to review.",
+    "targetDeleted": "[removed]",
+    "status": {
+      "pending": "Pending",
+      "resolvedKeep": "Resolved (Keep)",
+      "resolvedRemove": "Resolved (Remove)"
+    },
+    "columns": {
+      "type": "Type",
+      "reason": "Reason",
+      "preview": "Target preview",
+      "createdAt": "Created at",
+      "actions": "Actions",
+      "title": "Title",
+      "author": "Author",
+      "category": "Category",
+      "comments": "Comments"
+    },
+    "actions": {
+      "keep": "Resolve keep",
+      "remove": "Resolve remove",
+      "approve": "Approve & publish"
+    },
+    "feedback": {
+      "loadFailed": "Failed to load moderation data.",
+      "resolveSuccess": "Report resolved successfully.",
+      "resolveFailed": "Failed to resolve report.",
+      "approveSuccess": "Post approved and published.",
+      "approveFailed": "Could not approve this post."
+    }
   },
   "detail": {
     "fallbackTitle": "Forum topic detail",
