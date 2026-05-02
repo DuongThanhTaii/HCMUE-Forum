@@ -12,4 +12,5 @@ public sealed record GetPostsQuery(
     Guid? CategoryId = null,
     int? Type = null,
     int? Status = null,
-    int SortBy = 0) : IQuery<GetPostsResult>;
+    int SortBy = 0,
+    IReadOnlyList<Guid>? CategoryIds = null) : IQuery<GetPostsResult>;

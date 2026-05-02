@@ -41,6 +41,7 @@ public sealed class GetPostsQueryHandler : IQueryHandler<GetPostsQuery, GetPosts
             request.Type,
             request.Status,
             request.SortBy,
+            request.CategoryIds,
             cancellationToken);
 
         return Result.Success(result);

@@ -179,6 +179,7 @@ public sealed class PostRepository : IPostRepository
         int? type = null,
         int? status = null,
         int sortBy = 0,
+        IReadOnlyList<Guid>? categoryIds = null,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Posts.AsQueryable();
@@ -187,6 +188,18 @@ public sealed class PostRepository : IPostRepository
         if (categoryId.HasValue)
         {
             query = query.Where(p => p.CategoryId.Value == categoryId.Value);
+        }
+
+        if (categoryIds is not null)
+        {
+            if (categoryIds.Count == 0)
+            {
+                query = query.Where(p => false);
+            }
+            else
+            {
+                query = query.Where(p => p.CategoryId != null && categoryIds.Contains(p.CategoryId.Value));
+            }
         }
 
         // Filter by type

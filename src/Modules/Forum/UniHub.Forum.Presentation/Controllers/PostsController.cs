@@ -15,6 +15,7 @@ using UniHub.Forum.Application.Commands.VotePost;
 using UniHub.Forum.Application.Queries.GetComments;
 using UniHub.Forum.Application.Queries.GetPostById;
 using UniHub.Forum.Application.Queries.GetPosts;
+using UniHub.Forum.Domain.Posts;
 using UniHub.Forum.Domain.Votes;
 using UniHub.Forum.Presentation.DTOs.Comments;
 using UniHub.Forum.Presentation.DTOs.Posts;
@@ -50,7 +51,8 @@ public class PostsController : BaseApiController
         [FromQuery] int sortBy = 0,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetPostsQuery(pageNumber, pageSize, categoryId, type, status, sortBy);
+        var effectiveStatus = status ?? (int)PostStatus.Published;
+        var query = new GetPostsQuery(pageNumber, pageSize, categoryId, type, effectiveStatus, sortBy);
         var result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
@@ -241,8 +243,13 @@ public class PostsController : BaseApiController
         CancellationToken cancellationToken = default)
     {
         var userId = GetCurrentUserId();
+        var actor = User.IsInRole("Admin")
+            ? PostPublishActor.Admin
+            : User.IsInRole("Moderator")
+                ? PostPublishActor.Moderator
+                : PostPublishActor.Author;
 
-        var command = new PublishPostCommand(id, userId);
+        var command = new PublishPostCommand(id, userId, actor);
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)

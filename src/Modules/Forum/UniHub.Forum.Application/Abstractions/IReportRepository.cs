@@ -28,6 +28,7 @@ public interface IReportRepository
         int pageNumber,
         int pageSize,
         ReportStatus? status = null,
+        ReportResolutionDecision? resolutionDecision = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
