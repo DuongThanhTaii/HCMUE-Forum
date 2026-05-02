@@ -31,7 +31,7 @@ public sealed class MessageRepository : IMessageRepository
         CancellationToken cancellationToken = default)
     {
         var messages = await _context.Messages
-            .Where(m => m.ConversationId == conversationId && !m.IsDeleted)
+            .Where(m => m.ConversationId == conversationId)
             .OrderByDescending(m => m.SentAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -55,6 +55,6 @@ public sealed class MessageRepository : IMessageRepository
     public async Task<int> CountByConversationIdAsync(ConversationId conversationId, CancellationToken cancellationToken = default)
     {
         return await _context.Messages
-            .CountAsync(m => m.ConversationId == conversationId && !m.IsDeleted, cancellationToken);
+            .CountAsync(m => m.ConversationId == conversationId, cancellationToken);
     }
 }

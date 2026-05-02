@@ -6,19 +6,17 @@ namespace UniHub.Chat.Infrastructure.Services;
 /// <summary>
 /// Local file storage implementation for chat files.
 /// Stores files in wwwroot/uploads/chat directory.
-/// TODO: Replace with cloud storage (Azure Blob, AWS S3, etc.) for production.
+/// Public URLs are stored as root-relative paths (/uploads/chat/...) so clients join their configured API origin (same host/port as REST).
+/// TODO: Replace with cloud storage (Azure Blob, AWS S3, MinIO, etc.) for production.
 /// </summary>
 public sealed class LocalFileStorageService : IFileStorageService
 {
     private readonly string _uploadPath;
-    private readonly string _baseUrl;
 
-    public LocalFileStorageService(string uploadPath, string baseUrl)
+    public LocalFileStorageService(string uploadPath)
     {
         _uploadPath = uploadPath;
-        _baseUrl = baseUrl;
 
-        // Ensure upload directory exists
         if (!Directory.Exists(_uploadPath))
         {
             Directory.CreateDirectory(_uploadPath);
@@ -33,19 +31,17 @@ public sealed class LocalFileStorageService : IFileStorageService
     {
         try
         {
-            // Generate unique file name to prevent collisions
             var fileExtension = Path.GetExtension(fileName);
             var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
             var filePath = Path.Combine(_uploadPath, uniqueFileName);
 
-            // Save file to disk
             using (var fileStreamOutput = new FileStream(filePath, FileMode.Create, FileAccess.Write))
             {
                 await fileStream.CopyToAsync(fileStreamOutput, cancellationToken);
             }
 
-            // Generate public URL
-            var fileUrl = $"{_baseUrl}/uploads/chat/{uniqueFileName}";
+            // Root-relative path; Kestrel + UseStaticFiles serves from wwwroot
+            var fileUrl = $"/uploads/chat/{uniqueFileName}";
 
             return Result.Success(fileUrl);
         }
@@ -63,9 +59,13 @@ public sealed class LocalFileStorageService : IFileStorageService
     {
         try
         {
-            // Extract file name from URL
-            var fileName = Path.GetFileName(new Uri(fileUrl).LocalPath);
-            var filePath = Path.Combine(_uploadPath, fileName);
+            var name = GetStoredFileName(fileUrl);
+            if (string.IsNullOrEmpty(name))
+            {
+                return Task.FromResult(Result.Failure(new Error("FileStorage.InvalidUrl", "Invalid file URL")));
+            }
+
+            var filePath = Path.Combine(_uploadPath, name);
 
             if (File.Exists(filePath))
             {
@@ -88,9 +88,15 @@ public sealed class LocalFileStorageService : IFileStorageService
     {
         try
         {
-            // Extract file name from URL
-            var fileName = Path.GetFileName(new Uri(fileUrl).LocalPath);
-            var filePath = Path.Combine(_uploadPath, fileName);
+            var name = GetStoredFileName(fileUrl);
+            if (string.IsNullOrEmpty(name))
+            {
+                return Task.FromResult(Result.Failure<(Stream, string)>(new Error(
+                    "FileStorage.InvalidUrl",
+                    "Invalid file URL")));
+            }
+
+            var filePath = Path.Combine(_uploadPath, name);
 
             if (!File.Exists(filePath))
             {
@@ -100,7 +106,7 @@ public sealed class LocalFileStorageService : IFileStorageService
             }
 
             var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            var contentType = GetContentType(Path.GetExtension(fileName));
+            var contentType = GetContentType(Path.GetExtension(name));
 
             return Task.FromResult(Result.Success((stream as Stream, contentType)));
         }
@@ -118,14 +124,36 @@ public sealed class LocalFileStorageService : IFileStorageService
     {
         try
         {
-            var fileName = Path.GetFileName(new Uri(fileUrl).LocalPath);
-            var filePath = Path.Combine(_uploadPath, fileName);
+            var name = GetStoredFileName(fileUrl);
+            if (string.IsNullOrEmpty(name))
+            {
+                return Task.FromResult(false);
+            }
+
+            var filePath = Path.Combine(_uploadPath, name);
             return Task.FromResult(File.Exists(filePath));
         }
         catch
         {
             return Task.FromResult(false);
         }
+    }
+
+    private static string GetStoredFileName(string fileUrl)
+    {
+        if (string.IsNullOrWhiteSpace(fileUrl))
+        {
+            return string.Empty;
+        }
+
+        var trimmed = fileUrl.Trim();
+
+        if (Uri.TryCreate(trimmed, UriKind.Absolute, out var abs))
+        {
+            return Path.GetFileName(abs.LocalPath);
+        }
+
+        return Path.GetFileName(trimmed.Replace('\\', '/').TrimEnd('/'));
     }
 
     private string GetContentType(string extension)
@@ -142,6 +170,8 @@ public sealed class LocalFileStorageService : IFileStorageService
             ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             ".txt" => "text/plain",
             ".mp4" => "video/mp4",
+            ".webm" => "video/webm",
+            ".m4a" or ".mp3" or ".ogg" or ".wav" => "audio/mpeg",
             ".zip" => "application/zip",
             _ => "application/octet-stream"
         };

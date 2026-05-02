@@ -171,13 +171,7 @@ public static class DependencyInjection
         // Register cache service
         services.AddSingleton<ICacheService, RedisCacheService>();
 
-        // Add SignalR with Redis backplane
-        services.AddSignalR()
-            .AddStackExchangeRedis(redisConnectionString, options =>
-            {
-                options.Configuration.AbortOnConnectFail = false;
-                options.Configuration.ConnectTimeout = 5000;
-            });
+        // SignalR (and optional Redis backplane) is registered in Chat presentation — avoid duplicate AddSignalR here.
 
         // Add health check
         services.AddHealthChecks()

@@ -59,8 +59,19 @@ public sealed class UploadFileCommandValidator : AbstractValidator<UploadFileCom
             .WithMessage("UploadedBy is required");
     }
 
+    private static string NormalizeMime(string contentType)
+    {
+        if (string.IsNullOrWhiteSpace(contentType))
+            return string.Empty;
+
+        var trimmed = contentType.Trim();
+        var semi = trimmed.IndexOf(';', StringComparison.Ordinal);
+        return semi >= 0 ? trimmed[..semi].Trim() : trimmed;
+    }
+
     private bool BeAllowedContentType(string contentType)
     {
-        return AllowedContentTypes.Contains(contentType, StringComparer.OrdinalIgnoreCase);
+        var primary = NormalizeMime(contentType);
+        return AllowedContentTypes.Contains(primary, StringComparer.OrdinalIgnoreCase);
     }
 }

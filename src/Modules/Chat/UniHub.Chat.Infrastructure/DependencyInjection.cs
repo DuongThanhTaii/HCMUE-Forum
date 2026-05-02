@@ -15,15 +15,14 @@ public static class DependencyInjection
     /// </summary>
     /// <param name="services">The service collection to add services to.</param>
     /// <param name="uploadPath">Path for file uploads (defaults to wwwroot/uploads/chat)</param>
-    /// <param name="baseUrl">Base URL for file access (defaults to http://localhost:5000)</param>
     /// <returns>The service collection for method chaining.</returns>
     public static IServiceCollection AddChatInfrastructure(
         this IServiceCollection services,
-        string? uploadPath = null,
-        string? baseUrl = null)
+        string? uploadPath = null)
     {
         services.AddRepositories();
-        services.AddServices(uploadPath, baseUrl);
+        services.AddServices(uploadPath);
+        services.AddScoped<IConversationParticipantLookup, ConversationParticipantLookup>();
 
         return services;
     }
@@ -45,15 +44,12 @@ public static class DependencyInjection
     /// </summary>
     private static IServiceCollection AddServices(
         this IServiceCollection services,
-        string? uploadPath,
-        string? baseUrl)
+        string? uploadPath)
     {
-        // Default paths
         var finalUploadPath = uploadPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "chat");
-        var finalBaseUrl = baseUrl ?? "http://localhost:5000";
 
-        services.AddScoped<IFileStorageService>(provider =>
-            new LocalFileStorageService(finalUploadPath, finalBaseUrl));
+        services.AddScoped<IFileStorageService>(_ =>
+            new LocalFileStorageService(finalUploadPath));
 
         return services;
     }
