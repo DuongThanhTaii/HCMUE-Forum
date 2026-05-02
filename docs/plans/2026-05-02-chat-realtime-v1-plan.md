@@ -48,11 +48,11 @@
 - Read: `src/Modules/Chat/UniHub.Chat.Application/Queries/GetMessages/GetMessagesQueryHandler.cs`, domain `Channel`/`Conversation` linkage
 - Create: `docs/plans/2026-05-02-chat-channel-rest-notes.md` (short decision log)
 
-- [ ] **Step 1:** Trace whether each **joined channel** exposes a **conversationId** usable by `GetMessages`, or if backend needs a new query param (e.g. `channelId`). Document **FE thread model**: `{ kind: 'direct' \| 'group' \| 'channel', conversationId: Guid, channelId?: Guid }`.
+- [x] **Step 1:** Trace whether each **joined channel** exposes a **conversationId** usable by `GetMessages`, or if backend needs a new query param (e.g. `channelId`). Document **FE thread model**: `{ kind: 'direct' \| 'group' \| 'channel', conversationId: Guid, channelId?: Guid }`.
 
-- [ ] **Step 2:** If only hub `SendChannelMessage` exists without list history, file a **backend follow-up** or define v1 channel UI as **hub-only messages + empty history** (NOT ideal — prefer fixing backend in same sprint if gap confirmed).
+- [x] **Step 2:** If only hub `SendChannelMessage` exists without list history, file a **backend follow-up** or define v1 channel UI as **hub-only messages + empty history** (NOT ideal — prefer fixing backend in same sprint if gap confirmed).
 
-- [ ] **Step 3:** Commit notes only when decision is written (`docs/plans/2026-05-02-chat-channel-rest-notes.md`).
+- [x] **Step 3:** Commit notes only when decision is written (`docs/plans/2026-05-02-chat-channel-rest-notes.md`).
 
 ```bash
 git add docs/plans/2026-05-02-chat-channel-rest-notes.md
