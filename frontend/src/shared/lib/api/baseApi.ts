@@ -14,6 +14,13 @@ export const baseApi = createApi({
     'UserOverride',
     'Role',
     'Permission',
+    'ModerationReport',
+    'ModerationPost',
+    'ForumCategory',
+    'ForumTag',
+    'ChatConversation',
+    'ChatMessage',
+    'ChatChannel',
   ],
   endpoints: () => ({}),
 })

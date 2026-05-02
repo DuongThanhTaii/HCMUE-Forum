@@ -29,14 +29,21 @@ let refreshPromise: Promise<RefreshResponse | null> | null = null
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_URL,
-  prepareHeaders: (headers, { getState }) => {
+  prepareHeaders: (headers, { getState, arg }) => {
     const accessToken = (getState() as RootState).auth?.accessToken
 
     if (accessToken) {
       headers.set('authorization', `Bearer ${accessToken}`)
     }
 
-    headers.set('content-type', 'application/json')
+    const isFormData =
+      typeof arg === 'object' &&
+      arg !== null &&
+      'body' in arg &&
+      arg.body instanceof FormData
+    if (!isFormData) {
+      headers.set('content-type', 'application/json')
+    }
     return headers
   },
 })

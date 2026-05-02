@@ -1,5 +1,9 @@
 {
   "layout": {
-    "title": "Moderation Zone"
+    "title": "Moderation Zone",
+    "home": "Home",
+    "forum": "Forum",
+    "reports": "Reports",
+    "pendingPosts": "Pending posts"
   }
 }

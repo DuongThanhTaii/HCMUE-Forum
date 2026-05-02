@@ -8,6 +8,9 @@ import { AdminLayout } from '@shared/components/layouts/AdminLayout';
 import { ForumListPage } from '@features/forum/components/ForumListPage';
 import { ForumDetailPage } from '@features/forum/components/ForumDetailPage';
 import { HomePage } from '@features/forum/components/HomePage';
+import { ModReportsPage } from '@features/forum/components/ModReportsPage';
+import { ModPostsPage } from '@features/forum/components/ModPostsPage';
+import { ForumCreatePostPage } from '@features/forum/components/ForumCreatePostPage';
 import { Placeholder } from './components/Placeholder';
 import { LearningDocumentsPage } from '@features/learning/components/LearningDocumentsPage';
 import { LearningDocumentDetailPage } from '@features/learning/components/LearningDocumentDetailPage';
@@ -22,6 +25,7 @@ import { AdminOverridesPage } from '@features/admin/overrides/components/AdminOv
 import { AdminTogglesPage } from '@features/admin/observability/components/AdminTogglesPage';
 import { AdminActionLogsPage } from '@features/admin/observability/components/AdminActionLogsPage';
 import { AdminAuditLogsPage } from '@features/admin/observability/components/AdminAuditLogsPage';
+import { ChatPage } from '@features/chat/components/ChatPage';
 
 /**
  * Single root `path: '/'` tree so `/home`, `/login`, and `navigate('/home')` resolve reliably.
@@ -57,9 +61,10 @@ export const appRoutes = [
             element: <RequireAuth />,
             children: [
               { path: 'forum', element: <ForumListPage /> },
+              { path: 'forum/new', element: <ForumCreatePostPage /> },
               { path: 'forum/:id', element: <ForumDetailPage /> },
               { path: 'career/jobs', element: <CareerJobsPage /> },
-              { path: 'chat', element: <Placeholder titleKey="placeholders.main.chat" /> },
+              { path: 'chat', element: <ChatPage /> },
               { path: 'chat/ai', element: <Placeholder titleKey="placeholders.main.aiAssistant" /> },
             ],
           },
@@ -75,8 +80,8 @@ export const appRoutes = [
         path: '/mod',
         element: <ModLayout />,
         children: [
-          { path: 'reports', element: <Placeholder titleKey="placeholders.mod.reports" /> },
-          { path: 'posts', element: <Placeholder titleKey="placeholders.mod.posts" /> },
+          { path: 'reports', element: <ModReportsPage /> },
+          { path: 'posts', element: <ModPostsPage /> },
         ],
       },
     ],

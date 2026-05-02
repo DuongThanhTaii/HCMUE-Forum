@@ -2,9 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom'
 import { useAppSelector } from '@shared/hooks/useAppSelector'
 import { selectUserRole } from '@features/auth/model/auth.slice'
 import { useAuth } from '@features/auth/context/useAuth'
-
-const AUTH_BYPASS_IN_DEV =
-  import.meta.env.DEV && import.meta.env.VITE_DEV_BYPASS_AUTH !== 'false'
+import { AUTH_BYPASS_IN_DEV } from './authDevBypass'
 
 const normalizeRole = (role: unknown): string | null => {
   if (typeof role !== 'string') {
