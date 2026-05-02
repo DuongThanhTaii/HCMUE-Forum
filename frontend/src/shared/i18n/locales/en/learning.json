@@ -61,7 +61,8 @@
     "selectCourse": "Select course",
     "selectType": "Document type",
     "allSemesters": "All semesters",
-    "semester": "Semester"
+    "semester": "Semester",
+    "searchCourse": "Filter by course (code or name)"
   },
   "documentCard": {
     "viewDetail": "View detail",
@@ -106,7 +107,8 @@
     "subtitle": "Explore courses and related materials",
     "credits": "Credits:",
     "documentsCount": "documents",
-    "viewDocuments": "View documents"
+    "viewDocuments": "View documents",
+    "showingRange": "Showing {{from}}–{{to}} of {{total}}"
   },
   "facultiesPage": {
     "title": "Faculty list",

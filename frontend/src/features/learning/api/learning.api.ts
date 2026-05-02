@@ -6,6 +6,7 @@ import type {
   FacultyListItem,
   LearningDocument,
   LearningSearchParams,
+  PagedCoursesResult,
 } from '@shared/types/learning'
 
 type ApiEnvelope<T> = {
@@ -38,6 +39,58 @@ function unwrapData<T>(response: unknown): T | undefined {
   if (!response || typeof response !== 'object') return undefined
   const r = response as ApiEnvelope<T>
   return (r.data ?? r.Data) as T | undefined
+}
+
+function mapCourseListItem(raw: Record<string, unknown>): CourseListItem {
+  return {
+    courseId: String(raw.courseId ?? raw.CourseId ?? ''),
+    code: String(raw.code ?? raw.Code ?? ''),
+    name: String(raw.name ?? raw.Name ?? ''),
+    description: String(raw.description ?? raw.Description ?? ''),
+    semester: String(raw.semester ?? raw.Semester ?? ''),
+    credits: Number(raw.credits ?? raw.Credits ?? 0),
+    facultyId:
+      raw.facultyId != null || raw.FacultyId != null
+        ? String(raw.facultyId ?? raw.FacultyId)
+        : null,
+    createdAt: String(raw.createdAt ?? raw.CreatedAt ?? ''),
+    documentCount: Number(raw.documentCount ?? raw.DocumentCount ?? 0),
+  }
+}
+
+function normalizePagedCourses(response: unknown): PagedCoursesResult {
+  const inner = unwrapData<unknown>(response)
+  if (!inner) {
+    return { items: [], page: 1, pageSize: 20, totalCount: 0, totalPages: 0 }
+  }
+  if (Array.isArray(inner)) {
+    const items = inner.map((x) => mapCourseListItem(x as Record<string, unknown>))
+    return {
+      items,
+      page: 1,
+      pageSize: items.length || 20,
+      totalCount: items.length,
+      totalPages: items.length > 0 ? 1 : 0,
+    }
+  }
+  const o = inner as Record<string, unknown>
+  const itemsRaw = o.items ?? o.Items
+  const items = Array.isArray(itemsRaw)
+    ? itemsRaw.map((x) => mapCourseListItem(x as Record<string, unknown>))
+    : []
+  const pageSize = Number(o.pageSize ?? o.PageSize ?? 20)
+  const totalCount = Number(o.totalCount ?? o.TotalCount ?? items.length)
+  let totalPages = Number(o.totalPages ?? o.TotalPages ?? 0)
+  if (totalPages <= 0 && pageSize > 0 && totalCount > 0) {
+    totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+  }
+  return {
+    items,
+    page: Number(o.page ?? o.Page ?? 1),
+    pageSize,
+    totalCount,
+    totalPages: totalCount === 0 ? 0 : totalPages,
+  }
 }
 
 function normalizeSearchResult(inner: unknown, pageFallback: number, pageSizeFallback: number): DocumentsListResult {
@@ -136,18 +189,49 @@ export const learningApi = baseApi.injectEndpoints({
       transformResponse: (response: unknown) => unwrapData<FacultyListItem[]>(response) ?? [],
     }),
 
-    getCourses: builder.query<CourseListItem[], { facultyId?: string; semester?: string } | void>({
+    getCourses: builder.query<
+      PagedCoursesResult,
+      {
+        facultyId?: string
+        semester?: string
+        searchTerm?: string
+        page?: number
+        pageSize?: number
+      } | void
+    >({
       query: (args) => {
-        const a = (args ?? {}) as { facultyId?: string; semester?: string }
+        const a = (args ?? {}) as {
+          facultyId?: string
+          semester?: string
+          searchTerm?: string
+          page?: number
+          pageSize?: number
+        }
+        const page = a.page ?? 1
+        const pageSize = a.pageSize ?? 20
         return {
           url: '/api/v1/courses',
           params: {
+            page,
+            pageSize,
             ...(a.facultyId ? { facultyId: a.facultyId } : {}),
             ...(a.semester ? { semester: a.semester } : {}),
+            ...(a.searchTerm ? { searchTerm: a.searchTerm } : {}),
           },
         }
       },
-      transformResponse: (response: unknown) => unwrapData<CourseListItem[]>(response) ?? [],
+      transformResponse: (response: unknown) => normalizePagedCourses(response),
+    }),
+
+    getCourseSemesters: builder.query<string[], { facultyId?: string } | void>({
+      query: (args) => {
+        const facultyId = args && 'facultyId' in args ? args.facultyId : undefined
+        return {
+          url: '/api/v1/courses/semesters',
+          params: facultyId ? { facultyId } : {},
+        }
+      },
+      transformResponse: (response: unknown) => unwrapData<string[]>(response) ?? [],
     }),
 
     rateDocument: builder.mutation<
@@ -184,6 +268,7 @@ export const {
   useGetDocumentByIdQuery,
   useGetFacultiesQuery,
   useGetCoursesQuery,
+  useGetCourseSemestersQuery,
   useRateDocumentMutation,
   useDownloadDocumentMutation,
 } = learningApi

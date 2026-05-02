@@ -61,7 +61,8 @@
     "selectCourse": "Chọn môn học",
     "selectType": "Loại tài liệu",
     "allSemesters": "Tất cả học kỳ",
-    "semester": "Học kỳ"
+    "semester": "Học kỳ",
+    "searchCourse": "Lọc theo môn (mã hoặc tên)"
   },
   "documentCard": {
     "viewDetail": "Xem chi tiết",
@@ -106,7 +107,8 @@
     "subtitle": "Khám phá các môn học và tài liệu liên quan",
     "credits": "Số tín chỉ:",
     "documentsCount": "tài liệu",
-    "viewDocuments": "Xem tài liệu"
+    "viewDocuments": "Xem tài liệu",
+    "showingRange": "Hiển thị {{from}}–{{to}} / {{total}}"
   },
   "facultiesPage": {
     "title": "Danh sách các khoa",

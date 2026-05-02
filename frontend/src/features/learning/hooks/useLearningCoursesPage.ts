@@ -1,32 +1,54 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { startTransition, useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useGetCoursesQuery, useGetFacultiesQuery } from '../api/learning.api'
+import { useGetCoursesQuery, useGetCourseSemestersQuery, useGetFacultiesQuery } from '../api/learning.api'
+
+const COURSES_PAGE_SIZE = 12
 
 /** Body hook — mount inside a parent keyed by faculty URL param so semester state resets when faculty changes. */
 export function useLearningCoursesPageBody() {
   const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
   const facultyFromUrl = searchParams.get('facultyId') ?? ''
-  const [semesterInput, setSemesterInput] = useState('')
-  const [debouncedSemester, setDebouncedSemester] = useState('')
+  const [semester, setSemester] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
-    const id = window.setTimeout(() => setDebouncedSemester(semesterInput.trim()), 400)
+    const id = window.setTimeout(() => setDebouncedSearch(searchInput.trim()), 400)
     return () => window.clearTimeout(id)
-  }, [semesterInput])
+  }, [searchInput])
+
+  useEffect(() => {
+    startTransition(() => setPage(1))
+  }, [facultyFromUrl, semester, debouncedSearch])
 
   const { data: faculties = [], isLoading: loadingFaculties } = useGetFacultiesQuery()
 
-  const queryArgs = useMemo(
-    () => ({
-      ...(facultyFromUrl ? { facultyId: facultyFromUrl } : {}),
-      ...(debouncedSemester ? { semester: debouncedSemester } : {}),
-    }),
-    [facultyFromUrl, debouncedSemester],
+  const { data: semesterList = [], isFetching: loadingSemesters } = useGetCourseSemestersQuery(
+    facultyFromUrl ? { facultyId: facultyFromUrl } : undefined,
+    { skip: !facultyFromUrl },
   )
 
-  const { data: courses = [], isLoading, isError } = useGetCoursesQuery(queryArgs)
+  const semesterOptions = useMemo(() => [...semesterList].sort((a, b) => a.localeCompare(b, 'vi')), [semesterList])
+
+  const queryArgs = useMemo(
+    () => ({
+      page,
+      pageSize: COURSES_PAGE_SIZE,
+      ...(facultyFromUrl ? { facultyId: facultyFromUrl } : {}),
+      ...(semester ? { semester } : {}),
+      ...(debouncedSearch ? { searchTerm: debouncedSearch } : {}),
+    }),
+    [facultyFromUrl, semester, debouncedSearch, page],
+  )
+
+  const { data: coursesPage, isLoading: loadingCourses, isError } = useGetCoursesQuery(queryArgs)
+
+  const courses = coursesPage?.items ?? []
+  const totalPages = coursesPage?.totalPages ?? 0
+  const totalCount = coursesPage?.totalCount ?? 0
 
   const setFacultyFilter = useCallback(
     (facultyId: string) => {
@@ -43,16 +65,26 @@ export function useLearningCoursesPageBody() {
     [setSearchParams],
   )
 
+  const loading = loadingFaculties || loadingCourses || (!!facultyFromUrl && loadingSemesters)
+
   return {
     t,
     faculties,
     facultyFromUrl,
     setFacultyFilter,
-    semesterInput,
-    setSemesterInput,
+    semester,
+    setSemester,
+    semesterOptions,
+    searchInput,
+    setSearchInput,
     courses,
-    isLoading: isLoading || loadingFaculties,
+    page,
+    setPage,
+    totalPages,
+    totalCount,
+    pageSize: COURSES_PAGE_SIZE,
+    isLoading: loading,
     isError,
-    isEmpty: !(isLoading || loadingFaculties) && !isError && courses.length === 0,
+    isEmpty: !loading && !isError && courses.length === 0,
   }
 }
