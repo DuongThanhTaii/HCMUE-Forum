@@ -25,6 +25,41 @@ public sealed class UserRepository : IUserRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<User>> SearchAsync(string searchTerm, int take, CancellationToken cancellationToken = default)
+    {
+        take = Math.Clamp(take, 1, 100);
+        var term = searchTerm.Trim();
+        if (term.Length == 0)
+        {
+            return Array.Empty<User>();
+        }
+
+        var pattern = $"%{EscapeForLike(term)}%";
+
+        // ILike on u.Email or Email.Value does not compose safely with the Email value-converter
+        // (translation or SQL literal generation). Use parameterized SQL on real columns instead.
+        return await _context.Users
+            .FromSqlInterpolated(
+                $"""
+                SELECT * FROM identity.users
+                WHERE first_name ILIKE {pattern} ESCAPE '\'
+                   OR last_name ILIKE {pattern} ESCAPE '\'
+                   OR email ILIKE {pattern} ESCAPE '\'
+                ORDER BY last_name, first_name
+                LIMIT {take}
+                """)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    private static string EscapeForLike(string value)
+    {
+        return value
+            .Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("%", "\\%", StringComparison.Ordinal)
+            .Replace("_", "\\_", StringComparison.Ordinal);
+    }
+
     public async Task<User?> GetByIdAsync(UserId userId, CancellationToken cancellationToken = default)
     {
         return await _context.Users
