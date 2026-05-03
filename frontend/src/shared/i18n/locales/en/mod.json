@@ -5,5 +5,51 @@
     "forum": "Forum",
     "reports": "Reports",
     "pendingPosts": "Pending posts"
+  },
+  "reportsTitle": "Reports Queue",
+  "totalReports": "Total reports",
+  "noReports": "No reports found for this filter.",
+  "targetDeleted": "(content deleted)",
+  "status": {
+    "pending": "Pending",
+    "resolvedKeep": "Kept",
+    "resolvedRemove": "Removed"
+  },
+  "reason": {
+    "1": "Spam",
+    "2": "Hate speech",
+    "3": "Harassment",
+    "4": "Misinformation",
+    "5": "Inappropriate content",
+    "6": "Other",
+    "unknown": "Reason #{{value}}"
+  },
+  "columns": {
+    "type": "Type",
+    "reason": "Reason",
+    "preview": "Preview",
+    "createdAt": "Reported at",
+    "actions": "Actions"
+  },
+  "itemType": {
+    "post": "Post",
+    "comment": "Comment"
+  },
+  "actions": {
+    "keep": "Keep",
+    "remove": "Remove",
+    "openPost": "Open post",
+    "openComment": "Open comment"
+  },
+  "feedback": {
+    "resolveSuccess": "Report resolved successfully.",
+    "resolveFailed": "Failed to resolve report.",
+    "resolveForbidden": "You are not allowed to resolve this report (out of your moderation scope).",
+    "loadFailed": "Failed to load reports."
+  },
+  "pagination": {
+    "prev": "Previous",
+    "next": "Next",
+    "page": "Page {{page}} of {{total}}"
   }
 }

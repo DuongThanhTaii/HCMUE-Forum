@@ -3,27 +3,29 @@
 | Property | Value |
 |---|---|
 | **ID** | FE-14 |
-| **Branch** | `feature/FE-14-mod-reports` |
-| **Commit** | `feat(fe/mod): implement reports queue and post moderation` |
+| **Branch** | `feature/forum-moderation-scope` |
+| **Commit** | `feat(fe/mod): reports queue i18n, links, 403 toast, pagination` |
 | **Priority** | Medium |
 | **Estimate** | 6h |
-| **Status** | ⬜ NOT_STARTED |
+| **Status** | ✅ SCOPE WORK DONE (Phase 3 complete) |
 | **Depends on** | FE-04 |
 
 ---
 
-## API Endpoints
+## API Endpoints (corrected — production routes)
 
 | Action | Endpoint |
 |---|---|
-| Get reports | GET `/api/v1/forum/reports?status=Pending&page=` |
-| Get all posts (mod view) | GET `/api/v1/forum/posts?includePinned=true&page=` |
-| Pin post | POST `/api/v1/forum/posts/{id}/pin` |
-| Unpin post | DELETE `/api/v1/forum/posts/{id}/pin` |
-| Delete post (mod) | DELETE `/api/v1/forum/posts/{id}` |
-| Delete comment (mod) | DELETE `/api/v1/forum/comments/{id}` |
+| Get reports (scoped) | `GET /api/v1/mod/reports?status=pending&pageNumber=1&pageSize=20` |
+| Resolve report | `POST /api/v1/mod/reports/{id}/resolve` — body `{ action: "keep" \| "remove" }` |
+| Get pending posts (scoped) | `GET /api/v1/mod/posts?pageNumber=1&pageSize=20` |
+| Publish draft post | `POST /api/v1/posts/{id}/publish` |
+| Pin post | `POST /api/v1/posts/{id}/pin` |
+| Delete post (mod via resolve) | via `POST /api/v1/mod/reports/{id}/resolve` with `action: "remove"` |
 
-Note: Report dismiss/action endpoint — cần confirm với BE (có thể dùng DeletePost/DeleteComment kèm lý do).
+> **Scope behaviour (server-side):**
+> - **Admin** — sees all reports / can resolve all.
+> - **Moderator** — only sees reports for categories in their `ModeratorIds`; resolving out-of-scope returns **HTTP 403**.
 
 ---
 
@@ -33,59 +35,55 @@ Note: Report dismiss/action endpoint — cần confirm với BE (có thể dùng
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│  Reports Queue                    Filter: [All ▼]    │
+│  Reports Queue                   Total: 12           │
+│  [Pending] [Kept] [Removed]                          │
 │  ─────────────────────────────────────────────────── │
-│  [!] Post Report                           2h ago    │
-│  Báo cáo: "Nội dung spam quảng cáo"                 │
-│  Post: "Tuyển dụng XYZ..." by UserA                  │
-│  [Xem bài] [Xóa bài] [Bỏ qua]                       │
+│  [Bài viết] Spam                           2h ago    │
+│  Nội dung: "Tuyển dụng XYZ..."                       │
+│  [Xem bài] [Giữ lại] [Xóa]                          │
 │  ─────────────────────────────────────────────────── │
-│  [!] Comment Report                        5h ago   │
-│  Báo cáo: "Ngôn ngữ thù địch"                       │
-│  Comment: "abc xyz..." by UserB                      │
-│  [Xem] [Xóa comment] [Bỏ qua]                       │
+│  [Bình luận] Quấy rối                      5h ago   │
+│  Nội dung: "abc xyz..."                              │
+│  [Xem bình luận] [Giữ lại] [Xóa]                    │
+│  ─────────────────────────────────────────────────── │
+│  < Trang 1 / 2 >                                     │
 └──────────────────────────────────────────────────────┘
 ```
 
 Actions:
-- **Xem bài/comment:** mở trong modal hoặc navigate
-- **Xóa:** confirm dialog → DELETE API
-- **Bỏ qua (Dismiss):** mark report as dismissed
+- **Xem bài/comment:** link sang `/forum/{postId}` hoặc `/forum?commentId={id}`
+- **Giữ lại:** resolve với `action: "keep"`
+- **Xóa:** resolve với `action: "remove"` → soft-delete target
+- **403 Forbidden toast:** hiện khi Moderator thao tác ngoài scope (màu amber)
 
-### `/mod/posts` — Post Management
+### `/mod/posts` — Pending Posts (draft approval)
 
-Table với tất cả posts:
-| Title | Author | Date | Status | Actions |
-|-------|--------|------|--------|---------|
-| ... | ... | ... | Pinned | [Unpin][Hide] |
-| ... | ... | ... | Active | [Pin][Hide] |
-| ... | ... | ... | Hidden | [Restore][Delete] |
-
-Filter: Pinned / Hidden / All  
-Bulk actions: Pin selected / Delete selected
+Table các draft post trong scope Moderator:
+| Title | Author | Category | Date | Actions |
+|-------|--------|----------|------|---------|
+| ...   | ...    | ...      | ...  | [Publish] |
 
 ---
 
-## Components
+## Components (updated)
 
 ```
-components/features/mod/
-├── ReportCard.tsx          ← single report item
-├── ReportQueue.tsx         ← list + filters
-├── PostModTable.tsx        ← all posts table (TanStack Table)
-├── ModActionButtons.tsx    ← Pin/Unpin/Hide/Delete/Dismiss
-└── ConfirmModDialog.tsx    ← destructive action confirm
+frontend/src/features/forum/
+├── hooks/useModReportsPage.ts     ← pagination, reason label, item link, 403 detect
+├── components/ModReportsPage.tsx  ← reason i18n, open link, 403 toast, pagination UI
+├── api/forum.moderation.api.ts    ← correct /api/v1/mod/* routes (unchanged)
+└── shared/i18n/locales/{en,vi}/mod.json  ← full reason map + pagination keys
 ```
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Reports queue hiện đúng pending reports
-- [ ] Filter reports theo type (post/comment)
-- [ ] Delete post/comment action với confirm
-- [ ] Dismiss report action
-- [ ] Post management table với sorting
-- [ ] Pin/Unpin post hoạt động
-- [ ] Hide/Restore post hoạt động
-- [ ] Pending report count hiện trong mod sidebar badge
+- [x] Reports queue hiện đúng pending reports (scoped theo category)
+- [x] Reason hiện text i18n thay vì số nguyên
+- [x] Link "Xem bài viết" / "Xem bình luận" navigate đúng
+- [x] Lỗi 403 (out-of-scope) hiện toast màu amber thay vì generic error
+- [x] Pagination hoạt động: trước/sau, ẩn khi chỉ 1 trang
+- [ ] Filter reports theo type (post/comment) — optional polish
+- [ ] Post management table với sorting — phase sau
+- [ ] Pending report count hiện trong mod sidebar badge — phase sau
