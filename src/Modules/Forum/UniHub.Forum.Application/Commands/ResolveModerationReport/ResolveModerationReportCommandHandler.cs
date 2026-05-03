@@ -12,15 +12,18 @@ public sealed class ResolveModerationReportCommandHandler : ICommandHandler<Reso
     private readonly IReportRepository _reportRepository;
     private readonly IPostRepository _postRepository;
     private readonly ICommentRepository _commentRepository;
+    private readonly IModerationScopeService _scopeService;
 
     public ResolveModerationReportCommandHandler(
         IReportRepository reportRepository,
         IPostRepository postRepository,
-        ICommentRepository commentRepository)
+        ICommentRepository commentRepository,
+        IModerationScopeService scopeService)
     {
         _reportRepository = reportRepository;
         _postRepository = postRepository;
         _commentRepository = commentRepository;
+        _scopeService = scopeService;
     }
 
     public async Task<Result> Handle(ResolveModerationReportCommand request, CancellationToken cancellationToken)
@@ -35,6 +38,26 @@ public sealed class ResolveModerationReportCommandHandler : ICommandHandler<Reso
         {
             return Result.Failure(ReportErrors.AlreadyResolved);
         }
+
+        // --- Phase 2: scope authorization ---
+        if (!request.IsAdmin)
+        {
+            var effectiveCategoryId = await _scopeService.GetEffectiveCategoryIdAsync(report, cancellationToken);
+
+            // If the target no longer exists, only Admins may resolve.
+            if (effectiveCategoryId is null)
+            {
+                return Result.Failure(ReportErrors.Forbidden);
+            }
+
+            // CategoryScope null = Admin (should not reach here), empty = no assignment.
+            var scope = request.CategoryScope;
+            if (scope is null || !scope.Contains(effectiveCategoryId.Value))
+            {
+                return Result.Failure(ReportErrors.Forbidden);
+            }
+        }
+        // ------------------------------------
 
         if (request.Action == "remove")
         {

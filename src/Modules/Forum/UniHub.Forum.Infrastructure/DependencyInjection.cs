@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using UniHub.Forum.Application.Abstractions;
 using UniHub.Forum.Infrastructure.Persistence.Repositories;
+using UniHub.Forum.Infrastructure.Services;
 
 namespace UniHub.Forum.Infrastructure;
 
@@ -32,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<ITagRepository, TagRepository>();
         services.AddScoped<IBookmarkRepository, BookmarkRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
+        services.AddScoped<IModerationScopeService, ModerationScopeService>();
 
         return services;
     }
