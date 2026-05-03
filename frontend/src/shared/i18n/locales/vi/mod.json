@@ -5,5 +5,52 @@
     "forum": "Diễn đàn",
     "reports": "Báo cáo",
     "pendingPosts": "Bài chờ duyệt"
+  },
+  "reportsTitle": "Hàng đợi báo cáo",
+  "totalReports": "Tổng báo cáo",
+  "noReports": "Không có báo cáo nào cho bộ lọc này.",
+  "targetDeleted": "(nội dung đã bị xóa)",
+  "status": {
+    "pending": "Chờ xử lý",
+    "resolvedKeep": "Giữ nội dung",
+    "resolvedRemove": "Đã xóa"
+  },
+  "reason": {
+    "1": "Spam",
+    "2": "Ngôn từ thù địch",
+    "3": "Quấy rối",
+    "4": "Thông tin sai lệch",
+    "5": "Nội dung không phù hợp",
+    "6": "Khác",
+    "unknown": "Lý do #{{value}}"
+  },
+  "columns": {
+    "type": "Loại",
+    "reason": "Lý do",
+    "preview": "Nội dung",
+    "createdAt": "Thời điểm báo cáo",
+    "actions": "Hành động"
+  },
+  "itemType": {
+    "post": "Bài viết",
+    "comment": "Bình luận"
+  },
+  "actions": {
+    "keep": "Giữ lại",
+    "remove": "Xóa",
+    "openPost": "Xem bài viết",
+    "openComment": "Xem bình luận"
+  },
+  "feedback": {
+    "resolveSuccess": "Xử lý báo cáo thành công.",
+    "resolveFailed": "Xử lý báo cáo thất bại.",
+    "resolveForbidden": "Bạn không có quyền xử lý báo cáo này (ngoài phạm vi kiểm duyệt của bạn).",
+    "loadFailed": "Không thể tải danh sách báo cáo."
+  },
+  "pagination": {
+    "prev": "Trước",
+    "next": "Tiếp",
+    "page": "Trang {{page}} / {{total}}"
   }
 }
+

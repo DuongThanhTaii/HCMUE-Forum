@@ -79,4 +79,8 @@ public static class ReportErrors
     public static readonly Error InvalidPageSize = new(
         "Report.InvalidPageSize",
         "Page size must be between 1 and 100");
+
+    public static readonly Error Forbidden = new(
+        "Moderation.Forbidden",
+        "You are not authorized to resolve this report. It belongs to a category outside your moderation scope.");
 }

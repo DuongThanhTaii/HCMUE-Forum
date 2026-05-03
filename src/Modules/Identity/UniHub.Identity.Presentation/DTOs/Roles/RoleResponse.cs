@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace UniHub.Identity.Presentation.DTOs.Roles;
 
 /// <summary>
@@ -10,4 +12,6 @@ public sealed record RoleResponse(
     bool IsDefault,
     bool IsSystemRole,
     int PermissionCount,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    [property: JsonPropertyName("permissions")]
+    IReadOnlyList<RoleAssignedPermissionResponse>? AssignedPermissions = null);

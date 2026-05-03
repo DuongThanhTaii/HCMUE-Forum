@@ -14,6 +14,7 @@ import settings from './settings.json';
 import admin from './admin.json';
 import mod from './mod.json';
 import placeholders from './placeholders.json';
+import notifications from './notifications.json';
 
 const en = {
   common,
@@ -32,6 +33,7 @@ const en = {
   admin,
   mod,
   placeholders,
+  notifications,
 };
 
 export default en;

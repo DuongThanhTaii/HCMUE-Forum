@@ -20,6 +20,7 @@ public sealed class RoleRepository : IRoleRepository
     public async Task<Role?> GetByIdAsync(RoleId roleId, CancellationToken cancellationToken = default)
     {
         return await _context.Roles
+            .Include(r => r.Permissions)
             .FirstOrDefaultAsync(r => r.Id == roleId, cancellationToken);
     }
 
@@ -32,6 +33,7 @@ public sealed class RoleRepository : IRoleRepository
     public async Task<List<Role>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Roles
+            .Include(r => r.Permissions)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }

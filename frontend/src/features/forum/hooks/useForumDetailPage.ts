@@ -18,15 +18,16 @@ import {
 export type CommentThreadNode = ForumCommentItem & { children: CommentThreadNode[] }
 
 function buildCommentThreads(flat: ForumCommentItem[]): CommentThreadNode[] {
-  const sorted = [...flat].sort(
+  // Build map with children sorted by time (natural reply order)
+  const byTime = [...flat].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
   )
   const map = new Map<string, CommentThreadNode>()
-  for (const c of sorted) {
+  for (const c of byTime) {
     map.set(c.id, { ...c, children: [] })
   }
   const roots: CommentThreadNode[] = []
-  for (const c of sorted) {
+  for (const c of byTime) {
     const node = map.get(c.id)!
     const pid = c.parentCommentId
     if (pid && map.has(pid)) {
@@ -35,6 +36,12 @@ function buildCommentThreads(flat: ForumCommentItem[]): CommentThreadNode[] {
       roots.push(node)
     }
   }
+  // Sort root comments by vote score (highest first); ties → newest first
+  roots.sort((a, b) => {
+    const voteDiff = (b.voteScore ?? 0) - (a.voteScore ?? 0)
+    if (voteDiff !== 0) return voteDiff
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  })
   return roots
 }
 

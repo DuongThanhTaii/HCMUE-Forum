@@ -1,4 +1,6 @@
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using UniHub.SharedKernel.Domain;
 // Identity
 using UniHub.Identity.Domain.Users;
@@ -37,6 +39,8 @@ namespace UniHub.Infrastructure.Persistence;
 /// </summary>
 public class ApplicationDbContext : DbContext
 {
+    private readonly bool _useInMemoryNotificationMetadataFix;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ApplicationDbContext"/> class.
     /// </summary>
@@ -44,6 +48,10 @@ public class ApplicationDbContext : DbContext
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
+        // Never touch Database.* inside OnModelCreating — it can re-enter initialization.
+        // Detect InMemory provider via options extensions (tests use UseInMemoryDatabase).
+        _useInMemoryNotificationMetadataFix = options.Extensions.Any(e =>
+            e.GetType().FullName?.Contains("InMemory", StringComparison.Ordinal) == true);
     }
 
     #region Identity Module DbSets
@@ -99,10 +107,14 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Unit/integration tests often host only a subset of assemblies. AppDomain scan alone skips
+        // UniHub.*.Infrastructure DLLs that were never loaded — Career.Application mapping etc. never applies.
+        TryLoadInfrastructureConfigurationAssemblies();
+
         // Apply entity configurations from all loaded assemblies that contain entity type configurations
         // This will automatically discover and apply configurations from all module Infrastructure assemblies
         var assemblies = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(a => a.FullName != null && 
+            .Where(a => a.FullName != null &&
                        (a.FullName.Contains("UniHub") && a.FullName.Contains("Infrastructure")))
             .ToList();
 
@@ -110,8 +122,78 @@ public class ApplicationDbContext : DbContext
         {
             modelBuilder.ApplyConfigurationsFromAssembly(assembly);
         }
+
+        if (_useInMemoryNotificationMetadataFix)
+        {
+            // NotificationConfiguration maps Metadata as OwnsOne (_data -> jsonb). InMemory needs a
+            // comparable store; Entity.Property(n => n.Metadata) conflicts with that ownership.
+            var dictComparer = new ValueComparer<Dictionary<string, string>>(
+                (c1, c2) => DictionaryEqualsOrdinalIgnoreCaseKeys(c1, c2),
+                c => DictionaryContentHashCode(c),
+                c => c == null
+                    ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    : new Dictionary<string, string>(c, StringComparer.OrdinalIgnoreCase));
+
+            modelBuilder.Entity<UniHub.Notification.Domain.Notifications.Notification>()
+                .OwnsOne(n => n.Metadata, metadata =>
+                {
+                    metadata.Property<Dictionary<string, string>>("_data")
+                        .HasConversion(
+                            v => System.Text.Json.JsonSerializer.Serialize(v ?? new Dictionary<string, string>()),
+                            v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(
+                                      string.IsNullOrEmpty(v) ? "{}" : v)
+                                  ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase))
+                        .Metadata.SetValueComparer(dictComparer);
+                });
+        }
     }
 
+    private static bool DictionaryEqualsOrdinalIgnoreCaseKeys(Dictionary<string, string>? a, Dictionary<string, string>? b)
+    {
+        if (ReferenceEquals(a, b)) return true;
+        if (a == null || b == null) return false;
+        if (a.Count != b.Count) return false;
+        foreach (var kv in a)
+        {
+            if (!TryGetValueOrdinalIgnoreCase(b, kv.Key, out var bv))
+                return false;
+            if (!string.Equals(kv.Value, bv, StringComparison.Ordinal))
+                return false;
+        }
+        return true;
+    }
+
+    private static bool TryGetValueOrdinalIgnoreCase(
+        Dictionary<string, string> dict,
+        string key,
+        out string value)
+    {
+        if (dict.TryGetValue(key, out value!))
+            return true;
+        foreach (var kv in dict)
+        {
+            if (string.Equals(kv.Key, key, StringComparison.OrdinalIgnoreCase))
+            {
+                value = kv.Value;
+                return true;
+            }
+        }
+
+        value = null!;
+        return false;
+    }
+
+    private static int DictionaryContentHashCode(Dictionary<string, string>? d)
+    {
+        if (d == null || d.Count == 0) return 0;
+        var hc = new HashCode();
+        foreach (var kv in d.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            hc.Add(StringComparer.OrdinalIgnoreCase.GetHashCode(kv.Key));
+            hc.Add(kv.Value?.GetHashCode() ?? 0);
+        }
+        return hc.ToHashCode();
+    }
     /// <summary>
     /// Saves all changes made in this context to the database and dispatches domain events.
     /// </summary>
@@ -123,5 +205,39 @@ public class ApplicationDbContext : DbContext
         // - Setting audit fields (AuditableEntityInterceptor)
         // - Collecting domain events (DomainEventInterceptor)
         return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Ensures module Infrastructure assemblies are loaded so <see cref="ModelBuilder.ApplyConfigurationsFromAssembly"/>
+    /// picks up Career, Forum, etc. Test hosts must still reference/copy those assemblies into output (project refs).
+    /// </summary>
+    private static void TryLoadInfrastructureConfigurationAssemblies()
+    {
+        ReadOnlySpan<string> simpleNames =
+        [
+            "UniHub.Forum.Infrastructure",
+            "UniHub.Identity.Infrastructure",
+            "UniHub.Learning.Infrastructure",
+            "UniHub.Chat.Infrastructure",
+            "UniHub.Career.Infrastructure",
+            "UniHub.Notification.Infrastructure",
+            "UniHub.AI.Infrastructure",
+        ];
+
+        foreach (var name in simpleNames)
+        {
+            try
+            {
+                Assembly.Load(new AssemblyName(name));
+            }
+            catch (FileNotFoundException)
+            {
+                // Assembly not on probing path (minimal host) — skip.
+            }
+            catch (BadImageFormatException)
+            {
+                // Skip invalid load attempts.
+            }
+        }
     }
 }

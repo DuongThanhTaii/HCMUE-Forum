@@ -117,6 +117,15 @@ export type UserListItemDto = {
   createdAt: string
 }
 
+/** Hub: `WebRtcSignalNotification` — signaling only; media is peer-to-peer. */
+export type WebRtcSignalPayload = {
+  conversationId: string
+  fromUserId: string
+  fromUserName: string
+  kind: string
+  payload: string
+}
+
 /** Hub payload: aligns with `MessageNotification` (camelCase JSON). */
 export type HubMessageNotification = {
   messageId: string

@@ -1,7 +1,12 @@
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using UniHub.Chat.Application.Abstractions;
+using UniHub.Chat.Application.Commands.ReportCallEnded;
+using UniHub.Chat.Application.Commands.ReportMissedCall;
+using UniHub.Chat.Domain.Conversations;
 
 namespace UniHub.Chat.Presentation.Hubs;
 
@@ -13,13 +18,19 @@ namespace UniHub.Chat.Presentation.Hubs;
 public sealed class ChatHub : Hub<IChatClient>
 {
     private readonly Services.IConnectionManager _connectionManager;
+    private readonly IConversationRepository _conversationRepository;
+    private readonly ISender _sender;
     private readonly ILogger<ChatHub> _logger;
 
     public ChatHub(
         Services.IConnectionManager connectionManager,
+        IConversationRepository conversationRepository,
+        ISender sender,
         ILogger<ChatHub> logger)
     {
         _connectionManager = connectionManager;
+        _conversationRepository = conversationRepository;
+        _sender = sender;
         _logger = logger;
     }
 
@@ -421,6 +432,196 @@ public sealed class ChatHub : Hub<IChatClient>
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error marking message {MessageId} as read", messageId);
+        }
+    }
+
+    #endregion
+
+    #region Missed call
+
+    /// <summary>
+    /// Called by the caller when they hang up before the callee answers.
+    /// Persists a MissedCall message visible to both sides and broadcasts it via hub.
+    /// </summary>
+    public async Task ReportMissedCall(Guid conversationId)
+    {
+        try
+        {
+            var userId = GetUserId();
+            if (!userId.HasValue)
+            {
+                throw new HubException("User not authenticated");
+            }
+
+            var command = new ReportMissedCallCommand(conversationId, userId.Value);
+            var result = await _sender.Send(command, Context.ConnectionAborted);
+
+            if (result.IsFailure)
+            {
+                _logger.LogWarning("ReportMissedCall failed: {Error}", result.Error.Message);
+                return;
+            }
+
+            var notification = new MessageNotification(
+                result.Value,
+                conversationId,
+                null,
+                userId.Value,
+                GetUserName(),
+                string.Empty,
+                "MissedCall",
+                DateTime.UtcNow);
+
+            await Clients.Group(GetConversationGroup(conversationId)).ReceiveMessage(notification);
+
+            _logger.LogInformation("MissedCall recorded for conversation {ConversationId} by {UserId}",
+                conversationId, userId.Value);
+        }
+        catch (Exception ex) when (ex is not HubException)
+        {
+            _logger.LogError(ex, "ReportMissedCall failed for conversation {ConversationId}", conversationId);
+        }
+    }
+
+    #endregion
+
+    #region Call ended
+
+    /// <summary>
+    /// Called by whoever hangs up a connected call. Persists a CallEnded message
+    /// visible to both participants and broadcasts it via hub.
+    /// </summary>
+    public async Task ReportCallEnded(Guid conversationId)
+    {
+        try
+        {
+            var userId = GetUserId();
+            if (!userId.HasValue)
+            {
+                throw new HubException("User not authenticated");
+            }
+
+            var command = new ReportCallEndedCommand(conversationId, userId.Value);
+            var result = await _sender.Send(command, Context.ConnectionAborted);
+
+            if (result.IsFailure)
+            {
+                _logger.LogWarning("ReportCallEnded failed: {Error}", result.Error.Message);
+                return;
+            }
+
+            var notification = new MessageNotification(
+                result.Value,
+                conversationId,
+                null,
+                userId.Value,
+                GetUserName(),
+                string.Empty,
+                "CallEnded",
+                DateTime.UtcNow);
+
+            await Clients.Group(GetConversationGroup(conversationId)).ReceiveMessage(notification);
+
+            _logger.LogInformation("CallEnded recorded for conversation {ConversationId} by {UserId}",
+                conversationId, userId.Value);
+        }
+        catch (Exception ex) when (ex is not HubException)
+        {
+            _logger.LogError(ex, "ReportCallEnded failed for conversation {ConversationId}", conversationId);
+        }
+    }
+
+    #endregion
+
+    #region WebRTC signaling
+
+    /// <summary>
+    /// Relay WebRTC SDP / ICE between two users who share the conversation (same membership rules as REST).
+    /// </summary>
+    public async Task RelayWebRtcSignal(Guid conversationId, Guid targetUserId, string kind, string? payload)
+    {
+        try
+        {
+            var userId = GetUserId();
+            if (!userId.HasValue)
+            {
+                throw new HubException("User not authenticated");
+            }
+
+            if (string.IsNullOrWhiteSpace(kind))
+            {
+                throw new HubException("Invalid signal kind");
+            }
+
+            var k = kind.Trim().ToLowerInvariant();
+            if (k is not ("offer" or "answer" or "ice" or "hangup"))
+            {
+                throw new HubException("Invalid signal kind");
+            }
+
+            payload ??= string.Empty;
+            if (k != "hangup" && string.IsNullOrWhiteSpace(payload))
+            {
+                throw new HubException("Payload required");
+            }
+
+            if (userId.Value == targetUserId)
+            {
+                return;
+            }
+
+            var conversation = await _conversationRepository.GetByIdAsync(
+                ConversationId.Create(conversationId),
+                Context.ConnectionAborted);
+
+            if (conversation is null)
+            {
+                _logger.LogWarning("RelayWebRtcSignal: conversation {ConversationId} not found", conversationId);
+                return;
+            }
+
+            if (!conversation.Participants.Contains(userId.Value) ||
+                !conversation.Participants.Contains(targetUserId))
+            {
+                _logger.LogWarning(
+                    "RelayWebRtcSignal: sender or target not in conversation {ConversationId}",
+                    conversationId);
+                return;
+            }
+
+            var targetConnections = await _connectionManager.GetUserConnectionsAsync(targetUserId);
+            if (targetConnections.Count == 0)
+            {
+                _logger.LogDebug("RelayWebRtcSignal: target user {TargetUserId} has no active connections", targetUserId);
+                // Let the caller fail fast when establishing media (SDP); ICE/hangup stay best-effort silent.
+                if (k is "offer" or "answer")
+                {
+                    throw new HubException("webrtc_peer_offline");
+                }
+
+                return;
+            }
+
+            var notification = new WebRtcSignalNotification(
+                conversationId,
+                userId.Value,
+                GetUserName(),
+                k,
+                payload);
+
+            await Clients.Clients(targetConnections).ReceiveWebRtcSignal(notification);
+
+            _logger.LogDebug(
+                "RelayWebRtcSignal: {Kind} from {FromUser} to {TargetUser} ({ConnCount} connections)",
+                k,
+                userId.Value,
+                targetUserId,
+                targetConnections.Count);
+        }
+        catch (Exception ex) when (ex is not HubException)
+        {
+            _logger.LogError(ex, "RelayWebRtcSignal failed for conversation {ConversationId}", conversationId);
+            throw;
         }
     }
 

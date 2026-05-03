@@ -39,7 +39,7 @@ public class RolesController : ControllerBase
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var roles = await _roleRepository.GetAllAsync(cancellationToken);
-        var response = roles.Select(MapToRoleResponse);
+        var response = roles.Select(r => MapToRoleResponse(r));
         return Ok(ApiResponses.Success(response));
     }
 
@@ -61,7 +61,7 @@ public class RolesController : ControllerBase
             return NotFound(ApiResponses.Failure("Role not found"));
         }
 
-        return Ok(ApiResponses.Success(MapToRoleResponse(role)));
+        return Ok(ApiResponses.Success(MapToRoleResponse(role, includePermissionAssignments: true)));
     }
 
     /// <summary>
@@ -218,8 +218,19 @@ public class RolesController : ControllerBase
         return Ok(ApiResponses.Success("Permission removed successfully"));
     }
 
-    private static RoleResponse MapToRoleResponse(Role role)
+    private static RoleResponse MapToRoleResponse(Role role, bool includePermissionAssignments = false)
     {
+        IReadOnlyList<RoleAssignedPermissionResponse>? assigned = null;
+        if (includePermissionAssignments && role.Permissions.Count > 0)
+        {
+            assigned = role.Permissions
+                .Select(rp => new RoleAssignedPermissionResponse(
+                    rp.PermissionId.Value,
+                    rp.Scope.Type.ToString(),
+                    rp.Scope.Value))
+                .ToList();
+        }
+
         return new RoleResponse(
             role.Id.Value,
             role.Name,
@@ -227,6 +238,7 @@ public class RolesController : ControllerBase
             role.IsDefault,
             role.IsSystemRole,
             role.Permissions.Count,
-            role.CreatedAt);
+            role.CreatedAt,
+            assigned);
     }
 }

@@ -17,6 +17,7 @@ import {
 import { getDockVisibility, setDockVisibility } from '../lib/dockStorage'
 import type { ChatThreadRef, ConversationDto } from '../types/chat.types'
 import { threadKey } from '../types/chat.types'
+import { ChatCallBar } from './ChatCallBar'
 import { ChatComposer } from './ChatComposer'
 import { ChatPeerAvatar } from './ChatPeerAvatar'
 import { ChatThread } from './ChatThread'
@@ -224,7 +225,7 @@ export function ChatDock() {
         </div>
       </div>
 
-      <div className="flex h-[min(420px,72vh)] min-h-[260px] flex-col overflow-hidden">
+      <div className="flex h-[min(520px,82vh)] min-h-[320px] max-h-[85vh] flex-col overflow-hidden">
         {panel === 'list' && (
           <>
             <div className="min-h-0 flex-1 overflow-y-auto px-1 py-1">
@@ -294,8 +295,9 @@ export function ChatDock() {
         )}
 
         {panel === 'thread' && activeThreadRef && (
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div className="min-h-0 flex-1 overflow-hidden px-2 pt-1">
+          <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+            <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden px-2 pt-1">
+              <ChatCallBar threadRef={activeThreadRef} conversation={activeConv ?? null} />
               <ChatThread threadRef={activeThreadRef} currentUserId={currentUserId} />
             </div>
             <div className="shrink-0 border-t border-slate-200 bg-slate-50/80 px-1 pb-2 pt-1">

@@ -272,12 +272,95 @@ public sealed class Message : Entity<MessageId>
     }
 
     /// <summary>
+    /// Tạo missed call message — caller ID lưu vào senderId để hiển thị "X đã gọi nhỡ".
+    /// </summary>
+    public static Result<Message> CreateMissedCall(
+        ConversationId conversationId,
+        Guid callerId)
+    {
+        if (conversationId == null)
+        {
+            return Result.Failure<Message>(new Error("Message.InvalidConversation", "Conversation ID cannot be null"));
+        }
+
+        if (callerId == Guid.Empty)
+        {
+            return Result.Failure<Message>(new Error("Message.InvalidSender", "Caller ID cannot be empty"));
+        }
+
+        var messageId = MessageId.CreateUnique();
+        var sentAt = DateTime.UtcNow;
+
+        // content intentionally empty — UI resolves display from senderId + type
+        var message = new Message(
+            messageId,
+            conversationId,
+            callerId,
+            string.Empty,
+            MessageType.MissedCall,
+            null,
+            new List<Attachment>(),
+            sentAt);
+
+        message.AddDomainEvent(new MessageSentEvent(
+            messageId.Value,
+            conversationId.Value,
+            callerId,
+            MessageType.MissedCall,
+            string.Empty,
+            sentAt));
+
+        return Result.Success(message);
+    }
+
+    /// <summary>
+    /// Tạo call-ended message khi cuộc gọi kết thúc sau khi đã kết nối.
+    /// </summary>
+    public static Result<Message> CreateCallEnded(
+        ConversationId conversationId,
+        Guid hangUpUserId)
+    {
+        if (conversationId == null)
+        {
+            return Result.Failure<Message>(new Error("Message.InvalidConversation", "Conversation ID cannot be null"));
+        }
+
+        if (hangUpUserId == Guid.Empty)
+        {
+            return Result.Failure<Message>(new Error("Message.InvalidSender", "Hang-up user ID cannot be empty"));
+        }
+
+        var messageId = MessageId.CreateUnique();
+        var sentAt = DateTime.UtcNow;
+
+        var message = new Message(
+            messageId,
+            conversationId,
+            hangUpUserId,
+            string.Empty,
+            MessageType.CallEnded,
+            null,
+            new List<Attachment>(),
+            sentAt);
+
+        message.AddDomainEvent(new MessageSentEvent(
+            messageId.Value,
+            conversationId.Value,
+            hangUpUserId,
+            MessageType.CallEnded,
+            string.Empty,
+            sentAt));
+
+        return Result.Success(message);
+    }
+
+    /// <summary>
     /// Edit message content (chỉ sender mới được edit, không edit được system message)
     /// </summary>
     public Result Edit(string newContent, Guid editorId)
     {
-        // System messages cannot be edited
-        if (Type == MessageType.System)
+        // System / call-event messages cannot be edited
+        if (Type == MessageType.System || Type == MessageType.MissedCall || Type == MessageType.CallEnded)
         {
             return Result.Failure(new Error("Message.CannotEditSystem", "System messages cannot be edited"));
         }
