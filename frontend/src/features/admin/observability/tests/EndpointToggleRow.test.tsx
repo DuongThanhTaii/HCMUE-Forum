@@ -8,9 +8,7 @@ vi.mock('react-i18next', () => ({
     t: (key: string) =>
       (
         {
-          'admin.togglesPage.row.disable': 'Disable',
-          'admin.togglesPage.row.confirmDisable': 'Confirm disable',
-          'admin.togglesPage.row.disableReason': 'Disable reason',
+          'admin.togglesPage.row.reasonRequired': 'Reason required',
         } as Record<string, string>
       )[key] ?? key,
   }),
@@ -33,15 +31,22 @@ describe('EndpointToggleRow', () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
     render(<EndpointToggleRow toggle={makeToggle()} isSubmitting={false} onSubmit={onSubmit} />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Disable' }))
+    // Find the switch button
+    const switchButton = screen.getByRole('switch')
+    fireEvent.click(switchButton)
+
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Confirm disable' }))
+      // Find confirm disable button (Xác nhận Tắt)
+      fireEvent.click(screen.getByRole('button', { name: 'Xác nhận Tắt' }))
     })
     expect(onSubmit).not.toHaveBeenCalled()
 
-    fireEvent.change(screen.getByLabelText('Disable reason'), { target: { value: 'Maintenance window' } })
+    // Find the textarea by placeholder
+    const textarea = screen.getByPlaceholderText('Nhập lý do tắt API...')
+    fireEvent.change(textarea, { target: { value: 'Maintenance window' } })
+    
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Confirm disable' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Xác nhận Tắt' }))
     })
     expect(onSubmit).toHaveBeenCalledWith('Api.Identity.AuthorizationAdmin.SetEndpointToggle', false, 'Maintenance window')
   })

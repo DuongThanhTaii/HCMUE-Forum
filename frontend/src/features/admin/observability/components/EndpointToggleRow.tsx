@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { AlertTriangle, Info } from 'lucide-react'
 import type { EndpointToggleDto } from '../../types/admin.types'
 
 interface EndpointToggleRowProps {
@@ -31,68 +32,115 @@ export function EndpointToggleRow({ toggle, isSubmitting, onSubmit }: EndpointTo
   }
 
   return (
-    <article className="rounded-lg border border-slate-200 p-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <p className="font-medium text-slate-900">{toggle.endpointKey}</p>
-          <p className="text-xs text-slate-500">{t('admin.togglesPage.row.version')} {toggle.version}</p>
+    <article className={`p-4 transition-colors ${toggle.isEnabled ? 'hover:bg-slate-50' : 'bg-amber-50/50 hover:bg-amber-50'}`}>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h3 
+              className="font-mono text-[13px] font-semibold text-slate-900 truncate" 
+              title={toggle.endpointKey}
+            >
+              {toggle.endpointKey}
+            </h3>
+            {!toggle.isEnabled && (
+              <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800 uppercase tracking-wide">
+                Disabled
+              </span>
+            )}
+          </div>
+          <div className="mt-1 flex items-center gap-3 text-[11px] text-slate-500">
+            <span>Version: {toggle.version}</span>
+            <span>&bull;</span>
+            <span className="flex items-center gap-1" title="Last updated by">
+              <Info className="h-3 w-3" />
+              {toggle.updatedBy || 'System'}
+            </span>
+          </div>
         </div>
-        {toggle.isEnabled ? (
-          <button
-            type="button"
-            className="rounded-md border border-rose-300 px-3 py-1.5 text-sm text-rose-700 hover:bg-rose-50"
-            onClick={() => setIsConfirmOpen((value) => !value)}
-            disabled={isSubmitting}
-          >
-            {t('admin.togglesPage.row.disable')}
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="rounded-md border border-emerald-300 px-3 py-1.5 text-sm text-emerald-700 hover:bg-emerald-50"
-            onClick={() => void enableToggle()}
-            disabled={isSubmitting}
-          >
-            {t('admin.togglesPage.row.enable')}
-          </button>
-        )}
+
+        <div className="flex-shrink-0">
+          {toggle.isEnabled ? (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={true}
+              onClick={() => setIsConfirmOpen(!isConfirmOpen)}
+              disabled={isSubmitting}
+              className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-primary-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 disabled:opacity-50"
+            >
+              <span className="pointer-events-none inline-block h-5 w-5 translate-x-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={false}
+              onClick={() => void enableToggle()}
+              disabled={isSubmitting}
+              className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-slate-200 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 disabled:opacity-50"
+            >
+              <span className="pointer-events-none inline-block h-5 w-5 translate-x-0 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" />
+            </button>
+          )}
+        </div>
       </div>
 
-      <p className="mt-2 text-xs text-slate-500">{t('admin.togglesPage.row.lastReason')}: {toggle.reason || t('admin.togglesPage.row.notAvailable')}</p>
+      {!toggle.isEnabled && toggle.reason && (
+        <div className="mt-3 flex items-start gap-2 rounded-md bg-amber-100/50 p-3 text-sm text-amber-900 border border-amber-200/50">
+          <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
+          <div>
+            <p className="font-semibold text-amber-800">API Disabled</p>
+            <p className="mt-0.5 text-amber-700/80">{toggle.reason}</p>
+          </div>
+        </div>
+      )}
 
       {toggle.isEnabled && isConfirmOpen ? (
-        <div className="mt-3 space-y-2 rounded-md border border-rose-200 bg-rose-50 p-3">
-          <label className="block text-sm font-medium text-rose-900" htmlFor={`disable-reason-${toggle.endpointKey}`}>
-            {t('admin.togglesPage.row.disableReason')}
-          </label>
-          <textarea
-            id={`disable-reason-${toggle.endpointKey}`}
-            className="w-full rounded-md border border-rose-300 px-3 py-2 text-sm"
-            rows={2}
-            value={reason}
-            onChange={(event) => {
-              setReason(event.target.value)
-              if (event.target.value.trim()) setIsReasonInvalid(false)
-            }}
-          />
-          {isReasonInvalid ? <p className="text-xs text-rose-700">{t('admin.togglesPage.row.reasonRequired')}</p> : null}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className="rounded-md bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-700"
-              onClick={() => void disableWithReason()}
-              disabled={isSubmitting}
-            >
-              {t('admin.togglesPage.row.confirmDisable')}
-            </button>
-            <button
-              type="button"
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
-              onClick={() => setIsConfirmOpen(false)}
-              disabled={isSubmitting}
-            >
-              {t('common.cancel')}
-            </button>
+        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center gap-2 text-amber-800 mb-3">
+            <AlertTriangle className="h-5 w-5" />
+            <h4 className="font-bold">Xác nhận tắt API</h4>
+          </div>
+          <p className="text-sm text-amber-700 mb-3">
+            Toàn bộ hệ thống sẽ bị chặn khi gọi đến endpoint này. Vui lòng ghi rõ lý do.
+          </p>
+          
+          <div className="space-y-3">
+            <textarea
+              id={`disable-reason-${toggle.endpointKey}`}
+              className="w-full rounded-md border border-amber-300 bg-white px-3 py-2 text-sm placeholder-slate-400 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              placeholder="Nhập lý do tắt API..."
+              rows={2}
+              value={reason}
+              onChange={(event) => {
+                setReason(event.target.value)
+                if (event.target.value.trim()) setIsReasonInvalid(false)
+              }}
+            />
+            {isReasonInvalid ? <p className="text-xs font-medium text-rose-600">{t('admin.togglesPage.row.reasonRequired')}</p> : null}
+            
+            <div className="flex gap-2 justify-end pt-1">
+              <button
+                type="button"
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-amber-100 hover:text-slate-900 transition-colors"
+                onClick={() => {
+                  setIsConfirmOpen(false)
+                  setReason('')
+                  setIsReasonInvalid(false)
+                }}
+                disabled={isSubmitting}
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                type="button"
+                className="rounded-md bg-amber-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors disabled:opacity-50"
+                onClick={() => void disableWithReason()}
+                disabled={isSubmitting}
+              >
+                Xác nhận Tắt
+              </button>
+            </div>
           </div>
         </div>
       ) : null}
