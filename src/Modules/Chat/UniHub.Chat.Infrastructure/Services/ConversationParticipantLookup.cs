@@ -26,14 +26,16 @@ public sealed class ConversationParticipantLookup : IConversationParticipantLook
             return new Dictionary<Guid, ParticipantDisplay>();
         }
 
-        var distinct = userIds.Distinct().ToList();
+        var distinctIds = userIds.Distinct().Select(UserId.Create).ToList();
 
+        // Contains(Guid[]) against PK mapped as UserId breaks Npgsql array/converter typing.
+        // Match on UserId so translation uses uuid IN (...) without mixed element types.
         var rows = await _context.Set<User>()
             .AsNoTracking()
-            .Where(u => distinct.Contains(EF.Property<Guid>(u, nameof(User.Id))))
+            .Where(u => distinctIds.Contains(u.Id))
             .Select(u => new
             {
-                Id = EF.Property<Guid>(u, nameof(User.Id)),
+                Id = u.Id.Value,
                 First = u.Profile.FirstName,
                 Last = u.Profile.LastName,
                 Email = u.Email.Value,

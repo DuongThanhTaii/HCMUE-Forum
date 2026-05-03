@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MoreHorizontal } from 'lucide-react'
+import { MoreHorizontal, Phone, PhoneMissed } from 'lucide-react'
 import {
   useDeleteMessageMutation,
   useEditMessageMutation,
@@ -108,8 +108,8 @@ export function ChatThread({
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-1">
-      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto rounded-lg border border-slate-200 bg-white p-3">
+    <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col gap-1">
+      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain rounded-lg border border-slate-200 bg-white p-3">
         {messages.length === 0 ? (
           <p className="text-center text-sm text-slate-500">{t('chat.thread.noMessagesYet')}</p>
         ) : (
@@ -174,7 +174,9 @@ function MessageBubble({
     Boolean(conversationId) &&
     isSelf &&
     !message.isDeleted &&
-    typeUpper !== 'SYSTEM'
+    typeUpper !== 'SYSTEM' &&
+    typeUpper !== 'MISSEDCALL' &&
+    typeUpper !== 'CALLENDED'
   const canEdit = canModify && hasText
 
   const submitEdit = async () => {
@@ -201,6 +203,32 @@ function MessageBubble({
     } catch {
       /* optional */
     }
+  }
+
+  if (typeUpper === 'MISSEDCALL') {
+    return (
+      <div className="flex justify-center py-1.5">
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs text-red-600 ring-1 ring-red-100">
+          <PhoneMissed className="h-3.5 w-3.5 shrink-0" />
+          {isSelf
+            ? t('chat.calls.missedCallSent')
+            : t('chat.calls.missedCallReceived', {
+                name: message.senderDisplayName?.trim() || senderLabel,
+              })}
+        </div>
+      </div>
+    )
+  }
+
+  if (typeUpper === 'CALLENDED') {
+    return (
+      <div className="flex justify-center py-1.5">
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-500 ring-1 ring-slate-200">
+          <Phone className="h-3.5 w-3.5 shrink-0" />
+          {t('chat.calls.callEnded')}
+        </div>
+      </div>
+    )
   }
 
   if (message.isDeleted) {

@@ -28,5 +28,15 @@ public enum MessageType
     /// <summary>
     /// System message (user joined, user left, etc.)
     /// </summary>
-    System = 4
+    System = 4,
+
+    /// <summary>
+    /// Missed call notification — persisted as a system-like message; content is caller display name.
+    /// </summary>
+    MissedCall = 5,
+
+    /// <summary>
+    /// Call ended — persisted when the caller or callee ends a connected call.
+    /// </summary>
+    CallEnded = 6
 }

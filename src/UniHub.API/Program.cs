@@ -131,6 +131,12 @@ try
 
     // Add Notification module
     builder.Services.AddNotificationInfrastructure(builder.Configuration);
+    builder.Services.AddScoped<
+        UniHub.Notification.Application.Abstractions.Notifications.INotificationPusher,
+        UniHub.Notification.Presentation.Services.SignalRNotificationPusher>();
+    builder.Services.AddScoped<
+        UniHub.Notification.Application.Abstractions.IPostAuthorLookup,
+        UniHub.API.Services.PostAuthorLookup>();
 
     // Add AI module
     builder.Services.AddAIInfrastructure(builder.Configuration);

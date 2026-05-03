@@ -5,6 +5,7 @@ import { logout, selectAuth, selectIsAuthenticated } from '@features/auth/model/
 import { useAppDispatch } from '@shared/hooks/useAppDispatch';
 import { useAppSelector } from '@shared/hooks/useAppSelector';
 import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
+import { NotificationBell } from '@features/notifications/components/NotificationBell';
 
 const MAIN_NAV = [
   { to: '/home', prefix: '/home' },
@@ -113,6 +114,7 @@ export function ForumTopbar() {
               </Link>
             ) : null}
             <LanguageSwitcher />
+            {isAuthenticated && <NotificationBell />}
             <label className="flex h-8 items-center gap-2 rounded-md border border-slate-300 bg-white px-2 text-slate-500">
               <Search className="h-3.5 w-3.5" />
               <input

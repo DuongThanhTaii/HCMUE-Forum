@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useState } from 'react'
+import { startTransition, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { skipToken } from '@reduxjs/toolkit/query/react'
@@ -56,6 +56,11 @@ export function ChatPage() {
   } = useChatContext()
 
   const { data: convos, isLoading: convLoading } = useGetConversationsQuery()
+
+  const selectedConversation = useMemo(() => {
+    if (selected?.kind !== 'conversation') return null
+    return convos?.find((c) => c.id === selected.conversationId) ?? null
+  }, [convos, selected])
 
   const conversationFromUrl = searchParams.get('conversation')
 
@@ -435,7 +440,7 @@ export function ChatPage() {
                 )}
               </div>
             </div>
-            <ChatCallBar threadRef={selected} />
+            <ChatCallBar threadRef={selected} conversation={selectedConversation} />
             <ChatThread threadRef={selected} currentUserId={currentUserId} />
             <ChatComposer threadRef={selected} />
           </>

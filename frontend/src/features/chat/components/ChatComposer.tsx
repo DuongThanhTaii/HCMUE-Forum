@@ -1,124 +1,131 @@
-import { useCallback, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Mic, Paperclip } from "lucide-react";
 import {
   useSendMessageMutation,
   useSendMessageWithAttachmentsMutation,
   useUploadChatFileMutation,
-} from '../api/chat.api'
-import { useChatContext } from '../context/ChatContext'
-import { useTypingComposer } from '../hooks/useTypingComposer'
-import { useVoiceRecorder } from '../hooks/useVoiceRecorder'
-import { enqueueOutbox, openOutboxDb } from '../lib/outboxDb'
-import { getRtkQueryErrorMessage } from '../lib/rtkErrorMessage'
-import { drainChatOutbox } from '../lib/processOutbox'
-import type { ChatThreadRef } from '../types/chat.types'
-import { useAppSelector } from '@shared/hooks/useAppSelector'
+} from "../api/chat.api";
+import { useChatContext } from "../context/ChatContext";
+import { useTypingComposer } from "../hooks/useTypingComposer";
+import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
+import { enqueueOutbox, openOutboxDb } from "../lib/outboxDb";
+import { getRtkQueryErrorMessage } from "../lib/rtkErrorMessage";
+import { drainChatOutbox } from "../lib/processOutbox";
+import type { ChatThreadRef } from "../types/chat.types";
+import { useAppSelector } from "@shared/hooks/useAppSelector";
 
 function fileExtForAudioMime(mime: string): string {
-  if (mime.includes('mp4') || mime.includes('m4a') || mime.includes('aac')) return 'm4a'
-  if (mime.includes('ogg')) return 'ogg'
-  return 'webm'
+  if (mime.includes("mp4") || mime.includes("m4a") || mime.includes("aac"))
+    return "m4a";
+  if (mime.includes("ogg")) return "ogg";
+  return "webm";
 }
 
-function formatUploadError(t: (k: string) => string, err: unknown, hasToken: boolean): string {
-  const msg = getRtkQueryErrorMessage(err)
-  if (msg) return msg
-  if (!hasToken) return t('chat.uploadNeedLogin')
-  return t('chat.uploadError')
+function formatUploadError(
+  t: (k: string) => string,
+  err: unknown,
+  hasToken: boolean,
+): string {
+  const msg = getRtkQueryErrorMessage(err);
+  if (msg) return msg;
+  if (!hasToken) return t("chat.uploadNeedLogin");
+  return t("chat.uploadError");
 }
 
 export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
-  const { t } = useTranslation()
-  const accessToken = useAppSelector((s) => s.auth.accessToken)
-  const { sendTyping, sendChannelMessage } = useChatContext()
-  const [text, setText] = useState('')
-  const [sendMessage] = useSendMessageMutation()
-  const [uploadFile] = useUploadChatFileMutation()
-  const [sendAttachments] = useSendMessageWithAttachmentsMutation()
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const voice = useVoiceRecorder()
+  const { t } = useTranslation();
+  const accessToken = useAppSelector((s) => s.auth.accessToken);
+  const { sendTyping, sendChannelMessage } = useChatContext();
+  const [text, setText] = useState("");
+  const [sendMessage] = useSendMessageMutation();
+  const [uploadFile] = useUploadChatFileMutation();
+  const [sendAttachments] = useSendMessageWithAttachmentsMutation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const voice = useVoiceRecorder();
 
-  const conversationId = threadRef.kind === 'conversation' ? threadRef.conversationId : null
-  const hasToken = Boolean(accessToken?.trim())
+  const conversationId =
+    threadRef.kind === "conversation" ? threadRef.conversationId : null;
+  const hasToken = Boolean(accessToken?.trim());
 
   const { onComposerChange, flushStop } = useTypingComposer({
-    enabled: threadRef.kind === 'conversation',
+    enabled: threadRef.kind === "conversation",
     conversationId,
     sendTyping,
-  })
+  });
 
   const handleChange = (v: string) => {
-    setText(v)
-    onComposerChange(v)
-  }
+    setText(v);
+    onComposerChange(v);
+  };
 
   const sendWithOutboxFallback = useCallback(
     async (content: string) => {
-      if (threadRef.kind !== 'conversation') return
+      if (threadRef.kind !== "conversation") return;
       try {
         await sendMessage({
           conversationId: threadRef.conversationId,
           content,
-        }).unwrap()
-        await drainChatOutbox()
+        }).unwrap();
+        await drainChatOutbox();
       } catch {
-        const db = await openOutboxDb()
-        const id = crypto.randomUUID()
+        const db = await openOutboxDb();
+        const id = crypto.randomUUID();
         const enq = await enqueueOutbox(db, {
           id,
           conversationId: threadRef.conversationId,
-          body: { type: 'text', content },
+          body: { type: "text", content },
           attempts: 0,
           createdAt: Date.now(),
-        })
-        if (enq === 'full') {
-          window.alert(t('chat.outbox.full'))
+        });
+        if (enq === "full") {
+          window.alert(t("chat.outbox.full"));
         }
       }
     },
-    [sendMessage, t, threadRef]
-  )
+    [sendMessage, t, threadRef],
+  );
 
   const submitText = async () => {
-    const trimmed = text.trim()
-    if (!trimmed) return
-    flushStop()
-    setText('')
-    if (threadRef.kind === 'channel') {
-      await sendChannelMessage(threadRef.channelId, trimmed)
-      return
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    flushStop();
+    setText("");
+    if (threadRef.kind === "channel") {
+      await sendChannelMessage(threadRef.channelId, trimmed);
+      return;
     }
     if (!navigator.onLine) {
-      const db = await openOutboxDb()
-      const id = crypto.randomUUID()
+      const db = await openOutboxDb();
+      const id = crypto.randomUUID();
       const enq = await enqueueOutbox(db, {
         id,
         conversationId: threadRef.conversationId,
-        body: { type: 'text', content: trimmed },
+        body: { type: "text", content: trimmed },
         attempts: 0,
         createdAt: Date.now(),
-      })
-      if (enq === 'full') {
-        window.alert(t('chat.outbox.full'))
+      });
+      if (enq === "full") {
+        window.alert(t("chat.outbox.full"));
       }
-      return
+      return;
     }
-    await sendWithOutboxFallback(trimmed)
-  }
+    await sendWithOutboxFallback(trimmed);
+  };
 
   const onPickFile = async (files: FileList | null) => {
-    if (!files?.length || threadRef.kind !== 'conversation') return
+    if (!files?.length || threadRef.kind !== "conversation") return;
     if (!hasToken) {
-      window.alert(t('chat.uploadNeedLogin'))
-      if (fileInputRef.current) fileInputRef.current.value = ''
-      return
+      window.alert(t("chat.uploadNeedLogin"));
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
     }
-    const file = files[0]
-    flushStop()
-    const fd = new FormData()
-    fd.append('file', file, file.name)
+    const file = files[0];
+    flushStop();
+    const fd = new FormData();
+    fd.append("file", file, file.name);
     try {
-      const up = await uploadFile(fd).unwrap()
+      const up = await uploadFile(fd).unwrap();
       await sendAttachments({
         conversationId: threadRef.conversationId,
         content: text.trim() || null,
@@ -131,29 +138,31 @@ export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
             thumbnailUrl: null,
           },
         ],
-      }).unwrap()
-      setText('')
+      }).unwrap();
+      setText("");
     } catch (e) {
-      window.alert(formatUploadError(t, e, hasToken))
+      window.alert(formatUploadError(t, e, hasToken));
     }
-    if (fileInputRef.current) fileInputRef.current.value = ''
-  }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const sendVoiceIfReady = async () => {
-    const recorded = voice.blob
-    if (!recorded || threadRef.kind !== 'conversation') return
+    const recorded = voice.blob;
+    if (!recorded || threadRef.kind !== "conversation") return;
     if (!hasToken) {
-      window.alert(t('chat.uploadNeedLogin'))
-      return
+      window.alert(t("chat.uploadNeedLogin"));
+      return;
     }
-    const mime = recorded.type || voice.lastMime || 'audio/webm'
-    const ext = fileExtForAudioMime(mime)
-    const file = new File([recorded], `voice-${Date.now()}.${ext}`, { type: mime })
-    voice.reset()
-    const fd = new FormData()
-    fd.append('file', file, file.name)
+    const mime = recorded.type || voice.lastMime || "audio/webm";
+    const ext = fileExtForAudioMime(mime);
+    const file = new File([recorded], `voice-${Date.now()}.${ext}`, {
+      type: mime,
+    });
+    voice.reset();
+    const fd = new FormData();
+    fd.append("file", file, file.name);
     try {
-      const up = await uploadFile(fd).unwrap()
+      const up = await uploadFile(fd).unwrap();
       await sendAttachments({
         conversationId: threadRef.conversationId,
         content: null,
@@ -166,112 +175,126 @@ export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
             thumbnailUrl: null,
           },
         ],
-      }).unwrap()
+      }).unwrap();
     } catch (e) {
-      window.alert(formatUploadError(t, e, hasToken))
+      window.alert(formatUploadError(t, e, hasToken));
     }
-  }
+  };
 
   return (
     <div className="space-y-2 border-t border-slate-200 pt-3">
       {voice.error && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-2 py-1.5 text-xs text-red-800">
-          {voice.error === 'VOICE_EMPTY' ? t('chat.voice.empty') : voice.error}
+          {voice.error === "VOICE_EMPTY" ? t("chat.voice.empty") : voice.error}
         </p>
       )}
 
-      {voice.state === 'recording' && (
+      {voice.state === "recording" && (
         <div className="flex items-center justify-between rounded-lg bg-slate-100 px-3 py-2 text-sm">
           <span>
-            {t('chat.voice.recording')} · {voice.seconds}s
+            {t("chat.voice.recording")} · {voice.seconds}s
           </span>
           <div className="flex gap-2">
             <button
               type="button"
               className="rounded-md border border-slate-300 px-2 py-1 text-xs"
               onClick={() => {
-                voice.cancelRecording()
+                voice.cancelRecording();
               }}
             >
-              {t('chat.voice.discard')}
+              {t("chat.voice.discard")}
             </button>
             <button
               type="button"
               className="rounded-md bg-indigo-600 px-2 py-1 text-xs text-white"
               onClick={() => {
-                voice.finishRecording()
+                voice.finishRecording();
               }}
             >
-              {t('chat.voice.stop')}
+              {t("chat.voice.stop")}
             </button>
           </div>
         </div>
       )}
 
-      {voice.state === 'stopped' && voice.blob && threadRef.kind === 'conversation' && (
-        <div className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm">
-          <span>{t('chat.voice.preview')}</span>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className="rounded-md border border-slate-300 px-2 py-1 text-xs"
-              onClick={() => voice.reset()}
-            >
-              {t('chat.voice.discard')}
-            </button>
-            <button
-              type="button"
-              className="rounded-md bg-indigo-600 px-2 py-1 text-xs text-white"
-              onClick={() => void sendVoiceIfReady()}
-            >
-              {t('chat.voice.send')}
-            </button>
+      {voice.state === "stopped" &&
+        voice.blob &&
+        threadRef.kind === "conversation" && (
+          <div className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm">
+            <span>{t("chat.voice.preview")}</span>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className="rounded-md border border-slate-300 px-2 py-1 text-xs"
+                onClick={() => voice.reset()}
+              >
+                {t("chat.voice.discard")}
+              </button>
+              <button
+                type="button"
+                className="rounded-md bg-indigo-600 px-2 py-1 text-xs text-white"
+                onClick={() => void sendVoiceIfReady()}
+              >
+                {t("chat.voice.send")}
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="flex flex-wrap items-end gap-2">
-        {threadRef.kind === 'conversation' && (
-          <>
+      <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+        <div className="min-h-[2.5rem] min-w-0 flex-1 rounded-2xl border border-slate-300 bg-slate-50/90 shadow-sm transition-colors focus-within:border-indigo-400 focus-within:bg-white focus-within:shadow-md focus-within:ring-2 focus-within:ring-indigo-500/25 sm:min-h-[2.75rem]">
+          {threadRef.kind === "conversation" && (
             <input
               ref={fileInputRef}
               type="file"
               className="hidden"
               onChange={(e) => void onPickFile(e.target.files)}
             />
+          )}
+          <textarea
+            value={text}
+            onChange={(e) => handleChange(e.target.value)}
+            onBlur={() => flushStop()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                void submitText();
+              }
+            }}
+            placeholder={t("chat.typeMessage")}
+            rows={1}
+            className="max-h-28 min-h-[2.5rem] w-full resize-none border-0 bg-transparent px-3 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-0 placeholder:text-slate-400 focus:ring-0 disabled:opacity-50 sm:min-h-[2.75rem] sm:text-[0.9375rem]"
+          />
+        </div>
+        {threadRef.kind === "conversation" && (
+          <>
             <button
               type="button"
-              className="rounded-lg border border-slate-300 px-2 py-2 text-xs text-slate-700"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-200/90 hover:text-indigo-600 active:bg-slate-200 sm:h-11 sm:w-11"
               onClick={() => fileInputRef.current?.click()}
+              aria-label={t("chat.attachFile")}
             >
-              {t('chat.attachFile')}
+              <Paperclip className="h-[18px] w-[18px]" strokeWidth={2} />
             </button>
             <button
               type="button"
-              className="rounded-lg border border-slate-300 px-2 py-2 text-xs text-slate-700"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-200/90 hover:text-indigo-600 active:bg-slate-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-slate-500 sm:h-11 sm:w-11"
               onClick={() => void voice.start()}
-              disabled={voice.state !== 'idle'}
+              disabled={voice.state !== "idle"}
+              aria-label={t("chat.voice.start")}
             >
-              {t('chat.voice.start')}
+              <Mic className="h-[18px] w-[18px]" strokeWidth={2} />
             </button>
           </>
         )}
-        <textarea
-          value={text}
-          onChange={(e) => handleChange(e.target.value)}
-          onBlur={() => flushStop()}
-          placeholder={t('chat.typeMessage')}
-          rows={2}
-          className="min-h-[44px] flex-1 resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring-2"
-        />
         <button
           type="button"
           onClick={() => void submitText()}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-medium text-white hover:bg-indigo-700 sm:h-11 sm:px-5"
         >
-          {t('chat.send')}
+          {t("chat.send")}
         </button>
       </div>
     </div>
-  )
+  );
 }

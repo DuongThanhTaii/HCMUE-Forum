@@ -12,12 +12,15 @@ import {
   readChannelIdFromPayload,
   readConversationIdFromPayload,
 } from './mapHubMessage'
-import type { HubMessageNotification } from '../types/chat.types'
+import type { HubMessageNotification, WebRtcSignalPayload } from '../types/chat.types'
 
 export function createChatConnection(getAccessToken: () => string | null): HubConnection {
   return new signalR.HubConnectionBuilder()
     .withUrl(getChatHubUrl(), {
       accessTokenFactory: async () => getAccessToken() ?? '',
+      // Prefer WebSocket; fall back to LongPolling if WS unavailable (e.g. some proxies).
+      transport:
+        signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling,
     })
     .withAutomaticReconnect([0, 2000, 5000, 10_000])
     .build()
@@ -36,7 +39,25 @@ export const CHAT_HUB_CLIENT_METHODS = [
   'messageRead',
   'channelUpdated',
   'userStatusChanged',
+  'receiveWebRtcSignal',
 ] as const
+
+export function parseWebRtcSignalPayload(raw: unknown): WebRtcSignalPayload | null {
+  if (!raw || typeof raw !== 'object') return null
+  const o = raw as Record<string, unknown>
+  const conversationId = o.conversationId != null ? String(o.conversationId) : ''
+  const fromUserId = o.fromUserId != null ? String(o.fromUserId) : ''
+  const kind = o.kind != null ? String(o.kind) : ''
+  const payload = o.payload != null ? String(o.payload) : ''
+  if (!conversationId || !fromUserId || !kind) return null
+  return {
+    conversationId,
+    fromUserId,
+    fromUserName: o.fromUserName != null ? String(o.fromUserName) : '',
+    kind: kind.toLowerCase(),
+    payload,
+  }
+}
 
 export type ChatHubHandlers = {
   onReceiveMessage?: (msg: HubMessageNotification) => void
@@ -46,6 +67,7 @@ export type ChatHubHandlers = {
     conversationId: string
     isTyping: boolean
   }) => void
+  onWebRtcSignal?: (payload: WebRtcSignalPayload) => void
 }
 
 export function attachChatHubHandlers(
@@ -109,6 +131,11 @@ export function attachChatHubHandlers(
     dispatch(chatApi.util.invalidateTags([{ type: 'ChatConversation', id: 'LIST' }]))
   }
 
+  const onWebRtcSignal = (payload: unknown) => {
+    const p = parseWebRtcSignalPayload(payload)
+    if (p) handlers.onWebRtcSignal?.(p)
+  }
+
   connection.on('receiveMessage', onReceive)
   connection.on('messageEdited', onMessageEdited)
   connection.on('messageDeleted', onMessageDeleted)
@@ -120,6 +147,7 @@ export function attachChatHubHandlers(
   connection.on('messageRead', onMessageRead)
   connection.on('channelUpdated', onChannelUpdated)
   connection.on('userStatusChanged', onUserStatusChanged)
+  connection.on('receiveWebRtcSignal', onWebRtcSignal)
 }
 
 export function detachChatHubHandlers(connection: HubConnection): void {

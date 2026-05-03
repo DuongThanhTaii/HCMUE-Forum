@@ -15,7 +15,7 @@ import { chatApi } from '../api/chat.api'
 import { attachChatHubHandlers, createChatConnection, detachChatHubHandlers } from '../lib/chatHub'
 import { notifyInboundChatMessage } from '../lib/chatNotifications'
 import { drainChatOutbox } from '../lib/processOutbox'
-import type { ChatThreadRef, HubMessageNotification } from '../types/chat.types'
+import type { ChatThreadRef, HubMessageNotification, WebRtcSignalPayload } from '../types/chat.types'
 import { threadKey as threadKeyOf } from '../types/chat.types'
 
 export type HubConnectionStatus =
@@ -50,6 +50,18 @@ type ChatContextValue = {
   /** Display names currently typing (conversation threads only), from hub `userTyping`. */
   typingPeerNamesByConversation: Record<string, string[]>
   totalUnread: number
+  /** WebRTC signaling (see `receiveWebRtcSignal` on hub). */
+  subscribeWebRtcSignal: (handler: (payload: WebRtcSignalPayload) => void) => () => void
+  relayWebRtcSignal: (
+    conversationId: string,
+    targetUserId: string,
+    kind: string,
+    payload: string
+  ) => Promise<void>
+  /** Persists a missed-call message when caller hung up before callee answered. */
+  reportMissedCall: (conversationId: string) => Promise<void>
+  /** Persists a call-ended message when a connected call is hung up. */
+  reportCallEnded: (conversationId: string) => Promise<void>
 }
 
 const ChatContext = createContext<ChatContextValue | undefined>(undefined)
@@ -70,6 +82,46 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [typingPeerNamesByConversation, setTypingPeerNamesByConversation] = useState<
     Record<string, string[]>
   >({})
+
+  const webRtcSubscribersRef = useRef(new Set<(payload: WebRtcSignalPayload) => void>())
+
+  const subscribeWebRtcSignal = useCallback((handler: (payload: WebRtcSignalPayload) => void) => {
+    webRtcSubscribersRef.current.add(handler)
+    return () => {
+      webRtcSubscribersRef.current.delete(handler)
+    }
+  }, [])
+
+  const relayWebRtcSignal = useCallback(
+    async (conversationId: string, targetUserId: string, kind: string, payload: string) => {
+      const conn = connectionRef.current
+      if (!conn || conn.state !== HubConnectionState.Connected) {
+        throw new Error('chat_hub_not_connected')
+      }
+      await conn.invoke('relayWebRtcSignal', conversationId, targetUserId, kind, payload)
+    },
+    []
+  )
+
+  const reportMissedCall = useCallback(async (conversationId: string) => {
+    const conn = connectionRef.current
+    if (!conn || conn.state !== HubConnectionState.Connected) return
+    try {
+      await conn.invoke('reportMissedCall', conversationId)
+    } catch {
+      /* best-effort */
+    }
+  }, [])
+
+  const reportCallEnded = useCallback(async (conversationId: string) => {
+    const conn = connectionRef.current
+    if (!conn || conn.state !== HubConnectionState.Connected) return
+    try {
+      await conn.invoke('reportCallEnded', conversationId)
+    } catch {
+      /* best-effort */
+    }
+  }, [])
 
   const clearUnread = useCallback((key: string) => {
     setUnreadByThread((prev) => {
@@ -140,6 +192,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         onReceiveMessage(msg)
       },
       onUserTyping: handleRemoteTyping,
+      onWebRtcSignal: (p) => {
+        webRtcSubscribersRef.current.forEach((fn) => {
+          try {
+            fn(p)
+          } catch {
+            /* ignore */
+          }
+        })
+      },
     })
 
     const onReconnecting = () =>
@@ -282,6 +343,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         channelTranscripts,
         typingPeerNamesByConversation,
         totalUnread,
+        subscribeWebRtcSignal,
+        relayWebRtcSignal,
+        reportMissedCall,
+        reportCallEnded,
       }) satisfies ChatContextValue,
     [
       hubStatus,
@@ -294,6 +359,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       sendTyping,
       sendChannelMessage,
       totalUnread,
+      subscribeWebRtcSignal,
+      relayWebRtcSignal,
+      reportMissedCall,
+      reportCallEnded,
     ]
   )
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>

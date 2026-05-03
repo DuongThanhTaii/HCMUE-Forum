@@ -60,7 +60,22 @@ public interface IChatClient
     /// Client receives notification that a user's online status changed
     /// </summary>
     Task UserStatusChanged(UserStatusNotification notification);
+
+    /// <summary>
+    /// WebRTC signaling (offer, answer, ICE, hangup) between two participants in a conversation
+    /// </summary>
+    Task ReceiveWebRtcSignal(WebRtcSignalNotification notification);
 }
+
+/// <summary>
+/// WebRTC signal relayed to a peer. <see cref="Kind"/> is lower-case: offer, answer, ice, hangup.
+/// </summary>
+public sealed record WebRtcSignalNotification(
+    Guid ConversationId,
+    Guid FromUserId,
+    string FromUserName,
+    string Kind,
+    string Payload);
 
 /// <summary>
 /// Notification sent when a new message is received

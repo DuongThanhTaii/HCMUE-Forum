@@ -5,6 +5,7 @@ import { AUTH_BYPASS_IN_DEV } from '@/app/authDevBypass';
 import { useAuth } from '@features/auth/context/useAuth';
 import { ChatProvider } from '@features/chat/context/ChatContext';
 import { ChatDock } from '@features/chat/components/ChatDock';
+import { NotificationProvider } from '@features/notifications/context/NotificationContext';
 
 export function MainLayout() {
   const { isAuthenticated } = useAuth();
@@ -22,15 +23,22 @@ export function MainLayout() {
     </>
   );
 
+  const withNotifications = (content: React.ReactNode) =>
+    isAuthenticated || AUTH_BYPASS_IN_DEV
+      ? <NotificationProvider>{content}</NotificationProvider>
+      : <>{content}</>;
+
   return (
     <div className="min-h-screen bg-slate-50">
-      {includeChatShell ? (
-        <ChatProvider>
-          {layout}
-          <ChatDock />
-        </ChatProvider>
-      ) : (
-        layout
+      {withNotifications(
+        includeChatShell ? (
+          <ChatProvider>
+            {layout}
+            <ChatDock />
+          </ChatProvider>
+        ) : (
+          layout
+        )
       )}
     </div>
   );

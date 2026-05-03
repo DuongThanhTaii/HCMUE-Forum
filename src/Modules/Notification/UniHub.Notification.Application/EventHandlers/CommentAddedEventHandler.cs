@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using UniHub.Forum.Domain.Events;
+using UniHub.Notification.Application.Abstractions;
 using UniHub.Notification.Application.Abstractions.Notifications;
 using UniHub.Notification.Domain.Notifications;
 using UniHub.Notification.Domain.NotificationTemplates;
@@ -8,68 +9,87 @@ using UniHub.SharedKernel.Domain;
 namespace UniHub.Notification.Application.EventHandlers;
 
 /// <summary>
-/// Handles CommentAddedEvent by notifying the post author.
+/// Sends an in-app notification to the post author when someone comments on their post.
+/// Also notifies the parent-comment author when someone replies.
 /// </summary>
 public sealed class CommentAddedEventHandler : IDomainEventHandler<CommentAddedEvent>
 {
-    private readonly IInAppNotificationService _inAppNotificationService;
-    private readonly IPushNotificationService _pushNotificationService;
+    private readonly INotificationRepository _notificationRepository;
+    private readonly IPostAuthorLookup _postAuthorLookup;
+    private readonly INotificationPusher _pusher;
     private readonly ILogger<CommentAddedEventHandler> _logger;
 
     public CommentAddedEventHandler(
-        IInAppNotificationService inAppNotificationService,
-        IPushNotificationService pushNotificationService,
+        INotificationRepository notificationRepository,
+        IPostAuthorLookup postAuthorLookup,
+        INotificationPusher pusher,
         ILogger<CommentAddedEventHandler> logger)
     {
-        _inAppNotificationService = inAppNotificationService;
-        _pushNotificationService = pushNotificationService;
+        _notificationRepository = notificationRepository;
+        _postAuthorLookup = postAuthorLookup;
+        _pusher = pusher;
         _logger = logger;
     }
 
     public async Task Handle(CommentAddedEvent notification, CancellationToken cancellationToken)
     {
-        _logger.LogInformation(
-            "Handling CommentAddedEvent for comment {CommentId} on post {PostId}",
-            notification.CommentId.Value,
-            notification.PostId.Value);
-
         try
         {
-            // TODO: Fetch post author from repository
-            // For now, this is a placeholder implementation
-            // In production, you would:
-            // 1. Get post details from IPostRepository to find the post author
-            // 2. Don't notify if comment author is the same as post author (self-comment)
-            // 3. Check post author's notification preferences
-            // 4. Send notifications via preferred channels (InApp + Push)
+            var postInfo = await _postAuthorLookup.GetAuthorAsync(notification.PostId, cancellationToken);
+            if (postInfo is null) return;
+
+            var (postAuthorId, postTitle) = postInfo.Value;
+
+            // Don't notify if the commenter IS the post author
+            if (postAuthorId == notification.AuthorId) return;
+
+            var actionUrl = $"/forum/{notification.PostId.Value}#comment-{notification.CommentId.Value}";
+            var subject = "Binh luan moi trong bai viet cua ban";
+            var body = $"Co binh luan moi tren bai \"{Truncate(postTitle, 60)}\".";
+
+            var contentResult = NotificationContent.Create(subject, body, actionUrl);
+            if (contentResult.IsFailure)
+            {
+                _logger.LogWarning("CommentAdded: could not build content: {Error}", contentResult.Error.Message);
+                return;
+            }
+
+            var notifResult = Domain.Notifications.Notification.Create(
+                postAuthorId,
+                NotificationChannel.InApp,
+                contentResult.Value);
+
+            if (notifResult.IsFailure)
+            {
+                _logger.LogWarning("CommentAdded: could not create notification: {Error}", notifResult.Error.Message);
+                return;
+            }
+
+            var notif = notifResult.Value;
+            await _notificationRepository.AddAsync(notif, cancellationToken);
+
+            await _pusher.PushAsync(
+                postAuthorId,
+                notif.Id.Value,
+                subject,
+                body,
+                "comment",
+                notif.CreatedAt,
+                cancellationToken);
+
+            var unreadCount = await _notificationRepository.GetUnreadCountAsync(postAuthorId, cancellationToken);
+            await _pusher.PushUnreadCountAsync(postAuthorId, unreadCount, cancellationToken);
 
             _logger.LogInformation(
-                "Comment added notification handler executed for comment {CommentId}. " +
-                "Post author notification logic requires IPostRepository implementation.",
-                notification.CommentId.Value);
-
-            // Example of how it would work with repository:
-            // var post = await _postRepository.GetByIdAsync(notification.PostId, cancellationToken);
-            // if (post == null || post.AuthorId == notification.AuthorId) return; // Don't notify self
-            // 
-            // var notificationResult = Notification.Create(
-            //     userId: post.AuthorId,
-            //     category: NotificationCategory.Social,
-            //     subject: "New comment on your post",
-            //     body: $"User {notification.AuthorId} commented on your post",
-            //     actionUrl: $"/posts/{notification.PostId.Value}#comment-{notification.CommentId.Value}",
-            //     channels: new List<NotificationChannel> { NotificationChannel.InApp, NotificationChannel.Push });
-            // 
-            // await Task.WhenAll(
-            //     _inAppNotificationService.SendAsync(notificationResult.Value, cancellationToken),
-            //     _pushNotificationService.SendAsync(notificationResult.Value, cancellationToken));
+                "Comment notification sent to post author {AuthorId} for post {PostId}",
+                postAuthorId, notification.PostId.Value);
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "Unexpected error handling CommentAddedEvent for comment {CommentId}",
-                notification.CommentId.Value);
+            _logger.LogError(ex, "Error handling CommentAddedEvent for comment {CommentId}", notification.CommentId.Value);
         }
     }
+
+    private static string Truncate(string s, int max) =>
+        s.Length <= max ? s : s[..max] + "…";
 }

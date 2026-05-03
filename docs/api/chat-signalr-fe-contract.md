@@ -18,6 +18,9 @@
 | `AddReaction` | `addReaction` | `messageId`, `conversationId`, `emoji` |
 | `RemoveReaction` | `removeReaction` | `messageId`, `conversationId`, `emoji` |
 | `MarkAsRead` / tương đương | *(xem `ChatHub.cs`)* | … |
+| `RelayWebRtcSignal` | `relayWebRtcSignal` | `conversationId`, `targetUserId`, `kind`, `payload` — `kind`: `offer` \| `answer` \| `ice` \| `hangup` (chuỗi). SDP/ICE trong `payload` (JSON string). |
+
+**WebRTC relay:** Khi **đích không có connection SignalR** (offline / không vào hub): server **`throw HubException("webrtc_peer_offline")`** chỉ cho **`offer`** và **`answer`**. Với **`ice`** và **`hangup`** thì **không throw** (best-effort).
 
 > Gọi từ FE: `connection.invoke('joinConversation', id)` — nếu lỗi, kiểm tra đúng casing bằng frame WebSocket trong DevTools.
 
@@ -38,11 +41,13 @@ Nguồn: `IChatClient.cs`. Handler đăng ký: `connection.on('<camelCase>', fn)
 | `MessageRead` | `messageRead` | `messageId`, `conversationId`, `userId`, `readAt` | Invalidate thread |
 | `ChannelUpdated` | `channelUpdated` | `channelId`, `newName`, `newDescription?`, `updatedAt` | Invalidate list kênh |
 | `UserStatusChanged` | `userStatusChanged` | `userId`, `userName`, `status`, `timestamp` | Invalidate list hội thoại (hiện tại) |
+| `ReceiveWebRtcSignal` | `receiveWebRtcSignal` | `conversationId`, `fromUserId`, `fromUserName`, `kind`, `payload` | Truyền tới peer để WebRTC (SDP/ICE/hangup); media vẫn P2P |
 
 ## 3. Ràng buộc sản phẩm (đã ghi ở plan)
 
 - **Kênh:** lịch sử REST vẫn chưa gắn `conversationId` — UI kênh dùng **realtime + transcript bộ nhớ**; `GET /messages?channelId=` sẽ là bước BE sau.  
 - **Guid rỗng:** `00000000-0000-0000-0000-000000000000` thường nghĩa là “không áp dụng” (ví dụ tin kênh trước bản sửa BE).
+- **WebRTC relay:** `ConnectionManager` theo dõi connection **trong bộ nhớ từng instance API**. Scale-out nhiều pod: người dùng có thể “online” trên instance khác → relay báo offline dù họ đang mở app; cần sticky session hoặc registry tập trung nếu triển khai đa instance.
 
 ## 4. Tham chiếu mã nguồn
 

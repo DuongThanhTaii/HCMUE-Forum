@@ -10,6 +10,9 @@ namespace UniHub.Chat.Infrastructure.Persistence.Repositories;
 /// </summary>
 public sealed class ChannelRepository : IChannelRepository
 {
+    /// <summary>Backing field for JSONB members array — must use in LINQ instead of <see cref="Channel.Members"/>.</summary>
+    private const string MembersBackingField = "_members";
+
     private readonly ApplicationDbContext _context;
 
     public ChannelRepository(ApplicationDbContext context)
@@ -37,7 +40,7 @@ public sealed class ChannelRepository : IChannelRepository
     public async Task<IReadOnlyList<Channel>> GetByMemberIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var memberChannels = await _context.Channels
-            .Where(c => c.Members.Contains(userId) && !c.IsArchived)
+            .Where(c => EF.Property<List<Guid>>(c, MembersBackingField).Contains(userId) && !c.IsArchived)
             .OrderBy(c => c.Name)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
