@@ -1,3 +1,5 @@
+import { useState, useMemo } from 'react'
+import { ChevronDown, ChevronRight, ShieldAlert } from 'lucide-react'
 import type { PermissionDto, RoleDto } from '../../types/admin.types'
 
 type RolePermissionGridProps = {
@@ -17,6 +19,26 @@ export function RolePermissionGrid({
   onTogglePermission,
   isBusy,
 }: RolePermissionGridProps) {
+  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({})
+
+  const toggleModule = (module: string) => {
+    setExpandedModules((prev) => ({
+      ...prev,
+      [module]: !prev[module],
+    }))
+  }
+
+  // Group permissions by module
+  const groupedPermissions = useMemo(() => {
+    const groups: Record<string, PermissionDto[]> = {}
+    for (const p of permissions) {
+      const mod = p.module || p.code.split('.')[0] || 'Other'
+      if (!groups[mod]) groups[mod] = []
+      groups[mod].push(p)
+    }
+    return groups
+  }, [permissions])
+
   if (!selectedRole) {
     return (
       <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
@@ -25,33 +47,91 @@ export function RolePermissionGrid({
     )
   }
 
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
-      <h2 className="text-base font-semibold text-slate-900">{selectedRole.name}</h2>
-      <p className="mt-1 text-sm text-slate-500">{selectedRole.description || '-'}</p>
+  const isSystemRole = selectedRole.isSystemRole
 
-      <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-2">
-        {permissions.map((permission) => {
-          const checked = isPermissionAssigned(selectedRole.id, permission.id)
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">{selectedRole.name}</h2>
+          <p className="mt-1 text-sm text-slate-500">{selectedRole.description || 'Không có mô tả'}</p>
+        </div>
+        {isSystemRole && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-800">
+            <ShieldAlert className="h-3.5 w-3.5" />
+            System Role
+          </span>
+        )}
+      </div>
+
+      <div className="space-y-4">
+        {Object.entries(groupedPermissions).map(([moduleName, perms]) => {
+          const isExpanded = expandedModules[moduleName] !== false
+          const assignedCount = perms.filter((p) => isPermissionAssigned(selectedRole.id, p.id)).length
+          const totalCount = perms.length
+
           return (
-            <label
-              key={permission.id}
-              className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm"
-            >
-              <div className="pr-3">
-                <p className="font-medium text-slate-800">{permission.name}</p>
-                <p className="text-xs text-slate-500">{permission.code}</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={checked}
-                disabled={isBusy}
-                onChange={() => {
-                  void onTogglePermission(permission.id)
-                }}
-                aria-label={permission.name}
-              />
-            </label>
+            <div key={moduleName} className="overflow-hidden rounded-lg border border-slate-200">
+              <button
+                type="button"
+                onClick={() => toggleModule(moduleName)}
+                className="flex w-full items-center justify-between bg-slate-50 px-4 py-3 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-inset"
+              >
+                <div className="flex items-center gap-2">
+                  {isExpanded ? (
+                    <ChevronDown className="h-5 w-5 text-slate-400" />
+                  ) : (
+                    <ChevronRight className="h-5 w-5 text-slate-400" />
+                  )}
+                  <span className="font-semibold text-slate-700 capitalize">{moduleName}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-200">
+                    <div
+                      className="h-full bg-primary-600 transition-all"
+                      style={{ width: `${(assignedCount / totalCount) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-sm font-medium text-slate-500">
+                    {assignedCount}/{totalCount}
+                  </span>
+                </div>
+              </button>
+
+              {isExpanded && (
+                <div className="grid grid-cols-1 gap-px bg-slate-200 sm:grid-cols-2 lg:grid-cols-3">
+                  {perms.map((permission) => {
+                    const checked = isPermissionAssigned(selectedRole.id, permission.id)
+                    return (
+                      <label
+                        key={permission.id}
+                        className={`flex cursor-pointer items-start gap-3 bg-white p-4 transition-colors hover:bg-slate-50 ${isSystemRole ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        title={permission.description}
+                      >
+                        <div className="flex h-5 items-center">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            disabled={isBusy || isSystemRole}
+                            onChange={() => {
+                              void onTogglePermission(permission.id)
+                            }}
+                            aria-label={permission.name}
+                            className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-600 disabled:opacity-50"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-slate-900">{permission.name}</span>
+                          <span className="mt-1 font-mono text-[11px] text-slate-500 tracking-tight">
+                            {permission.code}
+                          </span>
+                        </div>
+                      </label>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           )
         })}
       </div>

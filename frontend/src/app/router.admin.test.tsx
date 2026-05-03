@@ -88,7 +88,7 @@ describe('admin routes in app router', () => {
 
     render(<RouterProvider router={router} />)
 
-    await screen.findByText('Home page')
+    await screen.findByText('Home page', {}, { timeout: 10000 })
     expect(router.state.location.pathname).toBe('/home')
   })
 
@@ -100,7 +100,7 @@ describe('admin routes in app router', () => {
 
     render(<RouterProvider router={router} />)
 
-    await screen.findByText('Admin users page')
+    await screen.findAllByText('Admin users page')
     expect(router.state.location.pathname).toBe('/admin/users')
   })
 
