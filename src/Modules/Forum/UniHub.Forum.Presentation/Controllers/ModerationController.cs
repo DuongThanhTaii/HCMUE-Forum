@@ -64,7 +64,18 @@ public sealed class ModerationController : BaseApiController
             return BadRequest(ApiResponses.Failure("Invalid status filter."));
         }
 
-        var result = await _sender.Send(new GetReportsQuery(pageNumber, pageSize, mapped, resolutionDecision), cancellationToken);
+        var moderatorId = GetCurrentUserId();
+        IReadOnlyList<Guid>? scopedCategoryIds = null;
+        if (!User.IsInRole("Admin"))
+        {
+            var allCategories = await _categoryRepository.GetAllAsync(cancellationToken);
+            scopedCategoryIds = allCategories
+                .Where(c => c.ModeratorIds.Contains(moderatorId))
+                .Select(c => c.Id.Value)
+                .ToList();
+        }
+
+        var result = await _sender.Send(new GetReportsQuery(pageNumber, pageSize, mapped, resolutionDecision, scopedCategoryIds), cancellationToken);
         if (result.IsFailure)
         {
             return BadRequest(ApiResponses.Failure(result.Error.Message));
@@ -114,6 +125,7 @@ public sealed class ModerationController : BaseApiController
 
     [HttpPost("reports/{id:int}/resolve")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ResolveReport(
@@ -122,8 +134,25 @@ public sealed class ModerationController : BaseApiController
         CancellationToken cancellationToken = default)
     {
         var reviewerId = GetCurrentUserId();
+        var isAdmin = User.IsInRole("Admin");
+
+        IReadOnlyList<Guid>? scopedCategoryIds = null;
+        if (!isAdmin)
+        {
+            var allCategories = await _categoryRepository.GetAllAsync(cancellationToken);
+            scopedCategoryIds = allCategories
+                .Where(c => c.ModeratorIds.Contains(reviewerId))
+                .Select(c => c.Id.Value)
+                .ToList();
+        }
+
         var result = await _sender.Send(
-            new ResolveModerationReportCommand(id, reviewerId, request.Action?.Trim().ToLowerInvariant() ?? string.Empty),
+            new ResolveModerationReportCommand(
+                id,
+                reviewerId,
+                request.Action?.Trim().ToLowerInvariant() ?? string.Empty,
+                isAdmin,
+                scopedCategoryIds),
             cancellationToken);
 
         if (result.IsFailure)
@@ -132,6 +161,7 @@ public sealed class ModerationController : BaseApiController
             {
                 "Report.NotFound" => NotFound(ApiResponses.Failure(result.Error.Message)),
                 "Report.AlreadyResolved" => Conflict(ApiResponses.Failure(result.Error.Message)),
+                "Moderation.Forbidden" => StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message)),
                 _ => BadRequest(ApiResponses.Failure(result.Error.Message))
             };
         }

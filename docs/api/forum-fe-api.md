@@ -223,3 +223,78 @@ Error sample:
 ### `ReportRequest`
 - `reason` (int)
 - `description` (string | null)
+
+---
+
+## Moderation Routes (Admin / Moderator only)
+
+> **Base auth:** `[Authorize(Roles = "Admin,Moderator")]`
+
+### `GET /api/v1/mod/reports`
+
+- **Auth**: Admin or Moderator
+- **Query**: `status` (`pending` | `resolved_keep` | `resolved_remove`), `pageNumber`, `pageSize`
+- **200**: `ApiResponse<ModerationReportListResponse>`
+
+**Moderator scope behaviour:**
+- **Admin** — returns all reports across all categories.
+- **Moderator** — returns only reports for posts/comments whose `CategoryId` is in the categories where the moderator appears in `Category.ModeratorIds`.
+- Moderator with **no** category assignments receives an **empty** list.
+
+---
+
+### `POST /api/v1/mod/reports/{id}/resolve`
+
+- **Auth**: Admin or Moderator
+- **Body**: `ResolveModerationReportRequest` (`action: "keep" | "remove"`)
+- **200**: `ApiResponse<null>` with message `Report resolved successfully`
+- **403**: Moderator attempted to resolve a report outside their category scope, or the reported target no longer exists.
+- **404**: Report not found.
+- **409**: Report already resolved.
+
+**Action semantics:**
+| `action` | Effect |
+|----------|--------|
+| `"keep"` | Marks report resolved; content remains |
+| `"remove"` | Marks report resolved; soft-deletes the post or comment |
+
+---
+
+### `GET /api/v1/mod/posts`
+
+- **Auth**: Admin or Moderator
+- **Query**: `pageNumber`, `pageSize`
+- **200**: `ApiResponse<PostListResponse>` — draft posts only, scoped to moderator's categories.
+
+---
+
+## Schemas (Moderation)
+
+### `ModerationReportListResponse`
+- `reports` (ModerationReportResponse[])
+- `totalCount` (int)
+- `pageNumber` (int)
+- `pageSize` (int)
+- `totalPages` (int)
+- `hasPreviousPage` (boolean)
+- `hasNextPage` (boolean)
+
+### `ModerationReportResponse`
+- `id` (int)
+- `reportedItemId` (guid)
+- `reportedItemType` (int) — `1` = Post, `2` = Comment
+- `reporterId` (guid)
+- `reason` (int) — see `ReportReason` enum: `1` Spam, `2` Hate speech, `3` Harassment, `4` Misinformation, `5` Inappropriate content, `6` Other
+- `description` (string | null)
+- `status` (int) — `0` Pending, `1` Resolved, `2` Dismissed
+- `createdAt` (datetime)
+- `reviewedAt` (datetime | null)
+- `reviewedBy` (guid | null)
+- `resolutionDecision` (`"keep"` | `"remove"` | null)
+- `titlePreview` (string | null) — trimmed title if target is a Post
+- `contentPreview` (string | null) — trimmed content of Post or Comment
+- `isTargetDeleted` (boolean) — `true` if the reported entity was deleted before/after report creation
+
+### `ResolveModerationReportRequest`
+- `action` (`"keep"` | `"remove"`)
+
