@@ -59,7 +59,28 @@ public sealed class RoleRepository : IRoleRepository
 
     public Task UpdateAsync(Role role, CancellationToken cancellationToken = default)
     {
-        _context.Roles.Update(role);
+        var entry = _context.Entry(role);
+        if (entry.State == EntityState.Detached)
+        {
+            _context.Roles.Update(role);
+            return Task.CompletedTask;
+        }
+
+        // Detect changes so that new RolePermissions added to the list are tracked.
+        _context.ChangeTracker.DetectChanges();
+
+        // EF Core incorrectly marks newly instantiated RolePermissions as Modified
+        // because their Id (Guid) is generated in the constructor (non-default value).
+        // Since RolePermissions are immutable, any 'Modified' permission is actually a new one.
+        foreach (var p in role.Permissions)
+        {
+            var pEntry = _context.Entry(p);
+            if (pEntry.State == EntityState.Modified)
+            {
+                pEntry.State = EntityState.Added;
+            }
+        }
+
         return Task.CompletedTask;
     }
 

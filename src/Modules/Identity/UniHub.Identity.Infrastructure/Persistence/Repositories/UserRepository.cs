@@ -63,6 +63,7 @@ public sealed class UserRepository : IUserRepository
     public async Task<User?> GetByIdAsync(UserId userId, CancellationToken cancellationToken = default)
     {
         return await _context.Users
+            .Include(u => u.Roles)
             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
     }
 
@@ -87,7 +88,11 @@ public sealed class UserRepository : IUserRepository
 
     public Task UpdateAsync(User user, CancellationToken cancellationToken = default)
     {
-        _context.Users.Update(user);
+        var entry = _context.Entry(user);
+        if (entry.State == EntityState.Detached)
+        {
+            _context.Users.Update(user);
+        }
         return Task.CompletedTask;
     }
 
