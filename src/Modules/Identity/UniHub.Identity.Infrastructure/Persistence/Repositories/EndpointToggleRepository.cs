@@ -7,6 +7,12 @@ public sealed class EndpointToggleRepository : IEndpointToggleRepository
 {
     private static readonly List<EndpointToggle> Toggles = new();
     private static readonly object LockObj = new();
+    private static bool _seeded;
+
+    public EndpointToggleRepository()
+    {
+        EnsureSeeded();
+    }
 
     public Task<EndpointToggle?> GetByEndpointKeyAsync(string endpointKey, CancellationToken cancellationToken = default)
     {
@@ -40,5 +46,40 @@ public sealed class EndpointToggleRepository : IEndpointToggleRepository
     public Task UpdateAsync(EndpointToggle endpointToggle, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
+    }
+
+    private static void EnsureSeeded()
+    {
+        lock (LockObj)
+        {
+            if (_seeded || Toggles.Count > 0)
+            {
+                _seeded = true;
+                return;
+            }
+
+            var nowUser = "system-seed";
+            var seedKeys = new[]
+            {
+                "UniHub.Forum.Posts.Create",
+                "UniHub.Forum.Posts.Update",
+                "UniHub.Forum.Posts.Delete",
+                "UniHub.Forum.Comments.Delete",
+                "UniHub.Learning.Documents.Approve",
+                "UniHub.Learning.Documents.Reject",
+                "UniHub.Identity.Authorization.Toggles",
+            };
+
+            foreach (var key in seedKeys)
+            {
+                var created = EndpointToggle.Create(key, true, nowUser, "Initial seeded toggle");
+                if (created.IsSuccess)
+                {
+                    Toggles.Add(created.Value);
+                }
+            }
+
+            _seeded = true;
+        }
     }
 }

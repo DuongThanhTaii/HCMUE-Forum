@@ -8,6 +8,12 @@ public sealed class UserGroupRepository : IUserGroupRepository
 {
     private static readonly List<UserGroup> Groups = new();
     private static readonly object LockObj = new();
+    private static bool _seeded;
+
+    public UserGroupRepository()
+    {
+        EnsureSeeded();
+    }
 
     public Task<UserGroup?> GetByIdAsync(Guid groupId, CancellationToken cancellationToken = default)
     {
@@ -69,5 +75,39 @@ public sealed class UserGroupRepository : IUserGroupRepository
         }
 
         return Task.CompletedTask;
+    }
+
+    private static void EnsureSeeded()
+    {
+        lock (LockObj)
+        {
+            if (_seeded || Groups.Count > 0)
+            {
+                _seeded = true;
+                return;
+            }
+
+            var groupDefinitions = new[]
+            {
+                ("Forum Moderators", "Nhóm kiểm duyệt nội dung diễn đàn và học tập."),
+                ("Learning Moderators", "Nhóm phụ trách duyệt tài liệu học tập theo môn."),
+                ("Career Moderators", "Nhóm phụ trách kiểm duyệt bài tuyển dụng."),
+            };
+
+            foreach (var (name, description) in groupDefinitions)
+            {
+                var groupResult = UserGroup.Create(name, description);
+                if (groupResult.IsFailure)
+                {
+                    continue;
+                }
+
+                var group = groupResult.Value;
+                _ = group.AddMember(UserId.Create(Guid.Parse("00000000-0000-0000-0000-000000000001")));
+                Groups.Add(group);
+            }
+
+            _seeded = true;
+        }
     }
 }

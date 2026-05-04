@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { OverrideEffect, PermissionDto } from '../../types/admin.types'
+import { useGetCoursesQuery, useGetFacultiesQuery } from '@features/learning/api/learning.api'
+import type { OverrideEffect, PermissionDto, PermissionOverrideDto } from '../../types/admin.types'
 
 type AddOverrideFormProps = {
   permissions: PermissionDto[]
+  overrides: PermissionOverrideDto[]
   isSubmitting: boolean
   onSubmit: (input: {
     permissionId: string
@@ -15,7 +17,7 @@ type AddOverrideFormProps = {
   }) => Promise<void>
 }
 
-export function AddOverrideForm({ permissions, isSubmitting, onSubmit }: AddOverrideFormProps) {
+export function AddOverrideForm({ permissions, overrides, isSubmitting, onSubmit }: AddOverrideFormProps) {
   const { t } = useTranslation()
   const [permissionId, setPermissionId] = useState('')
   const [scopeType, setScopeType] = useState('Global')
@@ -23,6 +25,27 @@ export function AddOverrideForm({ permissions, isSubmitting, onSubmit }: AddOver
   const [effect, setEffect] = useState<OverrideEffect>('Deny')
   const [reason, setReason] = useState('')
   const [expiresAtUtc, setExpiresAtUtc] = useState('')
+  const { data: faculties = [] } = useGetFacultiesQuery()
+  const { data: coursesPaged } = useGetCoursesQuery({ page: 1, pageSize: 500 })
+  const courses = coursesPaged?.items ?? []
+
+  const normalizedScopeValue = scopeType === 'Global' ? null : scopeValue || null
+  const existingAtScope = overrides.find(
+    (item) =>
+      item.permissionId === permissionId &&
+      item.scopeType.toLowerCase() === scopeType.toLowerCase() &&
+      (item.scopeValue ?? null) === normalizedScopeValue,
+  )
+
+  const filteredPermissions = permissions.filter((permission) => {
+    if (permission.id === permissionId) return true
+    return !overrides.some(
+      (item) =>
+        item.permissionId === permission.id &&
+        item.scopeType.toLowerCase() === scopeType.toLowerCase() &&
+        (item.scopeValue ?? null) === normalizedScopeValue,
+    )
+  })
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
@@ -52,7 +75,7 @@ export function AddOverrideForm({ permissions, isSubmitting, onSubmit }: AddOver
             required
           >
             <option value="">{t('admin.overridesPage.form.selectPermission')}</option>
-            {permissions.map((permission) => (
+            {filteredPermissions.map((permission) => (
               <option key={permission.id} value={permission.id}>
                 {permission.code}
               </option>
@@ -75,7 +98,10 @@ export function AddOverrideForm({ permissions, isSubmitting, onSubmit }: AddOver
           <select
             className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
             value={scopeType}
-            onChange={(event) => setScopeType(event.target.value)}
+            onChange={(event) => {
+              setScopeType(event.target.value)
+              setScopeValue('')
+            }}
           >
             <option value="Global">{t('admin.overridesPage.form.scopeTypeOptions.global')}</option>
             <option value="Faculty">{t('admin.overridesPage.form.scopeTypeOptions.faculty')}</option>
@@ -84,15 +110,53 @@ export function AddOverrideForm({ permissions, isSubmitting, onSubmit }: AddOver
         </label>
         <label className="text-sm font-medium text-slate-700">
           {t('admin.overridesPage.form.scopeValue')}
-          <input
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
-            value={scopeValue}
-            onChange={(event) => setScopeValue(event.target.value)}
-            disabled={scopeType === 'Global'}
-            placeholder={scopeType === 'Global' ? t('admin.overridesPage.form.scopeValuePlaceholderGlobal') : t('admin.overridesPage.form.scopeValuePlaceholder')}
-          />
+          {scopeType === 'Global' ? (
+            <input
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              value=""
+              disabled
+              placeholder={t('admin.overridesPage.form.scopeValuePlaceholderGlobal')}
+            />
+          ) : null}
+          {scopeType === 'Faculty' ? (
+            <select
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              value={scopeValue}
+              onChange={(event) => setScopeValue(event.target.value)}
+              required
+            >
+              <option value="">Chọn khoa</option>
+              {faculties.map((faculty) => (
+                <option key={faculty.facultyId} value={faculty.facultyId}>
+                  {faculty.name}
+                </option>
+              ))}
+            </select>
+          ) : null}
+          {scopeType === 'Course' ? (
+            <select
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              value={scopeValue}
+              onChange={(event) => setScopeValue(event.target.value)}
+              required
+            >
+              <option value="">Chọn môn học</option>
+              {courses.map((course) => (
+                <option key={course.courseId} value={course.courseId}>
+                  {course.name}
+                </option>
+              ))}
+            </select>
+          ) : null}
         </label>
       </div>
+      <p className="text-xs text-slate-500">
+        {permissionId
+          ? existingAtScope
+            ? `Hiệu lực hiện tại tại phạm vi này: ${existingAtScope.effect} (đã có ghi đè).`
+            : 'Hiệu lực hiện tại: đang theo role/group mặc định (chưa có ghi đè tại phạm vi này).'
+          : 'Chọn quyền để xem hiệu lực hiện tại.'}
+      </p>
       <label className="block text-sm font-medium text-slate-700">
         {t('admin.overridesPage.form.reason')}
         <input

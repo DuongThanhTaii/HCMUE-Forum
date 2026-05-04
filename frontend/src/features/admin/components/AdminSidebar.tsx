@@ -18,6 +18,7 @@ const adminNavGroups: AdminNavGroup[] = [
     titleKey: 'admin.sidebar.groups.access',
     fallbackTitle: 'Access control',
     items: [
+      { to: '/admin/dashboard', labelKey: 'admin.dashboard', fallbackLabel: 'Dashboard' },
       { to: '/admin/users', labelKey: 'admin.users', fallbackLabel: 'Users' },
       { to: '/admin/roles', labelKey: 'admin.roles', fallbackLabel: 'Roles' },
       { to: '/admin/permissions', labelKey: 'admin.permissions', fallbackLabel: 'Permissions' },

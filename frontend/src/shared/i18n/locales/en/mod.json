@@ -4,7 +4,8 @@
     "home": "Home",
     "forum": "Forum",
     "reports": "Reports",
-    "pendingPosts": "Pending posts"
+    "pendingPosts": "Pending posts",
+    "learningApproval": "Learning approvals"
   },
   "reportsTitle": "Reports Queue",
   "totalReports": "Total reports",

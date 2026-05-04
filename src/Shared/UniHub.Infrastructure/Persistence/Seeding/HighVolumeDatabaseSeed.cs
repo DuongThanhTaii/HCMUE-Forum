@@ -488,8 +488,8 @@ FROM generate_series({start}, {end}) AS g(i);
 INSERT INTO career.companies (id, name, description, industry, size, website, logo_url, founded_year, status, contact_email, registered_by, registered_at, total_job_postings, benefits)
 SELECT
     public.seed_uuid('company', i),
-    'Seed Company ' || i::text,
-    'Company profile seeded for load tests #' || i::text,
+    'Company ' || (ARRAY['Tech', 'Solutions', 'Systems', 'Global', 'Innovations', 'Group', 'Networks', 'Labs'])[i % 8 + 1] || ' ' || i::text,
+    'Leading provider of ' || (ARRAY['software', 'hardware', 'cloud', 'AI', 'data', 'security', 'fintech', 'edtech'])[i % 8 + 1] || ' solutions.',
     (i % 8)::int,
     (i % 5)::int,
     'https://company' || i::text || '.example.com',
@@ -508,8 +508,8 @@ FROM generate_series(1, {p.Companies}) AS g(i);
 INSERT INTO career.job_postings (id, title, description, company_id, posted_by, job_type, experience_level, status, salary_min_amount, salary_max_amount, salary_currency, salary_period, location_city, location_district, location_address, location_is_remote, deadline, created_at, published_at, view_count, application_count, tags)
 SELECT
     public.seed_uuid('job', i),
-    'Seed Job ' || i::text,
-    repeat('Hiring for seeded position #' || i::text || '. ', 8),
+    (ARRAY['Software Engineer', 'Data Scientist', 'Product Manager', 'UX Designer', 'DevOps Engineer', 'Frontend Developer', 'Backend Developer', 'Marketing Specialist'])[i % 8 + 1] || ' ' || i::text,
+    'We are looking for a skilled ' || (ARRAY['Software Engineer', 'Data Scientist', 'Product Manager', 'UX Designer', 'DevOps Engineer', 'Frontend Developer', 'Backend Developer', 'Marketing Specialist'])[i % 8 + 1] || ' to join our growing team.',
     public.seed_uuid('company', ((i - 1) % {p.Companies}) + 1),
     public.seed_uuid('user', ((i - 1) % {p.Users}) + 1),
     (i % 4)::int,
@@ -528,7 +528,13 @@ SELECT
     now() - make_interval(days => (i % 119)),
     (i % 2000)::int,
     0,
-    '[]'::jsonb
+    CASE (i % 5)
+        WHEN 0 THEN '["IT", "Software"]'::jsonb
+        WHEN 1 THEN '["Design", "UX"]'::jsonb
+        WHEN 2 THEN '["Marketing", "Sales"]'::jsonb
+        WHEN 3 THEN '["Data", "AI"]'::jsonb
+        ELSE '["Engineering", "DevOps"]'::jsonb
+    END
 FROM generate_series(1, {p.JobPostings}) AS g(i);
 """;
 
@@ -996,8 +1002,8 @@ FROM generate_series(1, {p.Documents}) AS g(i);
 INSERT INTO career.companies (id, name, description, industry, size, website, logo_url, founded_year, status, contact_email, registered_by, registered_at, total_job_postings, benefits)
 SELECT
     public.seed_uuid('company', i),
-    'Seed Company ' || i::text,
-    'Company profile seeded for load tests #' || i::text,
+    'Company ' || (ARRAY['Tech', 'Solutions', 'Systems', 'Global', 'Innovations', 'Group', 'Networks', 'Labs'])[i % 8 + 1] || ' ' || i::text,
+    'Leading provider of ' || (ARRAY['software', 'hardware', 'cloud', 'AI', 'data', 'security', 'fintech', 'edtech'])[i % 8 + 1] || ' solutions.',
     (i % 8)::int,
     (i % 5)::int,
     'https://company' || i::text || '.example.com',
@@ -1014,8 +1020,8 @@ FROM generate_series(1, {p.Companies}) AS g(i);
 INSERT INTO career.job_postings (id, title, description, company_id, posted_by, job_type, experience_level, status, salary_min_amount, salary_max_amount, salary_currency, salary_period, location_city, location_district, location_address, location_is_remote, deadline, created_at, published_at, view_count, application_count, tags)
 SELECT
     public.seed_uuid('job', i),
-    'Seed Job ' || i::text,
-    repeat('Hiring for seeded position #' || i::text || '. ', 8),
+    (ARRAY['Software Engineer', 'Data Scientist', 'Product Manager', 'UX Designer', 'DevOps Engineer', 'Frontend Developer', 'Backend Developer', 'Marketing Specialist'])[i % 8 + 1] || ' ' || i::text,
+    'We are looking for a skilled ' || (ARRAY['Software Engineer', 'Data Scientist', 'Product Manager', 'UX Designer', 'DevOps Engineer', 'Frontend Developer', 'Backend Developer', 'Marketing Specialist'])[i % 8 + 1] || ' to join our growing team.',
     public.seed_uuid('company', ((i - 1) % {p.Companies}) + 1),
     public.seed_uuid('user', ((i - 1) % {p.Users}) + 1),
     (i % 4)::int,
@@ -1034,7 +1040,13 @@ SELECT
     now() - make_interval(days => (i % 119)),
     (i % 2000)::int,
     0,
-    '[]'::jsonb
+    CASE (i % 5)
+        WHEN 0 THEN '["IT", "Software"]'::jsonb
+        WHEN 1 THEN '["Design", "UX"]'::jsonb
+        WHEN 2 THEN '["Marketing", "Sales"]'::jsonb
+        WHEN 3 THEN '["Data", "AI"]'::jsonb
+        ELSE '["Engineering", "DevOps"]'::jsonb
+    END
 FROM generate_series(1, {p.JobPostings}) AS g(i);
 
 INSERT INTO career.job_posting_requirements (skill, job_posting_id, is_required)
@@ -1698,8 +1710,8 @@ INSERT INTO \"career\".\"companies\" (
 )
 SELECT
     public.seed_uuid('company', i),
-    'Seed Company ' || i::text,
-    'Company profile seeded for load tests #' || i::text,
+    'Company ' || (ARRAY['Tech', 'Solutions', 'Systems', 'Global', 'Innovations', 'Group', 'Networks', 'Labs'])[i % 8 + 1] || ' ' || i::text,
+    'Leading provider of ' || (ARRAY['software', 'hardware', 'cloud', 'AI', 'data', 'security', 'fintech', 'edtech'])[i % 8 + 1] || ' solutions.',
     (i % 8)::int,
     (i % 5)::int,
     'https://company' || i::text || '.example.com',
@@ -1720,8 +1732,8 @@ INSERT INTO \"career\".\"job_postings\" (
 )
 SELECT
     public.seed_uuid('job', i),
-    'Seed Job ' || i::text,
-    repeat('Hiring for seeded position #' || i::text || '. ', 8),
+    (ARRAY['Software Engineer', 'Data Scientist', 'Product Manager', 'UX Designer', 'DevOps Engineer', 'Frontend Developer', 'Backend Developer', 'Marketing Specialist'])[i % 8 + 1] || ' ' || i::text,
+    'We are looking for a skilled ' || (ARRAY['Software Engineer', 'Data Scientist', 'Product Manager', 'UX Designer', 'DevOps Engineer', 'Frontend Developer', 'Backend Developer', 'Marketing Specialist'])[i % 8 + 1] || ' to join our growing team.',
     public.seed_uuid('company', ((i - 1) % { p.Companies}) +1),
     public.seed_uuid('user', ((i - 1) % { p.Users}) +1),
     (i % 4)::int,
@@ -1740,7 +1752,13 @@ SELECT
     now() - make_interval(days => (i % 119)),
     (i % 2000)::int,
     0,
-    '[]'::jsonb
+    CASE (i % 5)
+        WHEN 0 THEN '[\"IT\", \"Software\"]'::jsonb
+        WHEN 1 THEN '[\"Design\", \"UX\"]'::jsonb
+        WHEN 2 THEN '[\"Marketing\", \"Sales\"]'::jsonb
+        WHEN 3 THEN '[\"Data\", \"AI\"]'::jsonb
+        ELSE '[\"Engineering\", \"DevOps\"]'::jsonb
+    END
 FROM generate_series(1, {p.JobPostings}) AS g(i);
 ");
 

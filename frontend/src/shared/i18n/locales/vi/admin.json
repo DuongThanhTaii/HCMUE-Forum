@@ -44,7 +44,8 @@
     },
     "groups": {
       "available": "Nguồn dữ liệu ghi đè theo nhóm đã sẵn sàng, nhưng phần UI được chủ động hoãn ở Task 7.",
-      "unavailable": "Nguồn dữ liệu ghi đè theo nhóm hiện chưa khả dụng. Luồng ghi đè theo người dùng vẫn hoạt động đầy đủ."
+      "unavailable": "Nguồn dữ liệu ghi đè theo nhóm hiện chưa khả dụng. Luồng ghi đè theo người dùng vẫn hoạt động đầy đủ.",
+      "empty": "Chưa có nhóm nào để cấu hình ghi đè."
     },
     "form": {
       "title": "Thêm ghi đè",

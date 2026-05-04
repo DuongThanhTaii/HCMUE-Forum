@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { skipToken } from '@reduxjs/toolkit/query'
 import { useTranslation } from 'react-i18next'
 import {
   useGetAuditLogsQuery,
@@ -32,7 +33,13 @@ export function useAdminLogsPage() {
     [auditUserId, auditEndpointKey, auditResultFilter, auditTake, auditFromUtc, auditToUtc],
   )
 
-  const { data: auditLogsData, isLoading: isAuditLogsLoading, isError: isAuditLogsError } = useGetAuditLogsQuery(auditParams)
+  const {
+    data: auditLogsData,
+    isLoading: isAuditLogsLoading,
+    isError: isAuditLogsError,
+  } = useGetAuditLogsQuery(auditUserId.trim() ? auditParams : skipToken, {
+    pollingInterval: 5000,
+  })
 
   const [actionViewType, setActionViewTypeState] = useState<UserActionLogsViewType>('Developer')
   const [actionPage, setActionPage] = useState(1)
@@ -72,7 +79,13 @@ export function useAdminLogsPage() {
     ],
   )
 
-  const { data: actionLogsData, isLoading: isActionLogsLoading, isError: isActionLogsError } = useGetUserActionLogsQuery(actionParams)
+  const {
+    data: actionLogsData,
+    isLoading: isActionLogsLoading,
+    isError: isActionLogsError,
+  } = useGetUserActionLogsQuery(actionActorUserId.trim() ? actionParams : skipToken, {
+    pollingInterval: 5000,
+  })
 
   const setActionViewType = (viewType: UserActionLogsViewType) => {
     setActionViewTypeState(viewType)

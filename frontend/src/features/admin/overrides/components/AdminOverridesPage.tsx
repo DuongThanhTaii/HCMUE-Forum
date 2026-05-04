@@ -15,15 +15,23 @@ export function AdminOverridesPage() {
     selectedUserId,
     setSelectedUserId,
     selectedUser,
+    groups,
+    selectedGroupId,
+    setSelectedGroupId,
+    selectedGroup,
     filteredUsers,
     permissions,
     overrides,
+    groupOverrides,
     isOverridesLoading,
     isMutating,
     submitUserOverride,
     revokeOverride,
+    submitGroupOverride,
+    revokeGroupOverride,
     isError,
     isGroupSourceAvailable,
+    isGroupOverridesLoading,
   } = useAdminOverridesPage()
   const location = useLocation()
 
@@ -83,7 +91,19 @@ export function AdminOverridesPage() {
           onRevokeOverride={revokeOverride}
         />
       ) : (
-        <GroupOverridesPanel isGroupSourceAvailable={isGroupSourceAvailable} />
+        <GroupOverridesPanel
+          isGroupSourceAvailable={isGroupSourceAvailable}
+          groups={groups}
+          selectedGroupId={selectedGroupId}
+          onSelectGroup={setSelectedGroupId}
+          selectedGroup={selectedGroup}
+          overrides={groupOverrides}
+          permissions={permissions}
+          isLoading={isGroupOverridesLoading}
+          isMutating={isMutating}
+          onSubmitOverride={submitGroupOverride}
+          onRevokeOverride={revokeGroupOverride}
+        />
       )}
     </div>
   )

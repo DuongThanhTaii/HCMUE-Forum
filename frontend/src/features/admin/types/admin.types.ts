@@ -71,6 +71,14 @@ export interface UserDto {
   createdAt: string
 }
 
+export interface UserGroupDto {
+  id: string
+  name: string
+  description?: string | null
+  isActive: boolean
+  memberCount: number
+}
+
 export interface AssignRoleToUserRequest {
   roleId: string
 }

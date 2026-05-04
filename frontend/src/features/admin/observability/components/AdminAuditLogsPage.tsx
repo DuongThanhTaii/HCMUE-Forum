@@ -1,5 +1,6 @@
 import { LogsFilterBar } from './LogsFilterBar'
 import { useAdminLogsPage } from '../hooks/useAdminLogsPage'
+import { useGetUsersQuery } from '../../api/admin.api'
 
 export function AdminAuditLogsPage() {
   const {
@@ -16,9 +17,37 @@ export function AdminAuditLogsPage() {
     auditTake,
     setAuditTake,
   } = useAdminLogsPage()
+  const { data: usersData } = useGetUsersQuery()
+  const users = usersData ?? []
+
+  const exportJson = () => {
+    const payload = JSON.stringify(auditLogs, null, 2)
+    const blob = new Blob([payload], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `audit-logs-${auditUserId || 'unknown'}-${new Date().toISOString()}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const copyLine = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      // no-op
+    }
+  }
 
   if (isAuditLogsLoading) {
-    return <div className="rounded-xl border border-slate-200 bg-white p-4">{t('common.loading')}</div>
+    return (
+      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 font-mono text-green-400">
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-600 border-b-green-400" />
+          <span>Loading terminal logs...</span>
+        </div>
+      </div>
+    )
   }
 
   if (isAuditLogsError) {
@@ -32,13 +61,39 @@ export function AdminAuditLogsPage() {
   return (
     <div className="space-y-4">
       <header className="rounded-xl border border-slate-200 bg-white p-4">
-        <h1 className="text-lg font-semibold text-slate-900">{t('admin.auditLogsPage.title')}</h1>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-lg font-semibold text-slate-900">{t('admin.auditLogsPage.title')}</h1>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500">Auto-refresh: 5s</span>
+            <button
+              type="button"
+              onClick={exportJson}
+              disabled={!auditLogs.length}
+              className="rounded-md border border-slate-300 px-2.5 py-1 text-xs text-slate-700 disabled:opacity-50"
+            >
+              Export JSON
+            </button>
+          </div>
+        </div>
       </header>
 
       <LogsFilterBar>
         <label className="text-sm font-medium text-slate-700">
-          {t('admin.auditLogsPage.filters.userId')}
-          <input className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" value={auditUserId} onChange={(event) => setAuditUserId(event.target.value)} />
+          Search User
+          <input
+            list="audit-users-list"
+            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            placeholder="Select or type User ID..."
+            value={auditUserId}
+            onChange={(event) => setAuditUserId(event.target.value)}
+          />
+          <datalist id="audit-users-list">
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.fullName} ({u.email})
+              </option>
+            ))}
+          </datalist>
         </label>
         <label className="text-sm font-medium text-slate-700">
           {t('admin.auditLogsPage.filters.endpointKey')}
@@ -66,35 +121,48 @@ export function AdminAuditLogsPage() {
         </label>
       </LogsFilterBar>
 
-      <section className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">{t('admin.auditLogsPage.table.action')}</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">{t('admin.auditLogsPage.table.target')}</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">{t('admin.auditLogsPage.table.result')}</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">{t('admin.auditLogsPage.table.when')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {auditLogs.map((item) => (
-              <tr key={item.auditLogId}>
-                <td className="px-4 py-3 text-sm text-slate-700">{item.action}</td>
-                <td className="px-4 py-3 text-sm text-slate-700">{item.targetKey}</td>
-                <td className="px-4 py-3 text-sm text-slate-700">{item.isSuccess ? t('admin.auditLogsPage.result.success') : t('admin.auditLogsPage.result.failure')}</td>
-                <td className="px-4 py-3 text-sm text-slate-700">{new Date(item.occurredAtUtc).toLocaleString()}</td>
-              </tr>
-            ))}
-            {!auditLogs.length ? (
-              <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-sm text-slate-500">
-                  {t('admin.auditLogsPage.messages.empty')}
-                </td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
+      {!auditUserId ? (
+        <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">
+          Please search and select a user to view their audit logs.
+        </div>
+      ) : null}
+
+      {auditUserId ? (
+      <section className="rounded-xl border border-slate-800 bg-slate-900 p-4 font-mono text-sm">
+        <div className="mb-4 text-green-500/80">$ tail -f /var/log/authz/audit.log</div>
+        {!auditLogs.length ? (
+          <div className="text-slate-500 italic">{t('admin.auditLogsPage.messages.empty')}</div>
+        ) : (
+          <div className="space-y-1">
+            {auditLogs.map((item) => {
+              const isError = !item.isSuccess
+              return (
+                <div key={item.auditLogId} className="flex gap-3 rounded px-2 py-1 hover:bg-slate-800/60">
+                  <span className="shrink-0 text-slate-500">[{new Date(item.occurredAtUtc).toISOString()}]</span>
+                  <span className="w-28 shrink-0 text-blue-400">{item.action}</span>
+                  <span className="w-24 shrink-0 text-amber-300">{item.targetType}</span>
+                  <span className="min-w-0 flex-1 truncate text-slate-300" title={item.targetKey ?? ''}>{item.targetKey ?? '-'}</span>
+                  <span className={`w-20 shrink-0 text-right font-semibold ${isError ? 'text-rose-400' : 'text-emerald-400'}`}>
+                    {item.isSuccess ? 'OK' : 'FAIL'}
+                  </span>
+                  <button
+                    type="button"
+                    className="w-14 shrink-0 rounded border border-slate-700 px-1 text-xs text-slate-300 hover:bg-slate-700"
+                    onClick={() =>
+                      void copyLine(
+                        `[${new Date(item.occurredAtUtc).toISOString()}] ${item.action} ${item.targetType} ${item.targetKey ?? '-'} ${item.isSuccess ? 'OK' : 'FAIL'}`,
+                      )
+                    }
+                  >
+                    Copy
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </section>
+      ) : null}
     </div>
   )
 }

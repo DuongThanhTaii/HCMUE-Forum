@@ -25,8 +25,14 @@ export function ModLayout() {
           <Link to="/mod/reports" className={navLinkClass}>
             {t('mod.layout.reports')}
           </Link>
+          <Link to="/mod/dashboard" className={navLinkClass}>
+            {t('admin.dashboard')}
+          </Link>
           <Link to="/mod/posts" className={navLinkClass}>
             {t('mod.layout.pendingPosts')}
+          </Link>
+          <Link to="/mod/learning" className={navLinkClass}>
+            {t('mod.layout.learningApproval')}
           </Link>
         </nav>
       </header>

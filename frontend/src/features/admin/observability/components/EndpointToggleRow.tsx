@@ -59,6 +59,27 @@ export function EndpointToggleRow({ toggle, isSubmitting, onSubmit }: EndpointTo
         </div>
 
         <div className="flex-shrink-0">
+          <div className="mb-2 flex justify-end">
+            {toggle.isEnabled ? (
+              <button
+                type="button"
+                className="rounded-md border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 hover:bg-amber-100 disabled:opacity-50"
+                onClick={() => setIsConfirmOpen(!isConfirmOpen)}
+                disabled={isSubmitting}
+              >
+                Tắt
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="rounded-md border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
+                onClick={() => void enableToggle()}
+                disabled={isSubmitting}
+              >
+                Bật
+              </button>
+            )}
+          </div>
           {toggle.isEnabled ? (
             <button
               type="button"

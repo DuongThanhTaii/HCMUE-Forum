@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using UniHub.Contracts;
 using UniHub.Identity.Application.Authorization;
+using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Application.Commands.Authorization.RevokeGroupPermissionOverride;
 using UniHub.Identity.Application.Commands.Authorization.RevokeUserPermissionOverride;
 using UniHub.Identity.Application.Commands.Authorization.SetEndpointToggle;
@@ -25,10 +26,31 @@ namespace UniHub.Identity.Presentation.Controllers;
 public sealed class AuthorizationAdminController : BaseApiController
 {
     private readonly ISender _sender;
+    private readonly IUserGroupRepository _userGroupRepository;
 
-    public AuthorizationAdminController(ISender sender)
+    public AuthorizationAdminController(ISender sender, IUserGroupRepository userGroupRepository)
     {
         _sender = sender;
+        _userGroupRepository = userGroupRepository;
+    }
+
+    [HttpGet("groups")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetGroups(CancellationToken cancellationToken)
+    {
+        var groups = await _userGroupRepository.GetAllAsync(cancellationToken);
+        var response = groups
+            .Select(group => new
+            {
+                id = group.Id,
+                name = group.Name,
+                description = group.Description,
+                isActive = group.IsActive,
+                memberCount = group.Members.Count
+            })
+            .ToList();
+
+        return Ok(ApiResponses.Success(response));
     }
 
     [HttpGet("users/{userId:guid}/overrides")]

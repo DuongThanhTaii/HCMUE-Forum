@@ -81,7 +81,12 @@ export function UserOverridesPanel({
               <p className="text-sm text-slate-500">{selectedUser.email}</p>
             </div>
 
-            <AddOverrideForm permissions={permissions} isSubmitting={isMutating} onSubmit={onSubmitOverride} />
+            <AddOverrideForm
+              permissions={permissions}
+              overrides={overrides}
+              isSubmitting={isMutating}
+              onSubmit={onSubmitOverride}
+            />
 
             <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
               <table className="min-w-full divide-y divide-slate-200">

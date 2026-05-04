@@ -6,7 +6,7 @@ namespace UniHub.Infrastructure.Persistence.Seeding;
 /// <summary>
 /// Seeds initial role-permission assignments for all default roles.
 /// Must run AFTER IdentitySeed (permissions and roles must already exist).
-/// Idempotent: skips entirely if any RolePermission rows already exist.
+/// Idempotent: upserts required role-permission rows without duplicating existing mappings.
 /// Uses raw SQL INSERT to bypass EF owned-type tracking complexity (PermissionScope.Type
 /// has private set; which causes scope_type = null when using context.Add() on the aggregate).
 /// </summary>
@@ -24,6 +24,10 @@ internal static class RolePermissionSeeder
         "forum.comments.delete",
         "forum.categories.read",
         "forum.tags.read",
+        "learning.documents.read",
+        "learning.documents.approve",
+        "learning.documents.reject",
+        "learning.documents.request_revision",
     ];
 
     private static readonly string[] LecturerCodes =
@@ -62,19 +66,19 @@ internal static class RolePermissionSeeder
         "career.jobpostings.read",
     ];
 
+    private static readonly string[] RecruiterCodes =
+    [
+        "career.companies.read",
+        "career.companies.create",
+        "career.companies.update",
+        "career.jobpostings.read",
+        "career.jobpostings.create",
+        "career.jobpostings.update",
+        "notification.notifications.read",
+    ];
+
     public static async Task SeedAsync(ApplicationDbContext context, ILogger logger)
     {
-        // Idempotency guard — skip if any row already exists
-        var existingCount = await context.Database
-            .SqlQuery<int>($"SELECT COUNT(*)::int AS \"Value\" FROM identity.role_permissions")
-            .FirstOrDefaultAsync();
-
-        if (existingCount > 0)
-        {
-            logger.LogInformation("Role permissions already seeded ({Count} rows). Skipping.", existingCount);
-            return;
-        }
-
         // Load roles and permissions by name/code (read-only, no tracking)
         var roles = await context.Roles.AsNoTracking()
             .Select(r => new { r.Id, r.Name })
@@ -107,6 +111,7 @@ internal static class RolePermissionSeeder
 
         AddCodedRows(rows, roleByName, permByCode, "Moderator", ModeratorCodes, logger);
         AddCodedRows(rows, roleByName, permByCode, "Lecturer", LecturerCodes, logger);
+        AddCodedRows(rows, roleByName, permByCode, "Recruiter", RecruiterCodes, logger);
         AddCodedRows(rows, roleByName, permByCode, "Student", StudentCodes, logger);
 
         if (rows.Count == 0)
@@ -115,20 +120,29 @@ internal static class RolePermissionSeeder
             return;
         }
 
-        // Batch-insert using raw SQL to avoid EF owned-type tracking issues
+        // Batch-insert with explicit NOT EXISTS guard (does not depend on unique constraints)
         const int batchSize = 50;
         var totalInserted = 0;
 
         for (var i = 0; i < rows.Count; i += batchSize)
         {
             var batch = rows.Skip(i).Take(batchSize).ToList();
-            var valueClauses = batch.Select((row, _) =>
-                $"('{row.Id}', '{row.RoleId}', '{row.PermId}', {globalScopeType}, NULL, '{now:yyyy-MM-dd HH:mm:ss.ffffff}')");
+            var selectClauses = batch.Select(row =>
+                $"""
+                SELECT '{row.Id}'::uuid, '{row.RoleId}'::uuid, '{row.PermId}'::uuid, {globalScopeType}, NULL::text, '{now:yyyy-MM-dd HH:mm:ss.ffffff}'::timestamp
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM identity.role_permissions rp
+                    WHERE rp.role_id = '{row.RoleId}'::uuid
+                      AND rp.permission_id = '{row.PermId}'::uuid
+                      AND rp.scope_type = {globalScopeType}
+                      AND rp.scope_value IS NULL
+                )
+                """);
 
             var sql = $"""
                 INSERT INTO identity.role_permissions (id, role_id, permission_id, scope_type, scope_value, assigned_at)
-                VALUES {string.Join(", ", valueClauses)}
-                ON CONFLICT DO NOTHING;
+                {string.Join("\nUNION ALL\n", selectClauses)};
                 """;
 
             await context.Database.ExecuteSqlRawAsync(sql);

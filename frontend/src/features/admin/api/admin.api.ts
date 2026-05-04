@@ -12,6 +12,7 @@ import type {
   RoleDto,
   UpsertPermissionOverrideRequest,
   UserDto,
+  UserGroupDto,
   UpdateRoleRequest,
 } from '../types/admin.types'
 
@@ -63,6 +64,9 @@ export function getUserOverridesPath(userId: string): string {
 
 export function getGroupOverridesPath(groupId: string): string {
   return `/api/v1/admin/authorization/groups/${groupId}/overrides`
+}
+export function getGroupsPath(): string {
+  return '/api/v1/admin/authorization/groups'
 }
 
 export function buildAssignRoleToUserRequest(userId: string, body: AssignRoleToUserRequest) {
@@ -237,6 +241,17 @@ export const adminApi = baseApi.injectEndpoints({
             ]
           : [{ type: 'UserProfile' as const, id: 'LIST' }],
     }),
+    getUserGroups: builder.query<UserGroupDto[], void>({
+      query: getGroupsPath,
+      transformResponse: (response: unknown) => unwrapApiList<UserGroupDto>(response),
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map((group) => ({ type: 'UserGroup' as const, id: group.id })),
+              { type: 'UserGroup' as const, id: 'LIST' },
+            ]
+          : [{ type: 'UserGroup' as const, id: 'LIST' }],
+    }),
 
     getUser: builder.query<UserDto, string>({
       query: getUserPath,
@@ -295,6 +310,41 @@ export const adminApi = baseApi.injectEndpoints({
       query: ({ userId, query }) => buildRevokeUserOverrideRequest(userId, query),
       invalidatesTags: (_result, _error, { userId }) => buildUserOverridesInvalidatesTags(userId),
     }),
+    getGroupOverrides: builder.query<PermissionOverrideDto[], string>({
+      query: (groupId) => getGroupOverridesPath(groupId),
+      transformResponse: (response: unknown) => unwrapApiList<PermissionOverrideDto>(response),
+      providesTags: (result, _error, groupId) => {
+        const listTag = { type: 'GroupOverride' as const, id: `LIST:${groupId}` }
+        if (!result?.length) return [listTag]
+        return [
+          ...result.map((item) => ({
+            type: 'GroupOverride' as const,
+            id: `${groupId}:${item.permissionId}:${item.scopeType}:${normalizeScopeValue(item.scopeValue)}`,
+          })),
+          listTag,
+        ]
+      },
+    }),
+    upsertGroupOverride: builder.mutation<void, { groupId: string; body: UpsertPermissionOverrideRequest }>({
+      query: ({ groupId, body }) => ({
+        url: getGroupOverridesPath(groupId),
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (_result, _error, { groupId }) => [{ type: 'GroupOverride' as const, id: `LIST:${groupId}` }],
+    }),
+    revokeGroupOverride: builder.mutation<void, { groupId: string; query: RevokePermissionOverrideRequest }>({
+      query: ({ groupId, query }) => ({
+        url: getGroupOverridesPath(groupId),
+        method: 'DELETE',
+        params: {
+          permissionId: query.permissionId,
+          scopeType: query.scopeType,
+          scopeValue: normalizeScopeValue(query.scopeValue),
+        },
+      }),
+      invalidatesTags: (_result, _error, { groupId }) => [{ type: 'GroupOverride' as const, id: `LIST:${groupId}` }],
+    }),
   }),
 })
 
@@ -309,6 +359,7 @@ export const {
   useAssignPermissionToRoleMutation,
   useRemovePermissionFromRoleMutation,
   useGetUsersQuery,
+  useGetUserGroupsQuery,
   useGetUserQuery,
   useAssignRoleToUserMutation,
   useRemoveRoleFromUserMutation,
@@ -317,4 +368,7 @@ export const {
   useGetUserOverridesQuery,
   useUpsertUserOverrideMutation,
   useRevokeUserOverrideMutation,
+  useGetGroupOverridesQuery,
+  useUpsertGroupOverrideMutation,
+  useRevokeGroupOverrideMutation,
 } = adminApi

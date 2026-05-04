@@ -44,7 +44,8 @@
     },
     "groups": {
       "available": "Group overrides source is available, but UI wiring is intentionally deferred in Task 7.",
-      "unavailable": "Group override source is currently unavailable. User override workflow remains fully operational."
+      "unavailable": "Group override source is currently unavailable. User override workflow remains fully operational.",
+      "empty": "No groups available for override configuration yet."
     },
     "form": {
       "title": "Add override",
