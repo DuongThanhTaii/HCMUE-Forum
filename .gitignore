@@ -159,3 +159,6 @@ GEMINI.md
 # Cursor IDE — commit `.cursor/rules/` only; skills stay local (large/bundled)
 .cursor/skills/
 .worktrees/
+
+src/UniHub.API/appsettings.json
+src/UniHub.API/appsettings.*.json
