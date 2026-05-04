@@ -71,7 +71,7 @@ public class RolesController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Created role information</returns>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [RequirePermission("identity.roles.create")]
     [ProducesResponseType(typeof(RoleResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(
@@ -106,7 +106,7 @@ public class RolesController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [RequirePermission("identity.roles.update")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -133,7 +133,7 @@ public class RolesController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [RequirePermission("identity.roles.delete")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -158,7 +158,7 @@ public class RolesController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPost("{id:guid}/permissions")]
-    [Authorize(Roles = "Admin")]
+    [RequirePermission("admin.system.manage")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AssignPermission(
@@ -192,7 +192,7 @@ public class RolesController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpDelete("{id:guid}/permissions/{permissionId:guid}")]
-    [Authorize(Roles = "Admin")]
+    [RequirePermission("admin.system.manage")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RemovePermission(

@@ -264,7 +264,7 @@ public class PostsController : BaseApiController
     /// Pin or unpin a post
     /// </summary>
     [HttpPost("{id:guid}/pin")]
-    [Authorize(Roles = "Admin,Moderator")]
+    [RequirePermission("forum.posts.update")]
     [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

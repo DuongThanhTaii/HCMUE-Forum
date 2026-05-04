@@ -164,7 +164,7 @@ public class UsersController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPost("{id:guid}/roles")]
-    [Authorize(Roles = "Admin")]
+    [RequirePermission("identity.users.update")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -192,7 +192,7 @@ public class UsersController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpDelete("{id:guid}/roles/{roleId:guid}")]
-    [Authorize(Roles = "Admin")]
+    [RequirePermission("identity.users.update")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -220,7 +220,7 @@ public class UsersController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpPost("{id:guid}/badge")]
-    [Authorize(Roles = "Admin")]
+    [RequirePermission("identity.users.update")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AssignBadge(
@@ -263,7 +263,7 @@ public class UsersController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Success message</returns>
     [HttpDelete("{id:guid}/badge")]
-    [Authorize(Roles = "Admin")]
+    [RequirePermission("identity.users.update")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RemoveBadge(

@@ -21,7 +21,7 @@ namespace UniHub.Identity.Presentation.Controllers;
 
 [Route("api/v1/admin/authorization")]
 [Produces("application/json")]
-[Authorize(Roles = "Admin")]
+[RequirePermission("admin.system.manage")]
 public sealed class AuthorizationAdminController : BaseApiController
 {
     private readonly ISender _sender;

@@ -17,7 +17,7 @@ namespace UniHub.Forum.Presentation.Controllers;
 
 [Route("api/v1/mod")]
 [Produces("application/json")]
-[Authorize(Roles = "Admin,Moderator")]
+[RequirePermission("forum.reports.review")]
 public sealed class ModerationController : BaseApiController
 {
     private readonly ISender _sender;
