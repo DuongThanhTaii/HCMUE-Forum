@@ -1,24 +1,23 @@
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using Microsoft.Extensions.Options;
 using UniHub.Learning.Application.Abstractions;
 
 namespace UniHub.Learning.Infrastructure.Services;
 
 /// <summary>
-/// Local filesystem implementation of IFileStorageService.
-/// Files are stored in a configurable directory on the local filesystem.
+/// Cloudinary implementation of IFileStorageService.
+/// Files are stored in Cloudinary instead of local filesystem.
 /// </summary>
 internal sealed class FileStorageService : IFileStorageService
 {
-    private readonly string _storagePath;
+    private readonly Cloudinary _cloudinary;
 
-    public FileStorageService(string storagePath = "uploads/documents")
+    public FileStorageService(IOptions<CloudinarySettings> cloudinarySettings)
     {
-        _storagePath = storagePath;
-        
-        // Ensure storage directory exists
-        if (!Directory.Exists(_storagePath))
-        {
-            Directory.CreateDirectory(_storagePath);
-        }
+        var settings = cloudinarySettings.Value;
+        var account = new Account(settings.CloudName, settings.ApiKey, settings.ApiSecret);
+        _cloudinary = new Cloudinary(account);
     }
 
     public async Task<string> UploadFileAsync(
@@ -27,61 +26,84 @@ internal sealed class FileStorageService : IFileStorageService
         string contentType, 
         CancellationToken cancellationToken = default)
     {
-        // Generate unique file name to avoid collisions
-        var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
-        var filePath = Path.Combine(_storagePath, uniqueFileName);
+        using var stream = new MemoryStream(fileContent);
+        
+        var uploadParams = new RawUploadParams
+        {
+            File = new FileDescription(fileName, stream),
+            PublicId = $"unihub/documents/{Guid.NewGuid()}_{Path.GetFileNameWithoutExtension(fileName)}"
+        };
 
-        // Write file to disk
-        await File.WriteAllBytesAsync(filePath, fileContent, cancellationToken);
+        // We use RawUploadParams for documents (PDF, DOCX, etc.)
+        var uploadResult = await _cloudinary.UploadAsync(uploadParams, "raw", cancellationToken);
+        
+        if (uploadResult.Error != null)
+        {
+            throw new Exception($"Cloudinary upload failed: {uploadResult.Error.Message}");
+        }
 
-        // Return relative path (can be stored in database)
-        return Path.Combine(_storagePath, uniqueFileName).Replace("\\", "/");
+        return uploadResult.SecureUrl.ToString();
     }
 
     public async Task DeleteFileAsync(string filePath, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(filePath))
+        if (string.IsNullOrWhiteSpace(filePath)) return;
+
+        // Note: For Cloudinary, we need the public ID to delete the file.
+        // We'll extract the public ID from the URL if possible.
+        // A Cloudinary URL looks like: https://res.cloudinary.com/cloudname/raw/upload/v1234567/public_id.ext
+        
+        try
         {
-            return;
+            var uri = new Uri(filePath);
+            var segments = uri.Segments;
+            // The public ID is usually everything after /upload/v<version>/
+            var uploadIndex = Array.FindIndex(segments, s => s.Equals("upload/"));
+            if (uploadIndex >= 0 && segments.Length > uploadIndex + 2)
+            {
+                // Skip /upload/ and /v1234567/
+                var publicIdWithExt = string.Join("", segments.Skip(uploadIndex + 2));
+                
+                var delParams = new DelResParams
+                {
+                    PublicIds = [publicIdWithExt],
+                    ResourceType = ResourceType.Raw
+                };
+                await _cloudinary.DeleteResourcesAsync(delParams, cancellationToken);
+            }
         }
-
-        // Ensure path is within storage directory for security
-        var fullPath = Path.GetFullPath(filePath);
-        var storageFullPath = Path.GetFullPath(_storagePath);
-
-        if (fullPath.StartsWith(storageFullPath) && File.Exists(fullPath))
+        catch
         {
-            await Task.Run(() => File.Delete(fullPath), cancellationToken);
+            // Ignore parse errors or deletion errors
         }
     }
 
     public async Task<byte[]> GetFileAsync(string filePath, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+        if (string.IsNullOrWhiteSpace(filePath))
         {
             throw new FileNotFoundException($"File not found: {filePath}");
         }
 
-        // Ensure path is within storage directory for security
-        var fullPath = Path.GetFullPath(filePath);
-        var storageFullPath = Path.GetFullPath(_storagePath);
-
-        if (!fullPath.StartsWith(storageFullPath))
-        {
-            throw new UnauthorizedAccessException($"Access denied to file: {filePath}");
-        }
-
-        return await File.ReadAllBytesAsync(fullPath, cancellationToken);
+        using var httpClient = new HttpClient();
+        return await httpClient.GetByteArrayAsync(filePath, cancellationToken);
     }
 
-    public Task<bool> FileExistsAsync(string filePath, CancellationToken cancellationToken = default)
+    public async Task<bool> FileExistsAsync(string filePath, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(filePath))
-        {
-            return Task.FromResult(false);
-        }
+        if (string.IsNullOrWhiteSpace(filePath)) return false;
 
-        var exists = File.Exists(filePath);
-        return Task.FromResult(exists);
+        try
+        {
+            using var httpClient = new HttpClient();
+            var response = await httpClient.SendAsync(
+                new HttpRequestMessage(System.Net.Http.HttpMethod.Head, filePath),
+                cancellationToken);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

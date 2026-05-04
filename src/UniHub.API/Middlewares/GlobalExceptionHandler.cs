@@ -28,13 +28,23 @@ public class GlobalExceptionHandler : IExceptionHandler
     {
         var traceId = Activity.Current?.Id ?? httpContext.TraceIdentifier;
 
-        _logger.LogError(
-            exception,
-            "Exception occurred: {Message}. TraceId: {TraceId}",
-            exception.Message,
-            traceId);
-
         var (statusCode, title, errors) = MapException(exception);
+
+        if (statusCode >= 500)
+        {
+            _logger.LogError(
+                exception,
+                "Exception occurred: {Message}. TraceId: {TraceId}",
+                exception.Message,
+                traceId);
+        }
+        else
+        {
+            _logger.LogWarning(
+                "Client error occurred: {Message}. TraceId: {TraceId}",
+                exception.Message,
+                traceId);
+        }
 
         var problemDetails = new ProblemDetails
         {
@@ -73,6 +83,11 @@ public class GlobalExceptionHandler : IExceptionHandler
     {
         return exception switch
         {
+            OperationCanceledException => (
+                499,
+                "Client Closed Request",
+                null),
+
             ValidationException validationEx => (
                 StatusCodes.Status400BadRequest,
                 "Validation Error",

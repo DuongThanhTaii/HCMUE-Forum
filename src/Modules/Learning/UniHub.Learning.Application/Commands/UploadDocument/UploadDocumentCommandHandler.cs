@@ -92,6 +92,14 @@ public sealed class UploadDocumentCommandHandler : ICommandHandler<UploadDocumen
             return Result.Failure<Guid>(documentResult.Error);
         }
 
+        // Newly uploaded documents must enter moderation queue by default.
+        var submitResult = documentResult.Value.SubmitForApproval();
+        if (submitResult.IsFailure)
+        {
+            await _fileStorageService.DeleteFileAsync(filePath, cancellationToken);
+            return Result.Failure<Guid>(submitResult.Error);
+        }
+
         // Save document
         await _documentRepository.AddAsync(documentResult.Value, cancellationToken);
 

@@ -35,12 +35,20 @@ public class DocumentsController : BaseApiController
         [FromQuery] SearchDocumentsRequest request,
         CancellationToken cancellationToken)
     {
+        var requestedStatus = request.Status;
+        if (!requestedStatus.HasValue)
+        {
+            // Public/user list should show published documents by default.
+            // Moderator/admin can still query explicit status when needed.
+            requestedStatus = (int)DocumentStatus.Approved;
+        }
+
         var query = new SearchDocumentsQuery(
             request.SearchTerm,
             request.CourseId,
             request.FacultyId,
             request.DocumentType,
-            request.Status,
+            requestedStatus,
             request.SortBy ?? DocumentSortBy.CreatedDate,
             request.SortDescending ?? true,
             request.PageNumber ?? 1,
@@ -89,17 +97,43 @@ public class DocumentsController : BaseApiController
         [FromForm] UploadDocumentRequest request,
         CancellationToken cancellationToken)
     {
+        Guid userId;
+        try
+        {
+            userId = GetCurrentUserId();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized(ApiResponses.Failure("User is not authenticated."));
+        }
+
+        if (request.UploaderId.HasValue && request.UploaderId.Value != userId)
+        {
+            return BadRequest(ApiResponses.Failure("UploaderId in request must match the authenticated user."));
+        }
+
+        if (request.File == null || request.File.Length == 0)
+        {
+            return BadRequest(ApiResponses.Failure("File is required and cannot be empty."));
+        }
+
+        byte[] fileContent;
+        using (var ms = new MemoryStream())
+        {
+            await request.File.CopyToAsync(ms, cancellationToken);
+            fileContent = ms.ToArray();
+        }
+
         var command = new UploadDocumentCommand(
             request.Title,
             request.Description ?? string.Empty,
-            request.FileName,
-            request.FileContent,
-            request.ContentType,
-            request.FileSize,
+            request.File.FileName,
+            fileContent,
+            request.File.ContentType,
+            request.File.Length,
             (DocumentType)request.DocumentType,
-            request.UploaderId,
+            userId,
             request.CourseId);
-
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
@@ -200,7 +234,13 @@ public class DocumentsController : BaseApiController
         [FromBody] ApproveDocumentRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new ApproveDocumentCommand(id, request.ReviewerId, request.Comment);
+        var reviewerId = GetCurrentUserId();
+        if (request.ReviewerId.HasValue && request.ReviewerId.Value != reviewerId)
+        {
+            return BadRequest(ApiResponses.Failure("ReviewerId in request must match the authenticated user."));
+        }
+
+        var command = new ApproveDocumentCommand(id, reviewerId, request.Comment);
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
@@ -223,7 +263,13 @@ public class DocumentsController : BaseApiController
         [FromBody] RejectDocumentRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new RejectDocumentCommand(id, request.ReviewerId, request.Reason);
+        var reviewerId = GetCurrentUserId();
+        if (request.ReviewerId.HasValue && request.ReviewerId.Value != reviewerId)
+        {
+            return BadRequest(ApiResponses.Failure("ReviewerId in request must match the authenticated user."));
+        }
+
+        var command = new RejectDocumentCommand(id, reviewerId, request.Reason);
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
@@ -246,7 +292,13 @@ public class DocumentsController : BaseApiController
         [FromBody] RequestRevisionRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new RequestRevisionCommand(id, request.ReviewerId, request.Reason);
+        var reviewerId = GetCurrentUserId();
+        if (request.ReviewerId.HasValue && request.ReviewerId.Value != reviewerId)
+        {
+            return BadRequest(ApiResponses.Failure("ReviewerId in request must match the authenticated user."));
+        }
+
+        var command = new RequestRevisionCommand(id, reviewerId, request.Reason);
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)

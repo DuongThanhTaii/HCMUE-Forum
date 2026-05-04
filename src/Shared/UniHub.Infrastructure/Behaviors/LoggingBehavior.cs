@@ -48,6 +48,18 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
             return response;
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            stopwatch.Stop();
+
+            _logger.LogInformation(
+                "[CANCELLED] {RequestName} ({RequestGuid}) cancelled after {ElapsedMilliseconds}ms",
+                requestName,
+                requestGuid,
+                stopwatch.ElapsedMilliseconds);
+
+            throw;
+        }
         catch (Exception ex)
         {
             stopwatch.Stop();

@@ -1,4 +1,5 @@
 using FluentValidation;
+using UniHub.Forum.Domain.Posts;
 
 namespace UniHub.Forum.Application.Commands.CreatePost;
 
@@ -20,7 +21,8 @@ public sealed class CreatePostCommandValidator : AbstractValidator<CreatePostCom
             .MaximumLength(50000).WithMessage("Content must not exceed 50000 characters");
 
         RuleFor(x => x.Type)
-            .IsInEnum().WithMessage("Invalid post type");
+            .Must(type => Enum.IsDefined(typeof(PostType), type))
+            .WithMessage("Invalid post type");
 
         RuleFor(x => x.AuthorId)
             .NotEmpty().WithMessage("Author ID is required");

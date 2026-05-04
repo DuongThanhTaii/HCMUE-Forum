@@ -51,10 +51,7 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
         }
 
         // Validate post type
-        if (!Enum.IsDefined(typeof(PostType), request.Type))
-        {
-            return Result.Failure<Guid>(PostErrors.InvalidPostType);
-        }
+
 
         var postType = (PostType)request.Type;
 

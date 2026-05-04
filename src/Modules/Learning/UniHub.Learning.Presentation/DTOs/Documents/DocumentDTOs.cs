@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using UniHub.Learning.Application.Queries.DocumentSearch;
 
 namespace UniHub.Learning.Presentation.DTOs.Documents;
@@ -16,12 +17,9 @@ public record SearchDocumentsRequest(
 public record UploadDocumentRequest(
     string Title,
     string? Description,
-    string FileName,
-    byte[] FileContent,
-    string ContentType,
-    long FileSize,
+    IFormFile File,
     int DocumentType,
-    Guid UploaderId,
+    Guid? UploaderId,
     Guid? CourseId);
 
 public record UploadDocumentResponse(
@@ -36,13 +34,13 @@ public record DownloadDocumentRequest(
     Guid UserId);
 
 public record ApproveDocumentRequest(
-    Guid ReviewerId,
+    Guid? ReviewerId,
     string? Comment);
 
 public record RejectDocumentRequest(
-    Guid ReviewerId,
+    Guid? ReviewerId,
     string Reason);
 
 public record RequestRevisionRequest(
-    Guid ReviewerId,
+    Guid? ReviewerId,
     string Reason);

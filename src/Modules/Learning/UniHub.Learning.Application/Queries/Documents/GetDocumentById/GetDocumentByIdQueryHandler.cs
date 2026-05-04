@@ -48,6 +48,7 @@ internal sealed class GetDocumentByIdQueryHandler
             document.Type.ToString(),
             document.Status.ToString(),
             document.File.FileName,
+            document.File.FilePath,
             document.File.FileSize,
             document.File.ContentType,
             document.AverageRating,

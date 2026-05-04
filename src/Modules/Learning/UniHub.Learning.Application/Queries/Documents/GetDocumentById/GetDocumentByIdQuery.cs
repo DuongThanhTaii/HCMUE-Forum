@@ -18,6 +18,7 @@ public sealed record DocumentDetailResponse(
     string DocumentType,
     string Status,
     string FileName,
+    string FilePath,
     long FileSize,
     string ContentType,
     double AverageRating,

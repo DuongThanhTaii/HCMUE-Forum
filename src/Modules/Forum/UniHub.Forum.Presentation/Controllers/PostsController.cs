@@ -21,6 +21,7 @@ using UniHub.Forum.Presentation.DTOs.Comments;
 using UniHub.Forum.Presentation.DTOs.Posts;
 using UniHub.Forum.Presentation.DTOs.Reports;
 using UniHub.Forum.Presentation.DTOs.Votes;
+using UniHub.Forum.Presentation.Services;
 
 namespace UniHub.Forum.Presentation.Controllers;
 
@@ -29,10 +30,14 @@ namespace UniHub.Forum.Presentation.Controllers;
 public class PostsController : BaseApiController
 {
     private readonly ISender _sender;
+    private readonly IForumAttachmentStorageService _attachmentStorageService;
 
-    public PostsController(ISender sender)
+    public PostsController(
+        ISender sender,
+        IForumAttachmentStorageService attachmentStorageService)
     {
         _sender = sender;
+        _attachmentStorageService = attachmentStorageService;
     }
 
     /// <summary>
@@ -439,5 +444,35 @@ public class PostsController : BaseApiController
         }
 
         return Created(string.Empty, ApiResponses.Success((object)new { reportId = result.Value }, "Post reported successfully"));
+    }
+
+    /// <summary>
+    /// Upload attachments for forum posts/comments and return Cloudinary URLs.
+    /// </summary>
+    [HttpPost("attachments/upload")]
+    [Authorize]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(ApiResponse<UploadForumAttachmentsResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadAttachments(
+        [FromForm] UploadForumAttachmentsRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request.Files.Count == 0)
+        {
+            return BadRequest(ApiResponses.Failure("At least one file is required."));
+        }
+
+        var validFiles = request.Files.Where(f => f.Length > 0).ToList();
+        if (validFiles.Count == 0)
+        {
+            return BadRequest(ApiResponses.Failure("All uploaded files are empty."));
+        }
+
+        var userId = GetCurrentUserId();
+        var urls = await _attachmentStorageService.UploadAsync(validFiles, userId, cancellationToken);
+        var response = new UploadForumAttachmentsResponse(urls);
+
+        return Ok(ApiResponses.Success(response, "Forum attachments uploaded successfully"));
     }
 }

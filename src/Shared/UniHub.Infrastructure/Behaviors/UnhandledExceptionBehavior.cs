@@ -25,6 +25,14 @@ public class UnhandledExceptionBehavior<TRequest, TResponse> : IPipelineBehavior
         {
             return await next();
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            var requestName = typeof(TRequest).Name;
+            _logger.LogInformation(
+                "Request {RequestName} was cancelled by client.",
+                requestName);
+            throw;
+        }
         catch (Exception ex)
         {
             var requestName = typeof(TRequest).Name;

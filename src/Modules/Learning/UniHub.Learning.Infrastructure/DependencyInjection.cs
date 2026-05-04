@@ -40,7 +40,10 @@ public static class DependencyInjection
     /// </summary>
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
-        // File storage - local filesystem implementation
+        // Bind Cloudinary settings
+        services.AddOptions<CloudinarySettings>().BindConfiguration("Cloudinary");
+
+        // File storage - Cloudinary implementation
         services.AddScoped<IFileStorageService, FileStorageService>();
         
         // Virus scanning - stub implementation

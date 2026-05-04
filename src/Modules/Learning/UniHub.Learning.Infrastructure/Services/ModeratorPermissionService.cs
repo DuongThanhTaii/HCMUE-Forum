@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using UniHub.Identity.Domain.Users;
 using UniHub.Learning.Application.Abstractions;
 using UniHub.Learning.Domain.Courses;
 using UniHub.Learning.Domain.Documents;
@@ -12,6 +13,7 @@ namespace UniHub.Learning.Infrastructure.Services;
 /// </summary>
 internal sealed class ModeratorPermissionService : IModeratorPermissionService
 {
+    private static readonly string[] GlobalModeratorRoleNames = ["Admin", "Moderator"];
     private readonly ApplicationDbContext _context;
 
     public ModeratorPermissionService(ApplicationDbContext context)
@@ -24,6 +26,11 @@ internal sealed class ModeratorPermissionService : IModeratorPermissionService
         Guid documentId,
         CancellationToken cancellationToken = default)
     {
+        if (await HasGlobalModerationRoleAsync(userId, cancellationToken))
+        {
+            return true;
+        }
+
         // Get document's course, then check if user is in moderator_ids
         var document = await _context.Documents
             .AsNoTracking()
@@ -47,6 +54,11 @@ internal sealed class ModeratorPermissionService : IModeratorPermissionService
         Guid courseId,
         CancellationToken cancellationToken = default)
     {
+        if (await HasGlobalModerationRoleAsync(userId, cancellationToken))
+        {
+            return true;
+        }
+
         // TODO: This requires JSONB query on moderator_ids array
         // For now, load course and check in-memory
         var course = await _context.Courses
@@ -59,5 +71,17 @@ internal sealed class ModeratorPermissionService : IModeratorPermissionService
         }
 
         return course.ModeratorIds.Contains(userId);
+    }
+
+    private async Task<bool> HasGlobalModerationRoleAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var uid = UserId.Create(userId);
+
+        return await (
+            from userRole in _context.UserRoles.AsNoTracking()
+            join role in _context.Roles.AsNoTracking() on userRole.RoleId equals role.Id
+            where userRole.UserId == uid && GlobalModeratorRoleNames.Contains(role.Name)
+            select role.Id
+        ).AnyAsync(cancellationToken);
     }
 }

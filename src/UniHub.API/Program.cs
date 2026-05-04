@@ -15,6 +15,8 @@ using UniHub.Notification.Infrastructure;
 using UniHub.Notification.Presentation.Hubs;
 using UniHub.AI.Infrastructure;
 using UniHub.API.Middlewares;
+using UniHub.Forum.Presentation.Services;
+using UniHub.Career.Presentation.Services;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -118,6 +120,8 @@ try
 
     // Add Forum module
     builder.Services.AddForumInfrastructure();
+    builder.Services.Configure<ForumCloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
+    builder.Services.AddScoped<IForumAttachmentStorageService, ForumAttachmentStorageService>();
 
     // Add Learning module
     builder.Services.AddLearningInfrastructure();
@@ -128,6 +132,8 @@ try
 
     // Add Career module
     builder.Services.AddCareerInfrastructure();
+    builder.Services.Configure<CareerCloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
+    builder.Services.AddScoped<ICareerLogoStorageService, CareerLogoStorageService>();
 
     // Add Notification module
     builder.Services.AddNotificationInfrastructure(builder.Configuration);
@@ -192,9 +198,6 @@ try
 
     var app = builder.Build();
 
-    // Use exception handler
-    app.UseExceptionHandler();
-
     // Use Serilog request logging
     app.UseSerilogRequestLogging(options =>
     {
@@ -207,6 +210,9 @@ try
             diagnosticContext.Set("RemoteIP", httpContext.Connection.RemoteIpAddress);
         };
     });
+
+    // Use exception handler
+    app.UseExceptionHandler();
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())

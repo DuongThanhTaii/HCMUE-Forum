@@ -75,6 +75,10 @@ public sealed class MongoUserActionLogStore : IUserActionLogStore
         {
             await _collection.InsertOneAsync(entry, cancellationToken: cancellationToken);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // Request was aborted by client; skip persistence without noisy warning.
+        }
         catch (Exception exception)
         {
             _logger.LogWarning(

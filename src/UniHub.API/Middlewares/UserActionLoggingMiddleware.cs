@@ -52,7 +52,7 @@ public sealed class UserActionLoggingMiddleware
 
             var statusCode = pipelineException is null
                 ? context.Response.StatusCode
-                : StatusCodes.Status500InternalServerError;
+                : MapExceptionToStatusCode(pipelineException);
 
             var actorUserId = ResolveActorUserId(context.User);
             var endpoint = context.GetEndpoint();
@@ -114,7 +114,7 @@ public sealed class UserActionLoggingMiddleware
 
             using (_logger.BeginScope(logPayload))
             {
-                if (statusCode >= 500 || pipelineException is not null)
+                if (statusCode >= 500)
                 {
                     _logger.LogError(
                         pipelineException,
@@ -196,5 +196,19 @@ public sealed class UserActionLoggingMiddleware
         }
 
         return Activity.Current?.TraceId.ToString() ?? Guid.NewGuid().ToString("N");
+    }
+
+    private static int MapExceptionToStatusCode(Exception exception)
+    {
+        return exception switch
+        {
+            OperationCanceledException => 499,
+            SharedKernel.Exceptions.ValidationException => StatusCodes.Status400BadRequest,
+            SharedKernel.Exceptions.NotFoundException => StatusCodes.Status404NotFound,
+            SharedKernel.Exceptions.UnauthorizedException => StatusCodes.Status401Unauthorized,
+            SharedKernel.Exceptions.ForbiddenException => StatusCodes.Status403Forbidden,
+            SharedKernel.Exceptions.DomainException => StatusCodes.Status400BadRequest,
+            _ => StatusCodes.Status500InternalServerError
+        };
     }
 }
