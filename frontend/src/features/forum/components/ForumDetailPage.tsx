@@ -23,6 +23,8 @@ type CommentActions = {
   onStartReply: (id: string) => void
   onCancelReply: () => void
   onSubmitReply: (e: FormEvent<HTMLFormElement>) => Promise<void>
+  replyAttachments: File[]
+  onReplyAttachmentsChange: (files: File[]) => void
   onVoteComment: (commentId: string, voteType: 1 | 2) => Promise<void>
   isVotingComment: boolean
   t: (key: string) => string
@@ -100,6 +102,15 @@ function CommentBranch({
             className="w-full rounded border border-slate-300 px-2 py-1.5 text-[13px] focus:border-primary focus:outline-none"
             placeholder={actions.t('forum.detail.commentPlaceholder')}
           />
+          <input
+            type="file"
+            multiple
+            onChange={(e) => actions.onReplyAttachmentsChange(Array.from(e.target.files ?? []))}
+            className="mt-2 w-full rounded border border-slate-300 px-2 py-1.5 text-[13px] file:mr-2 file:rounded file:border-0 file:bg-slate-100 file:px-2 file:py-1 file:text-xs"
+          />
+          {actions.replyAttachments.length > 0 ? (
+            <p className="mt-1 text-[11px] text-slate-500">{actions.replyAttachments.length} file(s) selected</p>
+          ) : null}
           {actions.hasTriedReplySubmit && !actions.replyDraft.trim() ? (
             <p className="mt-0.5 text-[11px] text-rose-600">{actions.t('forum.feedback.commentRequired')}</p>
           ) : null}
@@ -145,6 +156,8 @@ export function ForumDetailPage() {
     voteScore,
     commentThreads,
     commentDraft,
+    commentAttachments,
+    setCommentAttachments,
     onCommentDraftChange,
     hasTriedCommentSubmit,
     canSubmitComment,
@@ -154,6 +167,8 @@ export function ForumDetailPage() {
     replyingToCommentId,
     replyDraft,
     setReplyDraft,
+    replyAttachments,
+    setReplyAttachments,
     hasTriedReplySubmit,
     onStartReply,
     onCancelReply,
@@ -168,11 +183,13 @@ export function ForumDetailPage() {
     reportDescription,
     setReportDescription,
     onSharePost,
+    onShareFacebook,
     interactionErrorKey,
     interactionSuccessKey,
     isBookmarked,
     isCommentsLoading,
     isSubmittingComment,
+    isUploadingAttachments,
     isVotingComment,
     isVoting,
     isBookmarking,
@@ -190,6 +207,8 @@ export function ForumDetailPage() {
     onStartReply,
     onCancelReply,
     onSubmitReply,
+    replyAttachments,
+    onReplyAttachmentsChange: setReplyAttachments,
     onVoteComment,
     isVotingComment,
     t,
@@ -286,6 +305,13 @@ export function ForumDetailPage() {
             className="rounded-md border border-slate-200 px-3 py-1.5 text-[13px] font-medium text-slate-600 hover:border-primary hover:text-primary"
           >
             {t('forum.actions.share')}
+          </button>
+          <button
+            type="button"
+            onClick={onShareFacebook}
+            className="rounded-md border border-sky-200 px-3 py-1.5 text-[13px] font-medium text-sky-700 hover:border-sky-400 hover:text-sky-800"
+          >
+            Facebook
           </button>
         </div>
         {interactionSuccessKey ? (
@@ -388,6 +414,15 @@ export function ForumDetailPage() {
             className="w-full rounded-md border border-slate-300 px-3 py-2 text-[14px] focus:border-primary focus:outline-none"
             placeholder={t('forum.detail.commentPlaceholder')}
           />
+          <input
+            type="file"
+            multiple
+            onChange={(e) => setCommentAttachments(Array.from(e.target.files ?? []))}
+            className="mt-2 w-full rounded-md border border-slate-300 px-2 py-1.5 text-[13px] file:mr-2 file:rounded file:border-0 file:bg-slate-100 file:px-2 file:py-1 file:text-xs"
+          />
+          {commentAttachments.length > 0 ? (
+            <p className="mt-1 text-[11px] text-slate-500">{commentAttachments.length} file(s) selected</p>
+          ) : null}
           {hasTriedCommentSubmit && commentDraft.trim().length === 0 ? (
             <p className="mt-1 text-[12px] text-rose-600">{t('forum.feedback.commentRequired')}</p>
           ) : null}
@@ -397,7 +432,7 @@ export function ForumDetailPage() {
               disabled={!canSubmitComment}
               className="rounded-md bg-primary px-3 py-1.5 text-[13px] font-medium text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmittingComment ? t('common.loading') : t('forum.actions.reply')}
+              {isSubmittingComment || isUploadingAttachments ? t('common.loading') : t('forum.actions.reply')}
             </button>
           </div>
         </form>

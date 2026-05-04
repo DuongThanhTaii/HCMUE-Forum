@@ -118,6 +118,11 @@ type CreatePostResponseData = {
   postId?: string
 }
 
+type UploadForumAttachmentsResponse = {
+  urls?: string[]
+  Urls?: string[]
+}
+
 /** Single cache key for post detail + mutations (GUID casing from URL vs API was breaking invalidation). */
 export function normalizeForumPostId(raw: string): string {
   if (typeof raw !== 'string') {
@@ -247,6 +252,24 @@ export const forumListApi = baseApi.injectEndpoints({
         return ''
       },
       invalidatesTags: [{ type: 'ForumPost', id: 'LIST' }],
+    }),
+    uploadForumAttachments: builder.mutation<string[], File[]>({
+      query: (files) => {
+        const formData = new FormData()
+        for (const file of files) {
+          formData.append('files', file)
+        }
+        return {
+          url: '/api/v1/posts/attachments/upload',
+          method: 'POST',
+          body: formData,
+        }
+      },
+      transformResponse: (response: ApiSuccessEnvelope<UploadForumAttachmentsResponse>) => {
+        const payload = response?.data
+        const urls = payload?.urls ?? payload?.Urls ?? []
+        return Array.isArray(urls) ? urls.filter((x): x is string => typeof x === 'string' && x.trim().length > 0) : []
+      },
     }),
     publishForumPost: builder.mutation<void, { postId: string }>({
       query: ({ postId }) => {
@@ -493,6 +516,7 @@ export const {
   useReportPostMutation,
   useGetForumCategoriesQuery,
   useCreateForumPostMutation,
+  useUploadForumAttachmentsMutation,
   usePublishForumPostMutation,
   useGetPopularForumTagsQuery,
 } = forumListApi

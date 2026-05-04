@@ -24,7 +24,10 @@ export function ForumListPage() {
     return (
       <div className="space-y-2.5">
         {toolbar}
-        <div className="forum-compact-card px-4 py-3 text-[14px] text-slate-600">{t('common.loading')}</div>
+        <div className="forum-compact-card flex items-center gap-2 px-4 py-3 text-[14px] text-slate-600">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-200 border-b-primary" />
+          <span>{t('common.loading')}</span>
+        </div>
       </div>
     )
   }

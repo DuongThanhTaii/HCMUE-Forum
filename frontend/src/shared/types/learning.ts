@@ -24,6 +24,7 @@ export type LearningSearchParams = {
   searchTerm?: string
   facultyId?: string
   courseId?: string
+  status?: number
 }
 
 /** Normalized from GET /api/v1/documents search envelope */
@@ -73,6 +74,7 @@ export type DocumentDetail = {
   documentType: string
   status: string
   fileName: string
+  filePath: string
   fileSize: number
   contentType: string
   averageRating: number

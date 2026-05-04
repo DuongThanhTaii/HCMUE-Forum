@@ -44,7 +44,7 @@ export function ForumTopbar() {
   const displayName = auth.user?.fullName || auth.user?.email || 'User';
 
   const normalizedRoles = (auth.user?.roles ?? []).map((r) => r.toLowerCase());
-  const showModerationLink = normalizedRoles.some((r) => r === 'moderator' || r === 'admin');
+  const showModerationLink = normalizedRoles.some((r) => r === 'moderator');
   const showAdminLink = normalizedRoles.some((r) => r === 'admin');
 
   const onLogout = () => {
@@ -97,21 +97,29 @@ export function ForumTopbar() {
           </nav>
 
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-            {isAuthenticated && showModerationLink ? (
-              <Link
-                to="/mod/reports"
-                className="hidden rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-900 hover:bg-amber-100 sm:inline-flex"
-              >
-                {t('forum.topbar.moderation')}
-              </Link>
-            ) : null}
-            {isAuthenticated && showAdminLink ? (
-              <Link
-                to="/admin/users"
-                className="hidden rounded-md border border-slate-200 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50 sm:inline-flex"
-              >
-                {t('forum.topbar.admin')}
-              </Link>
+            {isAuthenticated && (showModerationLink || showAdminLink) ? (
+              <div className="hidden items-center gap-1 rounded-md border border-slate-200 bg-slate-50 p-0.5 sm:inline-flex">
+                {showModerationLink ? (
+                  <Link
+                    to="/mod/reports"
+                    className={`rounded px-2 py-1 text-[11px] font-semibold ${
+                      pathname.startsWith('/mod') ? 'bg-amber-100 text-amber-900' : 'text-amber-800 hover:bg-amber-50'
+                    }`}
+                  >
+                    {t('forum.topbar.moderation')}
+                  </Link>
+                ) : null}
+                {showAdminLink ? (
+                  <Link
+                    to="/admin/users"
+                    className={`rounded px-2 py-1 text-[11px] font-semibold ${
+                      pathname.startsWith('/admin') ? 'bg-rose-100 text-rose-900' : 'text-slate-700 hover:bg-white'
+                    }`}
+                  >
+                    {t('forum.topbar.admin')}
+                  </Link>
+                ) : null}
+              </div>
             ) : null}
             <LanguageSwitcher />
             {isAuthenticated && <NotificationBell />}

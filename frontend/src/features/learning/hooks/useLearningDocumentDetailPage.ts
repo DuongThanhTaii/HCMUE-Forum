@@ -67,11 +67,22 @@ export function useLearningDocumentDetailPage() {
     }
     try {
       await downloadDocument({ documentId: id, userId }).unwrap()
+      const fileUrl = doc?.filePath?.trim()
+      if (fileUrl) {
+        window.open(fileUrl, '_blank', 'noopener,noreferrer')
+      }
       setDownloadMsg({ kind: 'ok', text: t('learning.messages.downloadTracked') })
     } catch {
       setDownloadMsg({ kind: 'err', text: t('learning.messages.downloadError') })
     }
-  }, [userId, id, downloadDocument, t])
+  }, [userId, id, downloadDocument, doc?.filePath, t])
+
+  const onShareFacebook = useCallback(() => {
+    const directUrl = `${window.location.origin}/learning/documents/${id}`
+    const quote = `${doc?.title ?? 'Learning document'}\n${(doc?.description ?? '').slice(0, 180)}`
+    const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(directUrl)}&quote=${encodeURIComponent(quote)}`
+    window.open(fbShareUrl, '_blank', 'noopener,noreferrer,width=700,height=560')
+  }, [id, doc?.title, doc?.description])
 
   const fileSizeLabel = doc ? formatBytes(doc.fileSize, locale) : '—'
 
@@ -92,5 +103,6 @@ export function useLearningDocumentDetailPage() {
     fileSizeLabel,
     onSubmitRating,
     onDownload,
+    onShareFacebook,
   }
 }

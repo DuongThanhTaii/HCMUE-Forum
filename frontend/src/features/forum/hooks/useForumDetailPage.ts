@@ -11,6 +11,7 @@ import {
   useGetPostCommentsQuery,
   useReportPostMutation,
   useUnbookmarkPostMutation,
+  useUploadForumAttachmentsMutation,
   useVoteCommentMutation,
   useVotePostMutation,
 } from '../api/forum.list.api'
@@ -69,6 +70,8 @@ export function useForumDetailPage() {
   const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(null)
   const [replyDraft, setReplyDraft] = useState('')
   const [hasTriedReplySubmit, setHasTriedReplySubmit] = useState(false)
+  const [commentAttachments, setCommentAttachments] = useState<File[]>([])
+  const [replyAttachments, setReplyAttachments] = useState<File[]>([])
   const { data: post, isLoading, isError } = useGetForumPostByIdQuery(id, {
     skip: !id,
   })
@@ -87,6 +90,7 @@ export function useForumDetailPage() {
   const [bookmarkPost, { isLoading: isBookmarking }] = useBookmarkPostMutation()
   const [unbookmarkPost, { isLoading: isUnbookmarking }] = useUnbookmarkPostMutation()
   const [reportPost, { isLoading: isReporting }] = useReportPostMutation()
+  const [uploadAttachments, { isLoading: isUploadingAttachments }] = useUploadForumAttachmentsMutation()
 
   const fallbackTitle = t('forum.detail.fallbackTitle')
   const title = post?.title || `${fallbackTitle} #${id || t('common.noData')}`
@@ -149,8 +153,16 @@ export function useForumDetailPage() {
     }
 
     try {
-      await addComment({ postId: id, content: commentDraft.trim() }).unwrap()
+      let finalContent = commentDraft.trim()
+      if (commentAttachments.length > 0) {
+        const urls = await uploadAttachments(commentAttachments).unwrap()
+        if (urls.length > 0) {
+          finalContent = `${finalContent}\n\nAttachments:\n${urls.map((u) => `- ${u}`).join('\n')}`
+        }
+      }
+      await addComment({ postId: id, content: finalContent }).unwrap()
       setCommentDraft('')
+      setCommentAttachments([])
       setHasTriedCommentSubmit(false)
       setFeedback('forum.feedback.commentSuccess', null)
     } catch (error) {
@@ -188,12 +200,14 @@ export function useForumDetailPage() {
     if (!ensureAuthenticated()) return
     setReplyingToCommentId(commentId)
     setReplyDraft('')
+    setReplyAttachments([])
     setHasTriedReplySubmit(false)
   }
 
   function onCancelReply() {
     setReplyingToCommentId(null)
     setReplyDraft('')
+    setReplyAttachments([])
     setHasTriedReplySubmit(false)
   }
 
@@ -202,13 +216,21 @@ export function useForumDetailPage() {
     setHasTriedReplySubmit(true)
     if (!replyDraft.trim() || !replyingToCommentId || !id) return
     try {
+      let finalContent = replyDraft.trim()
+      if (replyAttachments.length > 0) {
+        const urls = await uploadAttachments(replyAttachments).unwrap()
+        if (urls.length > 0) {
+          finalContent = `${finalContent}\n\nAttachments:\n${urls.map((u) => `- ${u}`).join('\n')}`
+        }
+      }
       await addComment({
         postId: id,
-        content: replyDraft.trim(),
+        content: finalContent,
         parentCommentId: replyingToCommentId,
       }).unwrap()
       setReplyingToCommentId(null)
       setReplyDraft('')
+      setReplyAttachments([])
       setHasTriedReplySubmit(false)
     } catch (error) {
       setFeedback(null, getMutationErrorKey(error, 'forum.feedback.commentFailed'))
@@ -303,6 +325,13 @@ export function useForumDetailPage() {
     }
   }
 
+  function onShareFacebook() {
+    const directUrl = `${window.location.origin}/forum/${id}`
+    const quote = `${title}\n${postContent.slice(0, 180)}`
+    const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(directUrl)}&quote=${encodeURIComponent(quote)}`
+    window.open(fbShareUrl, '_blank', 'noopener,noreferrer,width=700,height=560')
+  }
+
   return {
     t,
     post,
@@ -315,6 +344,8 @@ export function useForumDetailPage() {
     commentThreads,
     commentDraft,
     setCommentDraft,
+    commentAttachments,
+    setCommentAttachments,
     onCommentDraftChange,
     hasTriedCommentSubmit,
     canSubmitComment,
@@ -324,6 +355,8 @@ export function useForumDetailPage() {
     replyingToCommentId,
     replyDraft,
     setReplyDraft,
+    replyAttachments,
+    setReplyAttachments,
     hasTriedReplySubmit,
     onStartReply,
     onCancelReply,
@@ -338,11 +371,13 @@ export function useForumDetailPage() {
     reportDescription,
     setReportDescription,
     onSharePost,
+    onShareFacebook,
     interactionErrorKey,
     interactionSuccessKey,
     isBookmarked,
     isCommentsLoading,
     isSubmittingComment,
+    isUploadingAttachments,
     isVotingComment,
     isVoting,
     isBookmarking,

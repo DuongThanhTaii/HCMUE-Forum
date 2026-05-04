@@ -145,6 +145,7 @@ export const learningApi = baseApi.injectEndpoints({
             ...(p.searchTerm ? { searchTerm: p.searchTerm } : {}),
             ...(p.facultyId ? { facultyId: p.facultyId } : {}),
             ...(p.courseId ? { courseId: p.courseId } : {}),
+            ...(typeof p.status === 'number' ? { status: p.status } : {}),
           },
         }
       },
@@ -260,6 +261,58 @@ export const learningApi = baseApi.injectEndpoints({
         { type: 'Document', id: 'LIST' },
       ],
     }),
+    uploadDocument: builder.mutation<
+      unknown,
+      { title: string; description?: string; file: File; documentType: number; courseId?: string }
+    >({
+      query: ({ title, description, file, documentType, courseId }) => {
+        const formData = new FormData()
+        formData.append('title', title)
+        if (description?.trim()) formData.append('description', description.trim())
+        formData.append('file', file)
+        formData.append('documentType', String(documentType))
+        if (courseId?.trim()) formData.append('courseId', courseId.trim())
+        return {
+          url: '/api/v1/documents/upload',
+          method: 'POST',
+          body: formData,
+        }
+      },
+      invalidatesTags: [{ type: 'Document', id: 'LIST' }],
+    }),
+    approveDocument: builder.mutation<unknown, { documentId: string; comment?: string }>({
+      query: ({ documentId, comment }) => ({
+        url: `/api/v1/documents/${documentId}/approve`,
+        method: 'POST',
+        body: { comment },
+      }),
+      invalidatesTags: (_r, _e, { documentId }) => [
+        { type: 'Document', id: documentId },
+        { type: 'Document', id: 'LIST' },
+      ],
+    }),
+    rejectDocument: builder.mutation<unknown, { documentId: string; reason: string }>({
+      query: ({ documentId, reason }) => ({
+        url: `/api/v1/documents/${documentId}/reject`,
+        method: 'POST',
+        body: { reason },
+      }),
+      invalidatesTags: (_r, _e, { documentId }) => [
+        { type: 'Document', id: documentId },
+        { type: 'Document', id: 'LIST' },
+      ],
+    }),
+    requestRevisionDocument: builder.mutation<unknown, { documentId: string; reason: string }>({
+      query: ({ documentId, reason }) => ({
+        url: `/api/v1/documents/${documentId}/request-revision`,
+        method: 'POST',
+        body: { reason },
+      }),
+      invalidatesTags: (_r, _e, { documentId }) => [
+        { type: 'Document', id: documentId },
+        { type: 'Document', id: 'LIST' },
+      ],
+    }),
   }),
 })
 
@@ -271,4 +324,8 @@ export const {
   useGetCourseSemestersQuery,
   useRateDocumentMutation,
   useDownloadDocumentMutation,
+  useUploadDocumentMutation,
+  useApproveDocumentMutation,
+  useRejectDocumentMutation,
+  useRequestRevisionDocumentMutation,
 } = learningApi

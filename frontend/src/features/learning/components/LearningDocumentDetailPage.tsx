@@ -23,6 +23,7 @@ export function LearningDocumentDetailPage() {
     fileSizeLabel,
     onSubmitRating,
     onDownload,
+    onShareFacebook,
   } = useLearningDocumentDetailPage()
 
   if (isLoading) {
@@ -109,14 +110,23 @@ export function LearningDocumentDetailPage() {
 
         <section className="space-y-3 border-t border-slate-100 pt-4">
           <p className="text-[12px] text-slate-500">{t('learning.documentDetailPage.downloadHint')}</p>
-          <button
-            type="button"
-            disabled={!userId || downloadSending}
-            onClick={onDownload}
-            className="rounded-md border border-primary bg-primary px-3 py-1.5 text-[13px] font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {downloadSending ? t('common.loading') : t('learning.documentDetailPage.downloadDocument')}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={!userId || downloadSending}
+              onClick={onDownload}
+              className="rounded-md border border-primary bg-primary px-3 py-1.5 text-[13px] font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {downloadSending ? t('common.loading') : t('learning.documentDetailPage.downloadDocument')}
+            </button>
+            <button
+              type="button"
+              onClick={onShareFacebook}
+              className="rounded-md border border-sky-200 px-3 py-1.5 text-[13px] font-medium text-sky-700 hover:border-sky-400 hover:text-sky-800"
+            >
+              Facebook
+            </button>
+          </div>
           {downloadMsg ? (
             <p className={downloadMsg.kind === 'ok' ? 'text-sm text-emerald-700' : 'text-sm text-rose-700'}>
               {downloadMsg.text}

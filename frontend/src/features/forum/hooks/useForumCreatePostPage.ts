@@ -5,6 +5,7 @@ import {
   useCreateForumPostMutation,
   useGetForumCategoriesQuery,
   useGetPopularForumTagsQuery,
+  useUploadForumAttachmentsMutation,
 } from '../api/forum.list.api'
 
 const POST_TYPES = [
@@ -32,6 +33,7 @@ export function useForumCreatePostPage() {
   const { data: categories = [], isLoading: loadingCategories } = useGetForumCategoriesQuery()
   const { data: popularTags = [], isLoading: loadingTags } = useGetPopularForumTagsQuery({ count: 28 })
   const [createPost, { isLoading: isSubmitting }] = useCreateForumPostMutation()
+  const [uploadAttachments, { isLoading: isUploadingAttachments }] = useUploadForumAttachmentsMutation()
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -41,6 +43,7 @@ export function useForumCreatePostPage() {
   const [customTags, setCustomTags] = useState<string[]>([])
   const [addTagDraft, setAddTagDraft] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [attachments, setAttachments] = useState<File[]>([])
 
   const typeOptions = useMemo(
     () => POST_TYPES.map((p) => ({ value: p.value, label: t(p.labelKey) })),
@@ -97,9 +100,19 @@ export function useForumCreatePostPage() {
       }
 
       try {
+        let finalContent = trimmedContent
+        const files = attachments.filter((f) => f.size > 0)
+        if (files.length > 0) {
+          const urls = await uploadAttachments(files).unwrap()
+          if (urls.length > 0) {
+            const links = urls.map((url) => `- ${url}`).join('\n')
+            finalContent = `${trimmedContent}\n\nAttachments:\n${links}`
+          }
+        }
+
         await createPost({
           title: trimmedTitle,
-          content: trimmedContent,
+          content: finalContent,
           type,
           categoryId: categoryId || undefined,
           tags: mergedTags.length ? mergedTags : undefined,
@@ -111,6 +124,7 @@ export function useForumCreatePostPage() {
     },
     [
       addTagDraft,
+      attachments,
       categoryId,
       content,
       createPost,
@@ -120,6 +134,7 @@ export function useForumCreatePostPage() {
       title,
       t,
       type,
+      uploadAttachments,
     ],
   )
 
@@ -149,5 +164,8 @@ export function useForumCreatePostPage() {
     onSubmit,
     isSubmitting,
     errorMessage,
+    attachments,
+    setAttachments,
+    isUploadingAttachments,
   }
 }
