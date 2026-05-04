@@ -53,6 +53,7 @@ public static class DatabaseSeeder
             await RolePermissionSeeder.SeedAsync(context, logger); // Phase 2: assign DB permissions to roles
             await ForumSeed.SeedAsync(context, logger);
             await LearningSeed.SeedAsync(context, logger);
+            await CareerSeed.SeedAsync(context, logger);
             await LearningBulkSeed.SeedAsync(context, configuration, logger);
 
             logger.LogInformation("Database seeding completed successfully.");

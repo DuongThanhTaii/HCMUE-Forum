@@ -20,6 +20,13 @@ function formatSalary(
   return `${t('career.common.upTo')} ${max?.toLocaleString()} ${unit}`
 }
 
+function summarizeDescription(value: string | null | undefined) {
+  if (!value) return ''
+  const normalized = value.replace(/\s+/g, ' ').trim()
+  if (normalized.length <= 160) return normalized
+  return `${normalized.slice(0, 157)}...`
+}
+
 export function useCareerJobsPage() {
   const { i18n, t } = useTranslation()
   const { data, isLoading, isError } = useGetJobsQuery({ page: 1, pageSize: 20 })
@@ -33,6 +40,7 @@ export function useCareerJobsPage() {
       displayWorkMode: job.isRemote ? t('career.common.remote') : t('career.common.onSite'),
       displaySalary: formatSalary(job.salaryMin, job.salaryMax, job.currency, t),
       displayPostedAt: formatDate(job.createdAt, locale),
+      displayDescription: summarizeDescription(job.description),
     })) ?? []
 
   return {

@@ -10,6 +10,8 @@ import { ForumDetailPage } from '@features/forum/components/ForumDetailPage';
 import { HomePage } from '@features/forum/components/HomePage';
 import { ModReportsPage } from '@features/forum/components/ModReportsPage';
 import { ModPostsPage } from '@features/forum/components/ModPostsPage';
+import { ModLearningApprovalsPage } from '@features/learning/components/ModLearningApprovalsPage';
+import { ModDashboardPage } from '@features/forum/components/ModDashboardPage';
 import { ForumCreatePostPage } from '@features/forum/components/ForumCreatePostPage';
 import { Placeholder } from './components/Placeholder';
 import { LearningDocumentsPage } from '@features/learning/components/LearningDocumentsPage';
@@ -17,6 +19,7 @@ import { LearningDocumentDetailPage } from '@features/learning/components/Learni
 import { LearningFacultiesPage } from '@features/learning/components/LearningFacultiesPage';
 import { LearningCoursesPage } from '@features/learning/components/LearningCoursesPage';
 import { CareerJobsPage } from '@features/career/components/CareerJobsPage';
+import { CareerCompanyRegisterPage } from '@features/career/components/CareerCompanyRegisterPage';
 import { LoginPage } from '@features/auth/components/LoginPage';
 import { RegisterPage } from '@features/auth/components/RegisterPage';
 import { AdminRolesPage } from '@features/admin/roles/components/AdminRolesPage';
@@ -25,6 +28,7 @@ import { AdminOverridesPage } from '@features/admin/overrides/components/AdminOv
 import { AdminTogglesPage } from '@features/admin/observability/components/AdminTogglesPage';
 import { AdminActionLogsPage } from '@features/admin/observability/components/AdminActionLogsPage';
 import { AdminAuditLogsPage } from '@features/admin/observability/components/AdminAuditLogsPage';
+import { AdminDashboardPage } from '@features/admin/components/AdminDashboardPage';
 import { ChatPage } from '@features/chat/components/ChatPage';
 
 /**
@@ -56,6 +60,7 @@ export const appRoutes = [
           { path: 'learning/documents', element: <LearningDocumentsPage /> },
           { path: 'learning/faculties', element: <LearningFacultiesPage /> },
           { path: 'learning/courses', element: <LearningCoursesPage /> },
+          { path: 'career/company-register', element: <CareerCompanyRegisterPage /> },
           { path: 'home', element: <HomePage /> },
           {
             element: <RequireAuth />,
@@ -74,14 +79,17 @@ export const appRoutes = [
   },
   {
     path: '/mod',
-    element: <RequireRole roles={['Moderator', 'Admin']} />,
+    element: <RequireRole roles={['Moderator']} />,
     children: [
       {
         path: '/mod',
         element: <ModLayout />,
         children: [
+          { index: true, element: <Navigate to="/mod/dashboard" replace /> },
+          { path: 'dashboard', element: <ModDashboardPage /> },
           { path: 'reports', element: <ModReportsPage /> },
           { path: 'posts', element: <ModPostsPage /> },
+          { path: 'learning', element: <ModLearningApprovalsPage /> },
         ],
       },
     ],
@@ -94,7 +102,8 @@ export const appRoutes = [
         path: '/admin',
         element: <AdminLayout />,
         children: [
-          { index: true, element: <Navigate to="/admin/users" replace /> },
+          { index: true, element: <Navigate to="/admin/dashboard" replace /> },
+          { path: 'dashboard', element: <AdminDashboardPage /> },
           { path: 'users', element: <AdminUsersPage /> },
           { path: 'roles', element: <AdminRolesPage /> },
           { path: 'permissions', element: <Placeholder titleKey="placeholders.admin.permissions" /> },

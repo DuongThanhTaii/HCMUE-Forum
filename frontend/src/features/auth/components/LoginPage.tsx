@@ -56,6 +56,14 @@ export function LoginPage() {
           {t('auth.register')}
         </Link>
       </p>
+
+      <div className="rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
+        <p className="font-medium">{t('auth.pages.companyRegisterCtaTitle')}</p>
+        <p className="mt-1">{t('auth.pages.companyRegisterCtaDescription')}</p>
+        <Link to="/career/company-register" className="mt-2 inline-block font-medium text-sky-700 underline">
+          {t('auth.pages.companyRegisterCtaButton')}
+        </Link>
+      </div>
     </div>
   )
 }

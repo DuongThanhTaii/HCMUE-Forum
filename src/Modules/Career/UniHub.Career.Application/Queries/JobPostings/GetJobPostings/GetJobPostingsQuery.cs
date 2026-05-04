@@ -34,6 +34,8 @@ public sealed record JobPostingSummary(
     Guid JobPostingId,
     string Title,
     Guid CompanyId,
+    string? CompanyName,
+    string? CompanyLogoUrl,
     string JobType,
     string ExperienceLevel,
     string Status,

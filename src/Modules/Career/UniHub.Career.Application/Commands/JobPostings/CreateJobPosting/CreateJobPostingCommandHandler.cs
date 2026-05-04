@@ -1,4 +1,5 @@
 using UniHub.Career.Application.Abstractions;
+using UniHub.Career.Domain.Companies;
 using UniHub.Career.Domain.JobPostings;
 using UniHub.SharedKernel.CQRS;
 using UniHub.SharedKernel.Results;
@@ -12,16 +13,36 @@ public sealed class CreateJobPostingCommandHandler
     : ICommandHandler<CreateJobPostingCommand, JobPostingResponse>
 {
     private readonly IJobPostingRepository _jobPostingRepository;
+    private readonly ICompanyRepository _companyRepository;
 
-    public CreateJobPostingCommandHandler(IJobPostingRepository jobPostingRepository)
+    public CreateJobPostingCommandHandler(
+        IJobPostingRepository jobPostingRepository,
+        ICompanyRepository companyRepository)
     {
         _jobPostingRepository = jobPostingRepository;
+        _companyRepository = companyRepository;
     }
 
     public async Task<Result<JobPostingResponse>> Handle(
         CreateJobPostingCommand command,
         CancellationToken cancellationToken)
     {
+        var company = await _companyRepository.GetByIdAsync(
+            CompanyId.Create(command.CompanyId),
+            cancellationToken);
+
+        if (company is null)
+        {
+            return Result.Failure<JobPostingResponse>(
+                new Error("Company.NotFound", $"Company with ID {command.CompanyId} was not found."));
+        }
+
+        if (!company.CanPostJobs())
+        {
+            return Result.Failure<JobPostingResponse>(
+                new Error("Company.NotVerified", "Company is pending approval by Admin and cannot post jobs yet."));
+        }
+
         // Create WorkLocation value object
         var locationResult = WorkLocation.Create(
             command.City,

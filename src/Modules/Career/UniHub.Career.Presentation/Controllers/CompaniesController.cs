@@ -7,6 +7,7 @@ using UniHub.Career.Application.Queries.Companies.GetCompanyById;
 using UniHub.Career.Application.Queries.Companies.GetCompanyStatistics;
 using UniHub.Career.Application.Queries.Companies.GetRecentApplications;
 using UniHub.Career.Application.Queries.JobPostings.GetJobPostings;
+using UniHub.Career.Presentation.Services;
 using UniHub.Contracts;
 
 namespace UniHub.Career.Presentation.Controllers;
@@ -15,13 +16,15 @@ namespace UniHub.Career.Presentation.Controllers;
 [Route("api/v1/companies")]
 [Produces("application/json")]
 [Authorize]
-public class CompaniesController : ControllerBase
+public class CompaniesController : BaseApiController
 {
     private readonly ISender _sender;
+    private readonly ICareerLogoStorageService _careerLogoStorageService;
 
-    public CompaniesController(ISender sender)
+    public CompaniesController(ISender sender, ICareerLogoStorageService careerLogoStorageService)
     {
         _sender = sender;
+        _careerLogoStorageService = careerLogoStorageService;
     }
 
     /// <summary>
@@ -34,7 +37,9 @@ public class CompaniesController : ControllerBase
         [FromBody] RegisterCompanyCommand command,
         CancellationToken cancellationToken)
     {
-        var result = await _sender.Send(command, cancellationToken);
+        var result = await _sender.Send(
+            command with { RegisteredBy = GetCurrentUserId() },
+            cancellationToken);
 
         if (result.IsFailure)
         {
@@ -45,6 +50,56 @@ public class CompaniesController : ControllerBase
             nameof(GetById),
             new { id = result.Value.CompanyId },
             ApiResponses.Success(result.Value, "Company registered successfully"));
+    }
+
+    /// <summary>
+    /// Upload company logo image and return hosted URL.
+    /// </summary>
+    [HttpPost("logo/upload")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadLogo([FromForm] IFormFile? file, CancellationToken cancellationToken)
+    {
+        if (file is null || file.Length == 0)
+        {
+            return BadRequest(ApiResponses.Failure("Logo file is required."));
+        }
+
+        var extension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
+        var isImage = extension is ".png" or ".jpg" or ".jpeg" or ".gif" or ".webp" or ".bmp";
+        if (!isImage)
+        {
+            return BadRequest(ApiResponses.Failure("Only image files are supported for company logos."));
+        }
+
+        var url = await _careerLogoStorageService.UploadLogoAsync(file, GetCurrentUserId(), cancellationToken);
+        return Ok(ApiResponses.Success(new { url }, "Company logo uploaded successfully"));
+    }
+
+    /// <summary>
+    /// Approve a pending company registration (Admin only)
+    /// </summary>
+    [HttpPost("{id:guid}/approve")]
+    [RequirePermission("admin.system.manage")]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Approve(Guid id, CancellationToken cancellationToken)
+    {
+        var command = new Application.Commands.Companies.ApproveCompany.ApproveCompanyCommand(
+            id,
+            GetCurrentUserId());
+
+        var result = await _sender.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Code == "Company.NotFound"
+                ? NotFound(ApiResponses.Failure(result.Error.Message))
+                : BadRequest(ApiResponses.Failure(result.Error.Message));
+        }
+
+        return Ok(ApiResponses.Success("Company approved successfully"));
     }
 
     /// <summary>

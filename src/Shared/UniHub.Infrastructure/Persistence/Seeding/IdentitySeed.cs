@@ -24,6 +24,8 @@ internal static class IdentitySeed
 
     public static async Task SeedAsync(ApplicationDbContext context, ILogger logger)
     {
+        await EnsureMissingPermissionsAsync(context, logger);
+
         if (await context.Permissions.AnyAsync())
         {
             logger.LogInformation("Identity bootstrap already present. Skipping permissions, roles, and admin seed.");
@@ -42,11 +44,12 @@ internal static class IdentitySeed
             var adminRole = Role.Create("Admin", "System Administrator with full access").Value;
             var moderatorRole = Role.Create("Moderator", "Forum and content moderator").Value;
             var lecturerRole = Role.Create("Lecturer", "University lecturer with course management").Value;
+            var recruiterRole = Role.Create("Recruiter", "Recruiter role for enterprise hiring workflows").Value;
             var studentRole = Role.Create("Student", "Regular student user", isDefault: true).Value;
 
-            context.Roles.AddRange(adminRole, moderatorRole, lecturerRole, studentRole);
+            context.Roles.AddRange(adminRole, moderatorRole, lecturerRole, recruiterRole, studentRole);
             await context.SaveChangesAsync();
-            logger.LogInformation("Seeded 4 roles.");
+            logger.LogInformation("Seeded 5 roles.");
 
             // 3. Seed Admin User with a fixed well-known ID so seeded documents can resolve the uploader name.
             var adminEmail = Email.Create("admin@unihub.edu.vn").Value;
@@ -71,6 +74,26 @@ internal static class IdentitySeed
         await EnsureDemoAccountsAsync(context, logger);
     }
 
+    private static async Task EnsureMissingPermissionsAsync(ApplicationDbContext context, ILogger logger)
+    {
+        var existingCodes = await context.Permissions
+            .AsNoTracking()
+            .Select(p => p.Code)
+            .ToListAsync();
+
+        var existingSet = new HashSet<string>(existingCodes, StringComparer.OrdinalIgnoreCase);
+        var all = CreatePermissions();
+        var missing = all.Where(p => !existingSet.Contains(p.Code)).ToList();
+        if (missing.Count == 0)
+        {
+            return;
+        }
+
+        context.Permissions.AddRange(missing);
+        await context.SaveChangesAsync();
+        logger.LogInformation("Backfilled {Count} missing permissions.", missing.Count);
+    }
+
     /// <summary>
     /// Adds moderator / lecturer / student demo logins if missing (safe on existing databases).
     /// Password for all: Admin@123456 (same as seeded admin).
@@ -89,6 +112,10 @@ internal static class IdentitySeed
         {
             ("moderator@unihub.edu.vn", "Moderation", "Demo", "Moderator"),
             ("lecturer@unihub.edu.vn", "Lecturer", "Demo", "Lecturer"),
+            ("recruiter@unihub.edu.vn", "Recruiter", "Demo", "Recruiter"),
+            ("bosch@unihub.edu.vn", "Bosch", "Recruiter", "Recruiter"),
+            ("nab@unihub.edu.vn", "NAB", "Recruiter", "Recruiter"),
+            ("sap@unihub.edu.vn", "SAP", "Recruiter", "Recruiter"),
             ("student@unihub.edu.vn", "Student", "Demo", "Student"),
             ("student2@unihub.edu.vn", "Sinh viên", "Hai", "Student"),
             ("student3@unihub.edu.vn", "Sinh viên", "Ba", "Student"),
@@ -180,6 +207,9 @@ internal static class IdentitySeed
             ("learning.documents.create", "Create documents"),
             ("learning.documents.update", "Update documents"),
             ("learning.documents.delete", "Delete documents"),
+            ("learning.documents.approve", "Approve documents"),
+            ("learning.documents.reject", "Reject documents"),
+            ("learning.documents.request_revision", "Request document revision"),
             ("learning.faculties.read", "Read faculties"),
             ("learning.faculties.create", "Create faculties"),
             ("learning.faculties.update", "Update faculties"),

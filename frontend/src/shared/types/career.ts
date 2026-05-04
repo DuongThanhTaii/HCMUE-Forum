@@ -1,7 +1,9 @@
 export type CareerJob = {
   id: string
   title: string
+  description?: string | null
   companyName?: string | null
+  companyLogoUrl?: string | null
   city?: string | null
   isRemote?: boolean
   createdAt?: string

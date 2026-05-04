@@ -38,6 +38,10 @@ export function useLoginForm() {
         navigate('/mod/reports')
         return
       }
+      if (hasRole(roles, 'recruiter')) {
+        navigate('/career/jobs')
+        return
+      }
       navigate('/home')
     } catch {
       setErrorMessage(t('auth.invalidCredentials'))
