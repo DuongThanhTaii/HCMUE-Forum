@@ -98,7 +98,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       if (!conn || conn.state !== HubConnectionState.Connected) {
         throw new Error('chat_hub_not_connected')
       }
-      await conn.invoke('relayWebRtcSignal', conversationId, targetUserId, kind, payload)
+      await conn.invoke('RelayWebRtcSignal', conversationId, targetUserId, kind, payload)
     },
     []
   )
@@ -107,7 +107,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     const conn = connectionRef.current
     if (!conn || conn.state !== HubConnectionState.Connected) return
     try {
-      await conn.invoke('reportMissedCall', conversationId)
+      await conn.invoke('ReportMissedCall', conversationId)
     } catch {
       /* best-effort */
     }
@@ -117,7 +117,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     const conn = connectionRef.current
     if (!conn || conn.state !== HubConnectionState.Connected) return
     try {
-      await conn.invoke('reportCallEnded', conversationId)
+      await conn.invoke('ReportCallEnded', conversationId)
     } catch {
       /* best-effort */
     }
@@ -271,9 +271,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     if (!ref) {
       try {
         if (prev?.kind === 'conversation') {
-          await conn.invoke('leaveConversation', prev.conversationId)
+          await conn.invoke('LeaveConversation', prev.conversationId)
         } else if (prev?.kind === 'channel') {
-          await conn.invoke('leaveChannel', prev.channelId)
+          await conn.invoke('LeaveChannel', prev.channelId)
         }
       } catch {
         // ignore
@@ -292,15 +292,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
     try {
       if (prev?.kind === 'conversation') {
-        await conn.invoke('leaveConversation', prev.conversationId)
+        await conn.invoke('LeaveConversation', prev.conversationId)
       } else if (prev?.kind === 'channel') {
-        await conn.invoke('leaveChannel', prev.channelId)
+        await conn.invoke('LeaveChannel', prev.channelId)
       }
 
       if (ref.kind === 'conversation') {
-        await conn.invoke('joinConversation', ref.conversationId)
+        await conn.invoke('JoinConversation', ref.conversationId)
       } else {
-        await conn.invoke('joinChannel', ref.channelId)
+        await conn.invoke('JoinChannel', ref.channelId)
       }
       lastJoinedRef.current = ref
     } catch {
@@ -312,7 +312,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     const conn = connectionRef.current
     if (!conn || conn.state !== HubConnectionState.Connected) return
     try {
-      await conn.invoke('sendTypingIndicator', conversationId, isTyping)
+      await conn.invoke('SendTypingIndicator', conversationId, isTyping)
     } catch {
       // ignore
     }
@@ -321,7 +321,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const sendChannelMessage = useCallback(async (channelId: string, content: string) => {
     const conn = connectionRef.current
     if (!conn || conn.state !== HubConnectionState.Connected) return
-    await conn.invoke('sendChannelMessage', channelId, content, 'Text')
+    await conn.invoke('SendChannelMessage', channelId, content, 'Text')
   }, [])
 
   const totalUnread = useMemo(

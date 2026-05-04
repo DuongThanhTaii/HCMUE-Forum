@@ -28,18 +28,18 @@ export function createChatConnection(getAccessToken: () => string | null): HubCo
 
 /** Method names the server invokes on the client (ASP.NET Core JSON → camelCase). */
 export const CHAT_HUB_CLIENT_METHODS = [
-  'receiveMessage',
-  'messageEdited',
-  'messageDeleted',
-  'userJoined',
-  'userLeft',
-  'userTyping',
-  'reactionAdded',
-  'reactionRemoved',
-  'messageRead',
-  'channelUpdated',
-  'userStatusChanged',
-  'receiveWebRtcSignal',
+  'ReceiveMessage',
+  'MessageEdited',
+  'MessageDeleted',
+  'UserJoined',
+  'UserLeft',
+  'UserTyping',
+  'ReactionAdded',
+  'ReactionRemoved',
+  'MessageRead',
+  'ChannelUpdated',
+  'UserStatusChanged',
+  'ReceiveWebRtcSignal',
 ] as const
 
 export function parseWebRtcSignalPayload(raw: unknown): WebRtcSignalPayload | null {
@@ -136,18 +136,18 @@ export function attachChatHubHandlers(
     if (p) handlers.onWebRtcSignal?.(p)
   }
 
-  connection.on('receiveMessage', onReceive)
-  connection.on('messageEdited', onMessageEdited)
-  connection.on('messageDeleted', onMessageDeleted)
-  connection.on('userJoined', onUserJoined)
-  connection.on('userLeft', onUserLeft)
-  connection.on('userTyping', onUserTyping)
-  connection.on('reactionAdded', onReaction)
-  connection.on('reactionRemoved', onReaction)
-  connection.on('messageRead', onMessageRead)
-  connection.on('channelUpdated', onChannelUpdated)
-  connection.on('userStatusChanged', onUserStatusChanged)
-  connection.on('receiveWebRtcSignal', onWebRtcSignal)
+  connection.on('ReceiveMessage', onReceive)
+  connection.on('MessageEdited', onMessageEdited)
+  connection.on('MessageDeleted', onMessageDeleted)
+  connection.on('UserJoined', onUserJoined)
+  connection.on('UserLeft', onUserLeft)
+  connection.on('UserTyping', onUserTyping)
+  connection.on('ReactionAdded', onReaction)
+  connection.on('ReactionRemoved', onReaction)
+  connection.on('MessageRead', onMessageRead)
+  connection.on('ChannelUpdated', onChannelUpdated)
+  connection.on('UserStatusChanged', onUserStatusChanged)
+  connection.on('ReceiveWebRtcSignal', onWebRtcSignal)
 }
 
 export function detachChatHubHandlers(connection: HubConnection): void {
