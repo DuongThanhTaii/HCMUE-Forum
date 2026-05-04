@@ -50,6 +50,7 @@ public static class DatabaseSeeder
 
             // Seed data in order of dependencies
             await IdentitySeed.SeedAsync(context, logger);
+            await RolePermissionSeeder.SeedAsync(context, logger); // Phase 2: assign DB permissions to roles
             await ForumSeed.SeedAsync(context, logger);
             await LearningSeed.SeedAsync(context, logger);
             await LearningBulkSeed.SeedAsync(context, configuration, logger);
