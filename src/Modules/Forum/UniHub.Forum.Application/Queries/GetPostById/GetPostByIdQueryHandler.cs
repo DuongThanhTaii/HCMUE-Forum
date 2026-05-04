@@ -51,6 +51,6 @@ public sealed class GetPostByIdQueryHandler : IQueryHandler<GetPostByIdQuery, Po
             isBookmarked = bookmark is not null;
         }
 
-        return Result.Success(result with { IsBookmarkedByCurrentUser = isBookmarked });
+        return Result.Success<PostDetailResult?>(result with { IsBookmarkedByCurrentUser = isBookmarked });
     }
 }

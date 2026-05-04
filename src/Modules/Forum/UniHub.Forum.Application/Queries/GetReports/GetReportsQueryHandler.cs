@@ -33,6 +33,7 @@ public sealed class GetReportsQueryHandler : IQueryHandler<GetReportsQuery, GetR
             request.PageSize,
             request.Status,
             request.ResolutionDecision,
+            request.CategoryIds,
             cancellationToken);
 
         var reportDtos = reports.Select(r => new ReportDto

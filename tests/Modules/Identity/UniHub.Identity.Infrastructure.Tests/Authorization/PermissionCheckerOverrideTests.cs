@@ -296,6 +296,16 @@ internal sealed class InMemoryUserRepository(InMemoryPermissionStore store) : IU
         store.Users.Remove(user.Id.Value);
         return Task.CompletedTask;
     }
+
+    public Task<IReadOnlyList<User>> SearchAsync(string search, int take, CancellationToken cancellationToken = default)
+    {
+        var result = store.Users.Values
+            .Where(u => u.Email.Value.Contains(search, StringComparison.OrdinalIgnoreCase) || 
+                        u.Profile.FullName.Contains(search, StringComparison.OrdinalIgnoreCase))
+            .Take(take)
+            .ToList();
+        return Task.FromResult((IReadOnlyList<User>)result);
+    }
 }
 
 internal sealed class InMemoryRoleRepository(InMemoryPermissionStore store) : IRoleRepository

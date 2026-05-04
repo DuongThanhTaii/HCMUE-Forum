@@ -29,6 +29,7 @@ public interface IReportRepository
         int pageSize,
         ReportStatus? status = null,
         ReportResolutionDecision? resolutionDecision = null,
+        IReadOnlyList<Guid>? categoryIds = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>

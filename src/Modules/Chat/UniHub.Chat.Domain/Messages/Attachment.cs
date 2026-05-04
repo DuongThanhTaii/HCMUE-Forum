@@ -33,7 +33,12 @@ public sealed class Attachment : ValueObject
     /// </summary>
     public string? ThumbnailUrl { get; private set; }
 
-    private Attachment() { } // EF Core
+    private Attachment()
+    {
+        FileName = null!;
+        FileUrl = null!;
+        MimeType = null!;
+    } // EF Core
 
     private Attachment(string fileName, string fileUrl, long fileSizeBytes, string mimeType, string? thumbnailUrl)
     {

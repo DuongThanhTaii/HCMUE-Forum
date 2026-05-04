@@ -4,6 +4,7 @@ using NSubstitute;
 using UniHub.Forum.Domain.Comments;
 using UniHub.Forum.Domain.Events;
 using UniHub.Forum.Domain.Posts;
+using UniHub.Notification.Application.Abstractions;
 using UniHub.Notification.Application.Abstractions.Notifications;
 using UniHub.Notification.Application.EventHandlers;
 using Xunit;
@@ -12,19 +13,23 @@ namespace UniHub.Notification.Application.Tests.EventHandlers;
 
 public class CommentAddedEventHandlerTests
 {
-    private readonly IInAppNotificationService _inAppNotificationService;
-    private readonly IPushNotificationService _pushNotificationService;
+    private readonly INotificationRepository _notificationRepository;
+    private readonly IPostAuthorLookup _postAuthorLookup;
+    private readonly INotificationPusher _pusher;
     private readonly ILogger<CommentAddedEventHandler> _logger;
     private readonly CommentAddedEventHandler _handler;
 
     public CommentAddedEventHandlerTests()
     {
-        _inAppNotificationService = Substitute.For<IInAppNotificationService>();
-        _pushNotificationService = Substitute.For<IPushNotificationService>();
+        _notificationRepository = Substitute.For<INotificationRepository>();
+        _postAuthorLookup = Substitute.For<IPostAuthorLookup>();
+        _pusher = Substitute.For<INotificationPusher>();
         _logger = Substitute.For<ILogger<CommentAddedEventHandler>>();
+        
         _handler = new CommentAddedEventHandler(
-            _inAppNotificationService,
-            _pushNotificationService,
+            _notificationRepository,
+            _postAuthorLookup,
+            _pusher,
             _logger);
     }
 

@@ -122,7 +122,7 @@ public sealed class PostRepository : IPostRepository
         // Filter by category
         if (categoryId.HasValue)
         {
-            query = query.Where(p => p.CategoryId.Value == categoryId.Value);
+            query = query.Where(p => p.CategoryId == categoryId);
         }
 
         // Filter by post type
@@ -154,7 +154,7 @@ public sealed class PostRepository : IPostRepository
                 Type = (int)p.Type,
                 AuthorId = p.AuthorId,
                 VoteScore = p.VoteScore,
-                CategoryId = p.CategoryId.Value,
+                CategoryId = p.CategoryId.GetValueOrDefault(),
                 Tags = p.Tags.ToList(),
                 CreatedAt = p.CreatedAt,
                 CommentCount = 0, // TODO: Calculate from Comments table
@@ -187,7 +187,7 @@ public sealed class PostRepository : IPostRepository
         // Filter by category
         if (categoryId.HasValue)
         {
-            query = query.Where(p => p.CategoryId.Value == categoryId.Value);
+            query = query.Where(p => p.CategoryId == categoryId);
         }
 
         if (categoryIds is not null)
@@ -234,7 +234,7 @@ public sealed class PostRepository : IPostRepository
                 Type = (int)p.Type,
                 Status = (int)p.Status,
                 AuthorId = p.AuthorId,
-                CategoryId = p.CategoryId.Value,
+                CategoryId = p.CategoryId.GetValueOrDefault(),
                 Tags = p.Tags.ToList(),
                 VoteScore = p.VoteScore,
                 CommentCount = 0,
@@ -321,7 +321,7 @@ public sealed class PostRepository : IPostRepository
             Type = (int)post.Type,
             Status = (int)post.Status,
             AuthorId = post.AuthorId,
-            CategoryId = post.CategoryId.Value,
+            CategoryId = post.CategoryId.GetValueOrDefault(),
             CategoryName = categoryName,
             AuthorName = authorName,
             Tags = post.Tags.ToList(),

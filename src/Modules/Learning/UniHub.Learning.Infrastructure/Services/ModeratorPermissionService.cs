@@ -34,6 +34,11 @@ internal sealed class ModeratorPermissionService : IModeratorPermissionService
             return false;
         }
 
+        if (!document.CourseId.HasValue)
+        {
+            return false;
+        }
+
         return await IsModeratorForCourseAsync(userId, document.CourseId.Value, cancellationToken);
     }
 

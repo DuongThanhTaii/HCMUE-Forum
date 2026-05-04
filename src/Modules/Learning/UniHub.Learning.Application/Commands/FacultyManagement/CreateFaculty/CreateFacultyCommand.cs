@@ -9,6 +9,6 @@ namespace UniHub.Learning.Application.Commands.FacultyManagement.CreateFaculty;
 public sealed record CreateFacultyCommand(
     string Code,
     string Name,
-    string Description,
+    string? Description,
     Guid CreatedBy
 ) : IRequest<Result<Guid>>;

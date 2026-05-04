@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UniHub.Forum.Application.Abstractions;
+using UniHub.Forum.Domain.Comments;
+using UniHub.Forum.Domain.Posts;
 using UniHub.Forum.Domain.Reports;
 using UniHub.Infrastructure.Persistence;
 
@@ -42,9 +44,18 @@ public sealed class ReportRepository : IReportRepository
         int pageSize,
         ReportStatus? status = null,
         ReportResolutionDecision? resolutionDecision = null,
+        IReadOnlyList<Guid>? categoryIds = null,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Reports.AsQueryable();
+
+        // Join with Posts and Comments to filter by category if needed
+        if (categoryIds != null && categoryIds.Count > 0)
+        {
+            query = query.Where(r =>
+                (r.ReportedItemType == ReportedItemType.Post && _context.Posts.Any(p => p.Id == new PostId(r.ReportedItemId) && p.CategoryId != null && categoryIds.Contains(p.CategoryId.Value))) ||
+                (r.ReportedItemType == ReportedItemType.Comment && _context.Comments.Any(c => c.Id == new CommentId(r.ReportedItemId) && _context.Posts.Any(p => p.Id == c.PostId && p.CategoryId != null && categoryIds.Contains(p.CategoryId.Value)))));
+        }
 
         // Filter by status if provided
         if (status.HasValue)

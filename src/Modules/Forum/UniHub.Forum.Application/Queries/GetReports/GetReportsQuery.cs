@@ -7,4 +7,5 @@ public sealed record GetReportsQuery(
     int PageNumber = 1,
     int PageSize = 20,
     ReportStatus? Status = null,
-    ReportResolutionDecision? ResolutionDecision = null) : IQuery<GetReportsResult>;
+    ReportResolutionDecision? ResolutionDecision = null,
+    IReadOnlyList<Guid>? CategoryIds = null) : IQuery<GetReportsResult>;
