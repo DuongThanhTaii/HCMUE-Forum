@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -82,6 +83,12 @@ public static class DependencyInjection
         }
 
         services.AddScoped<IPermissionChecker, PermissionChecker>();
+
+        // Phase 1: Permission-based Authorization (Layer 2)
+        // PermissionPolicyProvider dynamically creates policies for "Permission:{code}" on the fly.
+        // PermissionAuthorizationHandler resolves IPermissionChecker per-request via IServiceScopeFactory.
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+        services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
         return services;
     }
