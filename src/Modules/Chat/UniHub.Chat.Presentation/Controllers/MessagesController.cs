@@ -200,6 +200,20 @@ public class MessagesController : ControllerBase
             SentAt = DateTime.UtcNow
         };
 
+        var notification = new MessageNotification(
+            result.Value,
+            request.ConversationId,
+            null,
+            userId,
+            GetUserName(),
+            request.Content,
+            "Text",
+            response.SentAt,
+            request.ReplyToMessageId);
+
+        await _chatHub.Clients.Group(ConversationGroupName(request.ConversationId))
+            .ReceiveMessage(notification);
+
         return CreatedAtAction(
             nameof(GetMessages),
             new { conversationId = request.ConversationId },
@@ -318,6 +332,20 @@ public class MessagesController : ControllerBase
             MessageId = result.Value,
             SentAt = DateTime.UtcNow
         };
+
+        var notification = new MessageNotification(
+            result.Value,
+            request.ConversationId,
+            null,
+            userId,
+            GetUserName(),
+            request.Content ?? "Sent an attachment",
+            "File",
+            response.SentAt,
+            request.ReplyToMessageId);
+
+        await _chatHub.Clients.Group(ConversationGroupName(request.ConversationId))
+            .ReceiveMessage(notification);
 
         return CreatedAtAction(
             nameof(GetMessages),
@@ -446,6 +474,13 @@ public class MessagesController : ControllerBase
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         return Guid.Parse(userIdClaim!);
+    }
+
+    private string GetUserName()
+    {
+        return User.FindFirst(ClaimTypes.Name)?.Value 
+            ?? User.FindFirst("name")?.Value 
+            ?? "Unknown User";
     }
 }
 
