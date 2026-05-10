@@ -88,6 +88,21 @@ Error sample:
 - **Body**: `RegisterCompanyCommand`
 - **201**: `ApiResponse<CompanyResponse>`
 
+### `POST /api/v1/companies/logo/upload`
+- **Auth**: required
+- **Content-Type**: `multipart/form-data`
+- **Body**: field `file` — ảnh (đuôi `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.bmp`)
+- **200**: `ApiResponse` — `data`: `{ url: string }`, message `Company logo uploaded successfully`
+
+### `GET /api/v1/companies/mine`
+- **Auth**: required
+- **200**: `ApiResponse` — danh sách công ty user đã đăng ký hoặc được link recruiter: `{ id, name, status, logoUrl }[]`
+
+### `POST /api/v1/companies/{id}/approve`
+- **Auth**: required
+- **Permission**: `admin.system.manage`
+- **200**: phê duyệt đăng ký company đang pending (chi tiết message theo handler)
+
 ### `GET /api/v1/companies/{id}`
 - **Auth**: optional
 - **200**: `ApiResponse<CompanyDetailResponse>`

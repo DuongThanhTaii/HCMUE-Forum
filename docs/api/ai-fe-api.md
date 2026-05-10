@@ -1,5 +1,11 @@
 # AI API for Frontend (`ApiResponse` Envelope)
 
+## Liên quan: Assistant tools (Forum)
+
+Các endpoint **tích hợp post/search + AI** nằm dưới **`/api/v1/assistant/tools`** (controller trong host API), rate limit `ai`, JWT bắt buộc — xem **[assistant-tools-fe-api.md](./assistant-tools-fe-api.md)**.
+
+---
+
 ## Base URL
 - `/api/v1/ai`
 

@@ -226,13 +226,15 @@ Error sample:
 
 ---
 
-## Moderation Routes (Admin / Moderator only)
+## Moderation Routes (`/api/v1/mod`)
 
-> **Base auth:** `[Authorize(Roles = "Admin,Moderator")]`
+> **Auth:** permission **`forum.reports.review`** (RBAC). Controller dùng `[RequirePermission("forum.reports.review")]`, không chỉ kiểm tra tên role.
+>
+> **Phạm vi:** Admin xử lý toàn hệ thống. Moderator lọc theo category được gán (`Category.ModeratorIds`). *Hiện tại* nếu moderator chưa được gán category, backend có hotfix không lọc rỗng — sau khi quy trình gán mod ổn định có thể thắt chặt (xem `ModerationController.ResolveScopedCategoryIdsAsync`).
 
 ### `GET /api/v1/mod/reports`
 
-- **Auth**: Admin or Moderator
+- **Auth**: user có `forum.reports.review`
 - **Query**: `status` (`pending` | `resolved_keep` | `resolved_remove`), `pageNumber`, `pageSize`
 - **200**: `ApiResponse<ModerationReportListResponse>`
 
@@ -245,7 +247,7 @@ Error sample:
 
 ### `POST /api/v1/mod/reports/{id}/resolve`
 
-- **Auth**: Admin or Moderator
+- **Auth**: user có `forum.reports.review`
 - **Body**: `ResolveModerationReportRequest` (`action: "keep" | "remove"`)
 - **200**: `ApiResponse<null>` with message `Report resolved successfully`
 - **403**: Moderator attempted to resolve a report outside their category scope, or the reported target no longer exists.
@@ -262,7 +264,7 @@ Error sample:
 
 ### `GET /api/v1/mod/posts`
 
-- **Auth**: Admin or Moderator
+- **Auth**: user có `forum.reports.review`
 - **Query**: `pageNumber`, `pageSize`
 - **200**: `ApiResponse<PostListResponse>` — draft posts only, scoped to moderator's categories.
 

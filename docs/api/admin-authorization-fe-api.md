@@ -6,7 +6,8 @@ Tài liệu này dành cho màn **Admin tổng / phân quyền** phía FE.
 
 - Base URL: `/api/v1`
 - Auth: `Authorization: Bearer <token>`
-- Auth required for all endpoints; Admin role required for role/user/badge mutations and `/admin/authorization` APIs.
+- Auth required for all endpoints; **RBAC** trên từng endpoint (permission / role). Riêng **`/api/v1/admin/authorization/*`** yêu cầu permission **`admin.system.manage`** (`AuthorizationAdminController`).
+- Quản lý role/user/badge (master APIs) vẫn theo quy ước **Admin** như các mục dưới.
 - Content-Type: `application/json`
 - **Tất cả response đều bọc theo envelope chung**:
 
@@ -351,6 +352,15 @@ Tài liệu này dành cho màn **Admin tổng / phân quyền** phía FE.
 
 Base route: `/api/v1/admin/authorization`
 
+**Permission:** `admin.system.manage` cho toàn bộ nhóm API trong section này.
+
+### 5.0 Authorization groups (danh mục nhóm)
+
+#### List groups
+
+- **GET** `/api/v1/admin/authorization/groups`
+- **200**: `ApiResponse` — `data` là mảng `{ id, name, description, isActive, memberCount }`
+
 ### 5.1 User overrides
 
 #### Get user overrides
@@ -486,7 +496,40 @@ Base route: `/api/v1/admin/authorization`
 
 - Response `200`: object `EndpointToggleResponse`.
 
-### 5.4 Authorization audit logs
+### 5.4 Maintenance mode
+
+Toggle hệ thống triển khai qua **endpoint toggle** key cố định `System.Maintenance.Mode`.
+
+#### Get maintenance mode
+
+- **GET** `/api/v1/admin/authorization/maintenance-mode`
+- **200**: `ApiResponse<MaintenanceModeResponse>`
+
+```json
+{
+  "isEnabled": false,
+  "reason": null,
+  "updatedBy": "system",
+  "updatedAtUtc": "2026-05-10T12:00:00Z",
+  "version": 1
+}
+```
+
+#### Set maintenance mode
+
+- **PUT** `/api/v1/admin/authorization/maintenance-mode`
+- **Body**:
+
+```json
+{
+  "isEnabled": true,
+  "reason": "Scheduled maintenance"
+}
+```
+
+- **200**: `ApiResponse<MaintenanceModeResponse>` — payload giống GET sau khi cập nhật.
+
+### 5.5 Authorization audit logs
 
 - **GET** `/api/v1/admin/authorization/audit-logs?userId=&endpointKey=&isSuccess=&fromUtc=&toUtc=&take=100`
 - Response `200`:
@@ -681,6 +724,17 @@ Base route: `/api/v1/admin/observability/user-actions`
 - `version` (int)
 
 ### `SetEndpointToggleRequest`
+- `isEnabled` (boolean)
+- `reason` (string | null)
+
+### `MaintenanceModeResponse`
+- `isEnabled` (boolean)
+- `reason` (string | null)
+- `updatedBy` (string)
+- `updatedAtUtc` (datetime)
+- `version` (int)
+
+### `SetMaintenanceModeRequest`
 - `isEnabled` (boolean)
 - `reason` (string | null)
 

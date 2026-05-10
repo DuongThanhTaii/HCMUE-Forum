@@ -28,6 +28,28 @@ Error example:
 
 ## Endpoints
 
+### `POST /api/v1/notifications/broadcast/home`
+
+- **Auth**: required
+- **Permission**: một trong `admin.system.manage` hoặc `forum.reports.review`
+- **Body**:
+
+```json
+{
+  "title": "Thông báo",
+  "message": "Nội dung hiển thị trên home.",
+  "sendEmail": false
+}
+```
+
+- **200**: `ApiResponse<{ sentInApp: number, sentEmail: number }>` với message kiểu `Home announcement broadcasted successfully`
+- **400**: nội dung không hợp lệ
+- **403**: không đủ quyền
+
+Gửi thông báo in-app (và tùy chọn email) tới **toàn bộ user** trong DB; có push SignalR qua `INotificationPusher`.
+
+---
+
 ### `GET /api/v1/notifications`
 - **Auth**: required
 - **Query**: `pageNumber`, `pageSize`
