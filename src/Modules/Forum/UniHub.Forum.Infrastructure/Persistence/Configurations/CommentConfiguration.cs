@@ -53,6 +53,10 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
             .HasColumnName("is_accepted_answer")
             .HasDefaultValue(false);
 
+        builder.Property(c => c.IsPinned)
+            .HasColumnName("is_pinned")
+            .HasDefaultValue(false);
+
         builder.Property(c => c.VoteScore)
             .HasColumnName("vote_score")
             .HasDefaultValue(0);

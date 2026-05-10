@@ -38,6 +38,7 @@ public sealed class GetPostsQueryHandler : IQueryHandler<GetPostsQuery, GetPosts
             request.PageNumber,
             request.PageSize,
             request.CategoryId,
+            request.ThreadChannelId,
             request.Type,
             request.Status,
             request.SortBy,

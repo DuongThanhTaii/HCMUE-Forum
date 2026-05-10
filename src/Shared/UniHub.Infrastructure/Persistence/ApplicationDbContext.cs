@@ -14,6 +14,7 @@ using UniHub.Forum.Domain.Categories;
 using UniHub.Forum.Domain.Tags;
 using UniHub.Forum.Domain.Reports;
 using UniHub.Forum.Domain.Bookmarks;
+using UniHub.Forum.Domain.ThreadChannels;
 // Learning
 using UniHub.Learning.Domain.Courses;
 using UniHub.Learning.Domain.Documents;
@@ -72,6 +73,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<PostTag> PostTags => Set<PostTag>();
     public DbSet<Report> Reports => Set<Report>();
     public DbSet<Bookmark> Bookmarks => Set<Bookmark>();
+    public DbSet<ThreadChannel> ThreadChannels => Set<ThreadChannel>();
     #endregion
 
     #region Learning Module DbSets

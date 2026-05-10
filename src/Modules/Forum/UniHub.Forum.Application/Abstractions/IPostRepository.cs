@@ -64,6 +64,7 @@ public interface IPostRepository
         int pageNumber = 1,
         int pageSize = 20,
         Guid? categoryId = null,
+        Guid? threadChannelId = null,
         int? type = null,
         int? status = null,
         int sortBy = 0,

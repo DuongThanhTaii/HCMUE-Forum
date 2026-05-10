@@ -176,6 +176,7 @@ public sealed class PostRepository : IPostRepository
         int pageNumber = 1,
         int pageSize = 20,
         Guid? categoryId = null,
+        Guid? threadChannelId = null,
         int? type = null,
         int? status = null,
         int sortBy = 0,
@@ -188,6 +189,11 @@ public sealed class PostRepository : IPostRepository
         if (categoryId.HasValue)
         {
             query = query.Where(p => p.CategoryId == categoryId);
+        }
+
+        if (threadChannelId.HasValue)
+        {
+            query = query.Where(p => p.ThreadChannelId == threadChannelId);
         }
 
         if (categoryIds is not null)
@@ -234,7 +240,8 @@ public sealed class PostRepository : IPostRepository
                 Type = (int)p.Type,
                 Status = (int)p.Status,
                 AuthorId = p.AuthorId,
-                CategoryId = p.CategoryId.GetValueOrDefault(),
+                CategoryId = p.CategoryId,
+                ThreadChannelId = p.ThreadChannelId,
                 Tags = p.Tags.ToList(),
                 VoteScore = p.VoteScore,
                 CommentCount = 0,
@@ -297,6 +304,8 @@ public sealed class PostRepository : IPostRepository
             .CountAsync(c => c.PostId == postId, cancellationToken);
 
         string? categoryName = null;
+        string? threadChannelName = null;
+        string? threadChannelCode = null;
         if (post.CategoryId.HasValue)
         {
             categoryName = await _context.Categories
@@ -304,6 +313,17 @@ public sealed class PostRepository : IPostRepository
                 .Where(c => c.Id == CategoryId.Create(post.CategoryId.Value))
                 .Select(c => c.Name.Value)
                 .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        if (post.ThreadChannelId.HasValue)
+        {
+            var threadChannel = await _context.ThreadChannels
+                .AsNoTracking()
+                .Where(c => c.Id == post.ThreadChannelId.Value)
+                .Select(c => new { c.Name, c.Code })
+                .FirstOrDefaultAsync(cancellationToken);
+            threadChannelName = threadChannel?.Name;
+            threadChannelCode = threadChannel?.Code;
         }
 
         var authorMap = await DisplayNameLookup.LoadAuthorNamesAsync(
@@ -321,7 +341,10 @@ public sealed class PostRepository : IPostRepository
             Type = (int)post.Type,
             Status = (int)post.Status,
             AuthorId = post.AuthorId,
-            CategoryId = post.CategoryId.GetValueOrDefault(),
+            CategoryId = post.CategoryId,
+            ThreadChannelId = post.ThreadChannelId,
+            ThreadChannelCode = threadChannelCode,
+            ThreadChannelName = threadChannelName,
             CategoryName = categoryName,
             AuthorName = authorName,
             Tags = post.Tags.ToList(),
@@ -349,9 +372,19 @@ public sealed class PostRepository : IPostRepository
             .Distinct()
             .ToList();
         var authorIds = items.Select(i => i.AuthorId).Distinct().ToList();
+        var threadChannelIds = items
+            .Select(i => i.ThreadChannelId)
+            .Where(id => id.HasValue)
+            .Select(id => id!.Value)
+            .Distinct()
+            .ToList();
 
         var catMap = await DisplayNameLookup.LoadCategoryNamesAsync(_context, catIds, cancellationToken);
         var authorMap = await DisplayNameLookup.LoadAuthorNamesAsync(_context, authorIds, cancellationToken);
+        var threadChannelMap = await _context.ThreadChannels
+            .AsNoTracking()
+            .Where(x => threadChannelIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, x => (x.Code, x.Name), cancellationToken);
 
         for (var i = 0; i < items.Count; i++)
         {
@@ -360,7 +393,12 @@ public sealed class PostRepository : IPostRepository
                 ? cname
                 : null;
             var an = authorMap.TryGetValue(p.AuthorId, out var aname) ? aname : null;
-            items[i] = p with { CategoryName = cn, AuthorName = an };
+            var threadInfo = p.ThreadChannelId.HasValue && threadChannelMap.TryGetValue(p.ThreadChannelId.Value, out var tc)
+                ? tc
+                : ((string Code, string Name)?)null;
+            var threadCode = threadInfo?.Code;
+            var threadName = threadInfo?.Name;
+            items[i] = p with { CategoryName = cn, AuthorName = an, ThreadChannelCode = threadCode, ThreadChannelName = threadName };
         }
     }
 

@@ -10,5 +10,6 @@ public sealed record UpdatePostCommand(
     string Title,
     string Content,
     Guid? CategoryId,
+    Guid? ThreadChannelId,
     IEnumerable<string>? Tags,
     Guid RequestingUserId) : ICommand;

@@ -15,6 +15,7 @@ public sealed class Comment : Entity<CommentId>
     public CommentContent Content { get; private set; }
     public CommentId? ParentCommentId { get; private set; }
     public bool IsAcceptedAnswer { get; private set; }
+    public bool IsPinned { get; private set; }
     public int VoteScore { get; private set; }
     public bool IsDeleted { get; private set; }
     public DateTime CreatedAt { get; private set; }
@@ -41,6 +42,7 @@ public sealed class Comment : Entity<CommentId>
         Content = content;
         ParentCommentId = parentCommentId;
         IsAcceptedAnswer = false;
+        IsPinned = false;
         VoteScore = 0;
         IsDeleted = false;
         CreatedAt = DateTime.UtcNow;
@@ -88,6 +90,35 @@ public sealed class Comment : Entity<CommentId>
         UpdatedAt = DateTime.UtcNow;
 
         RaiseDomainEvent(new CommentDeletedEvent(Id, PostId));
+        return Result.Success();
+    }
+
+    public Result Pin()
+    {
+        if (IsDeleted)
+        {
+            return Result.Failure(new Error("Comment.Deleted", "Cannot pin a deleted comment"));
+        }
+
+        if (IsPinned)
+        {
+            return Result.Success();
+        }
+
+        IsPinned = true;
+        UpdatedAt = DateTime.UtcNow;
+        return Result.Success();
+    }
+
+    public Result Unpin()
+    {
+        if (!IsPinned)
+        {
+            return Result.Success();
+        }
+
+        IsPinned = false;
+        UpdatedAt = DateTime.UtcNow;
         return Result.Success();
     }
 

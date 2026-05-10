@@ -11,4 +11,5 @@ public sealed record CreatePostCommand(
     int Type,
     Guid AuthorId,
     Guid? CategoryId = null,
+    Guid? ThreadChannelId = null,
     IEnumerable<string>? Tags = null) : ICommand<Guid>;

@@ -12,6 +12,7 @@ using UniHub.Forum.Application.Commands.ReportPost;
 using UniHub.Forum.Application.Commands.UnbookmarkPost;
 using UniHub.Forum.Application.Commands.UpdatePost;
 using UniHub.Forum.Application.Commands.VotePost;
+using UniHub.Forum.Application.Queries.GetBookmarkedPosts;
 using UniHub.Forum.Application.Queries.GetComments;
 using UniHub.Forum.Application.Queries.GetPostById;
 using UniHub.Forum.Application.Queries.GetPosts;
@@ -51,13 +52,14 @@ public class PostsController : BaseApiController
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] Guid? categoryId = null,
+        [FromQuery] Guid? threadChannelId = null,
         [FromQuery] int? type = null,
         [FromQuery] int? status = null,
         [FromQuery] int sortBy = 0,
         CancellationToken cancellationToken = default)
     {
         var effectiveStatus = status ?? (int)PostStatus.Published;
-        var query = new GetPostsQuery(pageNumber, pageSize, categoryId, type, effectiveStatus, sortBy);
+        var query = new GetPostsQuery(pageNumber, pageSize, categoryId, threadChannelId, type, effectiveStatus, sortBy);
         var result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
@@ -77,6 +79,9 @@ public class PostsController : BaseApiController
                 Status = p.Status,
                 AuthorId = p.AuthorId,
                 CategoryId = p.CategoryId,
+                ThreadChannelId = p.ThreadChannelId,
+                ThreadChannelCode = p.ThreadChannelCode,
+                ThreadChannelName = p.ThreadChannelName,
                 CategoryName = p.CategoryName,
                 AuthorName = p.AuthorName,
                 Tags = p.Tags,
@@ -85,6 +90,56 @@ public class PostsController : BaseApiController
                 IsPinned = p.IsPinned,
                 CreatedAt = p.CreatedAt,
                 UpdatedAt = p.UpdatedAt,
+                PublishedAt = p.PublishedAt
+            }).ToList(),
+            TotalCount = result.Value.TotalCount,
+            PageNumber = result.Value.PageNumber,
+            PageSize = result.Value.PageSize,
+            TotalPages = result.Value.TotalPages,
+            HasPreviousPage = result.Value.HasPreviousPage,
+            HasNextPage = result.Value.HasNextPage
+        };
+
+        return Ok(ApiResponses.Success(response));
+    }
+
+    /// <summary>
+    /// Get bookmarked posts for current user
+    /// </summary>
+    [HttpGet("bookmarks")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<PostListResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetBookmarkedPosts(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetBookmarkedPostsQuery(GetCurrentUserId(), pageNumber, pageSize);
+        var result = await _sender.Send(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
+        }
+
+        var response = new PostListResponse
+        {
+            Posts = result.Value.Posts.Select(p => new PostResponse
+            {
+                Id = p.Id,
+                Title = p.Title,
+                Content = string.Empty,
+                Slug = p.Slug,
+                Type = p.PostType,
+                Status = p.Status,
+                AuthorId = p.AuthorId,
+                CategoryId = p.CategoryId,
+                VoteScore = p.VoteScore,
+                CommentCount = p.CommentCount,
+                IsBookmarked = true,
+                IsPinned = p.IsPinned,
+                CreatedAt = p.CreatedAt,
                 PublishedAt = p.PublishedAt
             }).ToList(),
             TotalCount = result.Value.TotalCount,
@@ -127,6 +182,9 @@ public class PostsController : BaseApiController
             Status = result.Value.Status,
             AuthorId = result.Value.AuthorId,
             CategoryId = result.Value.CategoryId,
+            ThreadChannelId = result.Value.ThreadChannelId,
+            ThreadChannelCode = result.Value.ThreadChannelCode,
+            ThreadChannelName = result.Value.ThreadChannelName,
             CategoryName = result.Value.CategoryName,
             AuthorName = result.Value.AuthorName,
             Tags = result.Value.Tags,
@@ -161,6 +219,7 @@ public class PostsController : BaseApiController
             request.Type,
             authorId,
             request.CategoryId,
+            request.ThreadChannelId,
             request.Tags);
 
         var result = await _sender.Send(command, cancellationToken);
@@ -197,6 +256,7 @@ public class PostsController : BaseApiController
             request.Title ?? string.Empty,
             request.Content ?? string.Empty,
             request.CategoryId,
+            request.ThreadChannelId,
             request.Tags,
             userId);
 
@@ -351,6 +411,7 @@ public class PostsController : BaseApiController
                 VoteScore = c.VoteScore,
                 CurrentUserVote = c.CurrentUserVote,
                 IsAcceptedAnswer = c.IsAcceptedAnswer,
+                IsPinned = c.IsPinned,
                 CreatedAt = c.CreatedAt,
                 UpdatedAt = c.UpdatedAt
             }).ToList(),

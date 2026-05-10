@@ -13,6 +13,9 @@ public sealed record PostItem
     public int Status { get; init; }
     public Guid AuthorId { get; init; }
     public Guid? CategoryId { get; init; }
+    public Guid? ThreadChannelId { get; init; }
+    public string? ThreadChannelCode { get; init; }
+    public string? ThreadChannelName { get; init; }
     /// <summary>Resolved category title for API consumers.</summary>
     public string? CategoryName { get; init; }
     /// <summary>Resolved author display name.</summary>

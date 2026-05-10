@@ -15,6 +15,10 @@ public static class PostErrors
         "Post.InvalidPostType",
         "The specified post type is invalid");
 
+    public static readonly Error ThreadChannelNotFound = new(
+        "Post.ThreadChannelNotFound",
+        "The specified thread channel does not exist or is inactive");
+
     public static readonly Error PostNotFound = new(
         "Post.NotFound",
         "The specified post does not exist");

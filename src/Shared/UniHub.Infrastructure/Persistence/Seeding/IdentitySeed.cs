@@ -25,53 +25,92 @@ internal static class IdentitySeed
     public static async Task SeedAsync(ApplicationDbContext context, ILogger logger)
     {
         await EnsureMissingPermissionsAsync(context, logger);
+        await EnsureCoreRolesAsync(context, logger);
+        await EnsureAdminUserAsync(context, logger);
 
-        if (await context.Permissions.AnyAsync())
+        await EnsureDemoAccountsAsync(context, logger);
+    }
+
+    private static async Task EnsureCoreRolesAsync(ApplicationDbContext context, ILogger logger)
+    {
+        var roleSpecs = new (string Name, string Description, bool IsDefault)[]
         {
-            logger.LogInformation("Identity bootstrap already present. Skipping permissions, roles, and admin seed.");
+            ("Admin", "System Administrator with full access", false),
+            ("Moderator", "Forum and content moderator", false),
+            ("Lecturer", "University lecturer with course management", false),
+            ("Recruiter", "Recruiter role for enterprise hiring workflows", false),
+            ("Student", "Regular student user", true)
+        };
+
+        var existingRoleNames = await context.Roles
+            .AsNoTracking()
+            .Select(r => r.Name)
+            .ToListAsync();
+        var existing = new HashSet<string>(existingRoleNames, StringComparer.Ordinal);
+
+        var toAdd = new List<Role>();
+        foreach (var spec in roleSpecs)
+        {
+            if (existing.Contains(spec.Name))
+            {
+                continue;
+            }
+
+            var role = Role.Create(spec.Name, spec.Description, spec.IsDefault).Value;
+            toAdd.Add(role);
         }
-        else
+
+        if (toAdd.Count == 0)
         {
-            logger.LogInformation("Seeding identity data...");
+            logger.LogInformation("Identity roles already present.");
+            return;
+        }
 
-            // 1. Seed Permissions (format: module.resource.action)
-            var permissions = CreatePermissions();
-            context.Permissions.AddRange(permissions);
-            await context.SaveChangesAsync();
-            logger.LogInformation("Seeded {Count} permissions.", permissions.Count);
+        context.Roles.AddRange(toAdd);
+        await context.SaveChangesAsync();
+        logger.LogInformation("Seeded {Count} missing roles.", toAdd.Count);
+    }
 
-            // 2. Seed Roles
-            var adminRole = Role.Create("Admin", "System Administrator with full access").Value;
-            var moderatorRole = Role.Create("Moderator", "Forum and content moderator").Value;
-            var lecturerRole = Role.Create("Lecturer", "University lecturer with course management").Value;
-            var recruiterRole = Role.Create("Recruiter", "Recruiter role for enterprise hiring workflows").Value;
-            var studentRole = Role.Create("Student", "Regular student user", isDefault: true).Value;
+    private static async Task EnsureAdminUserAsync(ApplicationDbContext context, ILogger logger)
+    {
+        var adminEmail = Email.Create("admin@unihub.edu.vn").Value;
+        var adminRole = await context.Roles.FirstOrDefaultAsync(r => r.Name == "Admin");
+        if (adminRole is null)
+        {
+            logger.LogWarning("Admin role not found, cannot ensure admin user.");
+            return;
+        }
 
-            context.Roles.AddRange(adminRole, moderatorRole, lecturerRole, recruiterRole, studentRole);
-            await context.SaveChangesAsync();
-            logger.LogInformation("Seeded 5 roles.");
-
-            // 3. Seed Admin User with a fixed well-known ID so seeded documents can resolve the uploader name.
-            var adminEmail = Email.Create("admin@unihub.edu.vn").Value;
+        var existingAdmin = await context.Users.FirstOrDefaultAsync(u => u.Email == adminEmail);
+        if (existingAdmin is null)
+        {
             var adminProfile = UserProfile.Create("Admin", "UniHub").Value;
             var adminUser = User.CreateWithId(
                 UserId.Create(AdminSeedId),
                 adminEmail,
                 DevSeedPasswordHash,
                 adminProfile).Value;
-            var assignAdminRoleResult = adminUser.AssignRole(adminRole.Id);
-            if (assignAdminRoleResult.IsFailure)
+
+            var assignRole = adminUser.AssignRole(adminRole.Id);
+            if (assignRole.IsFailure)
             {
                 throw new InvalidOperationException(
-                    $"Failed to assign Admin role to seeded admin user: {assignAdminRoleResult.Error.Message}");
+                    $"Failed to assign Admin role to seeded admin user: {assignRole.Error.Message}");
             }
 
             context.Users.Add(adminUser);
             await context.SaveChangesAsync();
             logger.LogInformation("Seeded admin user with Admin role: admin@unihub.edu.vn");
+            return;
         }
 
-        await EnsureDemoAccountsAsync(context, logger);
+        var hasAdminRole = await context.UserRoles.AnyAsync(ur => ur.UserId == existingAdmin.Id && ur.RoleId == adminRole.Id);
+        if (!hasAdminRole)
+        {
+            existingAdmin.AssignRole(adminRole.Id);
+            await context.SaveChangesAsync();
+            logger.LogInformation("Backfilled Admin role for admin@unihub.edu.vn.");
+        }
     }
 
     private static async Task EnsureMissingPermissionsAsync(ApplicationDbContext context, ILogger logger)
@@ -199,6 +238,7 @@ internal static class IdentitySeed
             ("forum.tags.update", "Update tags"),
             ("forum.tags.delete", "Delete tags"),
             ("forum.reports.review", "Review reports"),
+            ("forum.thread_channels.manage", "Manage forum thread channels"),
             ("learning.courses.read", "Read courses"),
             ("learning.courses.create", "Create courses"),
             ("learning.courses.update", "Update courses"),

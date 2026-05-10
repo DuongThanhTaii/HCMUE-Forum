@@ -2,10 +2,12 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using UniHub.Contracts;
 using UniHub.Forum.Application.Commands.AcceptAnswer;
 using UniHub.Forum.Application.Commands.AddComment;
 using UniHub.Forum.Application.Commands.DeleteComment;
+using UniHub.Forum.Application.Commands.PinComment;
 using UniHub.Forum.Application.Commands.ReportComment;
 using UniHub.Forum.Application.Commands.UpdateComment;
 using UniHub.Forum.Application.Commands.VoteComment;
@@ -32,6 +34,7 @@ public class CommentsController : BaseApiController
     /// </summary>
     [HttpPost("posts/{postId:guid}")]
     [Authorize]
+    [EnableRateLimiting("forum-write")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -160,6 +163,33 @@ public class CommentsController : BaseApiController
         }
 
         return Ok(ApiResponses.Success("Answer accepted successfully"));
+    }
+
+    /// <summary>
+    /// Toggle pin state for a comment inside a post thread
+    /// </summary>
+    [HttpPost("{id:guid}/pin")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> TogglePinComment(
+        Guid id,
+        [FromQuery] Guid postId,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetCurrentUserId();
+        var hasModerationPrivilege = User.IsInRole("Admin") || User.IsInRole("Moderator");
+
+        var command = new PinCommentCommand(id, postId, userId, hasModerationPrivilege);
+        var result = await _sender.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
+        }
+
+        return Ok(ApiResponses.Success("Comment pin state updated successfully"));
     }
 
     /// <summary>

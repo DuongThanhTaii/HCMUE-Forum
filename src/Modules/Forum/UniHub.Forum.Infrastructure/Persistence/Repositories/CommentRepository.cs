@@ -96,7 +96,8 @@ public sealed class CommentRepository : ICommentRepository
 
         // Apply pagination and ordering
         var items = await query
-            .OrderBy(c => c.CreatedAt)
+            .OrderByDescending(c => c.IsPinned)
+            .ThenBy(c => c.CreatedAt)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
@@ -116,6 +117,7 @@ public sealed class CommentRepository : ICommentRepository
                         .FirstOrDefault()
                     : null,
                 IsAcceptedAnswer = c.IsAcceptedAnswer,
+                IsPinned = c.IsPinned,
                 CreatedAt = c.CreatedAt,
                 UpdatedAt = c.UpdatedAt
             })

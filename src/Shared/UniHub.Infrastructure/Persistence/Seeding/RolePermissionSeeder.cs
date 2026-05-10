@@ -15,6 +15,7 @@ internal static class RolePermissionSeeder
     // Permission codes per role
     private static readonly string[] ModeratorCodes =
     [
+        "forum.thread_channels.manage",
         "forum.reports.review",
         "forum.posts.read",
         "forum.posts.update",

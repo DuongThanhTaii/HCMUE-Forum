@@ -10,6 +10,7 @@ public sealed record GetPostsQuery(
     int PageNumber = 1,
     int PageSize = 20,
     Guid? CategoryId = null,
+    Guid? ThreadChannelId = null,
     int? Type = null,
     int? Status = null,
     int SortBy = 0,

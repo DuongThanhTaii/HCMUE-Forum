@@ -24,4 +24,9 @@ public sealed record UpdatePostRequest
     /// New tags
     /// </summary>
     public IEnumerable<string>? Tags { get; init; }
+
+    /// <summary>
+    /// New thread channel.
+    /// </summary>
+    public Guid? ThreadChannelId { get; init; }
 }

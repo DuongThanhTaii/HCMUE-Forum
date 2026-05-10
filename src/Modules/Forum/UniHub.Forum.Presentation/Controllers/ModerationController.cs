@@ -65,15 +65,10 @@ public sealed class ModerationController : BaseApiController
         }
 
         var moderatorId = GetCurrentUserId();
-        IReadOnlyList<Guid>? scopedCategoryIds = null;
-        if (!User.IsInRole("Admin"))
-        {
-            var allCategories = await _categoryRepository.GetAllAsync(cancellationToken);
-            scopedCategoryIds = allCategories
-                .Where(c => c.ModeratorIds.Contains(moderatorId))
-                .Select(c => c.Id.Value)
-                .ToList();
-        }
+        var scopedCategoryIds = await ResolveScopedCategoryIdsAsync(
+            moderatorId,
+            isAdmin: User.IsInRole("Admin"),
+            cancellationToken);
 
         var result = await _sender.Send(new GetReportsQuery(pageNumber, pageSize, mapped, resolutionDecision, scopedCategoryIds), cancellationToken);
         if (result.IsFailure)
@@ -136,15 +131,7 @@ public sealed class ModerationController : BaseApiController
         var reviewerId = GetCurrentUserId();
         var isAdmin = User.IsInRole("Admin");
 
-        IReadOnlyList<Guid>? scopedCategoryIds = null;
-        if (!isAdmin)
-        {
-            var allCategories = await _categoryRepository.GetAllAsync(cancellationToken);
-            scopedCategoryIds = allCategories
-                .Where(c => c.ModeratorIds.Contains(reviewerId))
-                .Select(c => c.Id.Value)
-                .ToList();
-        }
+        var scopedCategoryIds = await ResolveScopedCategoryIdsAsync(reviewerId, isAdmin, cancellationToken);
 
         var result = await _sender.Send(
             new ResolveModerationReportCommand(
@@ -177,21 +164,17 @@ public sealed class ModerationController : BaseApiController
         CancellationToken cancellationToken = default)
     {
         var moderatorId = GetCurrentUserId();
-        IReadOnlyList<Guid>? scopedCategoryIds = null;
-        if (!User.IsInRole("Admin"))
-        {
-            var allCategories = await _categoryRepository.GetAllAsync(cancellationToken);
-            scopedCategoryIds = allCategories
-                .Where(c => c.ModeratorIds.Contains(moderatorId))
-                .Select(c => c.Id.Value)
-                .ToList();
-        }
+        var scopedCategoryIds = await ResolveScopedCategoryIdsAsync(
+            moderatorId,
+            isAdmin: User.IsInRole("Admin"),
+            cancellationToken);
 
         var result = await _sender.Send(
             new GetPostsQuery(
                 PageNumber: pageNumber,
                 PageSize: pageSize,
                 CategoryId: null,
+                ThreadChannelId: null,
                 Type: null,
                 Status: (int)PostStatus.Draft,
                 SortBy: 0,
@@ -215,6 +198,9 @@ public sealed class ModerationController : BaseApiController
                 Status = p.Status,
                 AuthorId = p.AuthorId,
                 CategoryId = p.CategoryId,
+                ThreadChannelId = p.ThreadChannelId,
+                ThreadChannelCode = p.ThreadChannelCode,
+                ThreadChannelName = p.ThreadChannelName,
                 CategoryName = p.CategoryName,
                 AuthorName = p.AuthorName,
                 Tags = p.Tags,
@@ -270,5 +256,27 @@ public sealed class ModerationController : BaseApiController
 
         var text = value.Trim();
         return text.Length <= maxLen ? text : text[..maxLen];
+    }
+
+    private async Task<IReadOnlyList<Guid>?> ResolveScopedCategoryIdsAsync(
+        Guid moderatorId,
+        bool isAdmin,
+        CancellationToken cancellationToken)
+    {
+        if (isAdmin)
+        {
+            return null;
+        }
+
+        var allCategories = await _categoryRepository.GetAllAsync(cancellationToken);
+        var assignedCategoryIds = allCategories
+            .Where(c => c.ModeratorIds.Contains(moderatorId))
+            .Select(c => c.Id.Value)
+            .ToList();
+
+        // Hotfix: if moderator has no explicit category assignment yet,
+        // do not hard-filter to empty set, otherwise moderation inbox appears blank.
+        // TODO: tighten this once category-moderator assignment flow is finalized.
+        return assignedCategoryIds.Count == 0 ? null : assignedCategoryIds;
     }
 }

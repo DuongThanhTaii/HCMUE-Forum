@@ -13,6 +13,9 @@ public sealed record PostDetailResult
     public int Status { get; init; }
     public Guid AuthorId { get; init; }
     public Guid? CategoryId { get; init; }
+    public Guid? ThreadChannelId { get; init; }
+    public string? ThreadChannelCode { get; init; }
+    public string? ThreadChannelName { get; init; }
     public string? CategoryName { get; init; }
     public string? AuthorName { get; init; }
     public IReadOnlyList<string> Tags { get; init; } = Array.Empty<string>();

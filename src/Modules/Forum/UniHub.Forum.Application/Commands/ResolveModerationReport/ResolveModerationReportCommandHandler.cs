@@ -12,17 +12,20 @@ public sealed class ResolveModerationReportCommandHandler : ICommandHandler<Reso
     private readonly IReportRepository _reportRepository;
     private readonly IPostRepository _postRepository;
     private readonly ICommentRepository _commentRepository;
+    private readonly IThreadChannelRepository _threadChannelRepository;
     private readonly IModerationScopeService _scopeService;
 
     public ResolveModerationReportCommandHandler(
         IReportRepository reportRepository,
         IPostRepository postRepository,
         ICommentRepository commentRepository,
+        IThreadChannelRepository threadChannelRepository,
         IModerationScopeService scopeService)
     {
         _reportRepository = reportRepository;
         _postRepository = postRepository;
         _commentRepository = commentRepository;
+        _threadChannelRepository = threadChannelRepository;
         _scopeService = scopeService;
     }
 
@@ -55,6 +58,14 @@ public sealed class ResolveModerationReportCommandHandler : ICommandHandler<Reso
             if (scope is null || !scope.Contains(effectiveCategoryId.Value))
             {
                 return Result.Failure(ReportErrors.Forbidden);
+            }
+
+            var hasModeratorActionPolicy = await IsModeratorActionAllowedAsync(report, cancellationToken);
+            if (!hasModeratorActionPolicy)
+            {
+                return Result.Failure(new Error(
+                    "ThreadChannel.ModeratorActionDisabled",
+                    "Moderator action is disabled by this thread channel policy."));
             }
         }
         // ------------------------------------
@@ -120,5 +131,34 @@ public sealed class ResolveModerationReportCommandHandler : ICommandHandler<Reso
 
         await _commentRepository.UpdateAsync(comment, cancellationToken);
         return Result.Success();
+    }
+
+    private async Task<bool> IsModeratorActionAllowedAsync(Report report, CancellationToken cancellationToken)
+    {
+        Guid? threadChannelId = null;
+        if (report.ReportedItemType == ReportedItemType.Post)
+        {
+            var post = await _postRepository.GetByIdAsync(new PostId(report.ReportedItemId), cancellationToken);
+            threadChannelId = post?.ThreadChannelId;
+        }
+        else
+        {
+            var comment = await _commentRepository.GetByIdAsync(new CommentId(report.ReportedItemId), cancellationToken);
+            if (comment is null)
+            {
+                return false;
+            }
+
+            var post = await _postRepository.GetByIdAsync(comment.PostId, cancellationToken);
+            threadChannelId = post?.ThreadChannelId;
+        }
+
+        if (!threadChannelId.HasValue)
+        {
+            return true;
+        }
+
+        var threadChannel = await _threadChannelRepository.GetByIdAsync(threadChannelId.Value, cancellationToken);
+        return threadChannel is null || threadChannel.AllowModeratorActions;
     }
 }

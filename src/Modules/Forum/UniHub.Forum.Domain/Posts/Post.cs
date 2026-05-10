@@ -18,6 +18,7 @@ public sealed class Post : AggregateRoot<PostId>
     public PostStatus Status { get; private set; }
     public Guid AuthorId { get; private set; }
     public Guid? CategoryId { get; private set; }
+    public Guid? ThreadChannelId { get; private set; }
     public int ViewCount { get; private set; }
     public int VoteScore { get; private set; }
     public int CommentCount { get; private set; }
@@ -45,6 +46,7 @@ public sealed class Post : AggregateRoot<PostId>
         PostType type,
         Guid authorId,
         Guid? categoryId,
+        Guid? threadChannelId,
         IEnumerable<string> tags)
     {
         Id = id;
@@ -55,6 +57,7 @@ public sealed class Post : AggregateRoot<PostId>
         Status = PostStatus.Draft;
         AuthorId = authorId;
         CategoryId = categoryId;
+        ThreadChannelId = threadChannelId;
         ViewCount = 0;
         VoteScore = 0;
         CommentCount = 0;
@@ -70,7 +73,8 @@ public sealed class Post : AggregateRoot<PostId>
         PostType type,
         Guid authorId,
         Guid? categoryId = null,
-        IEnumerable<string>? tags = null)
+        IEnumerable<string>? tags = null,
+        Guid? threadChannelId = null)
     {
         var slugResult = Slug.CreateFromTitle(title);
         if (slugResult.IsFailure)
@@ -86,13 +90,14 @@ public sealed class Post : AggregateRoot<PostId>
             type,
             authorId,
             categoryId,
+            threadChannelId,
             tags ?? Enumerable.Empty<string>());
 
         post.AddDomainEvent(new PostCreatedEvent(post.Id, post.AuthorId, post.Type));
         return Result.Success(post);
     }
 
-    public Result Update(PostTitle title, PostContent content, Guid? categoryId, IEnumerable<string>? tags)
+    public Result Update(PostTitle title, PostContent content, Guid? categoryId, Guid? threadChannelId, IEnumerable<string>? tags)
     {
         if (Status == PostStatus.Deleted)
         {
@@ -109,6 +114,7 @@ public sealed class Post : AggregateRoot<PostId>
         Content = content;
         Slug = slugResult.Value;
         CategoryId = categoryId;
+        ThreadChannelId = threadChannelId;
         UpdatedAt = DateTime.UtcNow;
 
         if (tags is not null)

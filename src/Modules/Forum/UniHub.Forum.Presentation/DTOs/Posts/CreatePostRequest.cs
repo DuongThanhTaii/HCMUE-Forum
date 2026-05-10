@@ -29,4 +29,9 @@ public sealed record CreatePostRequest
     /// Optional tags
     /// </summary>
     public IEnumerable<string>? Tags { get; init; }
+
+    /// <summary>
+    /// Optional thread channel ID for VOZ-style thread routing.
+    /// </summary>
+    public Guid? ThreadChannelId { get; init; }
 }

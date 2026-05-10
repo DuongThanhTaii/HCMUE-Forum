@@ -67,6 +67,9 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
         builder.Property(p => p.CategoryId)
             .HasColumnName("category_id");
 
+        builder.Property(p => p.ThreadChannelId)
+            .HasColumnName("thread_channel_id");
+
         builder.Property(p => p.ViewCount)
             .HasColumnName("view_count")
             .HasDefaultValue(0);
@@ -96,6 +99,11 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
 
         builder.Property(p => p.PublishedAt)
             .HasColumnName("published_at");
+
+        builder.HasOne<UniHub.Forum.Domain.ThreadChannels.ThreadChannel>()
+            .WithMany()
+            .HasForeignKey(p => p.ThreadChannelId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         // Primitive collection: Tags (List<string>) - stored as JSON
         builder.Property("_tags")
@@ -131,6 +139,7 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
         // Indexes
         builder.HasIndex(p => p.AuthorId);
         builder.HasIndex(p => p.CategoryId);
+        builder.HasIndex(p => p.ThreadChannelId);
         builder.HasIndex(p => p.Status);
         builder.HasIndex(p => p.CreatedAt);
 

@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<ITagRepository, TagRepository>();
         services.AddScoped<IBookmarkRepository, BookmarkRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
+        services.AddScoped<IThreadChannelRepository, ThreadChannelRepository>();
         services.AddScoped<IModerationScopeService, ModerationScopeService>();
 
         return services;

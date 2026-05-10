@@ -14,13 +14,16 @@ public sealed class AcceptAnswerCommandHandler : ICommandHandler<AcceptAnswerCom
 {
     private readonly ICommentRepository _commentRepository;
     private readonly IPostRepository _postRepository;
+    private readonly IThreadChannelRepository _threadChannelRepository;
 
     public AcceptAnswerCommandHandler(
         ICommentRepository commentRepository,
-        IPostRepository postRepository)
+        IPostRepository postRepository,
+        IThreadChannelRepository threadChannelRepository)
     {
         _commentRepository = commentRepository;
         _postRepository = postRepository;
+        _threadChannelRepository = threadChannelRepository;
     }
 
     public async Task<Result> Handle(AcceptAnswerCommand request, CancellationToken cancellationToken)
@@ -37,6 +40,17 @@ public sealed class AcceptAnswerCommandHandler : ICommandHandler<AcceptAnswerCom
         if (post.AuthorId != request.RequestingUserId)
         {
             return Result.Failure(CommentErrors.UnauthorizedAccess);
+        }
+
+        if (post.ThreadChannelId.HasValue)
+        {
+            var threadChannel = await _threadChannelRepository.GetByIdAsync(post.ThreadChannelId.Value, cancellationToken);
+            if (threadChannel is not null && !threadChannel.AllowAcceptedAnswers)
+            {
+                return Result.Failure(new Error(
+                    "ThreadChannel.AcceptedAnswerDisabled",
+                    "Accepted answer is disabled by this thread channel policy."));
+            }
         }
 
         // Get comment

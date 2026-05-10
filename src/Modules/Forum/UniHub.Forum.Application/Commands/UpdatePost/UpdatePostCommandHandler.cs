@@ -15,13 +15,16 @@ public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand
 {
     private readonly IPostRepository _postRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IThreadChannelRepository _threadChannelRepository;
 
     public UpdatePostCommandHandler(
         IPostRepository postRepository,
-        ICategoryRepository categoryRepository)
+        ICategoryRepository categoryRepository,
+        IThreadChannelRepository threadChannelRepository)
     {
         _postRepository = postRepository;
         _categoryRepository = categoryRepository;
+        _threadChannelRepository = threadChannelRepository;
     }
 
     public async Task<Result> Handle(UpdatePostCommand request, CancellationToken cancellationToken)
@@ -51,6 +54,15 @@ public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand
             }
         }
 
+        if (request.ThreadChannelId.HasValue)
+        {
+            var threadChannel = await _threadChannelRepository.GetByIdAsync(request.ThreadChannelId.Value, cancellationToken);
+            if (threadChannel is null || !threadChannel.IsActive)
+            {
+                return Result.Failure(PostErrors.ThreadChannelNotFound);
+            }
+        }
+
         // Create title value object
         var titleResult = PostTitle.Create(request.Title);
         if (titleResult.IsFailure)
@@ -70,6 +82,7 @@ public sealed class UpdatePostCommandHandler : ICommandHandler<UpdatePostCommand
             titleResult.Value,
             contentResult.Value,
             request.CategoryId,
+            request.ThreadChannelId,
             request.Tags);
 
         if (updateResult.IsFailure)

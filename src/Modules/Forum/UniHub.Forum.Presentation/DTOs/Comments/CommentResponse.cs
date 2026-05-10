@@ -14,6 +14,7 @@ public sealed record CommentResponse
     public int VoteScore { get; init; }
     public int? CurrentUserVote { get; init; }
     public bool IsAcceptedAnswer { get; init; }
+    public bool IsPinned { get; init; }
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
 }

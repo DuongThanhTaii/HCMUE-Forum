@@ -14,13 +14,16 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
 {
     private readonly IPostRepository _postRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IThreadChannelRepository _threadChannelRepository;
 
     public CreatePostCommandHandler(
         IPostRepository postRepository,
-        ICategoryRepository categoryRepository)
+        ICategoryRepository categoryRepository,
+        IThreadChannelRepository threadChannelRepository)
     {
         _postRepository = postRepository;
         _categoryRepository = categoryRepository;
+        _threadChannelRepository = threadChannelRepository;
     }
 
     public async Task<Result<Guid>> Handle(CreatePostCommand request, CancellationToken cancellationToken)
@@ -33,6 +36,15 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
             if (!categoryExists)
             {
                 return Result.Failure<Guid>(PostErrors.CategoryNotFound);
+            }
+        }
+
+        if (request.ThreadChannelId.HasValue)
+        {
+            var threadChannel = await _threadChannelRepository.GetByIdAsync(request.ThreadChannelId.Value, cancellationToken);
+            if (threadChannel is null || !threadChannel.IsActive)
+            {
+                return Result.Failure<Guid>(PostErrors.ThreadChannelNotFound);
             }
         }
 
@@ -62,7 +74,8 @@ public sealed class CreatePostCommandHandler : ICommandHandler<CreatePostCommand
             postType,
             request.AuthorId,
             request.CategoryId,
-            request.Tags);
+            request.Tags,
+            request.ThreadChannelId);
 
         if (postResult.IsFailure)
         {

@@ -14,11 +14,16 @@ public sealed class PublishPostCommandHandler : ICommandHandler<PublishPostComma
 {
     private readonly IPostRepository _postRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IThreadChannelRepository _threadChannelRepository;
 
-    public PublishPostCommandHandler(IPostRepository postRepository, ICategoryRepository categoryRepository)
+    public PublishPostCommandHandler(
+        IPostRepository postRepository,
+        ICategoryRepository categoryRepository,
+        IThreadChannelRepository threadChannelRepository)
     {
         _postRepository = postRepository;
         _categoryRepository = categoryRepository;
+        _threadChannelRepository = threadChannelRepository;
     }
 
     public async Task<Result> Handle(PublishPostCommand request, CancellationToken cancellationToken)
@@ -61,9 +66,27 @@ public sealed class PublishPostCommandHandler : ICommandHandler<PublishPostComma
             case PostPublishActor.Admin:
                 return true;
             case PostPublishActor.Moderator:
+                if (post.ThreadChannelId.HasValue)
+                {
+                    var threadChannel = await _threadChannelRepository.GetByIdAsync(post.ThreadChannelId.Value, cancellationToken);
+                    if (threadChannel is not null && !threadChannel.AllowModeratorActions)
+                    {
+                        return false;
+                    }
+                }
+
                 if (post.CategoryId is null)
                 {
                     return false;
+                }
+
+                // Keep behavior consistent with moderation inbox fallback:
+                // if moderator has no explicit category assignment yet, allow global moderation.
+                var allCategories = await _categoryRepository.GetAllAsync(cancellationToken);
+                var hasAnyAssignedScope = allCategories.Any(c => c.ModeratorIds.Contains(request.RequestingUserId));
+                if (!hasAnyAssignedScope)
+                {
+                    return true;
                 }
 
                 var category = await _categoryRepository.GetByIdAsync(
