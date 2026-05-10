@@ -13,6 +13,12 @@ export type NotificationDto = {
   isRead: boolean
 }
 
+export type BroadcastHomeAnnouncementRequest = {
+  title: string
+  message: string
+  sendEmail: boolean
+}
+
 type GetNotificationsResponse = {
   notifications: NotificationDto[]
   totalCount: number
@@ -25,21 +31,33 @@ export const notificationsApi = baseApi.injectEndpoints({
   endpoints: (b) => ({
     getNotifications: b.query<GetNotificationsResponse, { pageNumber?: number; pageSize?: number }>({
       query: ({ pageNumber = 1, pageSize = 20 } = {}) =>
-        `/notifications?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+        `/api/v1/notifications?pageNumber=${pageNumber}&pageSize=${pageSize}`,
       transformResponse: (r: { data: GetNotificationsResponse }) => r.data,
       providesTags: [{ type: 'Notification', id: 'LIST' }],
     }),
     getUnreadCount: b.query<number, void>({
-      query: () => '/notifications/unread-count',
+      query: () => '/api/v1/notifications/unread-count',
       transformResponse: (r: { data: { count: number } }) => r.data.count,
       providesTags: [{ type: 'Notification', id: 'UNREAD_COUNT' }],
     }),
     markAsRead: b.mutation<void, string>({
-      query: (id) => ({ url: `/notifications/${id}/read`, method: 'PATCH' }),
+      query: (id) => ({ url: `/api/v1/notifications/${id}/read`, method: 'PATCH' }),
       invalidatesTags: [{ type: 'Notification', id: 'LIST' }, { type: 'Notification', id: 'UNREAD_COUNT' }],
     }),
     markAllAsRead: b.mutation<void, void>({
-      query: () => ({ url: '/notifications/read-all', method: 'POST' }),
+      query: () => ({ url: '/api/v1/notifications/read-all', method: 'POST' }),
+      invalidatesTags: [{ type: 'Notification', id: 'LIST' }, { type: 'Notification', id: 'UNREAD_COUNT' }],
+    }),
+    broadcastHomeAnnouncement: b.mutation<
+      { sentInApp: number; sentEmail: number },
+      BroadcastHomeAnnouncementRequest
+    >({
+      query: (body) => ({
+        url: '/api/v1/notifications/broadcast/home',
+        method: 'POST',
+        body,
+      }),
+      transformResponse: (r: { data: { sentInApp: number; sentEmail: number } }) => r.data,
       invalidatesTags: [{ type: 'Notification', id: 'LIST' }, { type: 'Notification', id: 'UNREAD_COUNT' }],
     }),
   }),
@@ -50,4 +68,5 @@ export const {
   useGetUnreadCountQuery,
   useMarkAsReadMutation,
   useMarkAllAsReadMutation,
+  useBroadcastHomeAnnouncementMutation,
 } = notificationsApi

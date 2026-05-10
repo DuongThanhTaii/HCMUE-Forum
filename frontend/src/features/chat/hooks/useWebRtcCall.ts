@@ -342,6 +342,11 @@ export function useWebRtcCall(options: {
         const pc = pcRef.current
         try {
           const d = parseSessionDescription(sig.payload)
+          // Remote may add a video track later (e.g. start screen share from voice call).
+          // Switch UI from voice-only to video mode when renegotiation offer contains video.
+          if (sdpHasVideo(d.sdp ?? '') && callMode === 'voice') {
+            setCallMode('video')
+          }
           await pc.setRemoteDescription(d)
           remoteSetRef.current = true
           await flushIce(pc)
@@ -376,7 +381,7 @@ export function useWebRtcCall(options: {
         setError(extractRelayError(e, t))
       }
     }
-  }, [attachRenegotiation, canCall, conversationId, flushIce, relay, resetCallState, selfId, syncPhase, t])
+  }, [attachRenegotiation, callMode, canCall, conversationId, flushIce, relay, resetCallState, selfId, syncPhase, t])
 
   // ── effects ──────────────────────────────────────────────────────────────────
 

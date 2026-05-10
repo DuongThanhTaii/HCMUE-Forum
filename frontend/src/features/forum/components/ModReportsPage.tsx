@@ -7,9 +7,9 @@ function formatTime(value: string) {
 }
 
 const FEEDBACK_STYLES = {
-  success: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-  error: 'border-rose-200 bg-rose-50 text-rose-700',
-  forbidden: 'border-amber-200 bg-amber-50 text-amber-800',
+  success: 'border-slate-200 bg-slate-50 text-slate-800',
+  error: 'border-rose-200 bg-rose-50 text-rose-800',
+  forbidden: 'border-slate-200 bg-slate-50 text-slate-800',
 }
 
 export function ModReportsPage() {
@@ -66,8 +66,8 @@ export function ModReportsPage() {
             onClick={() => setStatus(tab.id)}
             className={`rounded-md border px-3 py-1.5 text-xs font-medium ${
               status === tab.id
-                ? 'border-primary bg-primary text-white'
-                : 'border-slate-200 bg-white text-slate-700 hover:border-primary hover:text-primary'
+                ? 'border-slate-800 bg-slate-900 text-white'
+                : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
             }`}
           >
             {tab.label}
@@ -104,9 +104,7 @@ export function ModReportsPage() {
                   <td className="px-3 py-2">
                     <span
                       className={`rounded px-1.5 py-0.5 text-xs font-medium ${
-                        isPost
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'bg-violet-50 text-violet-700'
+                        isPost ? 'bg-slate-100 text-slate-800' : 'bg-slate-100 text-slate-700'
                       }`}
                     >
                       {isPost ? t('forum.mod.itemType.post') : t('forum.mod.itemType.comment')}
@@ -144,7 +142,7 @@ export function ModReportsPage() {
                             type="button"
                             disabled={isResolving}
                             onClick={() => void onResolve(report.id, 'keep')}
-                            className="rounded border border-slate-200 px-2 py-1 text-xs font-medium text-slate-700 hover:border-primary hover:text-primary disabled:opacity-60"
+                            className="rounded border border-slate-200 px-2 py-1 text-xs font-medium text-slate-700 hover:border-slate-400 hover:bg-slate-50 disabled:opacity-60"
                           >
                             {t('forum.mod.actions.keep')}
                           </button>
@@ -193,7 +191,7 @@ export function ModReportsPage() {
               type="button"
               disabled={!hasPreviousPage}
               onClick={() => onPageChange(page - 1)}
-              className="rounded border border-slate-200 px-3 py-1 text-xs font-medium text-slate-700 hover:border-primary hover:text-primary disabled:opacity-40"
+              className="rounded border border-slate-200 px-3 py-1 text-xs font-medium text-slate-700 hover:border-slate-400 hover:bg-slate-50 disabled:opacity-40"
             >
               {t('forum.mod.pagination.prev')}
             </button>
@@ -201,7 +199,7 @@ export function ModReportsPage() {
               type="button"
               disabled={!hasNextPage}
               onClick={() => onPageChange(page + 1)}
-              className="rounded border border-slate-200 px-3 py-1 text-xs font-medium text-slate-700 hover:border-primary hover:text-primary disabled:opacity-40"
+              className="rounded border border-slate-200 px-3 py-1 text-xs font-medium text-slate-700 hover:border-slate-400 hover:bg-slate-50 disabled:opacity-40"
             >
               {t('forum.mod.pagination.next')}
             </button>

@@ -1,8 +1,13 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useCareerJobsPage } from '../hooks/useCareerJobsPage'
+import { useAppSelector } from '@shared/hooks/useAppSelector'
+import { selectUserRole } from '@features/auth/model/auth.slice'
 
 export function CareerJobsPage() {
   const { t, jobs, isLoading, isError, isEmpty } = useCareerJobsPage()
+  const roles = useAppSelector(selectUserRole)
+  const isRecruiter = roles.some((role) => role.trim().toLowerCase() === 'recruiter')
   const [brokenLogoIds, setBrokenLogoIds] = useState<Record<string, boolean>>({})
 
   const markLogoBroken = (jobId: string) => {
@@ -31,6 +36,14 @@ export function CareerJobsPage() {
 
   return (
     <div className="space-y-3">
+      {isRecruiter ? (
+        <div className="rounded-xl border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">
+          <p className="font-medium">Bạn đang dùng tài khoản doanh nghiệp.</p>
+          <Link to="/career/company-dashboard" className="mt-1 inline-block font-medium underline">
+            Đi tới trang đăng/quản lý job →
+          </Link>
+        </div>
+      ) : null}
       {jobs.map((job) => (
         <article key={job.id} className="rounded-xl border border-slate-200 bg-white p-4">
           <div className="flex items-start gap-3">
@@ -59,6 +72,13 @@ export function CareerJobsPage() {
           <p className="mt-2 text-xs text-slate-500">
             {t('career.common.postedAt')}: {job.displayPostedAt}
           </p>
+          <Link
+            to={`/career/jobs/${job.id}`}
+            state={{ companyName: job.displayCompany }}
+            className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
+          >
+            Xem chi tiết JD →
+          </Link>
         </article>
       ))}
     </div>

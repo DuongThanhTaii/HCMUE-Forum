@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Mic, MicOff, MonitorUp, MonitorX, PhoneOff, Video, VideoOff } from 'lucide-react'
+import { Maximize2, Mic, MicOff, Minimize2, MonitorUp, MonitorX, PhoneOff, Video, VideoOff } from 'lucide-react'
 import type { CallPhase, CallUiMode } from '../hooks/useWebRtcCall'
 
 type Props = {
@@ -39,8 +39,10 @@ export function ChatCallOverlay({
   incomingFromName,
 }: Props) {
   const { t } = useTranslation()
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const mainStageRef = useRef<HTMLVideoElement>(null)
   const localPipRef = useRef<HTMLVideoElement>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   /**
    * Main stage shows LOCAL stream when:
@@ -73,6 +75,12 @@ export function ChatCallOverlay({
     void el.play().catch(() => undefined)
   }, [pipStream])
 
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(Boolean(document.fullscreenElement))
+    document.addEventListener('fullscreenchange', onFsChange)
+    return () => document.removeEventListener('fullscreenchange', onFsChange)
+  }, [])
+
   if (phase === 'idle' && !error) return null
 
   const showIncoming = phase === 'incoming'
@@ -89,6 +97,20 @@ export function ChatCallOverlay({
           : t('chat.calls.statusLive')
         : ''
 
+  const remoteDisplayName = remoteLabel === 'Unknown User' ? t('chat.title') : remoteLabel
+
+  const toggleFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen()
+        return
+      }
+      await dialogRef.current?.requestFullscreen()
+    } catch {
+      /* ignore */
+    }
+  }
+
   return (
     <div
       className="pointer-events-auto fixed inset-0 z-[100] flex flex-col justify-end sm:justify-center sm:p-4"
@@ -98,7 +120,7 @@ export function ChatCallOverlay({
     >
       <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" aria-hidden />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-gradient-to-b from-slate-900 to-slate-950 shadow-2xl sm:rounded-3xl">
+      <div ref={dialogRef} className="relative z-10 mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-gradient-to-b from-slate-900 to-slate-950 shadow-2xl sm:rounded-3xl">
         {error && (
           <div className="flex items-start gap-2 border-b border-white/10 bg-red-950/90 px-4 py-2.5">
             <p className="min-w-0 flex-1 text-center text-xs text-red-50">{error}</p>
@@ -115,7 +137,7 @@ export function ChatCallOverlay({
 
         <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
           <div className="min-w-0">
-            <p className="truncate text-base font-semibold text-white">{remoteLabel}</p>
+            <p className="truncate text-base font-semibold text-white">{remoteDisplayName}</p>
             {(showActive || showIncoming) && (
               <p className="truncate text-xs text-slate-400">
                 {showIncoming
@@ -131,12 +153,23 @@ export function ChatCallOverlay({
               {t('chat.calls.badgeLive')}
             </span>
           )}
+          {showActive && showVideoTiles && (
+            <button
+              type="button"
+              onClick={() => void toggleFullscreen()}
+              className="shrink-0 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+              title={isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
+              aria-label={isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
+            >
+              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </button>
+          )}
         </div>
 
         {showIncoming && (
           <div className="border-b border-white/10 px-4 py-4">
             <p className="mb-3 text-center text-sm text-slate-200">
-              {t('chat.calls.incomingTitle', { name: incomingFromName ?? remoteLabel })}
+              {t('chat.calls.incomingTitle', { name: incomingFromName ?? remoteDisplayName })}
             </p>
             <div className="flex gap-3">
               <button
@@ -177,7 +210,7 @@ export function ChatCallOverlay({
                 {!mainStream && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-slate-950/90 text-center">
                     <span className="text-sm text-slate-300">
-                      {phase === 'outgoing' ? t('chat.calls.connecting') : remoteLabel}
+                      {phase === 'outgoing' ? t('chat.calls.connecting') : remoteDisplayName}
                     </span>
                   </div>
                 )}
@@ -203,9 +236,9 @@ export function ChatCallOverlay({
             ) : (
               <div className="flex flex-col items-center justify-center gap-2 border-b border-white/10 bg-slate-900/50 px-6 py-10">
                 <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-2xl font-bold text-white shadow-lg">
-                  {remoteLabel.slice(0, 1).toUpperCase()}
+                  {remoteDisplayName.slice(0, 1).toUpperCase()}
                 </div>
-                <p className="text-center text-sm text-slate-200">{remoteLabel}</p>
+                <p className="text-center text-sm text-slate-200">{remoteDisplayName}</p>
                 <p className="text-center text-xs text-slate-500">
                   {phase === 'outgoing' ? t('chat.calls.connecting') : t('chat.calls.voiceInProgress')}
                 </p>

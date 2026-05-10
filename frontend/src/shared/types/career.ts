@@ -2,6 +2,7 @@ export type CareerJob = {
   id: string
   title: string
   description?: string | null
+  status?: string | null
   companyName?: string | null
   companyLogoUrl?: string | null
   city?: string | null
@@ -17,5 +18,6 @@ export type CareerSearchParams = {
   pageSize?: number
   searchTerm?: string
   city?: string
+  companyId?: string
 }
 

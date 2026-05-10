@@ -10,8 +10,11 @@ import { NotificationBell } from '@features/notifications/components/Notificatio
 const MAIN_NAV = [
   { to: '/home', prefix: '/home' },
   { to: '/forum', prefix: '/forum' },
+  { to: '/forum/threads', prefix: '/forum/threads' },
+  { to: '/forum/saved', prefix: '/forum/saved' },
   { to: '/learning/documents', prefix: '/learning' },
   { to: '/career/jobs', prefix: '/career' },
+  { to: '/assistant', prefix: '/assistant' },
   { to: '/chat', prefix: '/chat' },
 ] as const;
 
@@ -77,11 +80,17 @@ export function ForumTopbar() {
                   ? 'nav.home'
                   : prefix === '/forum'
                     ? 'nav.forum'
+                    : prefix === '/forum/threads'
+                      ? 'forum.topbar.threads'
+                    : prefix === '/forum/saved'
+                      ? 'forum.topbar.saved'
                     : prefix === '/learning'
                       ? 'nav.learning'
                       : prefix === '/career'
                         ? 'nav.career'
-                        : 'nav.chat';
+                        : prefix === '/assistant'
+                          ? 'forum.topbar.assistant'
+                          : 'nav.chat';
               return (
                 <Link
                   key={to}

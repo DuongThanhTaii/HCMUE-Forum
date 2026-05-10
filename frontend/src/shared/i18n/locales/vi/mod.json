@@ -1,11 +1,60 @@
 {
   "layout": {
-    "title": "Khu vực kiểm duyệt",
+    "title": "Kiểm duyệt",
     "home": "Trang chủ",
     "forum": "Diễn đàn",
     "reports": "Báo cáo",
+    "dashboard": "Tổng quan",
     "pendingPosts": "Bài chờ duyệt",
+    "threadChannels": "Kênh chủ đề",
     "learningApproval": "Duyệt tài liệu"
+  },
+  "dashboard": {
+    "title": "Tổng quan kiểm duyệt",
+    "subtitle": "Độ sâu hàng đợi và tóm tắt xử lý.",
+    "metrics": {
+      "pendingReports": "Báo cáo chờ xử lý",
+      "pendingPosts": "Bài chờ duyệt",
+      "pendingDocuments": "Tài liệu chờ duyệt",
+      "resolved": "Báo cáo đã xử lý"
+    },
+    "charts": {
+      "backlogTitle": "Tỷ lệ tồn đọng báo cáo",
+      "backlogHint": "{{pct}}% tổng số báo cáo vẫn đang chờ xử lý",
+      "removeRateTitle": "Tỷ lệ gỡ bỏ (đã xử lý)",
+      "removeRateHint": "{{pct}}% báo cáo đã xử lý kết thúc bằng gỡ bỏ"
+    }
+  },
+  "learning": {
+    "title": "Kiểm duyệt tài liệu học tập",
+    "totalPending": "Tài liệu chờ duyệt: {{count}}",
+    "columns": {
+      "title": "Tiêu đề",
+      "uploader": "Người tải lên",
+      "created": "Ngày tạo",
+      "status": "Trạng thái",
+      "actions": "Thao tác"
+    },
+    "view": "Xem",
+    "approve": "Phê duyệt",
+    "reject": "Từ chối",
+    "requestRevision": "Yêu cầu sửa",
+    "noPending": "Không có tài liệu chờ duyệt.",
+    "loadError": "Không thể tải danh sách tài liệu chờ duyệt.",
+    "descriptionLabel": "Mô tả",
+    "fileNameLabel": "Tên file",
+    "detailTitle": "Chi tiết tài liệu",
+    "close": "Đóng",
+    "loading": "Đang tải…",
+    "detailLoadError": "Không tải được chi tiết tài liệu.",
+    "reasonReject": "Nhập lý do từ chối",
+    "reasonRevision": "Nhập yêu cầu chỉnh sửa",
+    "reasonPlaceholderReject": "Ví dụ: Nội dung chưa đúng định dạng, thiếu nguồn tham khảo…",
+    "reasonPlaceholderRevision": "Ví dụ: Cần bổ sung mô tả chi tiết và cập nhật file phiên bản mới…",
+    "reasonMinLength": "Lý do phải có ít nhất 10 ký tự.",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "processing": "Đang xử lý…"
   },
   "reportsTitle": "Hàng đợi báo cáo",
   "totalReports": "Tổng báo cáo",

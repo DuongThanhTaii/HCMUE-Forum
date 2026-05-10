@@ -23,6 +23,9 @@ export const baseApi = createApi({
     'ChatConversation',
     'ChatMessage',
     'ChatChannel',
+    'AdminToggle',
+    'MaintenanceMode',
+    'AdminThreadChannel',
   ],
   endpoints: () => ({}),
 })

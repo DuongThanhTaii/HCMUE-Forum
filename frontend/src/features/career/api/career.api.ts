@@ -31,12 +31,47 @@ type UploadCompanyLogoResponse = {
   url: string
 }
 
+export type CareerJobDetail = {
+  id: string
+  title: string
+  description: string
+  companyId: string
+  status: string
+  jobType: string
+  experienceLevel: string
+  city: string
+  district?: string | null
+  address?: string | null
+  isRemote: boolean
+  createdAt?: string
+}
+
+type CompanyMineDto = {
+  id: string
+  name: string
+  status: string
+  logoUrl?: string | null
+}
+
+type RecentApplicationsResponse = {
+  applications?: Array<{
+    applicationId: string
+    jobPostingId: string
+    applicantId: string
+    applicantName?: string
+    jobTitle: string
+    status: string
+    appliedAt: string
+  }>
+}
+
 function mapJob(raw: Record<string, unknown>): CareerJob {
   const salary = (raw.Salary ?? raw.salary ?? {}) as Record<string, unknown>
   return {
     id: String(raw.id ?? raw.jobPostingId ?? raw.JobPostingId ?? ''),
     title: String(raw.title ?? raw.Title ?? ''),
     description: (raw.description ?? raw.Description ?? null) as string | null,
+    status: (raw.status ?? raw.Status ?? null) as string | null,
     companyName: (raw.companyName ?? raw.CompanyName ?? null) as string | null,
     companyLogoUrl: (raw.companyLogoUrl ?? raw.CompanyLogoUrl ?? null) as string | null,
     city: (raw.city ?? raw.City ?? null) as string | null,
@@ -58,6 +93,7 @@ export const careerApi = baseApi.injectEndpoints({
           pageSize: params.pageSize ?? 20,
           searchTerm: params.searchTerm,
           city: params.city,
+          companyId: params.companyId,
         },
       }),
       transformResponse: (response: ApiEnvelope<JobListPayload>) => {
@@ -98,8 +134,61 @@ export const careerApi = baseApi.injectEndpoints({
         return response.data ?? { url: '' }
       },
     }),
+    getMyCompanies: builder.query<CompanyMineDto[], void>({
+      query: () => '/api/v1/companies/mine',
+      transformResponse: (response: ApiEnvelope<CompanyMineDto[]>) => response.data ?? [],
+    }),
+    createJobPosting: builder.mutation<unknown, Record<string, unknown>>({
+      query: (body) => ({
+        url: '/api/v1/jobs',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: [{ type: 'Job', id: 'LIST' }],
+    }),
+    publishJobPosting: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/api/v1/jobs/${id}/publish`,
+        method: 'POST',
+      }),
+      invalidatesTags: [{ type: 'Job', id: 'LIST' }],
+    }),
+    getCompanyApplications: builder.query<RecentApplicationsResponse, string>({
+      query: (companyId) => `/api/v1/companies/${companyId}/applications?page=1&pageSize=20`,
+      transformResponse: (response: ApiEnvelope<RecentApplicationsResponse>) => response.data ?? {},
+    }),
+    getJobById: builder.query<CareerJobDetail, string>({
+      query: (id) => `/api/v1/jobs/${id}`,
+      transformResponse: (response: ApiEnvelope<Record<string, unknown>>) => {
+        const raw = (response.data ?? {}) as Record<string, unknown>
+        const location = (raw.location ?? raw.Location ?? {}) as Record<string, unknown>
+        return {
+          id: String(raw.jobPostingId ?? raw.JobPostingId ?? raw.id ?? ''),
+          title: String(raw.title ?? raw.Title ?? ''),
+          description: String(raw.description ?? raw.Description ?? ''),
+          companyId: String(raw.companyId ?? raw.CompanyId ?? ''),
+          status: String(raw.status ?? raw.Status ?? ''),
+          jobType: String(raw.jobType ?? raw.JobType ?? ''),
+          experienceLevel: String(raw.experienceLevel ?? raw.ExperienceLevel ?? ''),
+          city: String(location.city ?? location.City ?? ''),
+          district: (location.district ?? location.District ?? null) as string | null,
+          address: (location.address ?? location.Address ?? null) as string | null,
+          isRemote: Boolean(location.isRemote ?? location.IsRemote ?? false),
+          createdAt: String(raw.createdAt ?? raw.CreatedAt ?? ''),
+        }
+      },
+    }),
   }),
 })
 
-export const { useGetJobsQuery, useRegisterCompanyMutation, useUploadCompanyLogoMutation } = careerApi
+export const {
+  useGetJobsQuery,
+  useRegisterCompanyMutation,
+  useUploadCompanyLogoMutation,
+  useGetMyCompaniesQuery,
+  useCreateJobPostingMutation,
+  usePublishJobPostingMutation,
+  useGetCompanyApplicationsQuery,
+  useGetJobByIdQuery,
+} = careerApi
 

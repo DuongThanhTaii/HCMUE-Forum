@@ -5,6 +5,7 @@
   "roles": "Vai trò",
   "permissions": "Quyền",
   "toggles": "Bật/tắt tính năng",
+  "threadChannels": "Kênh chủ đề",
   "logs": {
     "actions": "Nhật ký hành động",
     "audit": "Nhật ký kiểm tra"
@@ -19,7 +20,60 @@
     "groups": {
       "access": "Kiểm soát truy cập",
       "overrides": "Ghi đè quyền",
+      "forum": "Diễn đàn",
       "observability": "Giám sát"
+    }
+  },
+  "threadChannelsPage": {
+    "title": "Kênh chủ đề",
+    "subtitle": "Kênh thảo luận chính thức và chính sách theo từng kênh (ghim, câu trả lời được chọn, thao tác mod).",
+    "badges": {
+      "active": "Đang bật",
+      "inactive": "Đang tắt"
+    },
+    "policy": {
+      "on": "Bật",
+      "off": "Tắt"
+    },
+    "policyLabels": {
+      "pin": "Ghim bình luận",
+      "accepted": "Câu trả lời được chọn",
+      "mod": "Thao tác kiểm duyệt"
+    },
+    "fields": {
+      "code": "Mã",
+      "name": "Tên",
+      "description": "Mô tả",
+      "displayOrder": "Thứ tự hiển thị",
+      "isActive": "Kích hoạt",
+      "allowPin": "Cho phép ghim bình luận",
+      "allowAccepted": "Cho phép đánh dấu câu trả lời hay nhất",
+      "allowMod": "Cho phép thao tác kiểm duyệt"
+    },
+    "actions": {
+      "reviewSave": "Xem lại & lưu"
+    },
+    "create": {
+      "title": "Tạo kênh",
+      "hint": "Kênh mới cần mã duy nhất và tên hiển thị. Xem bảng thay đổi trước khi áp dụng.",
+      "review": "Xem lại & tạo"
+    },
+    "confirm": {
+      "updateTitle": "Xác nhận thay đổi — {{name}}",
+      "createTitle": "Xác nhận kênh mới",
+      "subtitle": "Các giá trị dưới đây sẽ được gửi lên máy chủ.",
+      "field": "Trường",
+      "before": "Trước",
+      "after": "Sau",
+      "apply": "Áp dụng"
+    },
+    "messages": {
+      "loadError": "Không tải được danh sách kênh chủ đề.",
+      "noChanges": "Không có thay đổi để lưu.",
+      "codeNameRequired": "Bắt buộc nhập mã và tên.",
+      "saved": "Đã lưu “{{name}}”.",
+      "created": "Đã tạo kênh.",
+      "saveFailed": "Lưu thất bại. Kiểm tra quyền và thử lại."
     }
   },
   "rolesPage": {
@@ -138,11 +192,117 @@
   },
   "actionLogsPage": {
     "title": "Nhật ký hành động người dùng",
+    "viewType": {
+      "Developer": "Developer",
+      "DeveloperHint": "có tiêu đề + body",
+      "Administrator": "Quản trị",
+      "AdministratorHint": "chỉ siêu dữ liệu"
+    },
+    "hero": {
+      "kicker": "Giám sát",
+      "subtitle": "Truy vấn theo người dùng, correlation hoặc trace. Chế độ Developer có bản xem trước request/response (giới hạn kích thước, tiêu đề nhạy cảm được che).",
+      "autoRefresh": "Tự làm mới · 5s",
+      "export": "Xuất JSON"
+    },
+    "stats": {
+      "inPage": "Số dòng (trang này)",
+      "inPageHint": "Thống kê theo bộ kết quả hiện tại.",
+      "ok": "2xx / 3xx",
+      "errors": "4xx / 5xx",
+      "p95": "Độ trễ p95"
+    },
+    "banner": {
+      "correlationTitle": "Hành trình Correlation",
+      "correlationBody": "Sắp xếp theo thời điểm bắt đầu. Cùng Correlation ID có thể gồm nhiều user nếu header bị tái sử dụng — đối chiếu Actor từng bước.",
+      "traceTitle": "Tra cứu Trace",
+      "traceBody": "Hiển thị mọi request log khớp Trace ID (W3C / Activity)."
+    },
     "filters": {
       "actorUserId": "ID người thực hiện",
       "method": "Phương thức",
       "pathContains": "Đường dẫn chứa",
-      "pageSize": "Kích thước trang"
+      "pageSize": "Kích thước trang",
+      "user": "Người dùng",
+      "userPlaceholder": "Chọn hoặc nhập User ID…",
+      "feature": "Cụm tính năng / API",
+      "correlationId": "Correlation ID",
+      "correlationPlaceholder": "Dán X-Correlation-Id…",
+      "correlationHint": "Không bắt buộc user. Tải cả chuỗi (tăng kích thước trang nếu thiếu dòng).",
+      "traceId": "Trace ID",
+      "tracePlaceholder": "Trace / Activity id…",
+      "outcome": "Kết quả HTTP",
+      "outcomeAll": "Mọi mã",
+      "outcomeSuccess": "Thành công (2xx–3xx)",
+      "outcomeClientError": "Lỗi client (4xx)",
+      "outcomeServerError": "Lỗi server (5xx)"
+    },
+    "features": {
+      "all": "Mọi API",
+      "posts": "Diễn đàn · Bài viết",
+      "comments": "Diễn đàn · Bình luận",
+      "categories": "Diễn đàn · Danh mục",
+      "tags": "Diễn đàn · Thẻ",
+      "search": "Diễn đàn · Tìm kiếm",
+      "threadChannels": "Diễn đàn · Kênh chủ đề",
+      "mod": "Kiểm duyệt",
+      "adminAuth": "Quản trị · Phân quyền",
+      "adminObservability": "Quản trị · Giám sát",
+      "users": "Định danh · Người dùng",
+      "auth": "Định danh · Đăng nhập",
+      "roles": "Định danh · Vai trò",
+      "permissions": "Định danh · Quyền",
+      "jobs": "Việc làm · Tin tuyển",
+      "applications": "Việc làm · Hồ sơ ứng tuyển",
+      "companies": "Việc làm · Công ty",
+      "recruiters": "Việc làm · Nhà tuyển dụng",
+      "documents": "Học liệu · Tài liệu",
+      "courses": "Học liệu · Môn học",
+      "faculties": "Học liệu · Khoa",
+      "chat": "Chat",
+      "notifications": "Thông báo",
+      "ai": "AI",
+      "assistant": "Trợ lý / Assistant",
+      "integrations": "Tích hợp",
+      "other": "Khác"
+    },
+    "empty": {
+      "needScopeTitle": "Chọn cách tìm",
+      "needScopeBody": "Nhập User ID, dán Correlation ID, hoặc Trace ID. Chế độ Correlation phù hợp để theo một phiên trình duyệt/API qua nhiều endpoint."
+    },
+    "loading": "Đang tải nhật ký…",
+    "timeline": {
+      "prompt": "correlation-timeline --id=\"{{id}}\""
+    },
+    "row": {
+      "copy": "Sao chép",
+      "copyCorrelation": "Sao chép correlation"
+    },
+    "detail": {
+      "kicker": "Bản ghi HTTP",
+      "summary": "Tóm tắt",
+      "requestSection": "Yêu cầu (request)",
+      "responseSection": "Phản hồi (response)",
+      "headers": "Tiêu đề",
+      "body": "Nội dung",
+      "bodyTruncated": "Bản xem trước bị cắt theo giới hạn byte cấu hình.",
+      "endpoint": "Endpoint ASP.NET",
+      "fullUrl": "URL đầy đủ",
+      "copy": "Sao chép",
+      "correlation": "Correlation",
+      "followCorrelation": "Mở hành trình correlation",
+      "trace": "Trace",
+      "actor": "Người thực hiện",
+      "network": "Máy khách",
+      "timing": "Thời gian",
+      "started": "Bắt đầu (UTC)",
+      "completed": "Kết thúc (UTC)",
+      "exception": "Ngoại lệ",
+      "terminalLine": "Dòng nhật ký",
+      "httpPayloadHiddenTitle": "Payload request & response",
+      "httpPayloadHiddenBody": "Chế độ Quản trị (Administrator) cố ý không trả về tiêu đề và nội dung HTTP đã ghi lại. Chọn Developer ở thanh phía trên để xem tiêu đề (đã che phần nhạy cảm) và bản xem trước body (giới hạn dung lượng).",
+      "currentViewBadge": "Chế độ danh sách",
+      "noRequestBodyForMethod": "Phương thức này thường không có body (ví dụ GET).",
+      "noResponseBody204": "Không có nội dung phản hồi với mã 204."
     },
     "table": {
       "method": "Phương thức",
@@ -153,7 +313,8 @@
     "pagination": {
       "previous": "Trước",
       "next": "Sau",
-      "page": "Trang"
+      "page": "Trang",
+      "summary": "{{total}} tổng · hiển thị {{from}}–{{to}}"
     },
     "messages": {
       "loadError": "Không thể tải nhật ký hành động.",

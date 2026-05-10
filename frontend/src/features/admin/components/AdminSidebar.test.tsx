@@ -15,6 +15,7 @@ describe('AdminSidebar', () => {
     ['/admin/overrides/users', 'admin.overrides.users'],
     ['/admin/overrides/groups', 'admin.overrides.groups'],
     ['/admin/toggles', 'admin.toggles'],
+    ['/admin/forum/thread-channels', 'admin.threadChannels'],
     ['/admin/logs/actions', 'admin.logs.actions'],
     ['/admin/logs/audit', 'admin.logs.audit'],
   ] as const;

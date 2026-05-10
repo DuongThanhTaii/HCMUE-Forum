@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useGetJobsQuery } from '../api/career.api'
+import { parseCareerDescription } from '../lib/jobDescription'
 
 function formatDate(value: string | undefined, locale: string) {
   if (!value) return '-'
@@ -22,7 +23,9 @@ function formatSalary(
 
 function summarizeDescription(value: string | null | undefined) {
   if (!value) return ''
-  const normalized = value.replace(/\s+/g, ' ').trim()
+  const parsed = parseCareerDescription(value)
+  const candidate = parsed.overview[0] ?? value
+  const normalized = candidate.replace(/\s+/g, ' ').trim()
   if (normalized.length <= 160) return normalized
   return `${normalized.slice(0, 157)}...`
 }

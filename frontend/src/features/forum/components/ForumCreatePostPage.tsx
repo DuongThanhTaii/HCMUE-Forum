@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { PenSquare } from 'lucide-react'
+import { featureFlags } from '@shared/config/featureFlags'
 import { useForumCreatePostPage } from '../hooks/useForumCreatePostPage'
 
 export function ForumCreatePostPage() {
@@ -7,6 +8,8 @@ export function ForumCreatePostPage() {
     t,
     categories,
     loadingCategories,
+    threadChannels,
+    loadingThreadChannels,
     popularTags,
     loadingTags,
     title,
@@ -17,6 +20,8 @@ export function ForumCreatePostPage() {
     setType,
     categoryId,
     setCategoryId,
+    threadChannelId,
+    setThreadChannelId,
     selectedTagNames,
     customTags,
     addTagDraft,
@@ -31,6 +36,13 @@ export function ForumCreatePostPage() {
     attachments,
     setAttachments,
     isUploadingAttachments,
+    copilotError,
+    copilotSuggestion,
+    copilotRewrite,
+    onSuggestTitleTags,
+    onRewriteContent,
+    isSuggestingTitleTags,
+    isRewritingContent,
   } = useForumCreatePostPage()
 
   return (
@@ -61,6 +73,26 @@ export function ForumCreatePostPage() {
             maxLength={300}
             autoComplete="off"
           />
+          {featureFlags.copilotActionsEnabled ? (
+            <div className="mt-1.5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => void onSuggestTitleTags()}
+                disabled={isSuggestingTitleTags}
+                className="cursor-pointer rounded-md border border-indigo-200 px-2.5 py-1 text-[12px] font-medium text-indigo-700 hover:border-indigo-400 hover:text-indigo-800 disabled:opacity-60"
+              >
+                {isSuggestingTitleTags ? 'Suggesting...' : 'AI suggest title/tags'}
+              </button>
+              <button
+                type="button"
+                onClick={() => void onRewriteContent()}
+                disabled={isRewritingContent}
+                className="cursor-pointer rounded-md border border-emerald-200 px-2.5 py-1 text-[12px] font-medium text-emerald-700 hover:border-emerald-400 hover:text-emerald-800 disabled:opacity-60"
+              >
+                {isRewritingContent ? 'Rewriting...' : 'AI rewrite content'}
+              </button>
+            </div>
+          ) : null}
         </label>
 
         <label className="flex flex-col gap-1.5">
@@ -101,6 +133,25 @@ export function ForumCreatePostPage() {
 
         <label className="flex flex-col gap-1.5">
           <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            Thread channel
+          </span>
+          <select
+            value={threadChannelId}
+            onChange={(e) => setThreadChannelId(e.target.value)}
+            disabled={loadingThreadChannels}
+            className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-primary focus:ring-2 disabled:opacity-60"
+          >
+            <option value="">No channel (regular post)</option>
+            {threadChannels.map((channel) => (
+              <option key={channel.id} value={channel.id}>
+                {channel.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
             {t('forum.createPost.fields.content')}
           </span>
           <textarea
@@ -109,6 +160,20 @@ export function ForumCreatePostPage() {
             rows={10}
             className="rounded-md border border-slate-200 px-3 py-2 text-sm leading-relaxed outline-none ring-primary focus:ring-2"
           />
+          {featureFlags.copilotActionsEnabled && copilotSuggestion ? (
+            <p className="text-[12px] text-indigo-700">
+              AI rationale:
+              {' '}
+              {copilotSuggestion.rationale}
+            </p>
+          ) : null}
+          {featureFlags.copilotActionsEnabled && copilotRewrite ? (
+            <p className="text-[12px] text-emerald-700">
+              Content rewritten in style:
+              {' '}
+              {copilotRewrite.style}
+            </p>
+          ) : null}
         </label>
         <label className="flex flex-col gap-1.5">
           <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Attachments</span>
@@ -202,13 +267,18 @@ export function ForumCreatePostPage() {
             {errorMessage}
           </p>
         ) : null}
+        {featureFlags.copilotActionsEnabled && copilotError ? (
+          <p className="text-sm text-rose-600" role="alert">
+            {copilotError}
+          </p>
+        ) : null}
 
         <p className="text-[13px] leading-relaxed text-slate-500">{t('forum.createPost.pendingNote')}</p>
 
         <div className="flex flex-wrap items-center gap-2 pt-1">
           <button
             type="submit"
-            disabled={isSubmitting || loadingCategories}
+            disabled={isSubmitting || loadingCategories || loadingThreadChannels}
             className="inline-flex items-center gap-2 rounded-md border border-primary bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             <PenSquare className="h-4 w-4" aria-hidden />

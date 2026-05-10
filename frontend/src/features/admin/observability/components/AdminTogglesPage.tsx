@@ -5,12 +5,29 @@ import { EndpointToggleRow } from './EndpointToggleRow'
 import type { EndpointToggleDto } from '../../types/admin.types'
 
 export function AdminTogglesPage() {
-  const { t, toggles, isTogglesLoading, isTogglesError, isSetToggleLoading, submitToggle } = useAdminLogsPage()
+  const {
+    t,
+    toggles,
+    isTogglesLoading,
+    isTogglesError,
+    isSetToggleLoading,
+    submitToggle,
+    maintenanceMode,
+    isMaintenanceModeLoading,
+    isSetMaintenanceModeLoading,
+    submitMaintenanceMode,
+  } = useAdminLogsPage()
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
+  const [maintenanceReason, setMaintenanceReason] = useState('')
+
+  const regularToggles = useMemo(
+    () => toggles.filter((item) => item.endpointKey !== 'System.Maintenance.Mode'),
+    [toggles],
+  )
 
   const groupedToggles = useMemo(() => {
     const groups: Record<string, EndpointToggleDto[]> = {}
-    for (const t of toggles) {
+    for (const t of regularToggles) {
       // Typically keys are "UniHub.Forum.GetPosts" -> prefix is "UniHub.Forum"
       const parts = t.endpointKey.split('.')
       let prefix = 'Other'
@@ -21,7 +38,7 @@ export function AdminTogglesPage() {
       groups[prefix].push(t)
     }
     return groups
-  }, [toggles])
+  }, [regularToggles])
 
   const toggleGroup = (prefix: string) => {
     setExpandedGroups((prev) => ({
@@ -55,16 +72,74 @@ export function AdminTogglesPage() {
         <div>
           <h1 className="text-xl font-bold text-slate-900">{t('admin.togglesPage.title')}</h1>
           <p className="mt-1 text-sm text-slate-500">{t('admin.togglesPage.subtitle')}</p>
+          <p className="mt-1 text-xs text-slate-400">
+            Danh sách hiển thị toàn bộ API controller routes; endpoint hệ thống (health/docs/control-plane) được bypass an toàn.
+          </p>
         </div>
         <div className="rounded-lg bg-slate-50 px-3 py-2 text-center border border-slate-200">
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Enabled</p>
           <p className="text-xl font-bold text-slate-900">
-            {toggles.filter((t) => t.isEnabled).length} <span className="text-sm font-normal text-slate-500">/ {toggles.length}</span>
+            {regularToggles.filter((t) => t.isEnabled).length} <span className="text-sm font-normal text-slate-500">/ {regularToggles.length}</span>
           </p>
         </div>
       </header>
 
-      <section className="space-y-4">
+      <section className="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-900">Maintenance Mode</h2>
+            <p className="mt-1 text-xs text-slate-600">
+              Bật để chuyển toàn bộ web sang chế độ bảo trì (API trả 503 cho hầu hết endpoint).
+            </p>
+            {maintenanceMode?.isEnabled && maintenanceMode.reason ? (
+              <p className="mt-2 text-xs text-amber-700">Lý do: {maintenanceMode.reason}</p>
+            ) : null}
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={maintenanceMode?.isEnabled === true}
+            disabled={isMaintenanceModeLoading || isSetMaintenanceModeLoading}
+            onClick={() => {
+              if (maintenanceMode?.isEnabled) {
+                void submitMaintenanceMode(false, null)
+                return
+              }
+              const reason = maintenanceReason.trim() || 'Scheduled maintenance'
+              void submitMaintenanceMode(true, reason)
+            }}
+            className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+              maintenanceMode?.isEnabled ? 'bg-emerald-600' : 'bg-slate-300'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                maintenanceMode?.isEnabled ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
+        {!maintenanceMode?.isEnabled ? (
+          <input
+            value={maintenanceReason}
+            onChange={(event) => setMaintenanceReason(event.target.value)}
+            placeholder="Lý do maintenance (tuỳ chọn)"
+            className="mt-3 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-xs text-slate-700 outline-none focus:border-primary"
+          />
+        ) : null}
+      </section>
+
+      <section
+        className={`space-y-4 transition-opacity ${
+          maintenanceMode?.isEnabled ? 'pointer-events-none select-none opacity-60' : ''
+        }`}
+        aria-disabled={maintenanceMode?.isEnabled === true}
+      >
+        {maintenanceMode?.isEnabled ? (
+          <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+            Maintenance đang bật: tạm khóa thao tác endpoint toggles bên dưới.
+          </div>
+        ) : null}
         {Object.entries(groupedToggles).map(([prefix, groupToggles]) => {
           const isExpanded = expandedGroups[prefix] !== false // Default open
           const enabledCount = groupToggles.filter((t) => t.isEnabled).length
@@ -120,7 +195,7 @@ export function AdminTogglesPage() {
           )
         })}
 
-        {!toggles.length && (
+        {!regularToggles.length && (
           <div className="py-12 text-center text-sm text-slate-500">
             {t('admin.togglesPage.messages.empty')}
           </div>

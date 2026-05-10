@@ -134,6 +134,42 @@ export interface SetEndpointToggleRequest {
   reason: string | null
 }
 
+export interface MaintenanceModeDto {
+  isEnabled: boolean
+  reason: string | null
+  updatedBy: string
+  updatedAtUtc: string
+  version: number
+}
+
+export interface SetMaintenanceModeRequest {
+  isEnabled: boolean
+  reason: string | null
+}
+
+export interface ThreadChannelDto {
+  id: string
+  code: string
+  name: string
+  description: string
+  displayOrder: number
+  isActive: boolean
+  allowPinnedComments: boolean
+  allowAcceptedAnswers: boolean
+  allowModeratorActions: boolean
+}
+
+export interface UpsertThreadChannelRequest {
+  code: string
+  name: string
+  description: string | null
+  displayOrder: number
+  isActive: boolean
+  allowPinnedComments: boolean
+  allowAcceptedAnswers: boolean
+  allowModeratorActions: boolean
+}
+
 export interface AuditLogDto {
   auditLogId: string
   actorUserId: string | null
@@ -177,6 +213,14 @@ export interface UserActionLogItemDto {
   exceptionType: string | null
   exceptionMessage: string | null
   terminalLine: string
+  requestHeadersJson: string
+  requestContentType: string | null
+  requestBodyPreview: string | null
+  requestBodyTruncated: boolean
+  responseHeadersJson: string
+  responseContentType: string | null
+  responseBodyPreview: string | null
+  responseBodyTruncated: boolean
 }
 
 export interface UserActionLogsResponse {

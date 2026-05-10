@@ -1,15 +1,27 @@
-import { startTransition, useEffect, useMemo, useState } from 'react'
+import { startTransition, useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '@features/auth/context/useAuth'
+import { selectUserRole, selectUserId } from '@features/auth/model/auth.slice'
+import { useAppSelector } from '@shared/hooks/useAppSelector'
+import {
+  useModerationHintMutation,
+  useRelatedPostsMutation,
+  useSummarizePostMutation,
+  type ModerationHintResult,
+  type RelatedPostsResult,
+  type SummarizePostResult,
+} from '@features/assistant/api/assistant.api'
 import type { ForumCommentItem } from '../api/forum.list.api'
 import {
   useAddCommentMutation,
+  useAcceptAnswerMutation,
   useBookmarkPostMutation,
   useGetForumPostByIdQuery,
   useGetPostCommentsQuery,
   useReportPostMutation,
+  usePinCommentMutation,
   useUnbookmarkPostMutation,
   useUploadForumAttachmentsMutation,
   useVoteCommentMutation,
@@ -17,6 +29,7 @@ import {
 } from '../api/forum.list.api'
 
 export type CommentThreadNode = ForumCommentItem & { children: CommentThreadNode[] }
+export type CommentSortMode = 'top' | 'new'
 
 function buildCommentThreads(flat: ForumCommentItem[]): CommentThreadNode[] {
   // Build map with children sorted by time (natural reply order)
@@ -37,13 +50,29 @@ function buildCommentThreads(flat: ForumCommentItem[]): CommentThreadNode[] {
       roots.push(node)
     }
   }
-  // Sort root comments by vote score (highest first); ties → newest first
-  roots.sort((a, b) => {
+  return roots
+}
+
+function sortCommentThreads(nodes: CommentThreadNode[], mode: CommentSortMode): CommentThreadNode[] {
+  const next = nodes.map((node) => ({
+    ...node,
+    children: sortCommentThreads(node.children, mode),
+  }))
+
+  next.sort((a, b) => {
+    const pinDiff = Number(Boolean(b.isPinned)) - Number(Boolean(a.isPinned))
+    if (pinDiff !== 0) return pinDiff
+
+    if (mode === 'new') {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    }
+
     const voteDiff = (b.voteScore ?? 0) - (a.voteScore ?? 0)
     if (voteDiff !== 0) return voteDiff
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   })
-  return roots
+
+  return next
 }
 
 function formatDateTime(value: string) {
@@ -62,6 +91,12 @@ export function useForumDetailPage() {
   const { t } = useTranslation()
   const { id = '' } = useParams<{ id: string }>()
   const { requireAuth } = useAuth()
+  const roles = useAppSelector(selectUserRole)
+  const userId = useAppSelector(selectUserId)
+  const hasModeratorRole = useMemo(
+    () => (roles ?? []).some((role) => role.trim().toLowerCase() === 'moderator'),
+    [roles],
+  )
   const [commentDraft, setCommentDraft] = useState('')
   const [hasTriedCommentSubmit, setHasTriedCommentSubmit] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(false)
@@ -69,9 +104,13 @@ export function useForumDetailPage() {
   const [interactionSuccessKey, setInteractionSuccessKey] = useState<string | null>(null)
   const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(null)
   const [replyDraft, setReplyDraft] = useState('')
+  const [commentSortMode, setCommentSortMode] = useState<CommentSortMode>('top')
+  const [hasManualSortSelection, setHasManualSortSelection] = useState(false)
   const [hasTriedReplySubmit, setHasTriedReplySubmit] = useState(false)
   const [commentAttachments, setCommentAttachments] = useState<File[]>([])
   const [replyAttachments, setReplyAttachments] = useState<File[]>([])
+  const [isCommentCooldownActive, setIsCommentCooldownActive] = useState(false)
+  const commentCooldownTimerRef = useRef<number | null>(null)
   const { data: post, isLoading, isError } = useGetForumPostByIdQuery(id, {
     skip: !id,
   })
@@ -87,6 +126,8 @@ export function useForumDetailPage() {
   const [addComment, { isLoading: isSubmittingComment }] = useAddCommentMutation()
   const [votePost, { isLoading: isVoting }] = useVotePostMutation()
   const [voteComment, { isLoading: isVotingComment }] = useVoteCommentMutation()
+  const [acceptAnswer, { isLoading: isAcceptingAnswer }] = useAcceptAnswerMutation()
+  const [pinComment, { isLoading: isPinningComment }] = usePinCommentMutation()
   const [bookmarkPost, { isLoading: isBookmarking }] = useBookmarkPostMutation()
   const [unbookmarkPost, { isLoading: isUnbookmarking }] = useUnbookmarkPostMutation()
   const [reportPost, { isLoading: isReporting }] = useReportPostMutation()
@@ -103,12 +144,36 @@ export function useForumDetailPage() {
     ''
   const postContent = realPostContent || t('forum.detail.fallbackContent')
   const voteScore = typeof post?.voteScore === 'number' ? post.voteScore : 0
+  const queryView =
+    typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('view')
+      : null
+  const hasThreadTag =
+    Array.isArray(post?.tags) &&
+    post.tags.some((tag) => {
+      const normalized = String(tag ?? '').trim().toLowerCase()
+      return normalized === 'thread' || normalized.startsWith('thread:')
+    })
+  const hasThreadChannel = Boolean((post as { threadChannelId?: string } | undefined)?.threadChannelId)
+  const isThreadTopic = queryView === 'thread' || hasThreadTag || hasThreadChannel
+  const effectiveSortMode: CommentSortMode =
+    isThreadTopic && !hasManualSortSelection ? 'new' : commentSortMode
 
-  const commentThreads = useMemo(() => buildCommentThreads(commentData), [commentData])
+  const commentThreads = useMemo(
+    () => sortCommentThreads(buildCommentThreads(commentData), effectiveSortMode),
+    [commentData, effectiveSortMode],
+  )
 
   const [reportOpen, setReportOpen] = useState(false)
   const [reportReason, setReportReason] = useState<number>(1)
   const [reportDescription, setReportDescription] = useState('')
+  const [copilotError, setCopilotError] = useState<string | null>(null)
+  const [copilotSummary, setCopilotSummary] = useState<SummarizePostResult | null>(null)
+  const [copilotRelated, setCopilotRelated] = useState<RelatedPostsResult | null>(null)
+  const [copilotModeration, setCopilotModeration] = useState<ModerationHintResult | null>(null)
+  const [summarizePost, { isLoading: isSummarizing }] = useSummarizePostMutation()
+  const [relatedPosts, { isLoading: isLoadingRelated }] = useRelatedPostsMutation()
+  const [moderationHint, { isLoading: isLoadingModerationHint }] = useModerationHintMutation()
 
   function setFeedback(successKey: string | null, errorKey: string | null) {
     setInteractionSuccessKey(successKey)
@@ -129,7 +194,31 @@ export function useForumDetailPage() {
     })
   }
 
+  function getCopilotError(error: unknown, fallback = 'Unable to process AI request right now.') {
+    const raw = error as { data?: { error?: string }; error?: string; status?: number } | undefined
+    return raw?.data?.error || raw?.error || (raw?.status === 401 ? t('forum.feedback.loginRequired') : fallback)
+  }
+
   const canSubmitComment = commentDraft.trim().length > 0 && !isSubmittingComment && Boolean(id)
+
+  useEffect(() => {
+    return () => {
+      if (commentCooldownTimerRef.current) {
+        window.clearTimeout(commentCooldownTimerRef.current)
+      }
+    }
+  }, [])
+
+  function startCommentCooldown(ms = 8000) {
+    setIsCommentCooldownActive(true)
+    if (commentCooldownTimerRef.current) {
+      window.clearTimeout(commentCooldownTimerRef.current)
+    }
+    commentCooldownTimerRef.current = window.setTimeout(() => {
+      setIsCommentCooldownActive(false)
+      commentCooldownTimerRef.current = null
+    }, ms)
+  }
 
   function onCommentDraftChange(value: string) {
     setCommentDraft(value)
@@ -142,9 +231,12 @@ export function useForumDetailPage() {
     event.preventDefault()
     setFeedback(null, null)
     setHasTriedCommentSubmit(true)
-    if (!canSubmitComment) {
+    if (!canSubmitComment || isCommentCooldownActive) {
       if (commentDraft.trim().length === 0) {
         setFeedback(null, 'forum.feedback.commentRequired')
+      }
+      if (isCommentCooldownActive) {
+        setFeedback(null, 'forum.feedback.commentCooldown')
       }
       return
     }
@@ -164,6 +256,7 @@ export function useForumDetailPage() {
       setCommentDraft('')
       setCommentAttachments([])
       setHasTriedCommentSubmit(false)
+      startCommentCooldown()
       setFeedback('forum.feedback.commentSuccess', null)
     } catch (error) {
       setFeedback(null, getMutationErrorKey(error, 'forum.feedback.commentFailed'))
@@ -196,10 +289,18 @@ export function useForumDetailPage() {
     }
   }
 
-  function onStartReply(commentId: string) {
+  function onStartReply(commentId: string, authorName?: string, sourceContent?: string) {
     if (!ensureAuthenticated()) return
+    const safeAuthor = (authorName || t('forum.commentSection.author')).trim()
+    const content = (sourceContent || '').trim()
+    const quoteBody = content
+      .slice(0, 240)
+      .split('\n')
+      .map((line) => `> ${line}`)
+      .join('\n')
+    const quotePrefix = t('forum.commentSection.quotePrefix', { author: safeAuthor })
     setReplyingToCommentId(commentId)
-    setReplyDraft('')
+    setReplyDraft(content ? `${quotePrefix}\n${quoteBody}\n\n` : '')
     setReplyAttachments([])
     setHasTriedReplySubmit(false)
   }
@@ -214,6 +315,10 @@ export function useForumDetailPage() {
   async function onSubmitReply(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setHasTriedReplySubmit(true)
+    if (isCommentCooldownActive) {
+      setFeedback(null, 'forum.feedback.commentCooldown')
+      return
+    }
     if (!replyDraft.trim() || !replyingToCommentId || !id) return
     try {
       let finalContent = replyDraft.trim()
@@ -232,9 +337,37 @@ export function useForumDetailPage() {
       setReplyDraft('')
       setReplyAttachments([])
       setHasTriedReplySubmit(false)
+      startCommentCooldown()
     } catch (error) {
       setFeedback(null, getMutationErrorKey(error, 'forum.feedback.commentFailed'))
     }
+  }
+
+  async function onAcceptAnswer(commentId: string) {
+    if (!id || !commentId || !ensureAuthenticated()) return
+    setFeedback(null, null)
+    try {
+      await acceptAnswer({ commentId, postId: id }).unwrap()
+      setFeedback('forum.feedback.acceptAnswerSuccess', null)
+    } catch (error) {
+      setFeedback(null, getMutationErrorKey(error, 'forum.feedback.acceptAnswerFailed'))
+    }
+  }
+
+  async function onPinComment(commentId: string) {
+    if (!id || !commentId || !ensureAuthenticated()) return
+    setFeedback(null, null)
+    try {
+      await pinComment({ commentId, postId: id }).unwrap()
+      setFeedback('forum.feedback.pinCommentSuccess', null)
+    } catch (error) {
+      setFeedback(null, getMutationErrorKey(error, 'forum.feedback.pinCommentFailed'))
+    }
+  }
+
+  function onChangeCommentSortMode(mode: CommentSortMode) {
+    setHasManualSortSelection(true)
+    setCommentSortMode(mode)
   }
 
   async function onToggleBookmark() {
@@ -325,11 +458,55 @@ export function useForumDetailPage() {
     }
   }
 
-  function onShareFacebook() {
+  async function onShareFacebook() {
+    setFeedback(null, null)
+    if (!id) return
     const directUrl = `${window.location.origin}/forum/${id}`
-    const quote = `${title}\n${postContent.slice(0, 180)}`
+    const excerpt = postContent.slice(0, 280)
+    const quote = `${title}\n\n${excerpt}\n\n${directUrl}`
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(quote)
+        setFeedback('forum.feedback.facebookShareReady', null)
+      }
+    } catch {
+      // continue opening share dialog even if clipboard access is unavailable
+    }
     const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(directUrl)}&quote=${encodeURIComponent(quote)}`
     window.open(fbShareUrl, '_blank', 'noopener,noreferrer,width=700,height=560')
+  }
+
+  async function onSummarizePost() {
+    if (!id || !ensureAuthenticated()) return
+    setCopilotError(null)
+    try {
+      const data = await summarizePost({ postId: id, length: 'medium' }).unwrap()
+      setCopilotSummary(data)
+    } catch (error) {
+      setCopilotError(getCopilotError(error, 'Failed to summarize this post.'))
+    }
+  }
+
+  async function onLoadRelatedPosts() {
+    if (!id || !ensureAuthenticated()) return
+    setCopilotError(null)
+    try {
+      const data = await relatedPosts({ postId: id, limit: 5 }).unwrap()
+      setCopilotRelated(data)
+    } catch (error) {
+      setCopilotError(getCopilotError(error, 'Failed to load related posts.'))
+    }
+  }
+
+  async function onGenerateModerationHint() {
+    if (!id || !hasModeratorRole || !ensureAuthenticated()) return
+    setCopilotError(null)
+    try {
+      const data = await moderationHint({ postId: id }).unwrap()
+      setCopilotModeration(data)
+    } catch (error) {
+      setCopilotError(getCopilotError(error, 'Failed to generate moderation hint.'))
+    }
   }
 
   return {
@@ -352,6 +529,10 @@ export function useForumDetailPage() {
     onSubmitComment,
     onUpvotePost,
     onVoteComment,
+    onAcceptAnswer,
+    onPinComment,
+    commentSortMode: effectiveSortMode,
+    setCommentSortMode: onChangeCommentSortMode,
     replyingToCommentId,
     replyDraft,
     setReplyDraft,
@@ -370,19 +551,37 @@ export function useForumDetailPage() {
     setReportReason,
     reportDescription,
     setReportDescription,
+    userId,
     onSharePost,
     onShareFacebook,
+    onSummarizePost,
+    onLoadRelatedPosts,
+    onGenerateModerationHint,
     interactionErrorKey,
     interactionSuccessKey,
+    copilotError,
+    copilotSummary,
+    copilotRelated,
+    copilotModeration,
+    hasModeratorRole,
+    isThreadTopic,
+    isQuestionPost: post?.type === 2,
+    canAcceptAnswer: Boolean(post?.authorId && userId && post.authorId === userId),
+    canPinComment: hasModeratorRole || Boolean(post?.authorId && userId && post.authorId === userId),
     isBookmarked,
     isCommentsLoading,
     isSubmittingComment,
     isUploadingAttachments,
     isVotingComment,
+    isAcceptingAnswer,
+    isPinningComment,
     isVoting,
     isBookmarking,
     isUnbookmarking,
     isReporting,
+    isSummarizing,
+    isLoadingRelated,
+    isLoadingModerationHint,
     isLoading,
     isError,
   }

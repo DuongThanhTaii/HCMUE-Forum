@@ -106,14 +106,16 @@ export function ChatDock() {
   }, [isFullChatRoute, joinThread, setActiveThreadKey])
 
   useEffect(() => {
+    if (isFullChatRoute) return
     if (!activeThreadRef || activeThreadRef.kind !== 'conversation') return
     const k = threadKey(activeThreadRef)
     setActiveThreadKey(k)
     clearUnread(k)
     void joinThread(activeThreadRef)
-  }, [activeThreadRef, setActiveThreadKey, clearUnread, joinThread])
+  }, [activeThreadRef, isFullChatRoute, setActiveThreadKey, clearUnread, joinThread])
 
   useEffect(() => {
+    if (isFullChatRoute) return
     if (panel !== 'thread' || !activeConvId || convLoading) return
     if (convos === undefined) return
     if (!convos.some((c) => c.id === activeConvId)) {
@@ -121,7 +123,12 @@ export function ChatDock() {
         backToList()
       })
     }
-  }, [panel, activeConvId, convos, convLoading, backToList])
+  }, [panel, activeConvId, convos, convLoading, backToList, isFullChatRoute])
+
+  // Hide floating dock when user is already in full chat page.
+  if (isFullChatRoute) {
+    return null
+  }
 
   if (minimized) {
     return (

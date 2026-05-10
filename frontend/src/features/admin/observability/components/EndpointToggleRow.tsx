@@ -59,27 +59,6 @@ export function EndpointToggleRow({ toggle, isSubmitting, onSubmit }: EndpointTo
         </div>
 
         <div className="flex-shrink-0">
-          <div className="mb-2 flex justify-end">
-            {toggle.isEnabled ? (
-              <button
-                type="button"
-                className="rounded-md border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 hover:bg-amber-100 disabled:opacity-50"
-                onClick={() => setIsConfirmOpen(!isConfirmOpen)}
-                disabled={isSubmitting}
-              >
-                Tắt
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="rounded-md border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
-                onClick={() => void enableToggle()}
-                disabled={isSubmitting}
-              >
-                Bật
-              </button>
-            )}
-          </div>
           {toggle.isEnabled ? (
             <button
               type="button"
@@ -87,7 +66,7 @@ export function EndpointToggleRow({ toggle, isSubmitting, onSubmit }: EndpointTo
               aria-checked={true}
               onClick={() => setIsConfirmOpen(!isConfirmOpen)}
               disabled={isSubmitting}
-              className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-primary-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 disabled:opacity-50"
+              className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-emerald-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 disabled:opacity-50"
             >
               <span className="pointer-events-none inline-block h-5 w-5 translate-x-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" />
             </button>

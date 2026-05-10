@@ -33,6 +33,17 @@ const adminNavGroups: AdminNavGroup[] = [
     ],
   },
   {
+    titleKey: 'admin.sidebar.groups.forum',
+    fallbackTitle: 'Forum',
+    items: [
+      {
+        to: '/admin/forum/thread-channels',
+        labelKey: 'admin.threadChannels',
+        fallbackLabel: 'Thread channels',
+      },
+    ],
+  },
+  {
     titleKey: 'admin.sidebar.groups.observability',
     fallbackTitle: 'Observability',
     items: [

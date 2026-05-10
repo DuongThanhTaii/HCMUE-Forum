@@ -97,7 +97,17 @@
     "minLength": "Tối thiểu 10 ký tự",
     "postComment": "Gửi bình luận",
     "reply": "Trả lời",
+    "acceptAnswer": "Chọn làm câu trả lời đúng",
+    "pinComment": "Ghim",
+    "unpinComment": "Bỏ ghim",
+    "pinnedComment": "Đã ghim",
     "cancelReply": "Hủy trả lời",
+    "sortLabel": "Sắp xếp",
+    "sortTop": "Top",
+    "sortNew": "Mới nhất",
+    "collapseThread": "Thu gọn",
+    "expandThread": "Mở rộng",
+    "quotePrefix": "@{{author}} đã viết:",
     "acceptedAnswer": "Câu trả lời đúng",
     "author": "Tác giả"
   },
@@ -135,12 +145,19 @@
   "topbar": {
     "brand": "UniHub Forum",
     "searchPlaceholder": "Tìm chủ đề...",
+    "assistant": "Trợ lý ảo",
+    "threads": "Thread",
+    "saved": "Đã lưu",
     "moderation": "Kiểm duyệt",
     "admin": "Quản trị",
     "backToForum": "Về diễn đàn",
     "backHome": "Trang chủ"
   },
   "sidebar": {
+    "main": {
+      "assistant": "Trợ lý ảo",
+      "saved": "Bài đã lưu"
+    },
     "sections": {
       "main": "Chính",
       "topics": "Chủ đề",
@@ -149,6 +166,7 @@
     },
     "topics": {
       "all": "Tất cả chủ đề",
+      "threads": "Bảng thread",
       "announcements": "Thông báo"
     },
     "categories": {
@@ -194,6 +212,7 @@
     "loginRequired": "Bạn cần đăng nhập để thực hiện thao tác này.",
     "actionFailed": "Thao tác thất bại, vui lòng thử lại.",
     "commentRequired": "Vui lòng nhập nội dung bình luận.",
+    "commentCooldown": "Vui lòng chờ vài giây trước khi gửi bình luận tiếp theo.",
     "commentSuccess": "Đã gửi bình luận thành công.",
     "commentFailed": "Không thể gửi bình luận, vui lòng thử lại.",
     "voteSuccess": "Đã ghi nhận lượt thích.",
@@ -204,12 +223,34 @@
     "unbookmarkFailed": "Không thể bỏ lưu bài viết.",
     "reportSuccess": "Đã gửi báo cáo. Cảm ơn bạn!",
     "reportFailed": "Không thể gửi báo cáo lúc này.",
+    "acceptAnswerSuccess": "Đã đánh dấu đây là câu trả lời đúng.",
+    "acceptAnswerFailed": "Không thể đánh dấu câu trả lời đúng lúc này.",
+    "pinCommentSuccess": "Đã cập nhật trạng thái ghim bình luận.",
+    "pinCommentFailed": "Không thể cập nhật trạng thái ghim bình luận.",
     "shareSuccess": "Đã sao chép liên kết bài viết.",
-    "shareUnavailable": "Không thể sao chép liên kết trên trình duyệt hiện tại."
+    "shareUnavailable": "Không thể sao chép liên kết trên trình duyệt hiện tại.",
+    "facebookShareReady": "Đã sao chép nội dung + liên kết để bạn dán khi chia sẻ Facebook."
+  },
+  "saved": {
+    "title": "Bài viết đã lưu",
+    "empty": "Bạn chưa lưu bài viết nào.",
+    "loadFailed": "Không thể tải danh sách bài đã lưu.",
+    "backToForum": "Quay lại diễn đàn"
+  },
+  "threads": {
+    "title": "Bảng thread",
+    "subtitle": "Thảo luận theo topic. Mở thread và trao đổi chủ yếu bằng bình luận để giữ đúng ngữ cảnh.",
+    "openThread": "Mở thread",
+    "empty": "Chưa có bài nào trong kênh thread này. Hãy tạo bài mới và chọn đúng kênh (ví dụ General Thread), sau khi bài được duyệt sẽ hiển thị ở đây."
+  },
+  "threadMode": {
+    "badge": "Chế độ thread",
+    "description": "Topic này ưu tiên trao đổi qua bình luận. Hãy tiếp tục thảo luận trong phần reply để giữ đúng mạch."
   },
   "mod": {
     "reportsTitle": "Báo cáo kiểm duyệt",
     "pendingPostsTitle": "Bài viết chờ duyệt",
+    "pendingPostsHint": "Chọn «Chi tiết» để xem toàn bộ nội dung và dùng gợi ý kiểm duyệt AI trong panel bên phải.",
     "totalReports": "Tổng báo cáo",
     "noReports": "Không có báo cáo ở trạng thái này.",
     "noPendingPosts": "Hiện không có bài chờ duyệt.",
@@ -233,7 +274,25 @@
     "actions": {
       "keep": "Xử lý giữ lại",
       "remove": "Xử lý gỡ bỏ",
-      "approve": "Duyệt & đăng"
+      "approve": "Duyệt & đăng",
+      "viewDetail": "Chi tiết"
+    },
+    "pendingDetail": {
+      "drawerTitle": "Bài chờ duyệt",
+      "loadError": "Không tải được nội dung bài viết.",
+      "openInForum": "Mở trên diễn đàn",
+      "tags": "Thẻ",
+      "content": "Nội dung",
+      "aiHint": "Gợi ý kiểm duyệt (AI)",
+      "aiAnalyzing": "Đang phân tích…",
+      "aiDisclaimer": "Kết quả mang tính tham khảo; quyết định cuối thuộc người kiểm duyệt.",
+      "aiError": "Không lấy được gợi ý AI.",
+      "recommendation": "Đề xuất",
+      "reason": "Lý do",
+      "violations": "Ghi nhận",
+      "recAllow": "Cho phép đăng",
+      "recReview": "Nên xem xét kỹ",
+      "recHide": "Nên từ chối / gỡ"
     },
     "feedback": {
       "loadFailed": "Không thể tải dữ liệu kiểm duyệt.",
@@ -247,6 +306,8 @@
     "fallbackTitle": "Chi tiết chủ đề",
     "fallbackContent": "Chủ đề này đang tổng hợp các cập nhật chính từ thảo luận. Xem phần bình luận để theo dõi các ý kiến bổ sung từ thành viên.",
     "commentPlaceholder": "Viết bình luận của bạn...",
+    "attachmentsLabel": "Tệp đính kèm",
+    "attachmentImageAlt": "Ảnh đính kèm",
     "sampleComment1": "Cảm ơn bạn đã chia sẻ. Mình đồng ý nên ưu tiên nội dung này trong sprint tới.",
     "sampleComment2": "Bạn có thể bổ sung thêm mốc thời gian dự kiến và mức độ ảnh hưởng không?",
     "sampleTime1": "2 giờ trước",

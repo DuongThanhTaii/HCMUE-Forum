@@ -4,7 +4,18 @@ import { useLoginForm } from '../hooks/useLoginForm'
 
 export function LoginPage() {
   const { t } = useTranslation()
-  const { email, password, errorMessage, isLoading, setEmail, setPassword, onSubmit } =
+  const {
+    email,
+    password,
+    errorMessage,
+    isLoading,
+    isAzureLoading,
+    isAzureLoginAvailable,
+    setEmail,
+    setPassword,
+    onSubmit,
+    onAzureSignIn,
+  } =
     useLoginForm()
 
   return (
@@ -44,10 +55,21 @@ export function LoginPage() {
         <button
           type="submit"
           className="w-full rounded-md bg-primary px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-70"
-          disabled={isLoading}
+          disabled={isLoading || isAzureLoading}
         >
           {isLoading ? t('auth.pages.loggingIn') : t('auth.login')}
         </button>
+
+        {isAzureLoginAvailable ? (
+          <button
+            type="button"
+            onClick={() => void onAzureSignIn()}
+            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70"
+            disabled={isLoading || isAzureLoading}
+          >
+            {isAzureLoading ? 'Signing in with Microsoft...' : 'Sign in with Microsoft'}
+          </button>
+        ) : null}
       </form>
 
       <p className="text-center text-sm text-slate-600">

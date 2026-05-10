@@ -1,11 +1,60 @@
 {
   "layout": {
-    "title": "Moderation Zone",
+    "title": "Moderation",
     "home": "Home",
     "forum": "Forum",
     "reports": "Reports",
+    "dashboard": "Overview",
     "pendingPosts": "Pending posts",
+    "threadChannels": "Thread channels",
     "learningApproval": "Learning approvals"
+  },
+  "dashboard": {
+    "title": "Moderation overview",
+    "subtitle": "Queue depth and resolution summary.",
+    "metrics": {
+      "pendingReports": "Pending reports",
+      "pendingPosts": "Posts awaiting approval",
+      "pendingDocuments": "Documents awaiting approval",
+      "resolved": "Resolved reports"
+    },
+    "charts": {
+      "backlogTitle": "Report backlog",
+      "backlogHint": "{{pct}}% of all reports are still pending",
+      "removeRateTitle": "Removal share (resolved)",
+      "removeRateHint": "{{pct}}% of resolved reports resulted in removal"
+    }
+  },
+  "learning": {
+    "title": "Learning document review",
+    "totalPending": "Pending documents: {{count}}",
+    "columns": {
+      "title": "Title",
+      "uploader": "Uploader",
+      "created": "Created",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "view": "View",
+    "approve": "Approve",
+    "reject": "Reject",
+    "requestRevision": "Request revision",
+    "noPending": "No documents awaiting review.",
+    "loadError": "Could not load pending documents.",
+    "descriptionLabel": "Description",
+    "fileNameLabel": "File name",
+    "detailTitle": "Document details",
+    "close": "Close",
+    "loading": "Loading…",
+    "detailLoadError": "Could not load document details.",
+    "reasonReject": "Rejection reason",
+    "reasonRevision": "Revision request",
+    "reasonPlaceholderReject": "e.g. Format does not meet guidelines; sources missing…",
+    "reasonPlaceholderRevision": "e.g. Add a fuller description and upload the revised file…",
+    "reasonMinLength": "Reason must be at least 10 characters.",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "processing": "Processing…"
   },
   "reportsTitle": "Reports Queue",
   "totalReports": "Total reports",

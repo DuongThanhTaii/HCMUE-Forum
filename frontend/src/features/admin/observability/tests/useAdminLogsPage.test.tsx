@@ -14,6 +14,8 @@ const mockUseGetUserActionLogsQuery = vi.fn()
 vi.mock('../../api/admin.observability.api', () => ({
   useGetTogglesQuery: () => mockUseGetTogglesQuery(),
   useSetToggleMutation: () => mockUseSetToggleMutation(),
+  useGetMaintenanceModeQuery: () => ({ data: null, isLoading: false, isError: false }),
+  useSetMaintenanceModeMutation: () => [vi.fn(), { isLoading: false }],
   useGetAuditLogsQuery: (params: unknown) => mockUseGetAuditLogsQuery(params),
   useGetUserActionLogsQuery: (params: unknown) => mockUseGetUserActionLogsQuery(params),
 }))

@@ -10,10 +10,15 @@ type ApiSuccessEnvelope<T> = {
 type RawForumPost = {
   id?: string
   title?: string
+  type?: number | null
+  authorId?: string | null
   tags?: string[] | null
   categoryName?: string | null
   category?: { name?: string | null } | null
   categoryId?: string | null
+  threadChannelId?: string | null
+  threadChannelCode?: string | null
+  threadChannelName?: string | null
   authorName?: string | null
   commentCount?: number | null
   replyCount?: number | null
@@ -38,6 +43,7 @@ type RawForumComment = {
   userVote?: number | null
   myVote?: number | null
   isAcceptedAnswer?: boolean
+  isPinned?: boolean
   createdAt?: string
   updatedAt?: string | null
 }
@@ -55,6 +61,7 @@ type CommentsPayload = {
 type ForumListQueryParams = {
   pageNumber?: number
   pageSize?: number
+  threadChannelId?: string
 }
 
 type VoteType = 1 | 2
@@ -68,8 +75,20 @@ export type ForumCommentItem = {
   parentCommentId: string | null
   voteScore: number
   currentUserVote: 0 | 1 | 2
+  isAcceptedAnswer?: boolean
+  isPinned?: boolean
   createdAt: string
   updatedAt?: string
+}
+
+type AcceptAnswerRequest = {
+  commentId: string
+  postId: string
+}
+
+type PinCommentRequest = {
+  commentId: string
+  postId: string
 }
 
 type AddCommentRequest = {
@@ -106,11 +125,24 @@ export type ForumPopularTag = {
   postCount: number
 }
 
+export type ForumThreadChannel = {
+  id: string
+  code: string
+  name: string
+  description: string
+  displayOrder: number
+  isActive: boolean
+  allowPinnedComments: boolean
+  allowAcceptedAnswers: boolean
+  allowModeratorActions: boolean
+}
+
 type CreatePostRequest = {
   title: string
   content: string
   type: number
   categoryId?: string | null
+  threadChannelId?: string | null
   tags?: string[]
 }
 
@@ -147,6 +179,9 @@ function toSafeForumListItem(post: RawForumPost, index: number): ForumListItem {
     id,
     title,
     category,
+    threadChannelId: post.threadChannelId?.trim() || undefined,
+    threadChannelCode: post.threadChannelCode?.trim() || undefined,
+    threadChannelName: post.threadChannelName?.trim() || undefined,
     tags,
     replyCount,
     activityAt,
@@ -157,6 +192,8 @@ export type ForumDetailItem = ForumListItem & {
   content?: string
   body?: string
   authorName?: string
+  authorId?: string
+  type?: number
   voteScore?: number
   isBookmarked?: boolean
 }
@@ -167,6 +204,11 @@ function toSafeForumDetailItem(post: RawForumPost, idFallback: string): ForumDet
   const content = post.content?.trim() || undefined
   const body = post.body?.trim() || undefined
   const authorName = post.authorName?.trim() || undefined
+  const authorId = post.authorId?.trim() || undefined
+  const type = typeof post.type === 'number' ? post.type : undefined
+  const threadChannelId = post.threadChannelId?.trim() || undefined
+  const threadChannelCode = post.threadChannelCode?.trim() || undefined
+  const threadChannelName = post.threadChannelName?.trim() || undefined
   const voteScore = typeof post.voteScore === 'number' ? post.voteScore : undefined
   const isBookmarked = post.isBookmarked === true
 
@@ -176,6 +218,11 @@ function toSafeForumDetailItem(post: RawForumPost, idFallback: string): ForumDet
     content,
     body,
     authorName,
+    authorId,
+    type,
+    threadChannelId,
+    threadChannelCode,
+    threadChannelName,
     voteScore,
     isBookmarked,
   }
@@ -196,6 +243,8 @@ function toSafeForumCommentItem(comment: RawForumComment, postIdFallback: string
     named && named.length > 0 ? named : `User ${authorId.slice(0, 8)}`
   const rawCurrentVote = comment.currentUserVote ?? comment.userVote ?? comment.myVote ?? null
   const currentUserVote: 0 | 1 | 2 = rawCurrentVote === 1 ? 1 : rawCurrentVote === -1 || rawCurrentVote === 2 ? 2 : 0
+  const isAcceptedAnswer = comment.isAcceptedAnswer === true
+  const isPinned = comment.isPinned === true
 
   return {
     id,
@@ -206,6 +255,8 @@ function toSafeForumCommentItem(comment: RawForumComment, postIdFallback: string
     parentCommentId,
     voteScore: comment.voteScore ?? 0,
     currentUserVote,
+    isAcceptedAnswer,
+    isPinned,
     createdAt,
     updatedAt: comment.updatedAt ?? undefined,
   }
@@ -234,6 +285,43 @@ export const forumListApi = baseApi.injectEndpoints({
       },
       providesTags: [{ type: 'ForumCategory' as const, id: 'LIST' }],
     }),
+    getForumThreadChannels: builder.query<ForumThreadChannel[], { includeInactive?: boolean } | void>({
+      query: (arg) => ({
+        url: arg && typeof arg === 'object' && arg.includeInactive ? '/api/v1/thread-channels/admin' : '/api/v1/thread-channels',
+      }),
+      transformResponse: (response: ApiSuccessEnvelope<{ channels?: unknown[] }>) => {
+        const rows = response?.data?.channels
+        if (!Array.isArray(rows)) return []
+        return rows
+          .map((row) => {
+            const r = row as {
+              id?: string
+              code?: string
+              name?: string
+              description?: string | null
+              displayOrder?: number
+              isActive?: boolean
+              allowPinnedComments?: boolean
+              allowAcceptedAnswers?: boolean
+              allowModeratorActions?: boolean
+            }
+            if (!r.id || !r.code || !r.name) return null
+            return {
+              id: r.id,
+              code: r.code,
+              name: r.name,
+              description: r.description ?? '',
+              displayOrder: typeof r.displayOrder === 'number' ? r.displayOrder : 0,
+              isActive: r.isActive !== false,
+              allowPinnedComments: r.allowPinnedComments !== false,
+              allowAcceptedAnswers: r.allowAcceptedAnswers !== false,
+              allowModeratorActions: r.allowModeratorActions !== false,
+            } satisfies ForumThreadChannel
+          })
+          .filter((x): x is ForumThreadChannel => x !== null)
+      },
+      providesTags: [{ type: 'ForumCategory' as const, id: 'THREAD_CHANNELS' }],
+    }),
     createForumPost: builder.mutation<string, CreatePostRequest>({
       query: (body) => ({
         url: '/api/v1/posts',
@@ -243,6 +331,7 @@ export const forumListApi = baseApi.injectEndpoints({
           content: body.content,
           type: body.type,
           categoryId: body.categoryId || undefined,
+          threadChannelId: body.threadChannelId || undefined,
           tags: body.tags,
         },
       }),
@@ -316,6 +405,7 @@ export const forumListApi = baseApi.injectEndpoints({
         params: {
           pageNumber: params.pageNumber ?? 1,
           pageSize: params.pageSize ?? 20,
+          threadChannelId: params.threadChannelId ?? undefined,
         },
       }),
       transformResponse: (response: ApiSuccessEnvelope<PostsPayload>) => {
@@ -330,6 +420,27 @@ export const forumListApi = baseApi.injectEndpoints({
               { type: 'ForumPost' as const, id: 'LIST' },
             ]
           : [{ type: 'ForumPost' as const, id: 'LIST' }],
+    }),
+    getBookmarkedForumList: builder.query<ForumListItem[], ForumListQueryParams | undefined>({
+      query: (params = {}) => ({
+        url: '/api/v1/posts/bookmarks',
+        params: {
+          pageNumber: params.pageNumber ?? 1,
+          pageSize: params.pageSize ?? 20,
+        },
+      }),
+      transformResponse: (response: ApiSuccessEnvelope<PostsPayload>) => {
+        const payload = response?.data
+        const posts = payload?.posts ?? payload?.items ?? []
+        return posts.map(toSafeForumListItem)
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map((post) => ({ type: 'ForumPost' as const, id: post.id })),
+              { type: 'ForumPost' as const, id: 'BOOKMARKED_LIST' },
+            ]
+          : [{ type: 'ForumPost' as const, id: 'BOOKMARKED_LIST' }],
     }),
     getForumPostById: builder.query<ForumDetailItem, string>({
       query: (id) => {
@@ -410,6 +521,7 @@ export const forumListApi = baseApi.injectEndpoints({
         return [
           { type: 'ForumPost' as const, id: pid },
           { type: 'ForumPost' as const, id: 'LIST' },
+          { type: 'ForumPost' as const, id: 'BOOKMARKED_LIST' },
         ]
       },
     }),
@@ -452,6 +564,27 @@ export const forumListApi = baseApi.injectEndpoints({
         { type: 'Comment' as const, id: `POST-${normalizeForumPostId(postId)}` },
       ],
     }),
+    acceptAnswer: builder.mutation<void, AcceptAnswerRequest>({
+      query: ({ commentId, postId }) => ({
+        url: `/api/v1/comments/${encodeURIComponent(commentId)}/accept`,
+        method: 'POST',
+        params: { postId },
+      }),
+      invalidatesTags: (_result, _error, { postId }) => [
+        { type: 'Comment' as const, id: `POST-${normalizeForumPostId(postId)}` },
+        { type: 'ForumPost' as const, id: normalizeForumPostId(postId) },
+      ],
+    }),
+    pinComment: builder.mutation<void, PinCommentRequest>({
+      query: ({ commentId, postId }) => ({
+        url: `/api/v1/comments/${encodeURIComponent(commentId)}/pin`,
+        method: 'POST',
+        params: { postId },
+      }),
+      invalidatesTags: (_result, _error, { postId }) => [
+        { type: 'Comment' as const, id: `POST-${normalizeForumPostId(postId)}` },
+      ],
+    }),
     bookmarkPost: builder.mutation<void, { postId: string }>({
       query: ({ postId }) => {
         const pid = normalizeForumPostId(postId)
@@ -465,6 +598,7 @@ export const forumListApi = baseApi.injectEndpoints({
         return [
           { type: 'ForumPost' as const, id: pid },
           { type: 'ForumPost' as const, id: 'LIST' },
+          { type: 'ForumPost' as const, id: 'BOOKMARKED_LIST' },
         ]
       },
     }),
@@ -506,15 +640,19 @@ export const forumListApi = baseApi.injectEndpoints({
 
 export const {
   useGetForumListQuery,
+  useGetBookmarkedForumListQuery,
   useGetForumPostByIdQuery,
   useGetPostCommentsQuery,
   useAddCommentMutation,
   useVotePostMutation,
   useVoteCommentMutation,
+  useAcceptAnswerMutation,
+  usePinCommentMutation,
   useBookmarkPostMutation,
   useUnbookmarkPostMutation,
   useReportPostMutation,
   useGetForumCategoriesQuery,
+  useGetForumThreadChannelsQuery,
   useCreateForumPostMutation,
   useUploadForumAttachmentsMutation,
   usePublishForumPostMutation,

@@ -97,7 +97,17 @@
     "minLength": "Minimum 10 characters",
     "postComment": "Post comment",
     "reply": "Reply",
+    "acceptAnswer": "Accept answer",
+    "pinComment": "Pin",
+    "unpinComment": "Unpin",
+    "pinnedComment": "Pinned",
     "cancelReply": "Cancel reply",
+    "sortLabel": "Sort",
+    "sortTop": "Top",
+    "sortNew": "Newest",
+    "collapseThread": "Collapse",
+    "expandThread": "Expand",
+    "quotePrefix": "@{{author}} wrote:",
     "acceptedAnswer": "Accepted answer",
     "author": "Author"
   },
@@ -135,12 +145,19 @@
   "topbar": {
     "brand": "UniHub Forum",
     "searchPlaceholder": "Search topics...",
+    "assistant": "Assistant",
+    "threads": "Threads",
+    "saved": "Saved",
     "moderation": "Moderation",
     "admin": "Admin",
     "backToForum": "Forum",
     "backHome": "Home"
   },
   "sidebar": {
+    "main": {
+      "assistant": "Assistant",
+      "saved": "Saved posts"
+    },
     "sections": {
       "main": "Main",
       "topics": "Topics",
@@ -149,6 +166,7 @@
     },
     "topics": {
       "all": "All topics",
+      "threads": "Thread board",
       "announcements": "Announcements"
     },
     "categories": {
@@ -194,6 +212,7 @@
     "loginRequired": "Please sign in to perform this action.",
     "actionFailed": "Action failed. Please try again.",
     "commentRequired": "Please enter a comment.",
+    "commentCooldown": "Please wait a few seconds before posting another comment.",
     "commentSuccess": "Comment submitted successfully.",
     "commentFailed": "Unable to submit comment. Please try again.",
     "voteSuccess": "Your upvote has been recorded.",
@@ -204,12 +223,34 @@
     "unbookmarkFailed": "Unable to remove saved post.",
     "reportSuccess": "Report submitted. Thank you!",
     "reportFailed": "Unable to submit report right now.",
+    "acceptAnswerSuccess": "Answer marked as accepted.",
+    "acceptAnswerFailed": "Unable to accept this answer.",
+    "pinCommentSuccess": "Comment pin state updated.",
+    "pinCommentFailed": "Unable to update comment pin state.",
     "shareSuccess": "Post link copied to clipboard.",
-    "shareUnavailable": "Cannot copy link in this browser."
+    "shareUnavailable": "Cannot copy link in this browser.",
+    "facebookShareReady": "Post content and link copied. Paste it into your Facebook share text."
+  },
+  "saved": {
+    "title": "Saved posts",
+    "empty": "You have no saved posts yet.",
+    "loadFailed": "Failed to load saved posts.",
+    "backToForum": "Back to forum"
+  },
+  "threads": {
+    "title": "Thread board",
+    "subtitle": "Topic-first discussions. Open a thread and continue conversation in comments.",
+    "openThread": "Open thread",
+    "empty": "No posts in this thread channel yet. Create a post and pick this channel (e.g. General Thread); after approval it will show up here."
+  },
+  "threadMode": {
+    "badge": "Thread mode",
+    "description": "This topic is comment-first. Continue discussion in replies to keep context in one place."
   },
   "mod": {
     "reportsTitle": "Moderation reports",
     "pendingPostsTitle": "Pending posts",
+    "pendingPostsHint": "Open «Details» to read the full post and use the AI moderation hint in the side panel.",
     "totalReports": "Total reports",
     "noReports": "No reports in this status.",
     "noPendingPosts": "No pending posts to review.",
@@ -233,7 +274,25 @@
     "actions": {
       "keep": "Resolve keep",
       "remove": "Resolve remove",
-      "approve": "Approve & publish"
+      "approve": "Approve & publish",
+      "viewDetail": "Details"
+    },
+    "pendingDetail": {
+      "drawerTitle": "Pending post",
+      "loadError": "Could not load this post.",
+      "openInForum": "Open on forum",
+      "tags": "Tags",
+      "content": "Body",
+      "aiHint": "AI moderation hint",
+      "aiAnalyzing": "Analyzing…",
+      "aiDisclaimer": "Suggestions are advisory; moderators make the final decision.",
+      "aiError": "Could not load AI hint.",
+      "recommendation": "Suggestion",
+      "reason": "Reason",
+      "violations": "Flags",
+      "recAllow": "Allow publish",
+      "recReview": "Review carefully",
+      "recHide": "Reject / remove"
     },
     "feedback": {
       "loadFailed": "Failed to load moderation data.",
@@ -247,6 +306,8 @@
     "fallbackTitle": "Forum topic detail",
     "fallbackContent": "This discussion highlights key updates from the forum thread. Open comments below for follow-up points and additional context from members.",
     "commentPlaceholder": "Write your comment...",
+    "attachmentsLabel": "Attachments",
+    "attachmentImageAlt": "Attached image",
     "sampleComment1": "Thanks for sharing. I agree this should be prioritized for the next sprint.",
     "sampleComment2": "Could you add more details about expected timeline and impact?",
     "sampleTime1": "2 hours ago",

@@ -1,7 +1,11 @@
+import { useTranslation } from 'react-i18next'
 import { useGetModerationPendingPostsQuery, useGetModerationReportsQuery } from '../api/forum.moderation.api'
 import { useGetDocumentsQuery } from '@features/learning/api/learning.api'
 
+const metricValueClass = 'mt-1 text-2xl font-semibold tabular-nums text-slate-900'
+
 export function ModDashboardPage() {
+  const { t } = useTranslation()
   const { data: pendingReports } = useGetModerationReportsQuery({ status: 'pending', pageNumber: 1, pageSize: 1 })
   const { data: keepReports } = useGetModerationReportsQuery({ status: 'resolved_keep', pageNumber: 1, pageSize: 1 })
   const { data: removeReports } = useGetModerationReportsQuery({ status: 'resolved_remove', pageNumber: 1, pageSize: 1 })
@@ -19,47 +23,58 @@ export function ModDashboardPage() {
 
   return (
     <section className="space-y-4">
-      <header className="rounded-xl border border-amber-200 bg-white p-4">
-        <h2 className="text-lg font-semibold text-slate-900">Mod Dashboard</h2>
-        <p className="mt-1 text-sm text-slate-600">Tổng quan nhanh hàng đợi kiểm duyệt và chất lượng xử lý.</p>
+      <header className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900">{t('mod.dashboard.title')}</h2>
+        <p className="mt-1 text-sm text-slate-600">{t('mod.dashboard.subtitle')}</p>
       </header>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Báo cáo chờ xử lý</p>
-          <p className="mt-1 text-2xl font-bold text-amber-700">{pending}</p>
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            {t('mod.dashboard.metrics.pendingReports')}
+          </p>
+          <p className={metricValueClass}>{pending}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Bài chờ duyệt</p>
-          <p className="mt-1 text-2xl font-bold text-indigo-700">{pendingPosts.length}</p>
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            {t('mod.dashboard.metrics.pendingPosts')}
+          </p>
+          <p className={metricValueClass}>{pendingPosts.length}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Tài liệu chờ duyệt</p>
-          <p className="mt-1 text-2xl font-bold text-rose-700">{docsPending}</p>
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            {t('mod.dashboard.metrics.pendingDocuments')}
+          </p>
+          <p className={metricValueClass}>{docsPending}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Đã xử lý</p>
-          <p className="mt-1 text-2xl font-bold text-emerald-700">{totalResolved}</p>
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            {t('mod.dashboard.metrics.resolved')}
+          </p>
+          <p className={metricValueClass}>{totalResolved}</p>
         </div>
       </div>
 
       <div className="grid gap-3 xl:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm font-semibold text-slate-800">Tỷ lệ tồn đọng báo cáo</p>
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-sm font-semibold text-slate-800">{t('mod.dashboard.charts.backlogTitle')}</p>
           <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
-            <div className="h-full bg-amber-500" style={{ width: `${pendingRate}%` }} />
+            <div className="h-full bg-slate-700" style={{ width: `${pendingRate}%` }} />
           </div>
-          <p className="mt-2 text-xs text-slate-600">{pendingRate.toFixed(1)}% báo cáo đang chờ xử lý</p>
+          <p className="mt-2 text-xs text-slate-600">
+            {t('mod.dashboard.charts.backlogHint', { pct: pendingRate.toFixed(1) })}
+          </p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm font-semibold text-slate-800">Tỷ lệ xử lý gỡ bỏ</p>
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-sm font-semibold text-slate-800">{t('mod.dashboard.charts.removeRateTitle')}</p>
           <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
-            <div className="h-full bg-rose-500" style={{ width: `${removedRate}%` }} />
+            <div className="h-full bg-slate-500" style={{ width: `${removedRate}%` }} />
           </div>
-          <p className="mt-2 text-xs text-slate-600">{removedRate.toFixed(1)}% trong số báo cáo đã xử lý là gỡ bỏ</p>
+          <p className="mt-2 text-xs text-slate-600">
+            {t('mod.dashboard.charts.removeRateHint', { pct: removedRate.toFixed(1) })}
+          </p>
         </div>
       </div>
     </section>
   )
 }
-

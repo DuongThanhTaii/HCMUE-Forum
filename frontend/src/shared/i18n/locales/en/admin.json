@@ -5,6 +5,7 @@
   "roles": "Roles",
   "permissions": "Permissions",
   "toggles": "Feature toggles",
+  "threadChannels": "Thread channels",
   "logs": {
     "actions": "Action logs",
     "audit": "Audit logs"
@@ -19,7 +20,60 @@
     "groups": {
       "access": "Access control",
       "overrides": "Overrides",
+      "forum": "Forum",
       "observability": "Observability"
+    }
+  },
+  "threadChannelsPage": {
+    "title": "Thread channels",
+    "subtitle": "Official discussion channels and per-channel policy (pin, accepted answer, moderator actions).",
+    "badges": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "policy": {
+      "on": "On",
+      "off": "Off"
+    },
+    "policyLabels": {
+      "pin": "Pin comments",
+      "accepted": "Accepted answers",
+      "mod": "Moderator actions"
+    },
+    "fields": {
+      "code": "Code",
+      "name": "Name",
+      "description": "Description",
+      "displayOrder": "Display order",
+      "isActive": "Active",
+      "allowPin": "Allow pinned comments",
+      "allowAccepted": "Allow accepted answers",
+      "allowMod": "Allow moderator actions"
+    },
+    "actions": {
+      "reviewSave": "Review & save"
+    },
+    "create": {
+      "title": "Create channel",
+      "hint": "New channels need a unique code and display name. Review the diff before applying.",
+      "review": "Review & create"
+    },
+    "confirm": {
+      "updateTitle": "Confirm changes — {{name}}",
+      "createTitle": "Confirm new channel",
+      "subtitle": "Values below will be sent to the server.",
+      "field": "Field",
+      "before": "Before",
+      "after": "After",
+      "apply": "Apply"
+    },
+    "messages": {
+      "loadError": "Failed to load thread channels.",
+      "noChanges": "No changes to save.",
+      "codeNameRequired": "Code and name are required.",
+      "saved": "Saved “{{name}}”.",
+      "created": "Channel created.",
+      "saveFailed": "Save failed. Check permissions and try again."
     }
   },
   "rolesPage": {
@@ -138,11 +192,117 @@
   },
   "actionLogsPage": {
     "title": "User action logs",
+    "viewType": {
+      "Developer": "Developer",
+      "DeveloperHint": "headers + body preview",
+      "Administrator": "Administrator",
+      "AdministratorHint": "metadata only"
+    },
+    "hero": {
+      "kicker": "Observability",
+      "subtitle": "Query by user, correlation identifier, or trace identifier. Developer view includes captured request/response previews (size-limited, sensitive headers redacted).",
+      "autoRefresh": "Auto-refresh · 5s",
+      "export": "Export JSON"
+    },
+    "stats": {
+      "inPage": "Rows (this page)",
+      "inPageHint": "Stats reflect the current result set only.",
+      "ok": "2xx / 3xx",
+      "errors": "4xx / 5xx",
+      "p95": "p95 latency"
+    },
+    "banner": {
+      "correlationTitle": "Correlation journey",
+      "correlationBody": "Requests are sorted by start time. The same Correlation ID may include multiple users if the gateway reused the header—compare Actor in each step.",
+      "traceTitle": "Trace lookup",
+      "traceBody": "Showing all logged requests matching this Trace ID (W3C / Activity)."
+    },
     "filters": {
       "actorUserId": "Actor user ID",
       "method": "Method",
       "pathContains": "Path contains",
-      "pageSize": "Page size"
+      "pageSize": "Page size",
+      "user": "User",
+      "userPlaceholder": "Select or type User ID…",
+      "feature": "Feature / API area",
+      "correlationId": "Correlation ID",
+      "correlationPlaceholder": "Paste X-Correlation-Id…",
+      "correlationHint": "No user required. Loads the full chain (increase page size if needed).",
+      "traceId": "Trace ID",
+      "tracePlaceholder": "Trace / Activity id…",
+      "outcome": "HTTP outcome",
+      "outcomeAll": "All statuses",
+      "outcomeSuccess": "Success (2xx–3xx)",
+      "outcomeClientError": "Client error (4xx)",
+      "outcomeServerError": "Server error (5xx)"
+    },
+    "features": {
+      "all": "All APIs",
+      "posts": "Forum · Posts",
+      "comments": "Forum · Comments",
+      "categories": "Forum · Categories",
+      "tags": "Forum · Tags",
+      "search": "Forum · Search",
+      "threadChannels": "Forum · Thread channels",
+      "mod": "Moderation",
+      "adminAuth": "Admin · Authorization",
+      "adminObservability": "Admin · Observability",
+      "users": "Identity · Users",
+      "auth": "Identity · Auth",
+      "roles": "Identity · Roles",
+      "permissions": "Identity · Permissions",
+      "jobs": "Career · Jobs",
+      "applications": "Career · Applications",
+      "companies": "Career · Companies",
+      "recruiters": "Career · Recruiters",
+      "documents": "Learning · Documents",
+      "courses": "Learning · Courses",
+      "faculties": "Learning · Faculties",
+      "chat": "Chat",
+      "notifications": "Notifications",
+      "ai": "AI",
+      "assistant": "Assistant tools",
+      "integrations": "Integrations",
+      "other": "Other"
+    },
+    "empty": {
+      "needScopeTitle": "Choose how to search",
+      "needScopeBody": "Enter a User ID, paste a Correlation ID, or a Trace ID. Correlation mode is ideal for following one browser or API session across many endpoints."
+    },
+    "loading": "Loading action logs…",
+    "timeline": {
+      "prompt": "correlation-timeline --id=\"{{id}}\""
+    },
+    "row": {
+      "copy": "Copy",
+      "copyCorrelation": "Copy correlation id"
+    },
+    "detail": {
+      "kicker": "HTTP request record",
+      "summary": "Summary",
+      "requestSection": "Request",
+      "responseSection": "Response",
+      "headers": "Headers",
+      "body": "Body",
+      "bodyTruncated": "Preview truncated at the configured byte limit.",
+      "endpoint": "ASP.NET endpoint",
+      "fullUrl": "Full URL",
+      "copy": "Copy",
+      "correlation": "Correlation",
+      "followCorrelation": "Open correlation journey",
+      "trace": "Trace",
+      "actor": "Actor user",
+      "network": "Client",
+      "timing": "Timing",
+      "started": "Started (UTC)",
+      "completed": "Completed (UTC)",
+      "exception": "Exception",
+      "terminalLine": "Log line",
+      "httpPayloadHiddenTitle": "Request & response payloads",
+      "httpPayloadHiddenBody": "Administrator view does not return captured HTTP headers or bodies (by design). Switch to Developer above to see redacted headers and size-limited body previews.",
+      "currentViewBadge": "List view",
+      "noRequestBodyForMethod": "This method usually has no request body (for example GET).",
+      "noResponseBody204": "No response body for status 204."
     },
     "table": {
       "method": "Method",
@@ -153,7 +313,8 @@
     "pagination": {
       "previous": "Previous",
       "next": "Next",
-      "page": "Page"
+      "page": "Page",
+      "summary": "{{total}} total · showing {{from}}–{{to}}"
     },
     "messages": {
       "loadError": "Failed to load action logs.",

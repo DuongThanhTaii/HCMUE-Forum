@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, Building2, Hash, Home, Layers3, MessageSquare, Tag } from 'lucide-react';
+import { BookMarked, BookOpen, Bot, Building2, Hash, Home, Layers3, MessageSquare, Tag } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -12,10 +12,13 @@ type SidebarItem = {
 const MAIN_ITEMS: SidebarItem[] = [
   { to: '/home', labelKey: 'nav.home', icon: Home },
   { to: '/forum', labelKey: 'nav.forum', icon: MessageSquare },
+  { to: '/forum/saved', labelKey: 'forum.sidebar.main.saved', icon: BookMarked },
+  { to: '/assistant', labelKey: 'forum.sidebar.main.assistant', icon: Bot },
 ];
 
 const TOPIC_ITEMS: SidebarItem[] = [
   { to: '/forum?topic=all', labelKey: 'forum.sidebar.topics.all', icon: MessageSquare },
+  { to: '/forum/threads', labelKey: 'forum.sidebar.topics.threads', icon: Hash },
   { to: '/forum?topic=thong-bao', labelKey: 'forum.sidebar.topics.announcements', icon: Hash },
 ];
 

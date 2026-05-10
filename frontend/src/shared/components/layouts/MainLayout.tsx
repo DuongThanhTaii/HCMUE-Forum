@@ -23,10 +23,11 @@ export function MainLayout() {
     </>
   );
 
-  const withNotifications = (content: React.ReactNode) =>
-    isAuthenticated || AUTH_BYPASS_IN_DEV
-      ? <NotificationProvider>{content}</NotificationProvider>
-      : <>{content}</>;
+  // Always provide context to avoid runtime crash in children (e.g. topbar bell)
+  // when auth sources are temporarily out of sync during bootstrap.
+  const withNotifications = (content: React.ReactNode) => (
+    <NotificationProvider>{content}</NotificationProvider>
+  );
 
   return (
     <div className="min-h-screen bg-slate-50">

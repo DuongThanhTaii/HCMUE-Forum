@@ -2,8 +2,15 @@ import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
+  useRewriteContentMutation,
+  useSuggestTitleTagsMutation,
+  type RewriteContentResult,
+  type SuggestTitleTagsResult,
+} from '@features/assistant/api/assistant.api'
+import {
   useCreateForumPostMutation,
   useGetForumCategoriesQuery,
+  useGetForumThreadChannelsQuery,
   useGetPopularForumTagsQuery,
   useUploadForumAttachmentsMutation,
 } from '../api/forum.list.api'
@@ -31,6 +38,7 @@ export function useForumCreatePostPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { data: categories = [], isLoading: loadingCategories } = useGetForumCategoriesQuery()
+  const { data: threadChannels = [], isLoading: loadingThreadChannels } = useGetForumThreadChannelsQuery()
   const { data: popularTags = [], isLoading: loadingTags } = useGetPopularForumTagsQuery({ count: 28 })
   const [createPost, { isLoading: isSubmitting }] = useCreateForumPostMutation()
   const [uploadAttachments, { isLoading: isUploadingAttachments }] = useUploadForumAttachmentsMutation()
@@ -39,11 +47,17 @@ export function useForumCreatePostPage() {
   const [content, setContent] = useState('')
   const [type, setType] = useState(1)
   const [categoryId, setCategoryId] = useState('')
+  const [threadChannelId, setThreadChannelId] = useState('')
   const [selectedTagNames, setSelectedTagNames] = useState<string[]>([])
   const [customTags, setCustomTags] = useState<string[]>([])
   const [addTagDraft, setAddTagDraft] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [attachments, setAttachments] = useState<File[]>([])
+  const [copilotError, setCopilotError] = useState<string | null>(null)
+  const [copilotSuggestion, setCopilotSuggestion] = useState<SuggestTitleTagsResult | null>(null)
+  const [copilotRewrite, setCopilotRewrite] = useState<RewriteContentResult | null>(null)
+  const [suggestTitleTags, { isLoading: isSuggestingTitleTags }] = useSuggestTitleTagsMutation()
+  const [rewriteContent, { isLoading: isRewritingContent }] = useRewriteContentMutation()
 
   const typeOptions = useMemo(
     () => POST_TYPES.map((p) => ({ value: p.value, label: t(p.labelKey) })),
@@ -115,6 +129,7 @@ export function useForumCreatePostPage() {
           content: finalContent,
           type,
           categoryId: categoryId || undefined,
+          threadChannelId: threadChannelId || undefined,
           tags: mergedTags.length ? mergedTags : undefined,
         }).unwrap()
         navigate('/forum')
@@ -126,6 +141,7 @@ export function useForumCreatePostPage() {
       addTagDraft,
       attachments,
       categoryId,
+      threadChannelId,
       content,
       createPost,
       customTags,
@@ -138,10 +154,47 @@ export function useForumCreatePostPage() {
     ],
   )
 
+  const onSuggestTitleTags = useCallback(async () => {
+    setCopilotError(null)
+    try {
+      const result = await suggestTitleTags({
+        title,
+        content,
+        maxTags: 5,
+      }).unwrap()
+      setCopilotSuggestion(result)
+      setTitle(result.suggestedTitle)
+      setSelectedTagNames((prev) => uniqueTagList(prev, result.suggestedTags))
+    } catch {
+      setCopilotError('Unable to generate title/tag suggestions right now.')
+    }
+  }, [content, suggestTitleTags, title])
+
+  const onRewriteContent = useCallback(async () => {
+    setCopilotError(null)
+    if (!content.trim()) {
+      setCopilotError(t('forum.createPost.validation.required'))
+      return
+    }
+    try {
+      const result = await rewriteContent({
+        title,
+        content,
+        style: 'clear and concise',
+      }).unwrap()
+      setCopilotRewrite(result)
+      setContent(result.rewrittenContent)
+    } catch {
+      setCopilotError('Unable to rewrite content right now.')
+    }
+  }, [content, rewriteContent, t, title])
+
   return {
     t,
     categories,
     loadingCategories,
+    threadChannels,
+    loadingThreadChannels,
     popularTags,
     loadingTags,
     title,
@@ -152,6 +205,8 @@ export function useForumCreatePostPage() {
     setType,
     categoryId,
     setCategoryId,
+    threadChannelId,
+    setThreadChannelId,
     selectedTagNames,
     customTags,
     addTagDraft,
@@ -167,5 +222,12 @@ export function useForumCreatePostPage() {
     attachments,
     setAttachments,
     isUploadingAttachments,
+    copilotError,
+    copilotSuggestion,
+    copilotRewrite,
+    onSuggestTitleTags,
+    onRewriteContent,
+    isSuggestingTitleTags,
+    isRewritingContent,
   }
 }

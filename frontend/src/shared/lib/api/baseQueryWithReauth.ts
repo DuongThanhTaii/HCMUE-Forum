@@ -26,6 +26,45 @@ type RefreshResponse = {
   refreshToken: string
 }
 let refreshPromise: Promise<RefreshResponse | null> | null = null
+let isRedirectingToMaintenance = false
+
+type MaintenanceErrorPayload = {
+  title?: string
+  extensions?: {
+    reasonCode?: string
+  }
+}
+
+const isMaintenanceModeError = (error: FetchBaseQueryError | undefined): boolean => {
+  if (!error || error.status !== 503) return false
+  const payload = (error.data ?? {}) as MaintenanceErrorPayload
+  const reasonCode = payload.extensions?.reasonCode
+  return reasonCode === 'MaintenanceModeEnabled' || payload.title === 'Maintenance Mode'
+}
+
+const redirectToMaintenanceIfNeeded = (error: FetchBaseQueryError | undefined): void => {
+  if (!isMaintenanceModeError(error)) return
+  if (typeof window === 'undefined') return
+  if (window.location.pathname === '/maintenance') return
+  // Keep admin pages accessible so admins can disable maintenance mode.
+  if (window.location.pathname.startsWith('/admin')) return
+  if (isRedirectingToMaintenance) return
+  isRedirectingToMaintenance = true
+  window.location.replace('/maintenance')
+}
+
+const isAzureAccessToken = (token: string | null | undefined): boolean => {
+  if (!token) return false
+  try {
+    const parts = token.split('.')
+    if (parts.length < 2) return false
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))) as Record<string, unknown>
+    const iss = typeof payload.iss === 'string' ? payload.iss.toLowerCase() : ''
+    return iss.includes('login.microsoftonline.com') || iss.includes('sts.windows.net')
+  } catch {
+    return false
+  }
+}
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_URL,
@@ -54,13 +93,20 @@ export const baseQueryWithReauth: BaseQueryFn<
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
   let result = await rawBaseQuery(args, api, extraOptions)
+  redirectToMaintenanceIfNeeded(result.error)
 
   if (result.error?.status !== 401) {
     return result
   }
 
+  const accessToken = (api.getState() as RootState).auth?.accessToken
   const refreshToken = (api.getState() as RootState).auth?.refreshToken
   if (!refreshToken) {
+    if (isAzureAccessToken(accessToken)) {
+      // Azure flow does not use local refresh token endpoint.
+      // Keep current session and let caller handle unauthorized responses.
+      return result
+    }
     api.dispatch(logout())
     window.location.href = '/login'
     return result
@@ -94,6 +140,7 @@ export const baseQueryWithReauth: BaseQueryFn<
     const nextRoles = parseRolesFromAccessToken(nextAuth.accessToken)
     api.dispatch(setUserRoles(nextRoles))
     result = await rawBaseQuery(args, api, extraOptions)
+    redirectToMaintenanceIfNeeded(result.error)
   } else {
     api.dispatch(logout())
     window.location.href = '/login'

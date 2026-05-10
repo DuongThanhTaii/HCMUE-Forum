@@ -73,6 +73,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   const connectionRef = useRef<HubConnection | null>(null)
   const lastJoinedRef = useRef<ChatThreadRef | null>(null)
+  const activeThreadKeyRef = useRef<string | null>(null)
+  const currentUserIdRef = useRef<string | null>(null)
   const [hubStatus, setHubStatus] = useState<HubConnectionStatus>('idle')
   const [activeThreadKey, setActiveThreadKey] = useState<string | null>(null)
   const [unreadByThread, setUnreadByThread] = useState<Record<string, number>>({})
@@ -84,6 +86,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   >({})
 
   const webRtcSubscribersRef = useRef(new Set<(payload: WebRtcSignalPayload) => void>())
+
+  useEffect(() => {
+    activeThreadKeyRef.current = activeThreadKey
+  }, [activeThreadKey])
+
+  useEffect(() => {
+    currentUserIdRef.current = currentUserId
+  }, [currentUserId])
 
   const subscribeWebRtcSignal = useCallback((handler: (payload: WebRtcSignalPayload) => void) => {
     webRtcSubscribersRef.current.add(handler)
@@ -132,33 +142,30 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
-  const onReceiveMessage = useCallback(
-    (msg: HubMessageNotification) => {
-      const key = inboundThreadKey(msg)
-      if (!key) return
-      if (msg.channelId) {
-        const cid = msg.channelId
-        setChannelTranscripts((prev) => {
-          const next = [...(prev[cid] ?? []), msg].slice(-200)
-          return { ...prev, [cid]: next }
-        })
-      }
-      if (msg.senderId === currentUserId) return
-
-      if (key === activeThreadKey) return
-      setUnreadByThread((prev) => ({
-        ...prev,
-        [key]: (prev[key] ?? 0) + 1,
-      }))
-      notifyInboundChatMessage({
-        threadKey: key,
-        messageId: msg.messageId,
-        title: msg.senderName || 'Message',
-        body: msg.content?.slice(0, 140) || '',
+  const onReceiveMessage = useCallback((msg: HubMessageNotification) => {
+    const key = inboundThreadKey(msg)
+    if (!key) return
+    if (msg.channelId) {
+      const cid = msg.channelId
+      setChannelTranscripts((prev) => {
+        const next = [...(prev[cid] ?? []), msg].slice(-200)
+        return { ...prev, [cid]: next }
       })
-    },
-    [activeThreadKey, currentUserId]
-  )
+    }
+    if (msg.senderId === currentUserIdRef.current) return
+
+    if (key === activeThreadKeyRef.current) return
+    setUnreadByThread((prev) => ({
+      ...prev,
+      [key]: (prev[key] ?? 0) + 1,
+    }))
+    notifyInboundChatMessage({
+      threadKey: key,
+      messageId: msg.messageId,
+      title: msg.senderName || 'Message',
+      body: msg.content?.slice(0, 140) || '',
+    })
+  }, [])
 
   const handleRemoteTyping = useCallback(
     (p: { userId: string; userName: string; conversationId: string; isTyping: boolean }) => {
