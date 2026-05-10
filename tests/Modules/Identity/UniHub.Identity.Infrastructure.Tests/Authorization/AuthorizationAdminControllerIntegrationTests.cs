@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using UniHub.Contracts;
 using UniHub.Identity.Application.Abstractions;
@@ -56,13 +57,24 @@ public sealed class AuthorizationAdminControllerIntegrationTests
         return user;
     }
 
+    private static AuthorizationAdminController CreateController(IServiceProvider serviceProvider)
+    {
+        var sender = serviceProvider.GetRequiredService<ISender>();
+        var userGroupRepository = serviceProvider.GetRequiredService<IUserGroupRepository>();
+        var endpointToggleRepository = serviceProvider.GetRequiredService<IEndpointToggleRepository>();
+        return new AuthorizationAdminController(
+            sender,
+            userGroupRepository,
+            endpointToggleRepository,
+            Array.Empty<EndpointDataSource>());
+    }
+
     [Fact]
     public async Task UserOverrideEndpoints_ShouldUpsertGetAndRevokeSuccessfully()
     {
         using var provider = BuildProvider();
         using var scope = provider.CreateScope();
 
-        var sender = scope.ServiceProvider.GetRequiredService<ISender>();
         var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
         var permissionRepository = scope.ServiceProvider.GetRequiredService<IPermissionRepository>();
 
@@ -70,7 +82,7 @@ public sealed class AuthorizationAdminControllerIntegrationTests
         var permission = await permissionRepository.GetByCodeAsync("forum.post.create");
         permission.Should().NotBeNull();
 
-        var controller = new AuthorizationAdminController(sender);
+        var controller = CreateController(scope.ServiceProvider);
 
         var upsertRequest = new UpsertPermissionOverrideRequest(
             permission!.Id.Value,
@@ -119,7 +131,6 @@ public sealed class AuthorizationAdminControllerIntegrationTests
         using var provider = BuildProvider();
         using var scope = provider.CreateScope();
 
-        var sender = scope.ServiceProvider.GetRequiredService<ISender>();
         var permissionRepository = scope.ServiceProvider.GetRequiredService<IPermissionRepository>();
         var userGroupRepository = scope.ServiceProvider.GetRequiredService<IUserGroupRepository>();
 
@@ -129,7 +140,7 @@ public sealed class AuthorizationAdminControllerIntegrationTests
         var permission = await permissionRepository.GetByCodeAsync("forum.post.create");
         permission.Should().NotBeNull();
 
-        var controller = new AuthorizationAdminController(sender);
+        var controller = CreateController(scope.ServiceProvider);
 
         var upsertRequest = new UpsertPermissionOverrideRequest(
             permission!.Id.Value,
@@ -178,8 +189,7 @@ public sealed class AuthorizationAdminControllerIntegrationTests
         using var provider = BuildProvider();
         using var scope = provider.CreateScope();
 
-        var sender = scope.ServiceProvider.GetRequiredService<ISender>();
-        var controller = new AuthorizationAdminController(sender);
+        var controller = CreateController(scope.ServiceProvider);
         const string endpointKey = "Api.Identity.AuthorizationAdmin.SetEndpointToggle";
 
         var getMissing = await controller.GetEndpointToggleByKey(endpointKey, CancellationToken.None);
@@ -233,8 +243,7 @@ public sealed class AuthorizationAdminControllerIntegrationTests
         using var provider = BuildProvider();
         using var scope = provider.CreateScope();
 
-        var sender = scope.ServiceProvider.GetRequiredService<ISender>();
-        var controller = new AuthorizationAdminController(sender);
+        var controller = CreateController(scope.ServiceProvider);
         const string endpointKey = "Api.Identity.AuthorizationAdmin.GetUserOverrides";
 
         await controller.SetEndpointToggle(

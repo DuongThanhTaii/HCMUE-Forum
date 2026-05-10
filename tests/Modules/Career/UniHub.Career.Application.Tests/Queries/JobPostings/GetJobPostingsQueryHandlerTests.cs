@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using UniHub.Career.Application.Abstractions;
 using UniHub.Career.Application.Queries.JobPostings.GetJobPostings;
+using UniHub.Career.Domain.Companies;
 using UniHub.Career.Domain.JobPostings;
 using Xunit;
 
@@ -10,12 +11,17 @@ namespace UniHub.Career.Application.Tests.Queries.JobPostings;
 public class GetJobPostingsQueryHandlerTests
 {
     private readonly IJobPostingRepository _jobPostingRepository;
+    private readonly ICompanyRepository _companyRepository;
     private readonly GetJobPostingsQueryHandler _handler;
 
     public GetJobPostingsQueryHandlerTests()
     {
         _jobPostingRepository = Substitute.For<IJobPostingRepository>();
-        _handler = new GetJobPostingsQueryHandler(_jobPostingRepository);
+        _companyRepository = Substitute.For<ICompanyRepository>();
+        _companyRepository
+            .GetByIdAsync(Arg.Any<CompanyId>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Company?>(null));
+        _handler = new GetJobPostingsQueryHandler(_jobPostingRepository, _companyRepository);
     }
 
     [Fact]

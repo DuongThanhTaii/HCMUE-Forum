@@ -94,6 +94,10 @@ public sealed class UserActionLogsControllerTests
         payload.Items[0].RemoteIp.Should().BeEmpty();
         payload.Items[0].UserAgent.Should().BeEmpty();
         payload.Items[0].ExceptionMessage.Should().BeNull();
+        payload.Items[0].RequestHeadersJson.Should().Be("{}");
+        payload.Items[0].RequestBodyPreview.Should().BeNull();
+        payload.Items[0].ResponseHeadersJson.Should().Be("{}");
+        payload.Items[0].ResponseBodyPreview.Should().BeNull();
     }
 
     private sealed class FakeUserActionLogStore : IUserActionLogStore

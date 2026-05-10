@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Application.Commands.Register;
@@ -13,6 +14,8 @@ public sealed class RegisterUserCommandHandlerTests
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IAzureGuestInvitationService _azureGuestInvitationService;
+    private readonly ILogger<RegisterUserCommandHandler> _logger;
     private readonly RegisterUserCommandHandler _handler;
 
     public RegisterUserCommandHandlerTests()
@@ -20,7 +23,14 @@ public sealed class RegisterUserCommandHandlerTests
         _userRepository = Substitute.For<IUserRepository>();
         _roleRepository = Substitute.For<IRoleRepository>();
         _passwordHasher = Substitute.For<IPasswordHasher>();
-        _handler = new RegisterUserCommandHandler(_userRepository, _roleRepository, _passwordHasher);
+        _azureGuestInvitationService = Substitute.For<IAzureGuestInvitationService>();
+        _logger = Substitute.For<ILogger<RegisterUserCommandHandler>>();
+        _handler = new RegisterUserCommandHandler(
+            _userRepository,
+            _roleRepository,
+            _passwordHasher,
+            _azureGuestInvitationService,
+            _logger);
     }
 
     [Fact]

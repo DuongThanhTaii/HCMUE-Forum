@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Application.Commands.Login;
@@ -17,6 +18,8 @@ public sealed class LoginCommandHandlerTests
     private readonly IJwtService _jwtService;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IRoleRepository _roleRepository;
+    private readonly IAzureGuestInvitationService _azureGuestInvitationService;
+    private readonly ILogger<LoginCommandHandler> _logger;
     private readonly LoginCommandHandler _handler;
 
     public LoginCommandHandlerTests()
@@ -26,6 +29,8 @@ public sealed class LoginCommandHandlerTests
         _jwtService = Substitute.For<IJwtService>();
         _refreshTokenRepository = Substitute.For<IRefreshTokenRepository>();
         _roleRepository = Substitute.For<IRoleRepository>();
+        _azureGuestInvitationService = Substitute.For<IAzureGuestInvitationService>();
+        _logger = Substitute.For<ILogger<LoginCommandHandler>>();
         _roleRepository.GetByIdsAsync(Arg.Any<IEnumerable<RoleId>>(), Arg.Any<CancellationToken>())
             .Returns([]);
         _handler = new LoginCommandHandler(
@@ -33,7 +38,9 @@ public sealed class LoginCommandHandlerTests
             _passwordHasher,
             _jwtService,
             _refreshTokenRepository,
-            _roleRepository);
+            _roleRepository,
+            _azureGuestInvitationService,
+            _logger);
     }
 
     [Fact]
