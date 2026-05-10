@@ -17,7 +17,12 @@ public abstract class BaseApiController : ControllerBase
     /// <exception cref="UnauthorizedAccessException">Thrown when the user ID claim is not found or invalid.</exception>
     protected Guid GetCurrentUserId()
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userIdClaim =
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+            User.FindFirst("user_id")?.Value ??
+            User.FindFirst("oid")?.Value ??
+            User.FindFirst("nameid")?.Value ??
+            User.FindFirst("sub")?.Value;
         
         if (string.IsNullOrEmpty(userIdClaim))
         {
@@ -37,7 +42,12 @@ public abstract class BaseApiController : ControllerBase
     /// </summary>
     protected Guid? TryGetCurrentUserId()
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userIdClaim =
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+            User.FindFirst("user_id")?.Value ??
+            User.FindFirst("oid")?.Value ??
+            User.FindFirst("nameid")?.Value ??
+            User.FindFirst("sub")?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
         {
             return null;

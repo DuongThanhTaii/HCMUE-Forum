@@ -160,5 +160,8 @@ GEMINI.md
 .cursor/skills/
 .worktrees/
 
+# Runtime user uploads (chat attachments, etc.)
+src/UniHub.API/wwwroot/uploads/
+
 src/UniHub.API/appsettings.json
 src/UniHub.API/appsettings.*.json

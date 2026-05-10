@@ -99,7 +99,15 @@ public sealed class UserActionLogsController : ControllerBase
             entry.Result,
             entry.ExceptionType,
             isDeveloperView ? entry.ExceptionMessage : null,
-            UserActionLogTerminalFormatter.BuildLine(entry, viewType));
+            UserActionLogTerminalFormatter.BuildLine(entry, viewType),
+            isDeveloperView ? (entry.RequestHeadersJson ?? "{}") : "{}",
+            isDeveloperView ? entry.RequestContentType : null,
+            isDeveloperView ? entry.RequestBodyPreview : null,
+            isDeveloperView && entry.RequestBodyTruncated,
+            isDeveloperView ? (entry.ResponseHeadersJson ?? "{}") : "{}",
+            isDeveloperView ? entry.ResponseContentType : null,
+            isDeveloperView ? entry.ResponseBodyPreview : null,
+            isDeveloperView && entry.ResponseBodyTruncated);
     }
 }
 
@@ -133,4 +141,12 @@ public sealed record UserActionLogItemResponse(
     string Result,
     string? ExceptionType,
     string? ExceptionMessage,
-    string TerminalLine);
+    string TerminalLine,
+    string RequestHeadersJson,
+    string? RequestContentType,
+    string? RequestBodyPreview,
+    bool RequestBodyTruncated,
+    string ResponseHeadersJson,
+    string? ResponseContentType,
+    string? ResponseBodyPreview,
+    bool ResponseBodyTruncated);

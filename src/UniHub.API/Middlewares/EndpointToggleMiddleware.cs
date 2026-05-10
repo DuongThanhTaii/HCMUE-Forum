@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using UniHub.Identity.Application.Abstractions;
@@ -7,6 +6,7 @@ namespace UniHub.API.Middlewares;
 
 public sealed class EndpointToggleMiddleware
 {
+    private const string MaintenanceToggleKey = "System.Maintenance.Mode";
     private readonly RequestDelegate _next;
     private readonly ILogger<EndpointToggleMiddleware> _logger;
 
@@ -18,15 +18,36 @@ public sealed class EndpointToggleMiddleware
 
     public async Task InvokeAsync(HttpContext context, IEndpointToggleRepository endpointToggleRepository)
     {
-        var endpoint = context.GetEndpoint();
-        if (endpoint is null)
+        var isBypassPath = IsBypassPath(context.Request.Path);
+        var maintenanceToggle = await endpointToggleRepository.GetByEndpointKeyAsync(MaintenanceToggleKey, context.RequestAborted);
+        if (maintenanceToggle?.IsEnabled == true && !isBypassPath)
+        {
+            var maintenanceDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status503ServiceUnavailable,
+                Title = "Maintenance Mode",
+                Detail = maintenanceToggle.Reason ?? "System is temporarily under maintenance.",
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.6.4",
+                Instance = context.Request.Path
+            };
+
+            maintenanceDetails.Extensions["reasonCode"] = "MaintenanceModeEnabled";
+            maintenanceDetails.Extensions["timestamp"] = DateTime.UtcNow;
+
+            context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+            await context.Response.WriteAsJsonAsync(maintenanceDetails, context.RequestAborted);
+            return;
+        }
+
+        // Never block control-plane and health/docs routes with endpoint toggles.
+        if (isBypassPath)
         {
             await _next(context);
             return;
         }
 
-        var hasAuthorizeMetadata = endpoint.Metadata.GetMetadata<IAuthorizeData>() is not null;
-        if (!hasAuthorizeMetadata)
+        var endpoint = context.GetEndpoint();
+        if (endpoint is null)
         {
             await _next(context);
             return;
@@ -82,7 +103,13 @@ public sealed class EndpointToggleMiddleware
             return null;
         }
 
-        return $"Api.{module}.{descriptor.ControllerName}.{descriptor.ActionName}";
+        var controllerName = descriptor.ControllerName;
+        if (controllerName.EndsWith("Controller", StringComparison.Ordinal))
+        {
+            controllerName = controllerName[..^"Controller".Length];
+        }
+
+        return $"UniHub.{module}.{controllerName}.{descriptor.ActionName}";
     }
 
     private static string? ExtractModuleName(string? @namespace)
@@ -90,6 +117,11 @@ public sealed class EndpointToggleMiddleware
         if (string.IsNullOrWhiteSpace(@namespace))
         {
             return null;
+        }
+
+        if (@namespace.Contains("UniHub.API.Controllers", StringComparison.OrdinalIgnoreCase))
+        {
+            return "API";
         }
 
         var segments = @namespace.Split('.', StringSplitOptions.RemoveEmptyEntries);
@@ -101,5 +133,23 @@ public sealed class EndpointToggleMiddleware
         }
 
         return segments[moduleIndex + 1];
+    }
+
+    private static bool IsBypassPath(PathString path)
+    {
+        if (!path.HasValue)
+        {
+            return false;
+        }
+
+        var value = path.Value!;
+        return value.StartsWith("/health", StringComparison.OrdinalIgnoreCase) ||
+               value.StartsWith("/api/v1/auth/login", StringComparison.OrdinalIgnoreCase) ||
+               value.StartsWith("/api/v1/auth/refresh", StringComparison.OrdinalIgnoreCase) ||
+               value.StartsWith("/api/v1/auth/register", StringComparison.OrdinalIgnoreCase) ||
+               value.StartsWith("/api/v1/admin/authorization/maintenance-mode", StringComparison.OrdinalIgnoreCase) ||
+               value.StartsWith("/api/v1/admin/authorization/toggles", StringComparison.OrdinalIgnoreCase) ||
+               value.StartsWith("/openapi", StringComparison.OrdinalIgnoreCase) ||
+               value.StartsWith("/scalar", StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -28,4 +28,20 @@ public sealed class UserActionLogEntry
     public string Result { get; set; } = "Success";
     public string? ExceptionType { get; set; }
     public string? ExceptionMessage { get; set; }
+
+    public string? RequestHeadersJson { get; set; }
+
+    public string? RequestContentType { get; set; }
+
+    public string? RequestBodyPreview { get; set; }
+
+    public bool RequestBodyTruncated { get; set; }
+
+    public string? ResponseHeadersJson { get; set; }
+
+    public string? ResponseContentType { get; set; }
+
+    public string? ResponseBodyPreview { get; set; }
+
+    public bool ResponseBodyTruncated { get; set; }
 }

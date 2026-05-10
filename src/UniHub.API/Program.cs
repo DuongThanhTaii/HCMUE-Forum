@@ -15,6 +15,7 @@ using UniHub.Notification.Infrastructure;
 using UniHub.Notification.Presentation.Hubs;
 using UniHub.AI.Infrastructure;
 using UniHub.API.Middlewares;
+using UniHub.API.Integrations;
 using UniHub.Forum.Presentation.Services;
 using UniHub.Career.Presentation.Services;
 
@@ -42,6 +43,12 @@ try
     Log.Information("Starting UniHub API");
 
     var builder = WebApplication.CreateBuilder(args);
+
+    if (!builder.Configuration.GetValue<bool>("Authentication:AzureAd:Enabled"))
+    {
+        Log.Warning(
+            "Authentication:AzureAd:Enabled is false. Microsoft access tokens will not validate on protected APIs or SignalR hubs; enable Azure AD and set TenantId, ClientId (API app), and Audience to match the SPA scope.");
+    }
 
     // Use Serilog for logging
     builder.Host.UseSerilog();
@@ -152,6 +159,8 @@ try
     builder.Services.AddProblemDetails();
     builder.Services.Configure<UserActionLoggingOptions>(
         builder.Configuration.GetSection(UserActionLoggingOptions.SectionName));
+    builder.Services.Configure<UEBotIntegrationOptions>(
+        builder.Configuration.GetSection(UEBotIntegrationOptions.SectionName));
     builder.Services.AddSingleton<IUserActionLogStore, MongoUserActionLogStore>();
 
     // Add response compression
@@ -165,15 +174,22 @@ try
     {
         options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-        // Global default: 100 requests per minute per IP
+        // Global default: 100 requests per minute per IP (OPTIONS preflight is not limited)
         options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-            RateLimitPartition.GetFixedWindowLimiter(
+        {
+            if (HttpMethods.IsOptions(context.Request.Method))
+            {
+                return RateLimitPartition.GetNoLimiter("preflight");
+            }
+
+            return RateLimitPartition.GetFixedWindowLimiter(
                 partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
                 factory: _ => new FixedWindowRateLimiterOptions
                 {
                     PermitLimit = 100,
                     Window = TimeSpan.FromMinutes(1)
-                }));
+                });
+        });
 
         // Auth endpoints: 10 requests per minute (anti brute-force)
         options.AddPolicy("auth", context =>
@@ -192,6 +208,32 @@ try
                 factory: _ => new FixedWindowRateLimiterOptions
                 {
                     PermitLimit = 20,
+                    Window = TimeSpan.FromMinutes(1)
+                }));
+
+        // Integration endpoints: stricter per authenticated user (fallback to IP)
+        options.AddPolicy("integrations", context =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey:
+                    context.User?.Identity?.IsAuthenticated == true
+                        ? context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "anon-user"
+                        : context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 30,
+                    Window = TimeSpan.FromMinutes(1)
+                }));
+
+        // Forum write endpoints: reduce comment/reply spam bursts
+        options.AddPolicy("forum-write", context =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey:
+                    context.User?.Identity?.IsAuthenticated == true
+                        ? context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "anon-user"
+                        : context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 15,
                     Window = TimeSpan.FromMinutes(1)
                 }));
     });
@@ -231,7 +273,12 @@ try
     }
 
     app.UseResponseCompression();
-    app.UseHttpsRedirection();
+
+    // Avoid redirecting browser preflight (http→https) during local dev — breaks CORS for SPA on http://localhost:5173
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHttpsRedirection();
+    }
 
     // Use CORS
     app.UseCors("DefaultCorsPolicy");
@@ -244,6 +291,7 @@ try
 
     // Authentication & Authorization
     app.UseAuthentication();
+    app.UseMiddleware<AzureUserProvisioningMiddleware>();
     app.UseMiddleware<UserActionLoggingMiddleware>();
     app.UseMiddleware<UniHub.API.Middlewares.EndpointToggleMiddleware>();
     app.UseAuthorization();

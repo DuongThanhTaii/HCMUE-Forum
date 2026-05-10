@@ -35,11 +35,45 @@ public sealed class UserActionLoggingMiddleware
         var startedAtUtc = DateTime.UtcNow;
         var stopwatch = Stopwatch.StartNew();
 
-        Exception? pipelineException = null;
+        var capture = _options.CaptureHttpDetails;
+        var requestHeadersJson = "{}";
+        string? requestContentType = null;
+        string? requestBodyPreview = null;
+        var requestBodyTruncated = false;
 
+        if (capture)
+        {
+            requestHeadersJson = UserActionHttpCapture.SerializeRequestHeaders(
+                context.Request.Headers,
+                _options.MaxCapturedHeadersJsonChars);
+            requestContentType = context.Request.ContentType;
+
+            if (UserActionHttpCapture.ShouldCaptureRequestBody(context.Request))
+            {
+                context.Request.EnableBuffering();
+                var (preview, trunc) = await UserActionHttpCapture.ReadBodyPreviewAsync(
+                        context.Request.Body,
+                        _options.MaxCapturedBodyBytes,
+                        context.RequestAborted)
+                    .ConfigureAwait(false);
+                context.Request.Body.Position = 0;
+                requestBodyPreview = preview;
+                requestBodyTruncated = trunc;
+            }
+        }
+
+        Stream originalResponseBody = context.Response.Body;
+        MemoryStream? responseBuffer = null;
+        if (capture)
+        {
+            responseBuffer = new MemoryStream();
+            context.Response.Body = responseBuffer;
+        }
+
+        Exception? pipelineException = null;
         try
         {
-            await _next(context);
+            await _next(context).ConfigureAwait(false);
         }
         catch (Exception exception)
         {
@@ -53,6 +87,42 @@ public sealed class UserActionLoggingMiddleware
             var statusCode = pipelineException is null
                 ? context.Response.StatusCode
                 : MapExceptionToStatusCode(pipelineException);
+
+            var responseHeadersJson = "{}";
+            string? responseContentType = null;
+            string? responseBodyPreview = null;
+            var responseBodyTruncated = false;
+
+            if (capture && responseBuffer is not null)
+            {
+                responseHeadersJson = UserActionHttpCapture.SerializeResponseHeaders(
+                    context.Response.Headers,
+                    _options.MaxCapturedHeadersJsonChars);
+                responseContentType = context.Response.ContentType;
+                responseBuffer.Position = 0;
+                if (responseBuffer.Length > 0)
+                {
+                    (responseBodyPreview, responseBodyTruncated) = UserActionHttpCapture.ReadResponsePreview(
+                        responseBuffer,
+                        _options.MaxCapturedBodyBytes);
+                }
+
+                responseBuffer.Position = 0;
+                try
+                {
+                    await responseBuffer.CopyToAsync(originalResponseBody, context.RequestAborted).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // ignore
+                }
+                catch (ObjectDisposedException)
+                {
+                    // ignore
+                }
+
+                await responseBuffer.DisposeAsync().ConfigureAwait(false);
+            }
 
             var actorUserId = ResolveActorUserId(context.User);
             var endpoint = context.GetEndpoint();
@@ -86,7 +156,15 @@ public sealed class UserActionLoggingMiddleware
                 CompletedAtUtc = completedAtUtc,
                 Result = result,
                 ExceptionType = pipelineException?.GetType().Name,
-                ExceptionMessage = pipelineException?.Message
+                ExceptionMessage = pipelineException?.Message,
+                RequestHeadersJson = capture ? requestHeadersJson : "{}",
+                RequestContentType = capture ? requestContentType : null,
+                RequestBodyPreview = capture ? requestBodyPreview : null,
+                RequestBodyTruncated = capture && requestBodyTruncated,
+                ResponseHeadersJson = capture ? responseHeadersJson : "{}",
+                ResponseContentType = capture ? responseContentType : null,
+                ResponseBodyPreview = capture ? responseBodyPreview : null,
+                ResponseBodyTruncated = capture && responseBodyTruncated,
             };
 
             var logPayload = new Dictionary<string, object?>
@@ -104,12 +182,19 @@ public sealed class UserActionLoggingMiddleware
                 ["UserAgent"] = string.IsNullOrWhiteSpace(userAgent) ? "unknown" : userAgent,
                 ["StartedAtUtc"] = startedAtUtc,
                 ["CompletedAtUtc"] = completedAtUtc,
-                ["Result"] = result
+                ["Result"] = result,
             };
 
             if (_options.PersistToMongo)
             {
-                await logStore.AppendAsync(logEntry, context.RequestAborted);
+                try
+                {
+                    await logStore.AppendAsync(logEntry, context.RequestAborted).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // ignore
+                }
             }
 
             using (_logger.BeginScope(logPayload))
@@ -208,7 +293,7 @@ public sealed class UserActionLoggingMiddleware
             SharedKernel.Exceptions.UnauthorizedException => StatusCodes.Status401Unauthorized,
             SharedKernel.Exceptions.ForbiddenException => StatusCodes.Status403Forbidden,
             SharedKernel.Exceptions.DomainException => StatusCodes.Status400BadRequest,
-            _ => StatusCodes.Status500InternalServerError
+            _ => StatusCodes.Status500InternalServerError,
         };
     }
 }
