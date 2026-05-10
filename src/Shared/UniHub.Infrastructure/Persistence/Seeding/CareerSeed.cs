@@ -179,7 +179,24 @@ internal static class CareerSeed
             {
                 Title = "Backend .NET Engineer",
                 CompanyName = "Bosch Global Software Technologies Vietnam",
-                Description = "Build scalable backend services with .NET, SQL and cloud-native architecture for global automotive platforms.",
+                Description = """
+## Mô tả công việc
+Build scalable backend services with .NET, SQL and cloud-native architecture for global automotive platforms.
+Develop APIs and integration components following secure coding standards.
+Collaborate with product and QA teams to deliver features end-to-end.
+Monitor, debug and optimize service performance in production-like environments.
+
+## Hồ sơ của bạn
+Final-year student or graduate in Computer Science / Software Engineering / IT.
+Solid foundation in C#, ASP.NET Core, SQL and REST API design.
+Understanding of clean architecture, testing and version control workflows.
+Able to read technical documentation in English and communicate clearly in team settings.
+
+## Liên hệ & thông tin bổ sung
+Monthly allowance and structured mentorship from senior engineers.
+Opportunity to work on real projects in an international engineering environment.
+Only shortlisted candidates will be contacted.
+""",
                 JobType = JobType.FullTime,
                 Exp = ExperienceLevel.Junior,
                 City = "Ho Chi Minh City",
@@ -194,7 +211,24 @@ internal static class CareerSeed
             {
                 Title = "Cloud Platform Engineer",
                 CompanyName = "NAB Innovation Centre Vietnam",
-                Description = "Design and operate cloud platform tooling, CI/CD and observability for digital banking products.",
+                Description = """
+## Mô tả công việc
+Design and operate cloud platform tooling, CI/CD and observability for digital banking products.
+Implement infrastructure-as-code modules and improve deployment reliability.
+Build internal platform capabilities for developer productivity and secure delivery.
+Participate in incident response, root cause analysis and preventive improvements.
+
+## Hồ sơ của bạn
+Good hands-on knowledge of cloud platforms, containers and DevOps practices.
+Experience with Kubernetes, Terraform or similar IaC tooling is preferred.
+Strong problem-solving mindset and ability to work across engineering teams.
+Comfortable reading English technical docs and writing clear operational notes.
+
+## Liên hệ & thông tin bổ sung
+Hybrid/remote-friendly setup depending on project needs.
+Access to learning budget, internal guilds and mentorship.
+Only shortlisted candidates will be contacted.
+""",
                 JobType = JobType.FullTime,
                 Exp = ExperienceLevel.Mid,
                 City = "Ho Chi Minh City",
@@ -209,7 +243,32 @@ internal static class CareerSeed
             {
                 Title = "SAP Fullstack Developer Intern",
                 CompanyName = "SAP Labs Vietnam",
-                Description = "Join SAP teams to build enterprise web features with modern frontend and Java services.",
+                Description = """
+## Mô tả công việc
+Internship Duration: 02 Jul - 25 Dec 2026
+Internship Model: Full-time or at least 4 days/week
+Application Period: 4 May – 8 Jun 2026
+Develop software features and components under supervision, adhering to coding standards.
+Assist in database design, implementation, and query optimization.
+Conduct testing, debugging, and troubleshooting to ensure code functionality and performance.
+Create and maintain technical documentation for developed features.
+Learn and apply new technologies, frameworks, and methodologies.
+Support front-end and back-end integration, including basic security implementation.
+
+## Hồ sơ của bạn
+3rd or final-year student in Computer Science, Software Engineering, or related major.
+Official university recommendation letter with stamp (mandatory).
+Commitment: full-time or at least 4 days/week.
+Good knowledge in Java/.NET/NodeJS/Python/Django.
+Good knowledge in JavaScript/HTML/CSS; Angular/ReactJS is an advantage.
+Fair English communication skills.
+
+## Liên hệ & thông tin bổ sung
+Graduates or applicants without a university recommendation letter are not eligible.
+Monthly internship allowance + meal & parking allowance.
+1 day paid leave per month and team-building activities.
+Due to the high number of applications, only shortlisted candidates will be contacted.
+""",
                 JobType = JobType.Internship,
                 Exp = ExperienceLevel.Entry,
                 City = "Ho Chi Minh City",
