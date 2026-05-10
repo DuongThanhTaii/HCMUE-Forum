@@ -53,6 +53,7 @@ public sealed class GetJobPostingsQueryHandler
             return new JobPostingSummary(
                 jp.Id.Value,
                 jp.Title,
+                jp.Description,
                 jp.CompanyId,
                 companyMeta.Name,
                 companyMeta.LogoUrl,

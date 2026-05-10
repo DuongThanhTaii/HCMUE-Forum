@@ -65,4 +65,13 @@ public sealed class CompanyRepository : ICompanyRepository
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<List<Company>> GetByRegisteredByAsync(Guid registeredBy, CancellationToken cancellationToken = default)
+    {
+        return await _context.Companies
+            .Where(c => c.RegisteredBy == registeredBy)
+            .OrderBy(c => c.Name)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -46,6 +46,22 @@ internal sealed class JwtBearerOptionsSetup : IConfigureNamedOptions<JwtBearerOp
 
         options.Events = new JwtBearerEvents
         {
+            OnMessageReceived = context =>
+            {
+                var path = context.HttpContext.Request.Path;
+                if (!path.StartsWithSegments("/hubs"))
+                {
+                    return Task.CompletedTask;
+                }
+
+                var accessToken = context.Request.Query["access_token"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            },
             OnAuthenticationFailed = context =>
             {
                 if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))

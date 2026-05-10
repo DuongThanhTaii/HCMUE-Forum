@@ -47,7 +47,11 @@ public sealed class NotificationRepository : INotificationRepository
     public async Task<int> GetUnreadCountAsync(Guid recipientId, CancellationToken cancellationToken = default)
     {
         return await _context.Notifications
-            .CountAsync(n => n.RecipientId == recipientId && !n.IsRead(), cancellationToken);
+            .CountAsync(
+                n => n.RecipientId == recipientId &&
+                     n.Status == NotificationStatus.Sent &&
+                     n.ReadAt == null,
+                cancellationToken);
     }
 
     public async Task AddAsync(Domain.Notifications.Notification notification, CancellationToken cancellationToken = default)
@@ -70,7 +74,9 @@ public sealed class NotificationRepository : INotificationRepository
     public async Task<int> MarkAllAsReadAsync(Guid recipientId, CancellationToken cancellationToken = default)
     {
         var unread = await _context.Notifications
-            .Where(n => n.RecipientId == recipientId && !n.IsRead())
+            .Where(n => n.RecipientId == recipientId &&
+                        n.Status == NotificationStatus.Sent &&
+                        n.ReadAt == null)
             .ToListAsync(cancellationToken);
 
         foreach (var notification in unread)

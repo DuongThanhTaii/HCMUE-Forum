@@ -4,6 +4,7 @@ using UniHub.Identity.Domain.Users;
 using UniHub.Identity.Domain.Users.ValueObjects;
 using UniHub.SharedKernel.CQRS;
 using UniHub.SharedKernel.Results;
+using Microsoft.Extensions.Logging;
 
 namespace UniHub.Identity.Application.Commands.Register;
 
@@ -15,15 +16,21 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IAzureGuestInvitationService _azureGuestInvitationService;
+    private readonly ILogger<RegisterUserCommandHandler> _logger;
 
     public RegisterUserCommandHandler(
         IUserRepository userRepository,
         IRoleRepository roleRepository,
-        IPasswordHasher passwordHasher)
+        IPasswordHasher passwordHasher,
+        IAzureGuestInvitationService azureGuestInvitationService,
+        ILogger<RegisterUserCommandHandler> logger)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _passwordHasher = passwordHasher;
+        _azureGuestInvitationService = azureGuestInvitationService;
+        _logger = logger;
     }
 
     public async Task<Result<Guid>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
@@ -75,6 +82,24 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
 
         // Save user
         await _userRepository.AddAsync(user, cancellationToken);
+
+        // Best-effort: register still succeeds even if Azure Graph is unavailable.
+        try
+        {
+            await _azureGuestInvitationService.EnsureInvitedAsync(
+                user.Id.Value,
+                user.Email.Value,
+                user.Profile.FullName,
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Azure JIT invitation failed during registration for user {UserId} ({Email}).",
+                user.Id.Value,
+                user.Email.Value);
+        }
 
         return Result.Success(user.Id.Value);
     }

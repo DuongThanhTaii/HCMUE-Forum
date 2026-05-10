@@ -41,6 +41,14 @@ public sealed class RecruiterRepository : IRecruiterRepository
             .FirstOrDefaultAsync(r => r.UserId == userId && r.CompanyId == companyId, cancellationToken);
     }
 
+    public async Task<List<Recruiter>> GetByUserAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Recruiters
+            .Where(r => r.UserId == userId)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<Recruiter>> GetByCompanyAsync(CompanyId companyId, CancellationToken cancellationToken = default)
     {
         return await _context.Recruiters

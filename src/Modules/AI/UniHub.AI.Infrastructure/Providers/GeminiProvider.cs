@@ -12,6 +12,7 @@ namespace UniHub.AI.Infrastructure.Providers;
 /// </summary>
 public sealed class GeminiProvider : AIProviderBase
 {
+    private const string DefaultBaseUrl = "https://generativelanguage.googleapis.com";
     private readonly HttpClient _httpClient;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -23,7 +24,7 @@ public sealed class GeminiProvider : AIProviderBase
         : base(configuration)
     {
         _httpClient = httpClientFactory.CreateClient();
-        _httpClient.BaseAddress = new Uri(configuration.BaseUrl);
+        _httpClient.BaseAddress = CreateSafeBaseUri(configuration.BaseUrl);
         _httpClient.Timeout = TimeSpan.FromSeconds(configuration.TimeoutSeconds);
     }
 
@@ -157,5 +158,15 @@ public sealed class GeminiProvider : AIProviderBase
     {
         [JsonPropertyName("totalTokenCount")]
         public int TotalTokenCount { get; set; }
+    }
+
+    private static Uri CreateSafeBaseUri(string? candidate)
+    {
+        if (Uri.TryCreate(candidate, UriKind.Absolute, out var absoluteUri))
+        {
+            return absoluteUri;
+        }
+
+        return new Uri(DefaultBaseUrl, UriKind.Absolute);
     }
 }

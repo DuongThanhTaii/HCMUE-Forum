@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System.IdentityModel.Tokens.Jwt;
 using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Infrastructure.Authentication;
 using UniHub.Identity.Infrastructure.Authorization;
@@ -30,20 +32,76 @@ public static class DependencyInjection
     {
         // Configure JWT settings
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+        services.Configure<AzureAdOptions>(configuration.GetSection(AzureAdOptions.SectionName));
 
         // Validate JWT settings
         services.AddSingleton<IValidateOptions<JwtSettings>, JwtSettingsValidation>();
 
         // Register JWT service
         services.AddScoped<IJwtService, JwtService>();
+        var azureEnabled = configuration.GetValue<bool>($"{AzureAdOptions.SectionName}:Enabled");
 
         // Configure JWT Bearer authentication
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer();
+        services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "DynamicJwt";
+                options.DefaultChallengeScheme = "DynamicJwt";
+            })
+            .AddPolicyScheme("DynamicJwt", "Dynamic JWT Scheme", policy =>
+            {
+                policy.ForwardDefaultSelector = context =>
+                {
+                    // SignalR negotiate/WebSockets often send the JWT via ?access_token=... (no Authorization header).
+                    var token = TryGetBearerTokenForSchemeSelection(context);
+                    if (string.IsNullOrWhiteSpace(token))
+                    {
+                        return JwtBearerDefaults.AuthenticationScheme;
+                    }
+
+                    try
+                    {
+                        var handler = new JwtSecurityTokenHandler();
+                        var jwt = handler.ReadJwtToken(token);
+                        var issuer = jwt.Issuer ?? string.Empty;
+                        var isAzureIssuer =
+                            issuer.Contains("login.microsoftonline.com", StringComparison.OrdinalIgnoreCase) ||
+                            issuer.Contains("sts.windows.net", StringComparison.OrdinalIgnoreCase);
+                        return azureEnabled && isAzureIssuer
+                            ? AzureAdJwtBearerOptionsSetup.Scheme
+                            : JwtBearerDefaults.AuthenticationScheme;
+                    }
+                    catch
+                    {
+                        return JwtBearerDefaults.AuthenticationScheme;
+                    }
+                };
+            })
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(AzureAdJwtBearerOptionsSetup.Scheme);
 
         services.ConfigureOptions<JwtBearerOptionsSetup>();
+        services.ConfigureOptions<AzureAdJwtBearerOptionsSetup>();
 
         return services;
+    }
+
+    /// <summary>
+    /// Authorization header or SignalR <c>access_token</c> query string (negotiate / WebSockets).
+    /// </summary>
+    private static string? TryGetBearerTokenForSchemeSelection(HttpContext httpContext)
+    {
+        var authHeader = httpContext.Request.Headers.Authorization.ToString();
+        if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            var t = authHeader["Bearer ".Length..].Trim();
+            if (!string.IsNullOrWhiteSpace(t))
+            {
+                return t;
+            }
+        }
+
+        var fromQuery = httpContext.Request.Query["access_token"].FirstOrDefault();
+        return string.IsNullOrWhiteSpace(fromQuery) ? null : fromQuery.Trim();
     }
 
     private static IServiceCollection AddRepositories(this IServiceCollection services)
@@ -70,6 +128,9 @@ public static class DependencyInjection
             configuration.GetSection(PermissionCacheOptions.SectionName));
 
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddHttpClient(nameof(AzureGuestInvitationService));
+        services.AddHttpClient(nameof(AzureGuestInvitationService) + "-auth");
+        services.AddScoped<IAzureGuestInvitationService, AzureGuestInvitationService>();
         var provider = configuration[$"{PermissionCacheOptions.SectionName}:Provider"];
         var useRedis = string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase);
 

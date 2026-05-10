@@ -2,6 +2,7 @@ using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Domain.Users.ValueObjects;
 using UniHub.SharedKernel.CQRS;
 using UniHub.SharedKernel.Results;
+using Microsoft.Extensions.Logging;
 
 namespace UniHub.Identity.Application.Commands.Login;
 
@@ -15,19 +16,25 @@ public sealed class LoginCommandHandler : ICommandHandler<LoginCommand, LoginRes
     private readonly IJwtService _jwtService;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IRoleRepository _roleRepository;
+    private readonly IAzureGuestInvitationService _azureGuestInvitationService;
+    private readonly ILogger<LoginCommandHandler> _logger;
 
     public LoginCommandHandler(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
         IJwtService jwtService,
         IRefreshTokenRepository refreshTokenRepository,
-        IRoleRepository roleRepository)
+        IRoleRepository roleRepository,
+        IAzureGuestInvitationService azureGuestInvitationService,
+        ILogger<LoginCommandHandler> logger)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _jwtService = jwtService;
         _refreshTokenRepository = refreshTokenRepository;
         _roleRepository = roleRepository;
+        _azureGuestInvitationService = azureGuestInvitationService;
+        _logger = logger;
     }
 
     public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -56,6 +63,24 @@ public sealed class LoginCommandHandler : ICommandHandler<LoginCommand, LoginRes
         if (user.Status != Domain.Users.UserStatus.Active)
         {
             return Result.Failure<LoginResponse>(LoginErrors.UserNotActive);
+        }
+
+        // Best-effort: keep local login independent from Azure Graph availability.
+        try
+        {
+            await _azureGuestInvitationService.EnsureInvitedAsync(
+                user.Id.Value,
+                user.Email.Value,
+                user.Profile.FullName,
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Azure JIT invitation failed for user {UserId} ({Email}). Local login continues.",
+                user.Id.Value,
+                user.Email.Value);
         }
 
         // Resolve role names in a single query

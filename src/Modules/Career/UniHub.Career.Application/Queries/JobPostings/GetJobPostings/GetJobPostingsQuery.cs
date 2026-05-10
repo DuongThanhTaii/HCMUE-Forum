@@ -33,6 +33,7 @@ public sealed record JobPostingListResponse(
 public sealed record JobPostingSummary(
     Guid JobPostingId,
     string Title,
+    string Description,
     Guid CompanyId,
     string? CompanyName,
     string? CompanyLogoUrl,

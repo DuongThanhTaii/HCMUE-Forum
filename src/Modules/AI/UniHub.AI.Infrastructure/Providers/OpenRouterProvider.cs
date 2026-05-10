@@ -12,6 +12,7 @@ namespace UniHub.AI.Infrastructure.Providers;
 /// </summary>
 public sealed class OpenRouterProvider : AIProviderBase
 {
+    private const string DefaultBaseUrl = "https://openrouter.ai";
     private readonly HttpClient _httpClient;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -23,7 +24,7 @@ public sealed class OpenRouterProvider : AIProviderBase
         : base(configuration)
     {
         _httpClient = httpClientFactory.CreateClient();
-        _httpClient.BaseAddress = new Uri(configuration.BaseUrl);
+        _httpClient.BaseAddress = CreateSafeBaseUri(configuration.BaseUrl);
         _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {configuration.ApiKey}");
         _httpClient.DefaultRequestHeaders.Add("HTTP-Referer", "https://unihub.hcmue.edu.vn"); // Optional but recommended
         _httpClient.DefaultRequestHeaders.Add("X-Title", "UniHub AI"); // Optional
@@ -137,5 +138,15 @@ public sealed class OpenRouterProvider : AIProviderBase
     {
         [JsonPropertyName("total_tokens")]
         public int TotalTokens { get; set; }
+    }
+
+    private static Uri CreateSafeBaseUri(string? candidate)
+    {
+        if (Uri.TryCreate(candidate, UriKind.Absolute, out var absoluteUri))
+        {
+            return absoluteUri;
+        }
+
+        return new Uri(DefaultBaseUrl, UriKind.Absolute);
     }
 }

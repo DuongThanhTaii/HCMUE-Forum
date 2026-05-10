@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using UniHub.Career.Application.Commands.Companies.RegisterCompany;
+using UniHub.Career.Application.Abstractions;
+using UniHub.Career.Domain.Companies;
 using UniHub.Career.Application.Queries.Companies.GetCompanyById;
 using UniHub.Career.Application.Queries.Companies.GetCompanyStatistics;
 using UniHub.Career.Application.Queries.Companies.GetRecentApplications;
@@ -20,11 +22,19 @@ public class CompaniesController : BaseApiController
 {
     private readonly ISender _sender;
     private readonly ICareerLogoStorageService _careerLogoStorageService;
+    private readonly ICompanyRepository _companyRepository;
+    private readonly IRecruiterRepository _recruiterRepository;
 
-    public CompaniesController(ISender sender, ICareerLogoStorageService careerLogoStorageService)
+    public CompaniesController(
+        ISender sender,
+        ICareerLogoStorageService careerLogoStorageService,
+        ICompanyRepository companyRepository,
+        IRecruiterRepository recruiterRepository)
     {
         _sender = sender;
         _careerLogoStorageService = careerLogoStorageService;
+        _companyRepository = companyRepository;
+        _recruiterRepository = recruiterRepository;
     }
 
     /// <summary>
@@ -74,6 +84,37 @@ public class CompaniesController : BaseApiController
 
         var url = await _careerLogoStorageService.UploadLogoAsync(file, GetCurrentUserId(), cancellationToken);
         return Ok(ApiResponses.Success(new { url }, "Company logo uploaded successfully"));
+    }
+
+    /// <summary>
+    /// Get companies registered by current user.
+    /// </summary>
+    [HttpGet("mine")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMine(CancellationToken cancellationToken)
+    {
+        var userId = GetCurrentUserId();
+        var companies = await _companyRepository.GetByRegisteredByAsync(userId, cancellationToken);
+
+        var recruiterLinks = await _recruiterRepository.GetByUserAsync(userId, cancellationToken);
+        var recruiterCompanyIds = recruiterLinks.Select(r => r.CompanyId).Distinct().ToList();
+        foreach (var companyId in recruiterCompanyIds)
+        {
+            var company = await _companyRepository.GetByIdAsync(CompanyId.Create(companyId.Value), cancellationToken);
+            if (company is not null && companies.All(c => c.Id != company.Id))
+            {
+                companies.Add(company);
+            }
+        }
+
+        var data = companies.Select(c => new
+        {
+            id = c.Id.Value,
+            name = c.Name,
+            status = c.Status.ToString(),
+            logoUrl = c.LogoUrl
+        }).ToList();
+        return Ok(ApiResponses.Success((object)data));
     }
 
     /// <summary>

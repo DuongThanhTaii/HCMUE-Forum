@@ -1,11 +1,13 @@
 using MediatR;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Routing;
 using UniHub.Contracts;
 using UniHub.Identity.Application.Authorization;
 using UniHub.Identity.Application.Abstractions;
+using UniHub.Identity.Domain.Authorization;
 using UniHub.Identity.Application.Commands.Authorization.RevokeGroupPermissionOverride;
 using UniHub.Identity.Application.Commands.Authorization.RevokeUserPermissionOverride;
 using UniHub.Identity.Application.Commands.Authorization.SetEndpointToggle;
@@ -25,13 +27,22 @@ namespace UniHub.Identity.Presentation.Controllers;
 [RequirePermission("admin.system.manage")]
 public sealed class AuthorizationAdminController : BaseApiController
 {
+    private const string MaintenanceToggleKey = "System.Maintenance.Mode";
     private readonly ISender _sender;
     private readonly IUserGroupRepository _userGroupRepository;
+    private readonly IEndpointToggleRepository _endpointToggleRepository;
+    private readonly IEnumerable<EndpointDataSource> _endpointDataSources;
 
-    public AuthorizationAdminController(ISender sender, IUserGroupRepository userGroupRepository)
+    public AuthorizationAdminController(
+        ISender sender,
+        IUserGroupRepository userGroupRepository,
+        IEndpointToggleRepository endpointToggleRepository,
+        IEnumerable<EndpointDataSource> endpointDataSources)
     {
         _sender = sender;
         _userGroupRepository = userGroupRepository;
+        _endpointToggleRepository = endpointToggleRepository;
+        _endpointDataSources = endpointDataSources;
     }
 
     [HttpGet("groups")]
@@ -181,6 +192,8 @@ public sealed class AuthorizationAdminController : BaseApiController
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<EndpointToggleResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetEndpointToggles(CancellationToken cancellationToken)
     {
+        await EnsureDiscoveredTogglesAsync(cancellationToken);
+
         var result = await _sender.Send(new GetEndpointTogglesQuery(), cancellationToken);
         if (result.IsFailure)
         {
@@ -226,6 +239,49 @@ public sealed class AuthorizationAdminController : BaseApiController
         }
 
         return Ok(ApiResponses.Success(MapEndpointToggleToResponse(result.Value)));
+    }
+
+    [HttpGet("maintenance-mode")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMaintenanceMode(CancellationToken cancellationToken)
+    {
+        var toggle = await _endpointToggleRepository.GetByEndpointKeyAsync(MaintenanceToggleKey, cancellationToken);
+        var response = new MaintenanceModeResponse(
+            IsEnabled: toggle?.IsEnabled == true,
+            Reason: toggle?.Reason,
+            UpdatedBy: toggle?.UpdatedBy ?? "system",
+            UpdatedAtUtc: toggle?.UpdatedAtUtc ?? DateTime.UtcNow,
+            Version: toggle?.Version ?? 1);
+
+        return Ok(ApiResponses.Success(response));
+    }
+
+    [HttpPut("maintenance-mode")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetMaintenanceMode(
+        [FromBody] SetMaintenanceModeRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new SetEndpointToggleCommand(
+            MaintenanceToggleKey,
+            request.IsEnabled,
+            GetActorIdentifier(),
+            request.Reason);
+        var result = await _sender.Send(command, cancellationToken);
+        if (result.IsFailure)
+        {
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
+        }
+
+        var response = new MaintenanceModeResponse(
+            IsEnabled: result.Value.IsEnabled,
+            Reason: result.Value.Reason,
+            UpdatedBy: result.Value.UpdatedBy,
+            UpdatedAtUtc: result.Value.UpdatedAtUtc,
+            Version: result.Value.Version);
+
+        return Ok(ApiResponses.Success(response));
     }
 
     [HttpGet("audit-logs")]
@@ -303,5 +359,122 @@ public sealed class AuthorizationAdminController : BaseApiController
                ?? User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
                ?? User?.Identity?.Name
                ?? "system";
+    }
+
+    private async Task EnsureDiscoveredTogglesAsync(CancellationToken cancellationToken)
+    {
+        var discoveredKeys = DiscoverAuthorizedEndpointKeys();
+        discoveredKeys.Add(MaintenanceToggleKey);
+
+        foreach (var key in discoveredKeys)
+        {
+            var existing = await _endpointToggleRepository.GetByEndpointKeyAsync(key, cancellationToken);
+            if (existing is not null)
+            {
+                continue;
+            }
+
+            var created = EndpointToggle.Create(key, false, "system-seed", "Maintenance mode is off by default");
+            if (key != MaintenanceToggleKey)
+            {
+                created = EndpointToggle.Create(key, true, "system-seed", "Auto discovered toggle");
+            }
+            if (created.IsSuccess)
+            {
+                await _endpointToggleRepository.AddAsync(created.Value, cancellationToken);
+            }
+        }
+    }
+
+    private HashSet<string> DiscoverAuthorizedEndpointKeys()
+    {
+        var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var source in _endpointDataSources)
+        {
+            foreach (var endpoint in source.Endpoints)
+            {
+                var descriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
+                if (descriptor is null)
+                {
+                    continue;
+                }
+
+                if (!IsApiControllerRoute(endpoint))
+                {
+                    continue;
+                }
+
+                var key = BuildEndpointKey(descriptor);
+                if (!string.IsNullOrWhiteSpace(key))
+                {
+                    keys.Add(key);
+                }
+            }
+        }
+
+        return keys;
+    }
+
+    private static string? BuildEndpointKey(ControllerActionDescriptor descriptor)
+    {
+        var module = ExtractModuleName(descriptor.ControllerTypeInfo.Namespace);
+        if (string.IsNullOrWhiteSpace(module))
+        {
+            return null;
+        }
+
+        var controllerName = descriptor.ControllerName;
+        if (controllerName.EndsWith("Controller", StringComparison.Ordinal))
+        {
+            controllerName = controllerName[..^"Controller".Length];
+        }
+
+        return $"UniHub.{module}.{controllerName}.{descriptor.ActionName}";
+    }
+
+    private static bool IsApiControllerRoute(Endpoint endpoint)
+    {
+        if (endpoint is not RouteEndpoint routeEndpoint)
+        {
+            return false;
+        }
+
+        var raw = routeEndpoint.RoutePattern.RawText;
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return false;
+        }
+
+        return raw.StartsWith("api/", StringComparison.OrdinalIgnoreCase) ||
+               raw.StartsWith("/api/", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string? ExtractModuleName(string? @namespace)
+    {
+        if (string.IsNullOrWhiteSpace(@namespace))
+        {
+            return null;
+        }
+
+        if (@namespace.Contains("UniHub.API.Controllers", StringComparison.OrdinalIgnoreCase))
+        {
+            return "API";
+        }
+
+        var segments = @namespace.Split('.', StringSplitOptions.RemoveEmptyEntries);
+        var moduleIndex = Array.IndexOf(segments, "Modules");
+        if (moduleIndex < 0 || moduleIndex + 1 >= segments.Length)
+        {
+            // Fallback for namespaces like "UniHub.Forum.Presentation.Controllers"
+            if (segments.Length >= 2 &&
+                segments[0].Equals("UniHub", StringComparison.OrdinalIgnoreCase))
+            {
+                return segments[1];
+            }
+
+            return null;
+        }
+
+        return segments[moduleIndex + 1];
     }
 }

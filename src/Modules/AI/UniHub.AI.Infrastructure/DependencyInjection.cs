@@ -85,7 +85,7 @@ public static class DependencyInjection
                 ModelName = settings.Groq.ModelName,
                 MaxRequestsPerMinute = settings.Groq.MaxRequestsPerMinute,
                 MaxTokensPerRequest = settings.Groq.MaxTokensPerRequest,
-                IsEnabled = settings.Groq.IsEnabled,
+                IsEnabled = IsProviderConfigured(settings.Groq),
                 Priority = settings.Groq.Priority,
                 TimeoutSeconds = settings.Groq.TimeoutSeconds
             };
@@ -105,7 +105,7 @@ public static class DependencyInjection
                 ModelName = settings.Gemini.ModelName,
                 MaxRequestsPerMinute = settings.Gemini.MaxRequestsPerMinute,
                 MaxTokensPerRequest = settings.Gemini.MaxTokensPerRequest,
-                IsEnabled = settings.Gemini.IsEnabled,
+                IsEnabled = IsProviderConfigured(settings.Gemini),
                 Priority = settings.Gemini.Priority,
                 TimeoutSeconds = settings.Gemini.TimeoutSeconds
             };
@@ -125,7 +125,7 @@ public static class DependencyInjection
                 ModelName = settings.OpenRouter.ModelName,
                 MaxRequestsPerMinute = settings.OpenRouter.MaxRequestsPerMinute,
                 MaxTokensPerRequest = settings.OpenRouter.MaxTokensPerRequest,
-                IsEnabled = settings.OpenRouter.IsEnabled,
+                IsEnabled = IsProviderConfigured(settings.OpenRouter),
                 Priority = settings.OpenRouter.Priority,
                 TimeoutSeconds = settings.OpenRouter.TimeoutSeconds
             };
@@ -133,5 +133,22 @@ public static class DependencyInjection
         });
 
         return services;
+    }
+
+    private static bool IsProviderConfigured(ProviderSettings settings)
+    {
+        if (!settings.IsEnabled)
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(settings.ApiKey) ||
+            string.IsNullOrWhiteSpace(settings.ModelName) ||
+            string.IsNullOrWhiteSpace(settings.BaseUrl))
+        {
+            return false;
+        }
+
+        return Uri.TryCreate(settings.BaseUrl, UriKind.Absolute, out _);
     }
 }

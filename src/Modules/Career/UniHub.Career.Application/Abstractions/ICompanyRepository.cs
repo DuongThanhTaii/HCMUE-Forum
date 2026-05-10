@@ -41,4 +41,9 @@ public interface ICompanyRepository
     /// Gets companies by status.
     /// </summary>
     Task<List<Company>> GetByStatusAsync(CompanyStatus status, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets companies created by a specific user.
+    /// </summary>
+    Task<List<Company>> GetByRegisteredByAsync(Guid registeredBy, CancellationToken cancellationToken = default);
 }
