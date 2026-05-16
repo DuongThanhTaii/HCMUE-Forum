@@ -78,6 +78,11 @@ export function ModLearningApprovalsPage() {
         <h2 className="text-base font-semibold text-slate-900">{t('mod.learning.title')}</h2>
         <p className="mt-1 text-sm text-slate-600">{t('mod.learning.totalPending', { count: docs.length })}</p>
       </header>
+
+      <div className="rounded-lg border border-emerald-200 bg-emerald-50/90 px-4 py-3 text-[13px] leading-relaxed text-emerald-950 shadow-sm">
+        <p className="font-semibold text-emerald-900">{t('mod.learning.scopeTitle')}</p>
+        <p className="mt-1 text-emerald-900/90">{t('mod.learning.scopeBody')}</p>
+      </div>
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
         <table className="w-full table-auto text-left text-sm">
           <thead className="bg-slate-50 text-slate-600">

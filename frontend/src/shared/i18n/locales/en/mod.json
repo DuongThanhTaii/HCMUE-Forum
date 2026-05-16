@@ -22,12 +22,23 @@
       "backlogTitle": "Report backlog",
       "backlogHint": "{{pct}}% of all reports are still pending",
       "removeRateTitle": "Removal share (resolved)",
-      "removeRateHint": "{{pct}}% of resolved reports resulted in removal"
+      "removeRateHint": "{{pct}}% of resolved reports resulted in removal",
+      "weeklyPendingPostsTitle": "Pending posts activity (7 days)",
+      "weeklyPendingPostsHint": "Distribution by creation date within the current pending queue.",
+      "forumVsLearningTitle": "Forum vs learning",
+      "forumVsLearningForum": "Forum workflow (reports + pending posts)",
+      "forumVsLearningLearning": "Learning materials (pending approval)",
+      "leaderboardTitle": "Authors most frequent in the pending queue",
+      "leaderboardSubtitle": "Prioritisation hint from the current snapshot.",
+      "leaderboardUnknown": "Unknown author",
+      "leaderboardEmpty": "Not enough data to rank."
     }
   },
   "learning": {
     "title": "Learning document review",
     "totalPending": "Pending documents: {{count}}",
+    "scopeTitle": "Who can approve documents",
+    "scopeBody": "Course-scoped moderators only approve uploads linked to their courses (faculty-internal scope). Global Moderator/Admin roles may approve all materials. Forum post moderation is handled separately on Pending posts — by category or official thread channel.",
     "columns": {
       "title": "Title",
       "uploader": "Uploader",

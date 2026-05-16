@@ -22,12 +22,23 @@
       "backlogTitle": "Tỷ lệ tồn đọng báo cáo",
       "backlogHint": "{{pct}}% tổng số báo cáo vẫn đang chờ xử lý",
       "removeRateTitle": "Tỷ lệ gỡ bỏ (đã xử lý)",
-      "removeRateHint": "{{pct}}% báo cáo đã xử lý kết thúc bằng gỡ bỏ"
+      "removeRateHint": "{{pct}}% báo cáo đã xử lý kết thúc bằng gỡ bỏ",
+      "weeklyPendingPostsTitle": "Hoạt động bài chờ duyệt (7 ngày)",
+      "weeklyPendingPostsHint": "Phân bổ theo ngày tạo trong danh sách chờ duyệt hiện tại.",
+      "forumVsLearningTitle": "Diễn đàn và học tập",
+      "forumVsLearningForum": "Luồng diễn đàn (báo cáo + bài chờ duyệt)",
+      "forumVsLearningLearning": "Luồng tài liệu học tập (chờ duyệt)",
+      "leaderboardTitle": "Tác giả xuất hiện nhiều trong hàng đợi bài",
+      "leaderboardSubtitle": "Gợi ý ưu tiên duyệt (theo dữ liệu snapshot hiện tại).",
+      "leaderboardUnknown": "Không rõ tên",
+      "leaderboardEmpty": "Không đủ dữ liệu để xếp hạng."
     }
   },
   "learning": {
     "title": "Kiểm duyệt tài liệu học tập",
     "totalPending": "Tài liệu chờ duyệt: {{count}}",
+    "scopeTitle": "Phân quyền duyệt tài liệu",
+    "scopeBody": "Mod được gán vào môn học chỉ duyệt tài liệu gắn với các môn đó (phạm vi khoa/nội bộ). Moderator/Admin hệ thống có thể duyệt toàn bộ. Duyệt bài viết diễn đàn thực hiện ở trang «Bài chờ duyệt» — có thể theo danh mục hoặc kênh chủ đề.",
     "columns": {
       "title": "Tiêu đề",
       "uploader": "Người tải lên",
