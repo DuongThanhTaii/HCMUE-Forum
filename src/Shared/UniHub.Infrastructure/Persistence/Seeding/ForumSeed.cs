@@ -262,6 +262,195 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
         }
 
         await EnsureGeneralThreadShowcaseIfEmptyAsync(context, logger);
+        await EnsureDiscussionPackPostsAsync(context, logger);
+    }
+
+    /// <summary>
+    /// Idempotent pack of discussion-heavy threads (many short replies). Safe to run on existing DBs.
+    /// </summary>
+    private static async Task EnsureDiscussionPackPostsAsync(ApplicationDbContext context, ILogger logger)
+    {
+        const string markerTitle =
+            "Trao đổi trong tuần: làm nhóm online và chia workload thế nào cho đỡ vỡ deadline";
+
+        if (await context.Posts.AsNoTracking().AnyAsync(p => p.Title.Value == markerTitle))
+        {
+            return;
+        }
+
+        var firstAuthorKey = await context.Users
+            .AsNoTracking()
+            .Select(user => user.Id)
+            .FirstOrDefaultAsync();
+        var systemAuthorId = firstAuthorKey?.Value ?? Guid.Parse("00000000-0000-0000-0000-000000000001");
+        if (systemAuthorId == Guid.Empty)
+        {
+            systemAuthorId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        }
+
+        var allCategories = await context.Categories.AsNoTracking().ToListAsync();
+        if (allCategories.Count == 0)
+        {
+            logger.LogWarning("Skipping discussion pack seed: no categories.");
+            return;
+        }
+
+        var threadChannelMap = await context.ThreadChannels
+            .AsNoTracking()
+            .ToDictionaryAsync(x => x.Code, x => x.Id);
+
+        var markerTag = "seed-discussion-pack-v1";
+
+        var pack = new[]
+        {
+            (
+                markerTitle,
+                """
+                Tuần này mình muốn mở một chỗ để trao đổi thật “thực chiến” — không checklist chung chung.
+
+                **Context:** nhóm 4–5 người, có người làm ban ngày có người chỉ rảnh tối. Deadline cuối tuần mà vẫn phải họp sync ngắn.
+
+                Mình đang làm theo kiểu:
+                • Google Doc một trang duy nhất: mục tiêu tuần, việc đang chạy, blocker (mỗi người ghi 1 dòng).
+                • Họp 15 phút đầu tuần + 10 phút cuối tuần — không slide, chỉ nhìn Doc.
+
+                Các bạn chia workload và nhắc nhau trong nhóm kiểu gì để không ai ôm quá tải? Chỗ nào hay vỡ nhất (communication, kỹ thuật, hay expectation)?
+                """.Trim(),
+                PostType.Discussion,
+                "general",
+                new[]
+                {
+                    "Mình hay vỡ ở chỗ expectation: có người nghĩ “xong phần A là xong”, trong khi phần B phụ thuộc A nhưng không ai confirm.",
+                    "Thử RACI mini trong Doc: ai Responsible / Accountable cho từng mục — chỉ 4–5 dòng nhưng đỡ tranh cãi.",
+                    "Sync tối khó với ai có ca sớm. Mình đề xuất deadline nội bộ sớm hơn deadline giảng viên 24h để có buffer.",
+                    "Mình vote họp ngắn + ghi blocker ngay trong chat nhóm, không để sang hôm sau mới nhắc.",
+                    "Hay bị kẹt vì một người biến mất 2 ngày — có rule “48h không phản hồi thì escalate lên nhóm” không?",
+                    "Với task kỹ thuật, mình chia nhỏ PR: mỗi PR một mục tiêu rõ, review trong ngày để không dồn cuối tuần.",
+                    "Mình để ý stress hay đến từ việc không ai chủ động báo delay sớm — nhắn “delay 1 ngày” sớm vẫn hơn im lặng.",
+                    "Cảm ơn các bạn — mình sẽ thử RACI + deadline nội bộ sớm hơn tuần sau và báo lại kết quả.",
+                }
+            ),
+            (
+                "Offline vs online: làm sao để buổi họp nhóm không thành… đọc slide cho nhau nghe?",
+                """
+                Một điều mình nhận ra sau vài kỳ: họp dài không đồng nghĩa với tiến độ tốt.
+
+                **Thử nghiệm của nhóm mình:**
+                • Agenda tối đa 3 bullet, mỗi bullet có owner và output mong đợi.
+                • Không demo slide trừ khi có người yêu cầu trước — ưu tiên screen share repo / prototype.
+
+                Bạn nào có format agenda ngắn mà vẫn giữ được discipline, chia sẻ giúp?
+                """.Trim(),
+                PostType.Discussion,
+                "general",
+                new[]
+                {
+                    "Mình dùng template: Goal → Decision needed → Next step — hết 10 phút là tan họp.",
+                    "Hay bị lệch sang “báo cáo tiến độ” thay vì “quyết định”. Giờ mình bắt buộc có ít nhất 1 quyết định ghi ra cuối họp.",
+                    "Với nhóm introvert, cho phép comment async trước họp 30p để đỡ áp lực nói live.",
+                    "Nếu chỉ có 1 người chuẩn bị kỹ, họp sẽ biến thành mini seminar — rotate người điều phối mỗi tuần.",
+                    "Mình đề xuất timebox cứng: 25 phút làm việc + 5 phút note — không extend.",
+                    "Off-topic là killer — có “parking lot” list để ghi ý hay nhưng không tranh luận ngay.",
+                    "Thử nhé tuần sau mình áp Goal/Decision/Next step.",
+                }
+            ),
+            (
+                "Làm sao đặt câu hỏi kỹ thuật để người khác muốn trả lời (thay vì… đọc qua)?",
+                """
+                Mình hay thấy thread hỏi đáp chết vì thiếu ngữ cảnh: không version, không error message, không minimal repro.
+
+                Gợi ý khung:
+                1) Mình đang làm gì / kỳ vọng gì?
+                2) Thực tế đang ra gì?
+                3) Đã thử những gì (ngắn)?
+
+                Các bạn có thêm rule nào để thread technical đỡ bị “???” không?
+                """.Trim(),
+                PostType.Question,
+                "qna",
+                new[]
+                {
+                    "Rule của mình: luôn dán stack trace (hoặc log rút gọn) — không dán full wall of text.",
+                    "“Expected vs actual” hai dòng là đủ để người khác hiểu gap.",
+                    "Nếu là frontend, kèm browser + steps reproduce — tiết kiệm 3 round trip hỏi lại.",
+                    "Mình hay thêm một câu “mình đoán chỗ nghi ngờ là …” để người trả lời có neo.",
+                    "Đồng ý minimal repro — có khi tự tối giản ra được bug luôn.",
+                    "Hay gặp thread chỉ ghi “lỗi rồi fix giùm” — không ai muốn nhặt.",
+                }
+            ),
+            (
+                "Tech Corner: trade-off giữa “ship nhanh” và “chuẩn hoá kiến trúc” trong đồ án nhóm?",
+                """
+                Giai đoạn giữa kỳ thường căng: một nhánh muốn refactor sớm, một nhánh muốn vá để kịp demo.
+
+                Mình muốn nghe framework ra quyết định của các nhóm: khi nào chấp nhận nợ kỹ thuật, khi nào phải dừng feature để làm nền?
+
+                Không cần đúng một đáp án — chỉ cần kinh nghiệm thật.
+                """.Trim(),
+                PostType.Discussion,
+                "tech",
+                new[]
+                {
+                    "Demo tuần sau thì mình ưu tiên đường đi vui nhất có thể; refactor sau demo nếu vẫn còn thời gian.",
+                    "Nếu bug có thể làm mất điểm khi chấm thì refactor trước — còn style thì sau.",
+                    "Mình hay viết ADR 5 dòng: quyết định gì / vì sao / trade-off — để sau không cãi nhau.",
+                    "Ship nhanh nhưng có feature flag / kill switch — ít nhất rollback được.",
+                    "Hay chia sprint: tuần 1 skeleton + integration; tuần 2 polish — đỡ dồn architecture vào cuối.",
+                    "Cảm ơn các góc nhìn — mình sẽ thử ADR ngắn trong nhóm.",
+                }
+            ),
+        };
+
+        var posts = new List<Post>();
+        for (var i = 0; i < pack.Length; i++)
+        {
+            var (titleRaw, body, type, channelCode, _) = pack[i];
+            var title = PostTitle.Create(titleRaw).Value;
+            var content = PostContent.Create(body).Value;
+            var categoryId = allCategories[i % allCategories.Count].Id.Value;
+            threadChannelMap.TryGetValue(channelCode, out var threadChannelId);
+            var tagSet = new List<string>
+            {
+                markerTag,
+                "thread",
+                "thao-luan",
+                "hcmue",
+                channelCode,
+            };
+
+            var post = Post.Create(
+                    title,
+                    content,
+                    type,
+                    systemAuthorId,
+                    categoryId,
+                    tagSet,
+                    threadChannelId == Guid.Empty ? null : threadChannelId)
+                .Value;
+            post.Publish();
+            posts.Add(post);
+        }
+
+        context.Posts.AddRange(posts);
+        await context.SaveChangesAsync();
+
+        var comments = new List<Comment>();
+        for (var i = 0; i < posts.Count; i++)
+        {
+            var post = posts[i];
+            var (_, _, _, _, replyLines) = pack[i];
+            foreach (var line in replyLines)
+            {
+                var body = CommentContent.Create(line).Value;
+                comments.Add(Comment.Create(post.Id, systemAuthorId, body).Value);
+                post.IncrementCommentCount();
+            }
+        }
+
+        context.Comments.AddRange(comments);
+        await context.SaveChangesAsync();
+
+        logger.LogInformation("Seeded discussion-heavy thread pack ({Count} posts, {CommentCount} comments).", posts.Count, comments.Count);
     }
 
     /// <summary>
