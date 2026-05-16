@@ -11,6 +11,14 @@
   "documentDetail": "Chi tiết tài liệu",
   "courseList": "Danh sách môn học",
   "facultyList": "Danh sách các khoa",
+  "contribute": {
+    "ctaQuestion": "Bạn có tài liệu muốn đóng góp cho cộng đồng?",
+    "hint": "Tài liệu được kiểm duyệt trước khi hiển thị công khai. Chọn đúng môn học để đội ngũ khoa/môn xử lý nhanh hơn.",
+    "expand": "Đăng tải / đóng góp",
+    "collapse": "Thu gọn biểu mẫu",
+    "libraryHeading": "Thư viện tài liệu",
+    "permissionNote": "Kiểm duyệt tài liệu theo khoa/môn: moderator được gán cho môn chỉ duyệt nội dung gắn với các môn đó. Vai trò Moderator/Admin toàn cục có thể duyệt mọi tài liệu. Kiểm duyệt bài viết diễn đàn là luồng riêng (phạm vi danh mục / kênh)."
+  },
   "uploadPage": {
     "title": "Tải lên tài liệu",
     "subtitle": "Chia sẻ tài liệu học tập với cộng đồng sinh viên",

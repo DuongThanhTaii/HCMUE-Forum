@@ -11,6 +11,14 @@
   "documentDetail": "Document detail",
   "courseList": "Course list",
   "facultyList": "Faculty list",
+  "contribute": {
+    "ctaQuestion": "Have learning materials to share with the community?",
+    "hint": "Materials are reviewed before they go public. Pick the right course so faculty/course moderators can process them faster.",
+    "expand": "Upload / contribute",
+    "collapse": "Hide form",
+    "libraryHeading": "Library",
+    "permissionNote": "Document moderation is scoped by course/faculty: moderators assigned to a course only approve uploads tied to those courses. Global Moderator/Admin roles can approve all materials. Forum post moderation is a separate workflow (category / thread scope)."
+  },
   "uploadPage": {
     "title": "Upload document",
     "subtitle": "Share learning materials with the student community",
