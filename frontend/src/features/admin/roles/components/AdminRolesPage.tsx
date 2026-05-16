@@ -58,7 +58,12 @@ export function AdminRolesPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
         <section className="rounded-xl border border-slate-200 bg-white p-3">
-          <RoleList roles={roles} selectedRoleId={selectedRoleId} onSelectRole={selectRole} />
+          <RoleList
+            roles={roles}
+            selectedRoleId={selectedRoleId}
+            onSelectRole={selectRole}
+            totalPermissionsInSystem={permissions.length}
+          />
         </section>
         <RolePermissionGrid
           permissions={permissions}

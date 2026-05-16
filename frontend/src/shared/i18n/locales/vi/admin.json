@@ -16,6 +16,27 @@
   },
   "reports": "Báo cáo",
   "analytics": "Phân tích",
+  "dashboardPage": {
+    "title": "Bảng điều khiển",
+    "subtitle": "Người dùng, quyền, endpoint và nhật ký — theo tuần và theo vai trò Admin.",
+    "kpis": {
+      "users": "Người dùng",
+      "roles": "Vai trò",
+      "endpointsOn": "Endpoint đang bật",
+      "actionLogsSample": "Action logs (mẫu)"
+    },
+    "endpointHealth": "Phần endpoint đã kích hoạt",
+    "endpointHealthHint": "{{enabled}} / {{total}} endpoint trong danh sách toggle.",
+    "weeklyAuditTitle": "Audit logs — 7 ngày gần nhất",
+    "weeklyAuditHint": "Số sự kiện audit theo ngày (UTC, theo mẫu đã tải).",
+    "weeklyActionsTitle": "Action logs — 7 ngày gần nhất",
+    "weeklyActionsHint": "Số yêu cầu HTTP theo ngày (UTC, theo mẫu đã tải).",
+    "topEndpointsTitle": "Endpoint được gọi nhiều nhất",
+    "topEndpointsHint": "Top {{count}} trong nhật ký mẫu.",
+    "errorRatesTitle": "Chất lượng nhật ký (mẫu)",
+    "actionErrorsLabel": "HTTP lỗi (action logs)",
+    "auditFailuresLabel": "Audit thất bại"
+  },
   "sidebar": {
     "groups": {
       "access": "Kiểm soát truy cập",

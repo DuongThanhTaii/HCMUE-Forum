@@ -16,6 +16,27 @@
   },
   "reports": "Reports",
   "analytics": "Analytics",
+  "dashboardPage": {
+    "title": "Dashboard",
+    "subtitle": "Users, roles, endpoints and logs — weekly visibility for administrators.",
+    "kpis": {
+      "users": "Users",
+      "roles": "Roles",
+      "endpointsOn": "Endpoints enabled",
+      "actionLogsSample": "Action logs (sample)"
+    },
+    "endpointHealth": "Share of endpoints enabled",
+    "endpointHealthHint": "{{enabled}} / {{total}} endpoints in the toggle list.",
+    "weeklyAuditTitle": "Audit logs — last 7 days",
+    "weeklyAuditHint": "Audit events per day (UTC, from loaded sample).",
+    "weeklyActionsTitle": "Action logs — last 7 days",
+    "weeklyActionsHint": "HTTP requests per day (UTC, from loaded sample).",
+    "topEndpointsTitle": "Most frequent endpoints",
+    "topEndpointsHint": "Top {{count}} in the sampled logs.",
+    "errorRatesTitle": "Log quality (sample)",
+    "actionErrorsLabel": "HTTP errors (action logs)",
+    "auditFailuresLabel": "Failed audits"
+  },
   "sidebar": {
     "groups": {
       "access": "Access control",

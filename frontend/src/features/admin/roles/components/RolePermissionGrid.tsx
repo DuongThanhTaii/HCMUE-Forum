@@ -85,15 +85,23 @@ export function RolePermissionGrid({
                   )}
                   <span className="font-semibold text-slate-700 capitalize">{moduleName}</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-200">
+                <div className="flex min-w-0 flex-1 items-center justify-end gap-3 sm:max-w-md">
+                  <div className="h-2 min-w-[7rem] flex-1 overflow-hidden rounded-full bg-slate-200 sm:min-w-[10rem]">
                     <div
-                      className="h-full bg-primary-600 transition-all"
-                      style={{ width: `${(assignedCount / totalCount) * 100}%` }}
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] transition-all duration-300 ease-out"
+                      style={{ width: `${totalCount ? (assignedCount / totalCount) * 100 : 0}%` }}
+                      role="progressbar"
+                      aria-valuenow={assignedCount}
+                      aria-valuemin={0}
+                      aria-valuemax={totalCount}
+                      aria-label={`${moduleName}: ${assignedCount} trên ${totalCount}`}
                     />
                   </div>
-                  <span className="text-sm font-medium text-slate-500">
+                  <span className="shrink-0 tabular-nums text-sm font-semibold text-emerald-700">
                     {assignedCount}/{totalCount}
+                    <span className="ml-1.5 font-normal text-emerald-600/90">
+                      ({totalCount ? Math.round((assignedCount / totalCount) * 100) : 0}%)
+                    </span>
                   </span>
                 </div>
               </button>
