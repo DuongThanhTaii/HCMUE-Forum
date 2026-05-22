@@ -96,6 +96,26 @@ export function parseHubUserTyping(
   return { userId, userName, conversationId, isTyping }
 }
 
+/** Server → client: `UserStatusChanged` / UserStatusNotification */
+export function parseHubUserStatus(
+  payload: unknown
+): {
+  userId: string
+  userName: string
+  status: string
+  timestamp: string
+} | null {
+  if (!payload || typeof payload !== 'object') return null
+  const p = payload as Record<string, unknown>
+  const userId = readStr(p, 'userId', 'UserId')
+  if (!userId || userId === EMPTY_GUID) return null
+  const userName = readStr(p, 'userName', 'UserName')
+  const status = readStr(p, 'status', 'Status')
+  const timestampRaw = p.timestamp ?? p.Timestamp
+  const timestamp = timestampRaw != null ? String(timestampRaw) : new Date().toISOString()
+  return { userId, userName, status, timestamp }
+}
+
 export function readConversationIdFromPayload(payload: unknown): string | null {
   if (!payload || typeof payload !== 'object') return null
   const p = payload as Record<string, unknown>

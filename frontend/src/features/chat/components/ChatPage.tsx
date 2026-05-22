@@ -1,6 +1,7 @@
 import { startTransition, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { BellOff } from 'lucide-react'
 import { skipToken } from '@reduxjs/toolkit/query/react'
 import {
   useCreateDirectConversationMutation,
@@ -14,9 +15,8 @@ import { useChatContext } from '../context/ChatContext'
 import type { ChatThreadRef } from '../types/chat.types'
 import { threadKey } from '../types/chat.types'
 import { ChatCallBar } from './ChatCallBar'
-import { ChatComposer } from './ChatComposer'
+import { ChatConversationPanel } from './ChatConversationPanel'
 import { ChatPeerAvatar } from './ChatPeerAvatar'
-import { ChatThread } from './ChatThread'
 import { useAppSelector } from '@shared/hooks/useAppSelector'
 import { selectUserId } from '@features/auth/model/auth.slice'
 import { requestChatNotificationPermission } from '../lib/chatNotifications'
@@ -53,9 +53,16 @@ export function ChatPage() {
     clearUnread,
     unreadByThread,
     hubStatus,
+    setMutedConversationIds,
+    isUserOnline,
   } = useChatContext()
 
   const { data: convos, isLoading: convLoading } = useGetConversationsQuery()
+
+  useEffect(() => {
+    if (!convos) return
+    setMutedConversationIds(convos.filter((c) => c.isMuted).map((c) => c.id))
+  }, [convos, setMutedConversationIds])
 
   const selectedConversation = useMemo(() => {
     if (selected?.kind !== 'conversation') return null
@@ -125,7 +132,12 @@ export function ChatPage() {
   const subtitleForSelected = () => {
     if (!selected || selected.kind !== 'conversation') return null
     const c = convos?.find((x) => x.id === selected.conversationId)
-    return c ? conversationSubtitle(c) : null
+    if (!c) return null
+    const isDirect = (c.type ?? '').toLowerCase().includes('direct')
+    if (isDirect && isUserOnline(c.directPeerUserId)) {
+      return t('chat.presence.activeNow')
+    }
+    return conversationSubtitle(c)
   }
 
   const hubLabel =
@@ -154,7 +166,7 @@ export function ChatPage() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-7rem)] flex-col md:flex-row md:gap-4">
+    <div className="flex h-[calc(100dvh-7rem)] max-h-[calc(100dvh-7rem)] flex-col overflow-hidden md:flex-row md:gap-4">
       <section
         className={`flex min-h-0 flex-col border-slate-200 md:w-80 md:border-r md:pr-4 ${showList ? 'flex' : 'hidden'} md:flex`}
       >
@@ -217,7 +229,11 @@ export function ChatPage() {
                     const active =
                       selected?.kind === 'conversation' && selected.conversationId === c.id
                     const title = primaryConversationTitle(c, currentUserId)
-                    const sub = conversationSubtitle(c)
+                    const isDirect = (c.type ?? '').toLowerCase().includes('direct')
+                    const sub =
+                      isDirect && isUserOnline(c.directPeerUserId)
+                        ? t('chat.presence.activeNow')
+                        : conversationSubtitle(c)
                     return (
                       <li key={c.id}>
                         <button
@@ -238,11 +254,19 @@ export function ChatPage() {
                               </span>
                             )}
                           </span>
-                          {unread > 0 && (
-                            <span className="shrink-0 rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] text-white">
-                              {unread > 99 ? '99+' : unread}
-                            </span>
-                          )}
+                          <span className="flex shrink-0 items-center gap-1">
+                            {c.isMuted && (
+                              <BellOff
+                                className="h-3.5 w-3.5 text-slate-400"
+                                aria-label={t('chat.safety.mutedBadge')}
+                              />
+                            )}
+                            {unread > 0 && (
+                              <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] text-white">
+                                {unread > 99 ? '99+' : unread}
+                              </span>
+                            )}
+                          </span>
                         </button>
                       </li>
                     )
@@ -402,7 +426,7 @@ export function ChatPage() {
       )}
 
       <section
-        className={`flex min-h-0 flex-1 flex-col ${showThread ? 'flex' : 'hidden'} md:flex`}
+        className={`flex min-h-0 flex-1 flex-col overflow-hidden ${showThread ? 'flex' : 'hidden'} md:flex`}
       >
         {narrow && selected && (
           <button
@@ -441,8 +465,25 @@ export function ChatPage() {
               </div>
             </div>
             <ChatCallBar threadRef={selected} conversation={selectedConversation} />
-            <ChatThread threadRef={selected} currentUserId={currentUserId} />
-            <ChatComposer threadRef={selected} />
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <ChatConversationPanel
+              threadRef={selected}
+              currentUserId={currentUserId}
+              conversationTitle={
+                selected.kind === 'conversation' ? titleForSelected() : null
+              }
+              conversationType={selectedConversation?.type ?? null}
+              peerUserId={
+                selectedConversation?.directPeerUserId ?? null
+              }
+              isMuted={selectedConversation?.isMuted ?? false}
+              isBlockedWithPeer={selectedConversation?.isBlockedWithPeer ?? false}
+              onPeerBlocked={() => {
+                setSelected(null)
+                if (narrow) setPanel('list')
+              }}
+            />
+            </div>
           </>
         )}
       </section>

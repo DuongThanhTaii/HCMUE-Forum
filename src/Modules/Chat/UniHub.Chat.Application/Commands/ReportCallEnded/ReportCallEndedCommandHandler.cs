@@ -41,7 +41,10 @@ public sealed class ReportCallEndedCommandHandler : ICommandHandler<ReportCallEn
                 "User is not a participant in this conversation"));
         }
 
-        var msgResult = Message.CreateCallEnded(conversationId, request.HangUpUserId);
+        var msgResult = Message.CreateCallEnded(
+            conversationId,
+            request.HangUpUserId,
+            request.DurationSeconds);
         if (msgResult.IsFailure)
         {
             return Result.Failure<Guid>(msgResult.Error);

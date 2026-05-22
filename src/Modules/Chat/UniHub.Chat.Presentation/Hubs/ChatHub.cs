@@ -117,6 +117,24 @@ public sealed class ChatHub : Hub<IChatClient>
                         conversationId,
                         null,
                         DateTime.UtcNow));
+
+                // Sync online/offline snapshot for peers in this conversation so client can show
+                // "Đang hoạt động" immediately (without waiting for next connect/disconnect event).
+                var conversation = await _conversationRepository.GetByIdAsync(
+                    ConversationId.Create(conversationId),
+                    Context.ConnectionAborted);
+                if (conversation is not null)
+                {
+                    foreach (var participantId in conversation.Participants.Where(id => id != userId.Value))
+                    {
+                        var isOnline = await _connectionManager.IsUserOnlineAsync(participantId);
+                        await Clients.Caller.UserStatusChanged(new UserStatusNotification(
+                            participantId,
+                            string.Empty,
+                            isOnline ? "Online" : "Offline",
+                            DateTime.UtcNow));
+                    }
+                }
             }
         }
         catch (Exception ex)
@@ -491,7 +509,7 @@ public sealed class ChatHub : Hub<IChatClient>
     /// Called by whoever hangs up a connected call. Persists a CallEnded message
     /// visible to both participants and broadcasts it via hub.
     /// </summary>
-    public async Task ReportCallEnded(Guid conversationId)
+    public async Task ReportCallEnded(Guid conversationId, int? durationSeconds = null)
     {
         try
         {
@@ -501,7 +519,10 @@ public sealed class ChatHub : Hub<IChatClient>
                 throw new HubException("User not authenticated");
             }
 
-            var command = new ReportCallEndedCommand(conversationId, userId.Value);
+            int? sanitizedDuration = durationSeconds.HasValue && durationSeconds.Value > 0
+                ? durationSeconds.Value
+                : null;
+            var command = new ReportCallEndedCommand(conversationId, userId.Value, sanitizedDuration);
             var result = await _sender.Send(command, Context.ConnectionAborted);
 
             if (result.IsFailure)
@@ -637,9 +658,21 @@ public sealed class ChatHub : Hub<IChatClient>
 
     private string GetUserName()
     {
-        return Context.User?.FindFirst(ClaimTypes.Name)?.Value 
-            ?? Context.User?.FindFirst("name")?.Value 
-            ?? "Unknown User";
+        var user = Context.User;
+        var claimValue = user?.FindFirst(ClaimTypes.Name)?.Value
+            ?? user?.FindFirst("name")?.Value
+            ?? user?.FindFirst("preferred_username")?.Value
+            ?? user?.FindFirst(ClaimTypes.Email)?.Value
+            ?? user?.FindFirst("email")?.Value
+            ?? user?.FindFirst("sub")?.Value;
+
+        if (!string.IsNullOrWhiteSpace(claimValue))
+        {
+            return claimValue.Trim();
+        }
+
+        var userId = GetUserId();
+        return userId.HasValue ? $"User {userId.Value.ToString("N")[..8]}" : "User";
     }
 
     private static string GetConversationGroup(Guid conversationId)

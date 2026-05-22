@@ -68,9 +68,15 @@ public class GlobalExceptionHandler : IExceptionHandler
         // Include exception details only in development
         if (_environment.IsDevelopment())
         {
-            problemDetails.Detail = exception.Message;
+            problemDetails.Detail = exception.InnerException is null
+                ? exception.Message
+                : $"{exception.Message} -> {exception.InnerException.Message}";
             problemDetails.Extensions["exceptionType"] = exception.GetType().Name;
             problemDetails.Extensions["stackTrace"] = exception.StackTrace;
+            if (exception.InnerException is not null)
+            {
+                problemDetails.Extensions["innerExceptionType"] = exception.InnerException.GetType().Name;
+            }
         }
 
         httpContext.Response.StatusCode = statusCode;
