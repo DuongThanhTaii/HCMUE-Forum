@@ -14,6 +14,7 @@ import {
   useGetPopularForumTagsQuery,
   useUploadForumAttachmentsMutation,
 } from '../api/forum.list.api'
+import { getLeafCategories } from '../lib/forumCategoryTree'
 
 const POST_TYPES = [
   { value: 1, labelKey: 'forum.createPost.types.discussion' as const },
@@ -63,6 +64,8 @@ export function useForumCreatePostPage() {
     () => POST_TYPES.map((p) => ({ value: p.value, label: t(p.labelKey) })),
     [t],
   )
+
+  const postableCategories = useMemo(() => getLeafCategories(categories), [categories])
 
   const toggleTag = useCallback((name: string) => {
     setSelectedTagNames((prev) => {
@@ -191,7 +194,7 @@ export function useForumCreatePostPage() {
 
   return {
     t,
-    categories,
+    categories: postableCategories,
     loadingCategories,
     threadChannels,
     loadingThreadChannels,

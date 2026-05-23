@@ -153,16 +153,49 @@
     "backToForum": "Về diễn đàn",
     "backHome": "Trang chủ"
   },
+  "index": {
+    "eyebrow": "Bản đồ diễn đàn",
+    "title": "Khu vực thảo luận",
+    "subtitle": "Chia theo mục đích: học thuật, cộng đồng, thông báo và sự nghiệp — giống cách VOZ nhóm Đại sảnh, Máy tính, Khu vui chơi.",
+    "viewAllPosts": "Tất cả bài viết",
+    "backToZones": "Về bản đồ khu vực",
+    "allPostsTitle": "Tất cả bài viết",
+    "colForum": "Diễn đàn",
+    "threads": "Chủ đề",
+    "messages": "Phản hồi",
+    "latest": "Mới nhất",
+    "noPostsYet": "Chưa có bài trong mục này",
+    "statsZones": "Khu",
+    "statsCategories": "Mục",
+    "statsThreads": "Bài",
+    "learningShortcut": "Thư viện tài liệu học tập",
+    "threadsShortcut": "Bảng thread theo chủ đề",
+    "zones": {
+      "official": "Đại sảnh",
+      "officialDesc": "Thông báo, góp ý hệ thống và sự kiện chính thức từ ban quản trị.",
+      "academic": "Học thuật",
+      "academicDesc": "Học bài, hỏi đáp, báo cáo và đồ án.",
+      "community": "Cộng đồng",
+      "communityDesc": "Thảo luận chung, đời sống sinh viên, giải trí.",
+      "career": "Việc làm",
+      "careerDesc": "Tuyển dụng và thực tập.",
+      "other": "Khác",
+      "otherDesc": "Các mục chưa phân loại."
+    }
+  },
   "sidebar": {
     "main": {
       "assistant": "Trợ lý ảo",
-      "saved": "Bài đã lưu"
+      "saved": "Bài đã lưu",
+      "forumIndex": "Bản đồ khu vực",
+      "allPosts": "Tất cả bài viết"
     },
     "sections": {
       "main": "Chính",
       "topics": "Chủ đề",
       "categories": "Danh mục",
-      "tags": "Thẻ"
+      "tags": "Thẻ",
+      "learningCareer": "Học tập & Việc làm"
     },
     "topics": {
       "all": "Tất cả chủ đề",
@@ -245,7 +278,14 @@
   },
   "threadMode": {
     "badge": "Chế độ thread",
-    "description": "Topic này ưu tiên trao đổi qua bình luận. Hãy tiếp tục thảo luận trong phần reply để giữ đúng mạch."
+    "description": "Topic này ưu tiên trao đổi qua bình luận. Hãy tiếp tục thảo luận trong phần reply để giữ đúng mạch.",
+    "point1": "Post gốc chỉ là bối cảnh mở topic; nội dung chính nằm ở các bình luận.",
+    "point2": "Mạch trao đổi được giữ bằng reply theo nhánh, không tách thành nhiều bài mới.",
+    "point3": "Phù hợp thảo luận dài nhiều ý kiến; bài thường phù hợp thông báo hoặc bài viết hoàn chỉnh.",
+    "replyTitle": "Luồng thảo luận",
+    "replyLabel": "Thêm ý kiến vào thread",
+    "replyPlaceholder": "Viết ý kiến để tiếp tục mạch thảo luận...",
+    "replyAction": "Gửi vào thread"
   },
   "mod": {
     "reportsTitle": "Báo cáo kiểm duyệt",

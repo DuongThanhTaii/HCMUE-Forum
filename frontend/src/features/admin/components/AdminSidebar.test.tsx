@@ -11,7 +11,6 @@ describe('AdminSidebar', () => {
   const activeCases = [
     ['/admin/users', 'admin.users'],
     ['/admin/roles', 'admin.roles'],
-    ['/admin/permissions', 'admin.permissions'],
     ['/admin/overrides/users', 'admin.overrides.users'],
     ['/admin/overrides/groups', 'admin.overrides.groups'],
     ['/admin/toggles', 'admin.toggles'],

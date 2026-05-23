@@ -7,9 +7,14 @@ using UniHub.SharedKernel.Results;
 
 namespace UniHub.Forum.Domain.Comments;
 
-public sealed class Comment : Entity<CommentId>
+public sealed class Comment : Entity<CommentId>, IHasDomainEvents
 {
+    private readonly List<IDomainEvent> _domainEvents = new();
     private readonly List<Vote> _votes = new();
+
+    public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+
+    public void ClearDomainEvents() => _domainEvents.Clear();
     public PostId PostId { get; private set; }
     public Guid AuthorId { get; private set; }
     public CommentContent Content { get; private set; }
@@ -238,9 +243,5 @@ public sealed class Comment : Entity<CommentId>
         return Result.Success();
     }
 
-    private void RaiseDomainEvent(IDomainEvent domainEvent)
-    {
-        // In a full implementation, this would add the event to a collection
-        // that gets processed by the infrastructure layer
-    }
+    private void RaiseDomainEvent(IDomainEvent domainEvent) => _domainEvents.Add(domainEvent);
 }

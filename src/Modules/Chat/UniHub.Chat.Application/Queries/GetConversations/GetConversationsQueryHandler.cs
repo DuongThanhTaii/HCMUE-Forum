@@ -12,13 +12,19 @@ public sealed class GetConversationsQueryHandler : IQueryHandler<GetConversation
 {
     private readonly IConversationRepository _conversationRepository;
     private readonly IConversationParticipantLookup _participantLookup;
+    private readonly IConversationMuteRepository _muteRepository;
+    private readonly IUserBlockChecker _userBlockChecker;
 
     public GetConversationsQueryHandler(
         IConversationRepository conversationRepository,
-        IConversationParticipantLookup participantLookup)
+        IConversationParticipantLookup participantLookup,
+        IConversationMuteRepository muteRepository,
+        IUserBlockChecker userBlockChecker)
     {
         _conversationRepository = conversationRepository;
         _participantLookup = participantLookup;
+        _muteRepository = muteRepository;
+        _userBlockChecker = userBlockChecker;
     }
 
     public async Task<Result<IReadOnlyList<ConversationResponse>>> Handle(
@@ -35,9 +41,19 @@ public sealed class GetConversationsQueryHandler : IQueryHandler<GetConversation
 
         var peerCards = await _participantLookup.GetByIdsAsync(allParticipantIds, cancellationToken);
 
+        var conversationIds = conversations.Select(c => c.Id.Value).ToList();
+        var muteStates = await _muteRepository.GetMuteStatesAsync(
+            request.UserId,
+            conversationIds,
+            cancellationToken);
+        var blockedUserIds = await _userBlockChecker.GetBlockedUserIdsForUserAsync(
+            request.UserId,
+            cancellationToken);
+
         var response = conversations
             .Select(c =>
             {
+                var isMuted = muteStates.TryGetValue(c.Id.Value, out var muted) && muted;
                 Guid? peerId = null;
                 string? peerName = null;
                 string? peerEmail = null;
@@ -53,6 +69,8 @@ public sealed class GetConversationsQueryHandler : IQueryHandler<GetConversation
                         peerEmail = card.Email;
                     }
 
+                    var isBlocked = peerId.HasValue && blockedUserIds.Contains(peerId.Value);
+
                     return new ConversationResponse(
                         c.Id.Value,
                         c.Type.ToString(),
@@ -63,7 +81,9 @@ public sealed class GetConversationsQueryHandler : IQueryHandler<GetConversation
                         title,
                         peerId,
                         peerName,
-                        peerEmail);
+                        peerEmail,
+                        isMuted,
+                        isBlocked);
                 }
 
                 if (c.Type == ConversationType.Group)
@@ -110,7 +130,9 @@ public sealed class GetConversationsQueryHandler : IQueryHandler<GetConversation
                     title,
                     null,
                     null,
-                    null);
+                    null,
+                    isMuted,
+                    false);
             })
             .ToList();
 

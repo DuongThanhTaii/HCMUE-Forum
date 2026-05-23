@@ -1,11 +1,27 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useGetForumListQuery } from '../api/forum.list.api'
+import { useSearchParams } from 'react-router-dom'
+import {
+  useGetForumCategoriesQuery,
+  useGetForumListQuery,
+} from '../api/forum.list.api'
 import type { ForumFilterTab } from '../components/ForumFiltersRow'
 
 export function useForumListPage() {
   const { t } = useTranslation()
-  const { data, isLoading, isError } = useGetForumListQuery({ pageNumber: 1, pageSize: 20 })
+  const [searchParams] = useSearchParams()
+  const categoryId = searchParams.get('category')?.trim() || undefined
+
+  const { data: categories = [] } = useGetForumCategoriesQuery()
+  const activeCategory = categoryId
+    ? categories.find((c) => c.id === categoryId)
+    : undefined
+
+  const { data, isLoading, isError } = useGetForumListQuery({
+    pageNumber: 1,
+    pageSize: categoryId ? 50 : 20,
+    categoryId,
+  })
   const [activeTab, setActiveTab] = useState<ForumFilterTab>('latest')
 
   const filteredItems = useMemo(() => {
@@ -43,5 +59,7 @@ export function useForumListPage() {
     isLoading,
     isError,
     isEmpty: !isLoading && !isError && !data?.length,
+    categoryId,
+    activeCategory,
   }
 }

@@ -114,7 +114,23 @@ export function UserOverridesPanel({
                           {override.scopeType}
                           {override.scopeValue ? `:${override.scopeValue}` : ''}
                         </td>
-                        <td className="px-4 py-3 text-sm text-slate-700">{override.effect}</td>
+                        <td className="px-4 py-3 text-sm">
+                          <span
+                            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
+                              override.isRevoked
+                                ? 'bg-slate-100 text-slate-500 line-through'
+                                : override.effect === 'Allow'
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : 'bg-rose-100 text-rose-800'
+                            }`}
+                          >
+                            {override.isRevoked
+                              ? t('admin.overridesPage.table.revoked')
+                              : override.effect === 'Allow'
+                                ? t('admin.overridesPage.form.effectOptions.allow')
+                                : t('admin.overridesPage.form.effectOptions.deny')}
+                          </span>
+                        </td>
                         <td className="px-4 py-3 text-right">
                           <button
                             type="button"

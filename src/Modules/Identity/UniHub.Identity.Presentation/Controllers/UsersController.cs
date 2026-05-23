@@ -8,7 +8,10 @@ using UniHub.Identity.Application.Abstractions;
 using UniHub.Identity.Application.Commands.Users.AssignBadge;
 using UniHub.Identity.Application.Commands.Users.AssignRole;
 using UniHub.Identity.Application.Commands.Users.RemoveBadge;
+using UniHub.Identity.Application.Commands.Users.BlockUser;
 using UniHub.Identity.Application.Commands.Users.RemoveRole;
+using UniHub.Identity.Application.Commands.Users.UnblockUser;
+using UniHub.Identity.Application.Queries.Users.GetBlockedUsers;
 using UniHub.Identity.Domain.Users;
 using UniHub.Identity.Presentation.DTOs.Users;
 
@@ -281,6 +284,58 @@ public class UsersController : ControllerBase
         return Ok(ApiResponses.Success("Badge removed successfully"));
     }
 
+  [HttpPost("{id:guid}/block")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  public async Task<IActionResult> BlockUser(Guid id, CancellationToken cancellationToken)
+  {
+    var userId = GetUserId();
+    var result = await _sender.Send(new BlockUserCommand(userId, id), cancellationToken);
+
+    if (result.IsFailure)
+    {
+      return BadRequest(ApiResponses.Failure(result.Error.Message));
+    }
+
+    return Ok(ApiResponses.Success("User blocked"));
+  }
+
+  [HttpDelete("{id:guid}/block")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  public async Task<IActionResult> UnblockUser(Guid id, CancellationToken cancellationToken)
+  {
+    var userId = GetUserId();
+    var result = await _sender.Send(new UnblockUserCommand(userId, id), cancellationToken);
+
+    if (result.IsFailure)
+    {
+      return BadRequest(ApiResponses.Failure(result.Error.Message));
+    }
+
+    return Ok(ApiResponses.Success("User unblocked"));
+  }
+
+  [HttpGet("me/blocked")]
+  [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<BlockedUserResponse>>), StatusCodes.Status200OK)]
+  public async Task<IActionResult> GetMyBlockedUsers(CancellationToken cancellationToken)
+  {
+    var userId = GetUserId();
+    var result = await _sender.Send(new GetBlockedUsersQuery(userId), cancellationToken);
+
+    if (result.IsFailure)
+    {
+      return BadRequest(ApiResponses.Failure(result.Error.Message));
+    }
+
+    return Ok(ApiResponses.Success(result.Value));
+  }
+
+  private Guid GetUserId()
+  {
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    return Guid.Parse(userIdClaim!);
+  }
+
     private static UserResponse MapToUserResponse(User user)
     {
         OfficialBadgeDto? badgeDto = null;
@@ -300,6 +355,7 @@ public class UsersController : ControllerBase
             user.Profile.Bio,
             user.Status.ToString(),
             badgeDto,
+            user.Roles.Select(r => r.RoleId.Value).ToList(),
             user.CreatedAt);
     }
 }

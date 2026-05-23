@@ -61,6 +61,10 @@
       "accepted": "Accepted answers",
       "mod": "Moderator actions"
     },
+    "table": {
+      "policiesGroup": "Channel policies",
+      "policyLegend": "Each policy column shows On or Off for that channel (pin comments, mark best answer, moderation actions)."
+    },
     "fields": {
       "code": "Code",
       "name": "Name",
@@ -72,7 +76,8 @@
       "allowMod": "Allow moderator actions"
     },
     "actions": {
-      "reviewSave": "Review & save"
+      "reviewSave": "Review & save",
+      "edit": "Edit"
     },
     "create": {
       "title": "Create channel",
@@ -144,7 +149,18 @@
       "reasonPlaceholder": "Optional reason",
       "expiresAt": "Expires at (UTC ISO)",
       "expiresAtPlaceholder": "2026-12-31T23:59:59Z",
-      "submit": "Add override"
+      "submit": "Add override",
+      "pickPermission": "Pick permission to override",
+      "searchPermission": "Search by code or name…",
+      "noPermissions": "No permissions left at this scope.",
+      "selectPermissionHint": "Select a permission on the left to set Allow/Deny.",
+      "selectFaculty": "Select faculty",
+      "selectCourse": "Select course",
+      "effectStatusActive": "Active override: {{effect}} (will be replaced on save).",
+      "effectStatusFromRole": "No override at this scope — using role/group defaults."
+    },
+    "table": {
+      "revoked": "Revoked"
     },
     "userPanel": {
       "searchUser": "Search user",
@@ -344,20 +360,19 @@
   },
   "usersPage": {
     "title": "User management",
-    "subtitle": "Filter users and assign roles or badges.",
+    "subtitle": "Filter by role and status; assign or remove roles inline per user.",
     "filters": {
       "search": "Search",
       "searchPlaceholder": "Search by name or email",
       "role": "Role",
       "status": "Status",
       "allRoles": "All roles",
-      "allStatuses": "All statuses",
-      "roleUnavailable": "Role filter is unavailable until role memberships are provided."
+      "allStatuses": "All statuses"
     },
     "table": {
       "user": "User",
       "status": "Status",
-      "badge": "Badge",
+      "roles": "Roles",
       "actions": "Actions"
     },
     "status": {
@@ -365,27 +380,24 @@
       "inactive": "Inactive",
       "banned": "Banned"
     },
-    "badge": {
-      "none": "No badge"
+    "roles": {
+      "none": "No roles",
+      "assigned": "Assigned roles",
+      "add": "Add role",
+      "emptyAssigned": "No roles assigned yet.",
+      "emptyAvailable": "All available roles are assigned.",
+      "search": "Search roles…"
     },
     "actions": {
-      "assignRole": "Assign role",
-      "assignBadge": "Assign badge",
-      "removeBadge": "Remove badge"
-    },
-    "assignRoleModal": {
-      "title": "Assign role",
-      "role": "Role"
-    },
-    "assignBadgeModal": {
-      "title": "Assign badge",
-      "type": "Badge type",
-      "name": "Badge name",
-      "description": "Description"
+      "manageRoles": "Manage roles",
+      "closeRoles": "Collapse"
     },
     "messages": {
       "loadError": "Failed to load users data.",
-      "noResults": "No users found."
+      "noResults": "No users found.",
+      "assignRoleFailed": "Could not assign role (it may already exist).",
+      "removeRoleFailed": "Could not remove role.",
+      "cannotRemoveLastRole": "Cannot remove the user's last role."
     }
   },
   "layout": {

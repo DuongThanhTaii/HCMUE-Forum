@@ -42,7 +42,11 @@ export function CareerJobDetailPage() {
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {sections.images.map((url) => (
               <a key={url} href={url} target="_blank" rel="noreferrer" className="block">
-                <img src={url} alt="Job visual" className="h-52 w-full rounded border border-slate-200 object-cover" />
+                <img
+                  src={url}
+                  alt="Job visual"
+                  className="h-auto w-full rounded border border-slate-200 bg-white object-contain"
+                />
               </a>
             ))}
           </div>

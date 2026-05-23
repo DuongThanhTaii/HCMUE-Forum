@@ -167,7 +167,7 @@ export function CareerCompanyDashboardPage() {
               <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
                 {imageUrls.map((url) => (
                   <div key={url} className="relative rounded border border-slate-200 p-1">
-                    <img src={url} alt="Job visual" className="h-20 w-full rounded object-cover" />
+                    <img src={url} alt="Job visual" className="h-auto max-h-44 w-full rounded bg-white object-contain" />
                     <button
                       type="button"
                       onClick={() => setImageUrls((prev) => prev.filter((item) => item !== url))}

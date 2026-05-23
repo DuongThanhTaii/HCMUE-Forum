@@ -68,6 +68,7 @@ export interface UserDto {
   bio: string | null
   status: UserStatus
   badge: BadgeDto | null
+  roleIds?: string[]
   createdAt: string
 }
 

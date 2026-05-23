@@ -91,6 +91,27 @@ export async function removeOutbox(db: IDBDatabase, id: string): Promise<void> {
   })
 }
 
+export async function clearOutboxForConversation(
+  db: IDBDatabase,
+  conversationId: string,
+): Promise<void> {
+  const rows = await listPendingOutbox(db)
+  const mine = rows.filter((r) => r.conversationId === conversationId)
+  await Promise.all(mine.map((r) => removeOutbox(db, r.id)))
+}
+
+export async function purgeFailedOutboxForConversation(
+  db: IDBDatabase,
+  conversationId: string,
+  maxAttempts: number,
+): Promise<void> {
+  const rows = await listPendingOutbox(db)
+  const dead = rows.filter(
+    (r) => r.conversationId === conversationId && r.attempts >= maxAttempts,
+  )
+  await Promise.all(dead.map((r) => removeOutbox(db, r.id)))
+}
+
 export async function updateOutboxAttempts(
   db: IDBDatabase,
   id: string,

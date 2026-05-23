@@ -28,11 +28,18 @@ public sealed class SignalRNotificationPusher : INotificationPusher
         string message,
         string type,
         DateTime createdAt,
+        string? actionUrl = null,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var msg = new NotificationMessage(notificationId, title, message, type, createdAt);
+            Dictionary<string, object>? data = null;
+            if (!string.IsNullOrWhiteSpace(actionUrl))
+            {
+                data = new Dictionary<string, object> { ["actionUrl"] = actionUrl };
+            }
+
+            var msg = new NotificationMessage(notificationId, title, message, type, createdAt, data);
             await _hub.Clients
                 .Group($"user-{recipientId}")
                 .ReceiveNotification(msg);

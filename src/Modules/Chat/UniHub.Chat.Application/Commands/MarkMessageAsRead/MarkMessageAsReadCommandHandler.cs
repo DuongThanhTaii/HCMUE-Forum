@@ -21,35 +21,33 @@ public sealed class MarkMessageAsReadCommandHandler : ICommandHandler<MarkMessag
         MarkMessageAsReadCommand request,
         CancellationToken cancellationToken)
     {
-        // Get message
         var messageId = MessageId.Create(request.MessageId);
-        var message = await _messageRepository.GetByIdAsync(messageId, cancellationToken);
 
-        if (message is null)
+        var added = await _messageRepository.TryAddReadReceiptAsync(
+            messageId,
+            request.UserId,
+            cancellationToken);
+
+        if (!added)
         {
-            return Result.Failure(new Error(
-                "Message.NotFound",
-                $"Message with ID {request.MessageId} not found"));
+            var message = await _messageRepository.GetByIdAsync(messageId, cancellationToken);
+            if (message is null)
+            {
+                return Result.Failure(new Error(
+                    "Message.NotFound",
+                    $"Message with ID {request.MessageId} not found"));
+            }
+
+            if (message.IsDeleted)
+            {
+                return Result.Failure(new Error(
+                    "Message.Deleted",
+                    "Cannot mark deleted message as read"));
+            }
+
+            // Idempotent: receipt already exists.
+            return Result.Success();
         }
-
-        // Check if message is deleted
-        if (message.IsDeleted)
-        {
-            return Result.Failure(new Error(
-                "Message.Deleted",
-                "Cannot mark deleted message as read"));
-        }
-
-        // Mark as read using domain method
-        var result = message.MarkAsRead(request.UserId);
-
-        if (result.IsFailure)
-        {
-            return result;
-        }
-
-        // Update message
-        await _messageRepository.UpdateAsync(message, cancellationToken);
 
         return Result.Success();
     }

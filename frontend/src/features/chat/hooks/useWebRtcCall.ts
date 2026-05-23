@@ -77,6 +77,7 @@ export function useWebRtcCall(options: {
   const phaseRef = useRef<CallPhase>('idle')
   const remoteSetRef = useRef(false)
   const lastRemoteUserRef = useRef<string | null>(null)
+  const connectedAtRef = useRef<number | null>(null)
 
   // ── primitives ──────────────────────────────────────────────────────────────
 
@@ -113,6 +114,7 @@ export function useWebRtcCall(options: {
     stopLocalTracks()
     closePeer()
     syncPhase('idle')
+    connectedAtRef.current = null
     setIncoming(null)
     setMuted(false)
   }, [closePeer, stopLocalTracks, syncPhase])
@@ -222,6 +224,7 @@ export function useWebRtcCall(options: {
 
       setCallMode(pending.wantsVideo ? 'video' : 'voice')
       syncPhase('connected')
+      connectedAtRef.current = Date.now()
       attachRenegotiation(pc, pending.fromUserId)
     } catch (e) {
       resetCallState()
@@ -245,7 +248,12 @@ export function useWebRtcCall(options: {
       try { await relay(target, 'hangup', '{}') } catch { /**/ }
     }
     if (prevPhase === 'outgoing') void reportMissedCall(conversationId)
-    if (prevPhase === 'connected') void reportCallEnded(conversationId)
+    if (prevPhase === 'connected') {
+      const startedAt = connectedAtRef.current
+      const durationSeconds =
+        startedAt != null ? Math.max(1, Math.round((Date.now() - startedAt) / 1000)) : undefined
+      void reportCallEnded(conversationId, durationSeconds)
+    }
     resetCallState()
     setError(null)
   }, [conversationId, relay, remoteUserId, reportCallEnded, reportMissedCall, resetCallState])
@@ -375,6 +383,7 @@ export function useWebRtcCall(options: {
         remoteSetRef.current = true
         await flushIce(pc)
         syncPhase('connected')
+        connectedAtRef.current = Date.now()
         attachRenegotiation(pc, peerId)
       } catch (e) {
         resetCallState()

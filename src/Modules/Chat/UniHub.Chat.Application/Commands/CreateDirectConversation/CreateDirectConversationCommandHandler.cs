@@ -12,10 +12,14 @@ public sealed class CreateDirectConversationCommandHandler
     : ICommandHandler<CreateDirectConversationCommand, Guid>
 {
     private readonly IConversationRepository _conversationRepository;
+    private readonly IUserBlockChecker _userBlockChecker;
 
-    public CreateDirectConversationCommandHandler(IConversationRepository conversationRepository)
+    public CreateDirectConversationCommandHandler(
+        IConversationRepository conversationRepository,
+        IUserBlockChecker userBlockChecker)
     {
         _conversationRepository = conversationRepository;
+        _userBlockChecker = userBlockChecker;
     }
 
     public async Task<Result<Guid>> Handle(
@@ -30,6 +34,16 @@ public sealed class CreateDirectConversationCommandHandler
         {
             // Return existing conversation ID instead of creating duplicate
             return Result.Success(existingConversation.Id.Value);
+        }
+
+        if (await _userBlockChecker.IsBlockedEitherWayAsync(
+                request.User1Id,
+                request.User2Id,
+                cancellationToken))
+        {
+            return Result.Failure<Guid>(new Error(
+                "Chat.UserBlocked",
+                "You cannot message this user because one of you has blocked the other"));
         }
 
         // Create new direct conversation

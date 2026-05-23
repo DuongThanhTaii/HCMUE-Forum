@@ -13,13 +13,16 @@ public sealed class SendMessageCommandHandler : ICommandHandler<SendMessageComma
 {
     private readonly IConversationRepository _conversationRepository;
     private readonly IMessageRepository _messageRepository;
+    private readonly IUserBlockChecker _userBlockChecker;
 
     public SendMessageCommandHandler(
         IConversationRepository conversationRepository,
-        IMessageRepository messageRepository)
+        IMessageRepository messageRepository,
+        IUserBlockChecker userBlockChecker)
     {
         _conversationRepository = conversationRepository;
         _messageRepository = messageRepository;
+        _userBlockChecker = userBlockChecker;
     }
 
     public async Task<Result<Guid>> Handle(
@@ -43,6 +46,16 @@ public sealed class SendMessageCommandHandler : ICommandHandler<SendMessageComma
             return Result.Failure<Guid>(new Error(
                 "Conversation.NotParticipant",
                 "User is not a participant in this conversation"));
+        }
+
+        var blockFailure = await ChatSafetyHelper.EnsureNotBlockedForDirectAsync(
+            conversation,
+            request.SenderId,
+            _userBlockChecker,
+            cancellationToken);
+        if (blockFailure is not null)
+        {
+            return Result.Failure<Guid>(blockFailure.Error);
         }
 
         // Handle reply-to if specified

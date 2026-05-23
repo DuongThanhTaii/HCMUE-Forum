@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using UniHub.Notification.Application.Abstractions;
 using UniHub.Notification.Application.Abstractions.Notifications;
+using UniHub.Notification.Application.Services;
 using UniHub.Notification.Infrastructure.Persistence.Repositories;
 using UniHub.Notification.Infrastructure.Services.Notifications;
 
@@ -61,6 +62,8 @@ public static class DependencyInjection
 
         // Register In-App notification service
         services.AddScoped<IInAppNotificationService, InAppNotificationService>();
+
+        services.AddScoped<InAppNotificationDispatcher>();
 
         return services;
     }

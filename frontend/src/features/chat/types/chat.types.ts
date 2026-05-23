@@ -30,7 +30,15 @@ export type ConversationDto = {
   directPeerUserId: string | null
   directPeerFullName: string | null
   directPeerEmail: string | null
+  isMuted: boolean
+  isBlockedWithPeer: boolean
 }
+
+export type ChatMessageReportReason =
+  | 'Spam'
+  | 'Harassment'
+  | 'Inappropriate'
+  | 'Other'
 
 export type MessageAttachmentDto = {
   fileName: string
@@ -56,8 +64,72 @@ export type MessageDto = {
   senderDisplayName?: string | null
 }
 
+export type ReadReceiptDto = {
+  userId: string
+  readAt: string
+}
+
+export type ReplyTarget = {
+  messageId: string
+  preview: string
+  senderLabel: string
+}
+
 export type PagedMessagesDto = {
   items: MessageDto[]
+  page: number
+  pageSize: number
+  totalCount: number
+  totalPages: number
+}
+
+export type MessageSearchHitDto = {
+  messageId: string
+  sentAt: string
+  snippet: string
+  senderId: string
+  senderDisplayName: string | null
+}
+
+export type PagedMessageSearchDto = {
+  items: MessageSearchHitDto[]
+  page: number
+  pageSize: number
+  totalCount: number
+  totalPages: number
+}
+
+export type ConversationMessageSearchFilter = 'all' | 'text' | 'media' | 'links'
+
+export type ConversationAttachmentKind = 'all' | 'image' | 'file' | 'voice'
+
+export type ConversationAttachmentDto = {
+  messageId: string
+  sentAt: string
+  fileName: string
+  fileUrl: string
+  mimeType: string
+  thumbnailUrl: string | null
+  fileSize: number
+}
+
+export type PagedConversationAttachmentsDto = {
+  items: ConversationAttachmentDto[]
+  page: number
+  pageSize: number
+  totalCount: number
+  totalPages: number
+}
+
+export type ConversationLinkDto = {
+  messageId: string
+  sentAt: string
+  url: string
+  host: string
+}
+
+export type PagedConversationLinksDto = {
+  items: ConversationLinkDto[]
   page: number
   pageSize: number
   totalCount: number

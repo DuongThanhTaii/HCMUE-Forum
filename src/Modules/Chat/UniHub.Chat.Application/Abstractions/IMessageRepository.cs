@@ -33,7 +33,39 @@ public interface IMessageRepository
     Task UpdateAsync(Message message, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Inserts a read receipt when missing. Returns false if already read or message not found.
+    /// </summary>
+    Task<bool> TryAddReadReceiptAsync(
+        MessageId messageId,
+        Guid userId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Count messages in a conversation
     /// </summary>
     Task<int> CountByConversationIdAsync(ConversationId conversationId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Search non-deleted messages in a conversation (paginated, newest first).
+    /// </summary>
+    Task<(IReadOnlyList<Message> Items, int TotalCount)> SearchByConversationIdAsync(
+        ConversationId conversationId,
+        string query,
+        ConversationMessageSearchFilter filter,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
+    Task<(IReadOnlyList<ConversationAttachmentListItem> Items, int TotalCount)> ListAttachmentsByConversationIdAsync(
+        ConversationId conversationId,
+        ConversationAttachmentKind kind,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
+    Task<(IReadOnlyList<Message> Items, int TotalCount)> ListMessagesWithLinksAsync(
+        ConversationId conversationId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }

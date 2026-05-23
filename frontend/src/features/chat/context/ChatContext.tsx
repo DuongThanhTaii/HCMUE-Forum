@@ -49,6 +49,9 @@ type ChatContextValue = {
   channelTranscripts: Record<string, HubMessageNotification[]>
   /** Display names currently typing (conversation threads only), from hub `userTyping`. */
   typingPeerNamesByConversation: Record<string, string[]>
+  /** User IDs currently online according to SignalR presence events. */
+  onlineUserIds: string[]
+  isUserOnline: (userId: string | null | undefined) => boolean
   totalUnread: number
   /** WebRTC signaling (see `receiveWebRtcSignal` on hub). */
   subscribeWebRtcSignal: (handler: (payload: WebRtcSignalPayload) => void) => () => void
@@ -61,7 +64,8 @@ type ChatContextValue = {
   /** Persists a missed-call message when caller hung up before callee answered. */
   reportMissedCall: (conversationId: string) => Promise<void>
   /** Persists a call-ended message when a connected call is hung up. */
-  reportCallEnded: (conversationId: string) => Promise<void>
+  reportCallEnded: (conversationId: string, durationSeconds?: number) => Promise<void>
+  setMutedConversationIds: (ids: string[]) => void
 }
 
 const ChatContext = createContext<ChatContextValue | undefined>(undefined)
@@ -75,6 +79,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const lastJoinedRef = useRef<ChatThreadRef | null>(null)
   const activeThreadKeyRef = useRef<string | null>(null)
   const currentUserIdRef = useRef<string | null>(null)
+  const mutedConversationIdsRef = useRef<Set<string>>(new Set())
   const [hubStatus, setHubStatus] = useState<HubConnectionStatus>('idle')
   const [activeThreadKey, setActiveThreadKey] = useState<string | null>(null)
   const [unreadByThread, setUnreadByThread] = useState<Record<string, number>>({})
@@ -84,6 +89,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [typingPeerNamesByConversation, setTypingPeerNamesByConversation] = useState<
     Record<string, string[]>
   >({})
+  const [onlineByUserId, setOnlineByUserId] = useState<Record<string, boolean>>({})
 
   const webRtcSubscribersRef = useRef(new Set<(payload: WebRtcSignalPayload) => void>())
 
@@ -123,11 +129,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const reportCallEnded = useCallback(async (conversationId: string) => {
+  const reportCallEnded = useCallback(async (conversationId: string, durationSeconds?: number) => {
     const conn = connectionRef.current
     if (!conn || conn.state !== HubConnectionState.Connected) return
     try {
-      await conn.invoke('ReportCallEnded', conversationId)
+      await conn.invoke('ReportCallEnded', conversationId, durationSeconds)
     } catch {
       /* best-effort */
     }
@@ -155,6 +161,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     if (msg.senderId === currentUserIdRef.current) return
 
     if (key === activeThreadKeyRef.current) return
+
+    if (
+      msg.conversationId &&
+      mutedConversationIdsRef.current.has(msg.conversationId)
+    ) {
+      return
+    }
+
     setUnreadByThread((prev) => ({
       ...prev,
       [key]: (prev[key] ?? 0) + 1,
@@ -169,12 +183,25 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   const handleRemoteTyping = useCallback(
     (p: { userId: string; userName: string; conversationId: string; isTyping: boolean }) => {
-      const label = p.userName?.trim() || p.userId.slice(0, 8)
+      const raw = p.userName?.trim() ?? ''
+      const label = raw.length > 0 && !/^unknow/i.test(raw) ? raw : `User ${p.userId.slice(0, 8)}`
       setTypingPeerNamesByConversation((prev) => {
         const set = new Set(prev[p.conversationId] ?? [])
         if (p.isTyping) set.add(label)
         else set.delete(label)
         return { ...prev, [p.conversationId]: [...set] }
+      })
+    },
+    []
+  )
+
+  const handleUserStatusChanged = useCallback(
+    (p: { userId: string; status: string }) => {
+      const normalized = p.status.trim().toLowerCase()
+      const online = normalized === 'online' || normalized === 'active'
+      setOnlineByUserId((prev) => {
+        if (prev[p.userId] === online) return prev
+        return { ...prev, [p.userId]: online }
       })
     },
     []
@@ -187,6 +214,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       startTransition(() => {
         setHubStatus('idle')
       })
+      setOnlineByUserId({})
       lastJoinedRef.current = null
       return
     }
@@ -199,6 +227,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         onReceiveMessage(msg)
       },
       onUserTyping: handleRemoteTyping,
+      onUserStatusChanged: handleUserStatusChanged,
       onWebRtcSignal: (p) => {
         webRtcSubscribersRef.current.forEach((fn) => {
           try {
@@ -241,7 +270,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         })
         void drainChatOutbox().catch(() => undefined)
       })
-      .catch(() => {
+      .catch((err: unknown) => {
+        if (import.meta.env.DEV) {
+          console.warn('[chat-hub] SignalR start failed:', err)
+        }
         startTransition(() => {
           setHubStatus('disconnected')
         })
@@ -267,7 +299,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         setHubStatus('idle')
       })
     }
-  }, [accessToken, dispatch, onReceiveMessage, handleRemoteTyping])
+  }, [accessToken, dispatch, onReceiveMessage, handleRemoteTyping, handleUserStatusChanged])
 
   const joinThread = useCallback(async (ref: ChatThreadRef | null) => {
     const conn = connectionRef.current
@@ -335,6 +367,21 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     () => Object.values(unreadByThread).reduce((a, b) => a + b, 0),
     [unreadByThread]
   )
+  const onlineUserIds = useMemo(
+    () => Object.keys(onlineByUserId).filter((id) => onlineByUserId[id]),
+    [onlineByUserId]
+  )
+  const isUserOnline = useCallback(
+    (userId: string | null | undefined) => {
+      if (!userId) return false
+      return Boolean(onlineByUserId[userId])
+    },
+    [onlineByUserId]
+  )
+
+  const setMutedConversationIds = useCallback((ids: string[]) => {
+    mutedConversationIdsRef.current = new Set(ids)
+  }, [])
 
   const value = useMemo(
     () =>
@@ -349,11 +396,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         sendChannelMessage,
         channelTranscripts,
         typingPeerNamesByConversation,
+        onlineUserIds,
+        isUserOnline,
         totalUnread,
         subscribeWebRtcSignal,
         relayWebRtcSignal,
         reportMissedCall,
         reportCallEnded,
+        setMutedConversationIds,
       }) satisfies ChatContextValue,
     [
       hubStatus,
@@ -361,6 +411,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       unreadByThread,
       channelTranscripts,
       typingPeerNamesByConversation,
+      onlineUserIds,
+      isUserOnline,
       clearUnread,
       joinThread,
       sendTyping,
@@ -370,6 +422,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       relayWebRtcSignal,
       reportMissedCall,
       reportCallEnded,
+      setMutedConversationIds,
     ]
   )
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>

@@ -1,7 +1,9 @@
+using MediatR;
 using UniHub.SharedKernel.CQRS;
 using UniHub.SharedKernel.Results;
 using UniHub.Forum.Application.Abstractions;
 using UniHub.Forum.Domain.Comments;
+using UniHub.Forum.Domain.Events;
 using UniHub.Forum.Domain.Reports;
 
 namespace UniHub.Forum.Application.Commands.ReportComment;
@@ -10,13 +12,16 @@ public sealed class ReportCommentCommandHandler : ICommandHandler<ReportCommentC
 {
     private readonly IReportRepository _reportRepository;
     private readonly ICommentRepository _commentRepository;
+    private readonly IPublisher _publisher;
 
     public ReportCommentCommandHandler(
         IReportRepository reportRepository,
-        ICommentRepository commentRepository)
+        ICommentRepository commentRepository,
+        IPublisher publisher)
     {
         _reportRepository = reportRepository;
         _commentRepository = commentRepository;
+        _publisher = publisher;
     }
 
     public async Task<Result<int>> Handle(
@@ -61,6 +66,15 @@ public sealed class ReportCommentCommandHandler : ICommandHandler<ReportCommentC
         }
 
         await _reportRepository.AddAsync(reportResult.Value, cancellationToken);
+
+        await _publisher.Publish(
+            new ReportSubmittedEvent(
+                reportResult.Value.Id.Value,
+                request.CommentId,
+                ReportedItemType.Comment,
+                request.ReporterId,
+                request.Reason),
+            cancellationToken);
 
         return Result.Success(reportResult.Value.Id.Value);
     }

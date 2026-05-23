@@ -8,4 +8,5 @@ namespace UniHub.Chat.Application.Commands.ReportCallEnded;
 /// </summary>
 public sealed record ReportCallEndedCommand(
     Guid ConversationId,
-    Guid HangUpUserId) : ICommand<Guid>;
+    Guid HangUpUserId,
+    int? DurationSeconds = null) : ICommand<Guid>;

@@ -97,7 +97,11 @@ export function ChatCallOverlay({
           : t('chat.calls.statusLive')
         : ''
 
-  const remoteDisplayName = remoteLabel === 'Unknown User' ? t('chat.title') : remoteLabel
+  const normalizedRemoteLabel = (remoteLabel ?? '').trim()
+  const looksUnknown = /^unknow/i.test(normalizedRemoteLabel)
+  const remoteDisplayName = looksUnknown || normalizedRemoteLabel.length === 0
+    ? t('chat.title')
+    : normalizedRemoteLabel
 
   const toggleFullscreen = async () => {
     try {

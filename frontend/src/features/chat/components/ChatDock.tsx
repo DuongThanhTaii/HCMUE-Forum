@@ -7,7 +7,7 @@ import {
 } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ChevronLeft, MessageCircle, Minus, Maximize2 } from 'lucide-react'
+import { BellOff, ChevronLeft, MessageCircle, Minus, Maximize2 } from 'lucide-react'
 import { useGetConversationsQuery } from '../api/chat.api'
 import { useChatContext } from '../context/ChatContext'
 import {
@@ -18,9 +18,8 @@ import { getDockVisibility, setDockVisibility } from '../lib/dockStorage'
 import type { ChatThreadRef, ConversationDto } from '../types/chat.types'
 import { threadKey } from '../types/chat.types'
 import { ChatCallBar } from './ChatCallBar'
-import { ChatComposer } from './ChatComposer'
+import { ChatConversationPanel } from './ChatConversationPanel'
 import { ChatPeerAvatar } from './ChatPeerAvatar'
-import { ChatThread } from './ChatThread'
 import { useAppSelector } from '@shared/hooks/useAppSelector'
 import { selectUserId } from '@features/auth/model/auth.slice'
 
@@ -61,7 +60,15 @@ export function ChatDock() {
     setActiveThreadKey,
     clearUnread,
     joinThread,
+    setMutedConversationIds,
   } = useChatContext()
+
+  const { data: convos, isLoading: convLoading } = useGetConversationsQuery()
+
+  useEffect(() => {
+    if (!convos) return
+    setMutedConversationIds(convos.filter((c) => c.isMuted).map((c) => c.id))
+  }, [convos, setMutedConversationIds])
 
   const [minimized, setMinimized] = useState(
     () => getDockVisibility() === 'hidden',
@@ -77,8 +84,6 @@ export function ChatDock() {
         : null,
     [activeConvId, panel],
   )
-
-  const { data: convos, isLoading: convLoading } = useGetConversationsQuery()
 
   const sortedConvos = useMemo(() => {
     const list = [...(convos ?? [])]
@@ -275,11 +280,19 @@ export function ChatDock() {
                               <span className="block truncate text-[11px] text-slate-500">{sub}</span>
                             )}
                           </span>
-                          {unread > 0 && (
-                            <span className="shrink-0 rounded-full bg-indigo-600 px-1.5 text-[10px] text-white">
-                              {unread > 9 ? '9+' : unread}
-                            </span>
-                          )}
+                          <span className="flex shrink-0 items-center gap-1">
+                            {c.isMuted && (
+                              <BellOff
+                                className="h-3.5 w-3.5 text-slate-400"
+                                aria-label={t('chat.safety.mutedBadge')}
+                              />
+                            )}
+                            {unread > 0 && (
+                              <span className="rounded-full bg-indigo-600 px-1.5 text-[10px] text-white">
+                                {unread > 9 ? '9+' : unread}
+                              </span>
+                            )}
+                          </span>
                         </button>
                       </li>
                     )
@@ -302,14 +315,18 @@ export function ChatDock() {
         )}
 
         {panel === 'thread' && activeThreadRef && (
-          <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-            <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden px-2 pt-1">
-              <ChatCallBar threadRef={activeThreadRef} conversation={activeConv ?? null} />
-              <ChatThread threadRef={activeThreadRef} currentUserId={currentUserId} />
-            </div>
-            <div className="shrink-0 border-t border-slate-200 bg-slate-50/80 px-1 pb-2 pt-1">
-              <ChatComposer threadRef={activeThreadRef} />
-            </div>
+          <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden px-2 pb-2 pt-1">
+            <ChatCallBar threadRef={activeThreadRef} conversation={activeConv ?? null} />
+            <ChatConversationPanel
+              threadRef={activeThreadRef}
+              currentUserId={currentUserId}
+              conversationTitle={headerTitle}
+              conversationType={activeConv?.type ?? null}
+              peerUserId={activeConv?.directPeerUserId ?? null}
+              isMuted={activeConv?.isMuted ?? false}
+              isBlockedWithPeer={activeConv?.isBlockedWithPeer ?? false}
+              onPeerBlocked={backToList}
+            />
           </div>
         )}
       </div>

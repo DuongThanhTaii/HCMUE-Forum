@@ -1,6 +1,6 @@
+import { Fragment } from 'react'
+import { AdminAssignListbox } from '../../components/AdminAssignListbox'
 import { useAdminUsersPage } from '../hooks/useAdminUsersPage'
-import { AssignBadgeModal } from './AssignBadgeModal'
-import { AssignRoleModal } from './AssignRoleModal'
 
 export function AdminUsersPage() {
   const {
@@ -8,27 +8,23 @@ export function AdminUsersPage() {
     users,
     roleOptions,
     statusOptions,
+    roleListItems,
     searchValue,
     roleFilter,
     statusFilter,
-    assignRoleUserId,
-    assignBadgeUserId,
-    selectedUserForAssignRole,
-    isAssignRoleSubmitting,
-    isAssignBadgeSubmitting,
+    editingRolesUserId,
+    roleActionError,
+    isRoleMutating,
     isLoading,
     isError,
     setSearchValue,
     setRoleFilter,
     setStatusFilter,
-    canFilterByRole,
-    openAssignRoleModal,
-    closeAssignRoleModal,
-    openAssignBadgeModal,
-    closeAssignBadgeModal,
-    submitAssignRole,
-    submitAssignBadge,
-    removeUserBadge,
+    openRoleEditor,
+    closeRoleEditor,
+    assignRole,
+    removeRole,
+    getRoleLabels,
   } = useAdminUsersPage()
 
   if (isLoading) {
@@ -68,7 +64,6 @@ export function AdminUsersPage() {
             value={roleFilter}
             onChange={(event) => setRoleFilter(event.target.value)}
             aria-label={t('admin.usersPage.filters.role')}
-            disabled={!canFilterByRole}
           >
             {roleOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -76,11 +71,6 @@ export function AdminUsersPage() {
               </option>
             ))}
           </select>
-          {!canFilterByRole ? (
-            <p className="mt-1 text-xs font-normal text-slate-500">
-              {t('admin.usersPage.filters.roleUnavailable')}
-            </p>
-          ) : null}
         </label>
         <label className="text-sm font-medium text-slate-700">
           {t('admin.usersPage.filters.status')}
@@ -110,7 +100,7 @@ export function AdminUsersPage() {
                 {t('admin.usersPage.table.status')}
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {t('admin.usersPage.table.badge')}
+                {t('admin.usersPage.table.roles')}
               </th>
               <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
                 {t('admin.usersPage.table.actions')}
@@ -118,45 +108,83 @@ export function AdminUsersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td className="px-4 py-3">
-                  <p className="font-medium text-slate-900">{user.fullName}</p>
-                  <p className="text-sm text-slate-500">{user.email}</p>
-                </td>
-                <td className="px-4 py-3 text-sm text-slate-700">{t(`admin.usersPage.status.${user.status.toLowerCase()}`)}</td>
-                <td className="px-4 py-3 text-sm text-slate-700">
-                  {user.badge ? `${user.badge.emoji} ${user.badge.name}` : t('admin.usersPage.badge.none')}
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex justify-end gap-2">
-                    <button
-                      type="button"
-                      className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
-                      onClick={() => openAssignRoleModal(user.id)}
-                    >
-                      {t('admin.usersPage.actions.assignRole')}
-                    </button>
-                    <button
-                      type="button"
-                      className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
-                      onClick={() => openAssignBadgeModal(user.id)}
-                    >
-                      {t('admin.usersPage.actions.assignBadge')}
-                    </button>
-                    {user.badge ? (
+            {users.map((user) => {
+              const roleLabels = getRoleLabels(user)
+              const isEditing = editingRolesUserId === user.id
+              return (
+                <Fragment key={user.id}>
+                  <tr className={isEditing ? 'bg-rose-50/40' : undefined}>
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-slate-900">{user.fullName}</p>
+                      <p className="text-sm text-slate-500">{user.email}</p>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-slate-700">
+                      {t(`admin.usersPage.status.${user.status.toLowerCase()}`)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap gap-1.5">
+                        {roleLabels.length ? (
+                          roleLabels.map((label) => (
+                            <span
+                              key={`${user.id}-${label}`}
+                              className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-700"
+                            >
+                              {label}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-sm text-slate-500">{t('admin.usersPage.roles.none')}</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-right">
                       <button
                         type="button"
-                        className="rounded-md border border-rose-300 px-3 py-1.5 text-sm text-rose-700 hover:bg-rose-50"
-                        onClick={() => void removeUserBadge(user.id)}
+                        className="cursor-pointer rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 transition-colors hover:bg-slate-50"
+                        onClick={() => openRoleEditor(user.id)}
+                        aria-expanded={isEditing}
                       >
-                        {t('admin.usersPage.actions.removeBadge')}
+                        {isEditing
+                          ? t('admin.usersPage.actions.closeRoles')
+                          : t('admin.usersPage.actions.manageRoles')}
                       </button>
-                    ) : null}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                    </td>
+                  </tr>
+                  {isEditing ? (
+                    <tr>
+                      <td colSpan={4} className="border-t border-rose-100 bg-rose-50/30 px-4 py-4">
+                        {roleActionError ? (
+                          <p className="mb-3 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                            {roleActionError}
+                          </p>
+                        ) : null}
+                        <AdminAssignListbox
+                          assignedIds={user.roleIds ?? []}
+                          items={roleListItems}
+                          assignedTitle={t('admin.usersPage.roles.assigned')}
+                          availableTitle={t('admin.usersPage.roles.add')}
+                          emptyAssigned={t('admin.usersPage.roles.emptyAssigned')}
+                          emptyAvailable={t('admin.usersPage.roles.emptyAvailable')}
+                          searchPlaceholder={t('admin.usersPage.roles.search')}
+                          isBusy={isRoleMutating}
+                          onAssign={(roleId) => assignRole(user.id, roleId)}
+                          onRemove={(roleId) => removeRole(user.id, roleId)}
+                        />
+                        <div className="mt-3 flex justify-end">
+                          <button
+                            type="button"
+                            className="cursor-pointer rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-white"
+                            onClick={closeRoleEditor}
+                          >
+                            {t('common.close')}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : null}
+                </Fragment>
+              )
+            })}
             {!users.length ? (
               <tr>
                 <td colSpan={4} className="px-4 py-8 text-center text-sm text-slate-500">
@@ -167,33 +195,6 @@ export function AdminUsersPage() {
           </tbody>
         </table>
       </section>
-
-      <AssignRoleModal
-        isOpen={Boolean(assignRoleUserId)}
-        isSubmitting={isAssignRoleSubmitting}
-        title={t('admin.usersPage.assignRoleModal.title', {
-          user: selectedUserForAssignRole?.fullName ?? '',
-        })}
-        roleLabel={t('admin.usersPage.assignRoleModal.role')}
-        cancelLabel={t('common.cancel')}
-        submitLabel={t('common.submit')}
-        roleOptions={roleOptions}
-        onClose={closeAssignRoleModal}
-        onSubmit={submitAssignRole}
-      />
-
-      <AssignBadgeModal
-        isOpen={Boolean(assignBadgeUserId)}
-        isSubmitting={isAssignBadgeSubmitting}
-        title={t('admin.usersPage.assignBadgeModal.title')}
-        typeLabel={t('admin.usersPage.assignBadgeModal.type')}
-        nameLabel={t('admin.usersPage.assignBadgeModal.name')}
-        descriptionLabel={t('admin.usersPage.assignBadgeModal.description')}
-        cancelLabel={t('common.cancel')}
-        submitLabel={t('common.submit')}
-        onClose={closeAssignBadgeModal}
-        onSubmit={submitAssignBadge}
-      />
     </div>
   )
 }

@@ -62,6 +62,7 @@ type ForumListQueryParams = {
   pageNumber?: number
   pageSize?: number
   threadChannelId?: string
+  categoryId?: string
 }
 
 type VoteType = 1 | 2
@@ -118,6 +119,10 @@ export type ForumCategoryOption = {
   id: string
   name: string
   description: string
+  slug: string
+  parentCategoryId?: string | null
+  postCount: number
+  displayOrder: number
 }
 
 export type ForumPopularTag = {
@@ -179,6 +184,7 @@ function toSafeForumListItem(post: RawForumPost, index: number): ForumListItem {
     id,
     title,
     category,
+    categoryId: post.categoryId?.trim() || undefined,
     threadChannelId: post.threadChannelId?.trim() || undefined,
     threadChannelCode: post.threadChannelCode?.trim() || undefined,
     threadChannelName: post.threadChannelName?.trim() || undefined,
@@ -270,18 +276,44 @@ export const forumListApi = baseApi.injectEndpoints({
         const raw = response?.data as { categories?: unknown[] } | undefined
         const list = raw?.categories
         if (!Array.isArray(list)) return []
-        return list
-          .map((c) => {
-            const row = c as { id?: string; name?: string; description?: string }
-            const id = typeof row.id === 'string' && row.id.trim() ? row.id.trim() : ''
-            if (!id) return null
-            return {
-              id,
-              name: row.name?.trim() || 'Category',
-              description: row.description?.trim() || '',
-            } satisfies ForumCategoryOption
+        const categories: ForumCategoryOption[] = []
+        for (const c of list) {
+          const row = c as {
+            id?: string
+            Id?: string
+            name?: string
+            Name?: string
+            description?: string
+            Description?: string
+            slug?: string
+            Slug?: string
+            parentCategoryId?: string | null
+            ParentCategoryId?: string | null
+            postCount?: number
+            PostCount?: number
+            displayOrder?: number
+            DisplayOrder?: number
+          }
+          const id =
+            (typeof row.id === 'string' && row.id.trim()) ||
+            (typeof row.Id === 'string' && row.Id.trim()) ||
+            ''
+          if (!id) continue
+          const parentRaw = row.parentCategoryId ?? row.ParentCategoryId
+          const postCountRaw = row.postCount ?? row.PostCount
+          const displayOrderRaw = row.displayOrder ?? row.DisplayOrder
+          categories.push({
+            id,
+            name: (row.name ?? row.Name)?.trim() || 'Category',
+            description: (row.description ?? row.Description)?.trim() || '',
+            slug: (row.slug ?? row.Slug)?.trim() || id,
+            parentCategoryId:
+              typeof parentRaw === 'string' && parentRaw.trim() ? parentRaw.trim() : null,
+            postCount: typeof postCountRaw === 'number' ? postCountRaw : 0,
+            displayOrder: typeof displayOrderRaw === 'number' ? displayOrderRaw : 0,
           })
-          .filter((x): x is ForumCategoryOption => x !== null)
+        }
+        return categories
       },
       providesTags: [{ type: 'ForumCategory' as const, id: 'LIST' }],
     }),
@@ -406,6 +438,7 @@ export const forumListApi = baseApi.injectEndpoints({
           pageNumber: params.pageNumber ?? 1,
           pageSize: params.pageSize ?? 20,
           threadChannelId: params.threadChannelId ?? undefined,
+          categoryId: params.categoryId ?? undefined,
         },
       }),
       transformResponse: (response: ApiSuccessEnvelope<PostsPayload>) => {

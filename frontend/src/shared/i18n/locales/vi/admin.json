@@ -61,6 +61,10 @@
       "accepted": "Câu trả lời được chọn",
       "mod": "Thao tác kiểm duyệt"
     },
+    "table": {
+      "policiesGroup": "Chính sách theo kênh",
+      "policyLegend": "Mỗi cột chính sách hiển thị Bật hoặc Tắt cho kênh đó (ghim bình luận, đánh dấu câu trả lời hay nhất, thao tác kiểm duyệt)."
+    },
     "fields": {
       "code": "Mã",
       "name": "Tên",
@@ -72,7 +76,8 @@
       "allowMod": "Cho phép thao tác kiểm duyệt"
     },
     "actions": {
-      "reviewSave": "Xem lại & lưu"
+      "reviewSave": "Xem lại & lưu",
+      "edit": "Sửa"
     },
     "create": {
       "title": "Tạo kênh",
@@ -144,7 +149,18 @@
       "reasonPlaceholder": "Lý do (không bắt buộc)",
       "expiresAt": "Hết hạn lúc (UTC ISO)",
       "expiresAtPlaceholder": "2026-12-31T23:59:59Z",
-      "submit": "Thêm ghi đè"
+      "submit": "Thêm ghi đè",
+      "pickPermission": "Chọn quyền cần ghi đè",
+      "searchPermission": "Tìm theo mã hoặc tên…",
+      "noPermissions": "Không còn quyền nào tại phạm vi này.",
+      "selectPermissionHint": "Chọn một quyền bên trái để cấu hình Allow/Deny.",
+      "selectFaculty": "Chọn khoa",
+      "selectCourse": "Chọn môn học",
+      "effectStatusActive": "Đang có ghi đè: {{effect}} (sẽ được thay khi lưu).",
+      "effectStatusFromRole": "Chưa có ghi đè tại phạm vi này — đang theo vai trò/nhóm mặc định."
+    },
+    "table": {
+      "revoked": "Đã thu hồi"
     },
     "userPanel": {
       "searchUser": "Tìm người dùng",
@@ -344,20 +360,19 @@
   },
   "usersPage": {
     "title": "Quản lý người dùng",
-    "subtitle": "Lọc người dùng và gán vai trò hoặc huy hiệu.",
+    "subtitle": "Lọc theo vai trò và trạng thái; gán hoặc gỡ vai trò trực tiếp trên từng dòng.",
     "filters": {
       "search": "Tìm kiếm",
       "searchPlaceholder": "Tìm theo tên hoặc email",
       "role": "Vai trò",
       "status": "Trạng thái",
       "allRoles": "Tất cả vai trò",
-      "allStatuses": "Tất cả trạng thái",
-      "roleUnavailable": "Bộ lọc vai trò sẽ khả dụng khi dữ liệu thành viên vai trò được cung cấp."
+      "allStatuses": "Tất cả trạng thái"
     },
     "table": {
       "user": "Người dùng",
       "status": "Trạng thái",
-      "badge": "Huy hiệu",
+      "roles": "Vai trò",
       "actions": "Thao tác"
     },
     "status": {
@@ -365,27 +380,24 @@
       "inactive": "Không hoạt động",
       "banned": "Bị khóa"
     },
-    "badge": {
-      "none": "Chưa có huy hiệu"
+    "roles": {
+      "none": "Chưa có vai trò",
+      "assigned": "Vai trò đã gán",
+      "add": "Thêm vai trò",
+      "emptyAssigned": "Chưa gán vai trò nào.",
+      "emptyAvailable": "Đã gán hết vai trò có sẵn.",
+      "search": "Tìm vai trò…"
     },
     "actions": {
-      "assignRole": "Gán vai trò",
-      "assignBadge": "Gán huy hiệu",
-      "removeBadge": "Gỡ huy hiệu"
-    },
-    "assignRoleModal": {
-      "title": "Gán vai trò",
-      "role": "Vai trò"
-    },
-    "assignBadgeModal": {
-      "title": "Gán huy hiệu",
-      "type": "Loại huy hiệu",
-      "name": "Tên huy hiệu",
-      "description": "Mô tả"
+      "manageRoles": "Quản lý vai trò",
+      "closeRoles": "Thu gọn"
     },
     "messages": {
       "loadError": "Không thể tải dữ liệu người dùng.",
-      "noResults": "Không tìm thấy người dùng."
+      "noResults": "Không tìm thấy người dùng.",
+      "assignRoleFailed": "Không gán được vai trò (có thể đã tồn tại).",
+      "removeRoleFailed": "Không gỡ được vai trò.",
+      "cannotRemoveLastRole": "Không thể gỡ vai trò cuối cùng của người dùng."
     }
   },
   "layout": {

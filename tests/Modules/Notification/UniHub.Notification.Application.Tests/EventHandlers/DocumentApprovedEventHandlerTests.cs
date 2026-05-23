@@ -1,44 +1,36 @@
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using UniHub.Learning.Domain.Documents.Events;
+using UniHub.Notification.Application.Abstractions;
 using UniHub.Notification.Application.Abstractions.Notifications;
 using UniHub.Notification.Application.EventHandlers;
+using UniHub.Notification.Application.Services;
 using Xunit;
 
 namespace UniHub.Notification.Application.Tests.EventHandlers;
 
 public class DocumentApprovedEventHandlerTests
 {
-    private readonly IEmailNotificationService _emailNotificationService;
-    private readonly IInAppNotificationService _inAppNotificationService;
-    private readonly ILogger<DocumentApprovedEventHandler> _logger;
     private readonly DocumentApprovedEventHandler _handler;
 
     public DocumentApprovedEventHandlerTests()
     {
-        _emailNotificationService = Substitute.For<IEmailNotificationService>();
-        _inAppNotificationService = Substitute.For<IInAppNotificationService>();
-        _logger = Substitute.For<ILogger<DocumentApprovedEventHandler>>();
+        var dispatcher = new InAppNotificationDispatcher(
+            Substitute.For<INotificationRepository>(),
+            Substitute.For<INotificationPusher>(),
+            Substitute.For<ILogger<InAppNotificationDispatcher>>());
+
         _handler = new DocumentApprovedEventHandler(
-            _emailNotificationService,
-            _inAppNotificationService,
-            _logger);
+            dispatcher,
+            Substitute.For<INotificationRecipientResolver>(),
+            Substitute.For<ILogger<DocumentApprovedEventHandler>>());
     }
 
     [Fact]
-    public async Task Handle_ShouldLogExecution()
+    public async Task Handle_WhenDocumentMissing_CompletesWithoutError()
     {
-        // Arrange
-        var documentId = Guid.NewGuid();
-        var approverId = Guid.NewGuid();
-        var @event = new DocumentApprovedEvent(documentId, approverId, "Good work!", DateTime.UtcNow);
+        var @event = new DocumentApprovedEvent(Guid.NewGuid(), Guid.NewGuid(), "Good work!", DateTime.UtcNow);
 
-        // Act
         await _handler.Handle(@event, CancellationToken.None);
-
-        // Assert - Should complete without error
-        // Note: Since document repository is not implemented, handler logs but doesn't send notifications
-        await Task.CompletedTask;
     }
 }

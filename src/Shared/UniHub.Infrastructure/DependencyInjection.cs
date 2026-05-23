@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using Npgsql;
 using StackExchange.Redis;
 using UniHub.Infrastructure.Caching;
 using UniHub.Infrastructure.MongoDb;
@@ -45,13 +46,24 @@ public static class DependencyInjection
         services.AddSingleton<AuditableEntityInterceptor>();
         services.AddScoped<DomainEventInterceptor>();
 
-        // Register DbContext
-        services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
+        // Register one shared NpgsqlDataSource for the whole app lifetime.
+        // Building a new data source per DbContext instance can exhaust PostgreSQL clients.
+        services.AddSingleton<NpgsqlDataSource>(serviceProvider =>
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-            options.UseNpgsql(connectionString, npgsqlOptions =>
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+            dataSourceBuilder.EnableDynamicJson();
+            return dataSourceBuilder.Build();
+        });
+
+        // Register DbContext
+        services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
+        {
+            var dataSource = serviceProvider.GetRequiredService<NpgsqlDataSource>();
+
+            options.UseNpgsql(dataSource, npgsqlOptions =>
             {
                 npgsqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
                 npgsqlOptions.EnableRetryOnFailure(
@@ -62,9 +74,9 @@ public static class DependencyInjection
 
             // Add interceptors
             var auditableInterceptor = serviceProvider.GetRequiredService<AuditableEntityInterceptor>();
-                var domainEventInterceptor = serviceProvider.GetRequiredService<DomainEventInterceptor>();
-                options.AddInterceptors(auditableInterceptor, domainEventInterceptor);
-                options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+            var domainEventInterceptor = serviceProvider.GetRequiredService<DomainEventInterceptor>();
+            options.AddInterceptors(auditableInterceptor, domainEventInterceptor);
+            options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
 
             // Enable detailed errors in development
             var detailedErrors = configuration.GetSection("DetailedErrors").Get<bool>();

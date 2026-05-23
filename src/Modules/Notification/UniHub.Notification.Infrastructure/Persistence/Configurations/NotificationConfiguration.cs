@@ -1,4 +1,6 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using UniHub.Notification.Domain.Notifications;
 using UniHub.Notification.Domain.NotificationTemplates;
@@ -83,13 +85,26 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Domain.Notific
                 .HasMaxLength(1000);
         });
 
-        // Owned: NotificationMetadata (with Dictionary backing field)
+        // Owned: NotificationMetadata — serialize Dictionary to jsonb (Npgsql 8+ requires string conversion)
         builder.OwnsOne(n => n.Metadata, metadata =>
         {
-            // Store the _data Dictionary as JSON
-            metadata.Property("_data")
+            var dictComparer = new ValueComparer<Dictionary<string, string>>(
+                (a, b) => DictionaryEquals(a, b),
+                c => DictionaryHashCode(c),
+                c => c == null
+                    ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    : new Dictionary<string, string>(c, StringComparer.OrdinalIgnoreCase));
+
+            metadata.Property<Dictionary<string, string>>("_data")
+                .HasField("_data")
                 .HasColumnName("metadata")
-                .HasColumnType("jsonb");
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v ?? new Dictionary<string, string>()),
+                    v => JsonSerializer.Deserialize<Dictionary<string, string>>(
+                             string.IsNullOrWhiteSpace(v) ? "{}" : v)
+                         ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase))
+                .Metadata.SetValueComparer(dictComparer);
         });
 
         // Indexes
@@ -101,5 +116,45 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Domain.Notific
         builder.HasIndex(n => new { n.RecipientId, n.Status });
 
         builder.Ignore(n => n.DomainEvents);
+    }
+
+    private static bool DictionaryEquals(Dictionary<string, string>? a, Dictionary<string, string>? b)
+    {
+        if (ReferenceEquals(a, b))
+        {
+            return true;
+        }
+
+        if (a is null || b is null || a.Count != b.Count)
+        {
+            return false;
+        }
+
+        foreach (var (key, value) in a)
+        {
+            if (!b.TryGetValue(key, out var other) || value != other)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static int DictionaryHashCode(Dictionary<string, string>? dict)
+    {
+        if (dict is null)
+        {
+            return 0;
+        }
+
+        var hash = new HashCode();
+        foreach (var (key, value) in dict.OrderBy(kv => kv.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            hash.Add(key, StringComparer.OrdinalIgnoreCase);
+            hash.Add(value);
+        }
+
+        return hash.ToHashCode();
     }
 }

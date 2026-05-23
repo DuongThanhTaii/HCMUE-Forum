@@ -59,6 +59,9 @@
     "disconnected": "Mất kết nối",
     "connectionFailed": "Không thể kết nối đến máy chủ chat"
   },
+  "presence": {
+    "activeNow": "Đang hoạt động"
+  },
   "channelHistoryNotice": "Lịch sử kênh qua REST chưa được nối. Tin nhắn hiển thị ở đây là realtime tới khi backend gắn kênh với cuộc trò chuyện.",
   "channelEmptyLive": "Chưa có tin nhắn. Chào một tiếng nhé!",
   "mobile": {
@@ -79,6 +82,54 @@
     "noMessagesYet": "Chưa có tin nhắn. Hãy gửi tin đầu tiên bên dưới.",
     "pickConversation": "Chọn cuộc trò chuyện bên trái, hoặc bấm “Tin nhắn mới” để tìm người."
   },
+  "scroll": {
+    "toBottom": "Cuộn xuống tin mới nhất",
+    "newMessages": "{{count}} tin mới",
+    "loadingOlder": "Đang tải tin cũ…",
+    "pullOlderHint": "Kéo lên để xem tin cũ hơn"
+  },
+  "search": {
+    "title": "Tìm trong hội thoại",
+    "open": "Tìm tin nhắn",
+    "placeholder": "Tìm nội dung tin nhắn…",
+    "minChars": "Nhập ít nhất 2 ký tự",
+    "noResults": "Không có kết quả",
+    "error": "Không thể tìm kiếm"
+  },
+  "safety": {
+    "menu": "Tùy chọn hội thoại",
+    "mute": "Tắt tiếng",
+    "unmute": "Bật tiếng",
+    "mutedBadge": "Đã tắt tiếng",
+    "block": "Chặn người này",
+    "blockConfirm": "Chặn {{name}}? Bạn sẽ không thể nhắn tin với nhau.",
+    "blockedBanner": "Bạn đã chặn người này hoặc bị chặn — không thể gửi tin.",
+    "composerDisabled": "Không thể gửi tin trong hội thoại này",
+    "report": "Báo cáo tin",
+    "reportTitle": "Báo cáo tin nhắn",
+    "reportPlaceholder": "Mô tả thêm (tuỳ chọn)",
+    "reportSubmitted": "Đã gửi báo cáo. Cảm ơn bạn.",
+    "reportError": "Không thể gửi báo cáo",
+    "reasonSpam": "Spam",
+    "reasonHarassment": "Quấy rối",
+    "reasonInappropriate": "Không phù hợp",
+    "reasonOther": "Khác"
+  },
+  "info": {
+    "title": "Thông tin hội thoại",
+    "open": "Media & file",
+    "peer": "Người chat",
+    "mutedOn": "Đã tắt tiếng thông báo",
+    "mutedOff": "Thông báo bật",
+    "shortcutsHint": "Dùng menu ⋮ để tắt tiếng hoặc chặn; tab bên dưới xem media và link.",
+    "media": "Ảnh",
+    "files": "File",
+    "links": "Link",
+    "emptyMedia": "Chưa có ảnh nào trong hội thoại này.",
+    "emptyFiles": "Chưa có file hoặc ghi âm nào.",
+    "emptyLinks": "Chưa có link nào được gửi.",
+    "loadError": "Không tải được danh sách media. Thử tải lại trang."
+  },
   "notifications": {
     "enable": "Bật thông báo trình duyệt"
   },
@@ -95,12 +146,33 @@
   "message": {
     "actions": "Thao tác tin nhắn",
     "edit": "Chỉnh sửa",
+    "copy": "Sao chép",
     "unsend": "Thu hồi",
     "saveEdit": "Lưu",
     "confirmUnsend": "Thu hồi tin nhắn này cho mọi người?",
     "removedSelf": "Bạn đã thu hồi một tin nhắn",
     "removedOther": "Tin nhắn đã bị thu hồi",
     "editedLabel": "Đã chỉnh sửa"
+  },
+  "reactions": {
+    "add": "Thêm cảm xúc"
+  },
+  "read": {
+    "seen": "Đã xem",
+    "seenByMany": "Đã xem bởi nhiều người"
+  },
+  "reply": {
+    "action": "Trả lời",
+    "replyingTo": "Trả lời {{name}}",
+    "cancel": "Huỷ trả lời",
+    "attachmentPreview": "Tệp đính kèm",
+    "emptyPreview": "Tin nhắn"
+  },
+  "delivery": {
+    "sending": "Đang gửi…",
+    "failed": "Gửi thất bại",
+    "retry": "Thử lại",
+    "dismiss": "Ẩn"
   },
   "outbox": {
     "full": "Hàng đợi offline đầy. Thử lại khi có mạng."
@@ -150,6 +222,7 @@
     "youAreSharing": "Bạn đang chia sẻ màn hình",
     "missedCallSent": "Bạn đã gọi — không có người bắt máy",
     "missedCallReceived": "Cuộc gọi nhỡ từ {{name}}",
-    "callEnded": "Cuộc gọi đã kết thúc"
+    "callEnded": "Cuộc gọi đã kết thúc",
+    "callEndedWithDuration": "Cuộc gọi đã kết thúc ({{minutes}} phút)"
   }
 }

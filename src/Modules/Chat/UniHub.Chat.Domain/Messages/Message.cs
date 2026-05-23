@@ -8,9 +8,14 @@ namespace UniHub.Chat.Domain.Messages;
 /// <summary>
 /// Message entity - đại diện cho một tin nhắn trong conversation
 /// </summary>
-public sealed class Message : Entity<MessageId>
+public sealed class Message : Entity<MessageId>, IHasDomainEvents
 {
+    private readonly List<IDomainEvent> _domainEvents = new();
     private readonly List<Attachment> _attachments = new();
+
+    public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+
+    public void ClearDomainEvents() => _domainEvents.Clear();
     private readonly List<Reaction> _reactions = new();
     private readonly List<ReadReceipt> _readReceipts = new();
 
@@ -318,7 +323,8 @@ public sealed class Message : Entity<MessageId>
     /// </summary>
     public static Result<Message> CreateCallEnded(
         ConversationId conversationId,
-        Guid hangUpUserId)
+        Guid hangUpUserId,
+        int? durationSeconds = null)
     {
         if (conversationId == null)
         {
@@ -333,11 +339,16 @@ public sealed class Message : Entity<MessageId>
         var messageId = MessageId.CreateUnique();
         var sentAt = DateTime.UtcNow;
 
+        var normalizedDuration = durationSeconds is > 0
+            ? durationSeconds.GetValueOrDefault()
+            : 0;
+        var durationPayload = normalizedDuration > 0 ? normalizedDuration.ToString() : string.Empty;
+
         var message = new Message(
             messageId,
             conversationId,
             hangUpUserId,
-            string.Empty,
+            durationPayload,
             MessageType.CallEnded,
             null,
             new List<Attachment>(),
@@ -348,7 +359,7 @@ public sealed class Message : Entity<MessageId>
             conversationId.Value,
             hangUpUserId,
             MessageType.CallEnded,
-            string.Empty,
+            durationPayload,
             sentAt));
 
         return Result.Success(message);
@@ -511,42 +522,34 @@ public sealed class Message : Entity<MessageId>
     /// <summary>
     /// Mark message as read by a user
     /// </summary>
-    public Result MarkAsRead(Guid userId)
+    /// <returns>true when a new read receipt was added; false when already read (idempotent).</returns>
+    public Result<bool> MarkAsRead(Guid userId)
     {
         if (userId == Guid.Empty)
         {
-            return Result.Failure(new Error("Message.InvalidUserId", "User ID cannot be empty"));
+            return Result.Failure<bool>(new Error("Message.InvalidUserId", "User ID cannot be empty"));
         }
 
-        // Check if user already read this message
         if (_readReceipts.Any(r => r.UserId == userId))
         {
-            return Result.Success(); // Already read, idempotent
+            return Result.Success(false);
         }
 
-        // Create read receipt
         var readReceiptResult = ReadReceipt.Create(userId);
         if (readReceiptResult.IsFailure)
         {
-            return Result.Failure(readReceiptResult.Error);
+            return Result.Failure<bool>(readReceiptResult.Error);
         }
 
         _readReceipts.Add(readReceiptResult.Value);
 
-        // Raise domain event
         AddDomainEvent(new MessageReadDomainEvent(
             Id,
             userId,
             DateTime.UtcNow));
 
-        return Result.Success();
+        return Result.Success(true);
     }
 
-    private void AddDomainEvent(IDomainEvent domainEvent)
-    {
-        // Messages are entities, not aggregate roots
-        // Events should be dispatched via parent aggregate (Conversation)
-        // For now, we'll store them here but in practice they'd be
-        // raised through the Conversation aggregate
-    }
+    private void AddDomainEvent(IDomainEvent domainEvent) => _domainEvents.Add(domainEvent);
 }

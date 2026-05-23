@@ -108,6 +108,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserBlockRepository, UserBlockRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();

@@ -158,4 +158,12 @@ public sealed class Category : AggregateRoot<CategoryId>
             PostCount--;
         }
     }
+
+    /// <summary>Seed/migration: gán khu cha và thứ tự hiển thị (không phát domain event).</summary>
+    public void AssignHierarchy(CategoryId? parentCategoryId, int displayOrder)
+    {
+        ParentCategoryId = parentCategoryId;
+        DisplayOrder = displayOrder;
+        UpdatedAt = DateTime.UtcNow;
+    }
 }

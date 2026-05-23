@@ -8,6 +8,7 @@ import {
   invalidateTagsChannelDiscovery,
   invalidateTagsForConversationThread,
   parseHubMessageNotification,
+  parseHubUserStatus,
   parseHubUserTyping,
   readChannelIdFromPayload,
   readConversationIdFromPayload,
@@ -26,7 +27,7 @@ export function createChatConnection(getAccessToken: () => string | null): HubCo
     .build()
 }
 
-/** Method names the server invokes on the client (ASP.NET Core JSON → camelCase). */
+/** C# hub method names (PascalCase). Wire protocol uses camelCase — see `hubClientMethodNames`. */
 export const CHAT_HUB_CLIENT_METHODS = [
   'ReceiveMessage',
   'MessageEdited',
@@ -41,6 +42,24 @@ export const CHAT_HUB_CLIENT_METHODS = [
   'UserStatusChanged',
   'ReceiveWebRtcSignal',
 ] as const
+
+function hubMethodAliases(pascal: string): string[] {
+  const camel = pascal.charAt(0).toLowerCase() + pascal.slice(1)
+  return camel === pascal ? [pascal] : [camel, pascal]
+}
+
+/** All listener names to register/off (camelCase first — ASP.NET Core JSON hub protocol default). */
+export const CHAT_HUB_CLIENT_LISTENER_NAMES = CHAT_HUB_CLIENT_METHODS.flatMap(hubMethodAliases)
+
+function hubOn(
+  connection: HubConnection,
+  pascalMethod: (typeof CHAT_HUB_CLIENT_METHODS)[number],
+  handler: (...args: unknown[]) => void,
+): void {
+  for (const name of hubMethodAliases(pascalMethod)) {
+    connection.on(name, handler)
+  }
+}
 
 export function parseWebRtcSignalPayload(raw: unknown): WebRtcSignalPayload | null {
   if (!raw || typeof raw !== 'object') return null
@@ -66,6 +85,12 @@ export type ChatHubHandlers = {
     userName: string
     conversationId: string
     isTyping: boolean
+  }) => void
+  onUserStatusChanged?: (payload: {
+    userId: string
+    userName: string
+    status: string
+    timestamp: string
   }) => void
   onWebRtcSignal?: (payload: WebRtcSignalPayload) => void
 }
@@ -127,7 +152,9 @@ export function attachChatHubHandlers(
     dispatch(chatApi.util.invalidateTags(invalidateTagsChannelDiscovery()))
   }
 
-  const onUserStatusChanged = () => {
+  const onUserStatusChanged = (payload: unknown) => {
+    const s = parseHubUserStatus(payload)
+    if (s) handlers.onUserStatusChanged?.(s)
     dispatch(chatApi.util.invalidateTags([{ type: 'ChatConversation', id: 'LIST' }]))
   }
 
@@ -136,22 +163,22 @@ export function attachChatHubHandlers(
     if (p) handlers.onWebRtcSignal?.(p)
   }
 
-  connection.on('ReceiveMessage', onReceive)
-  connection.on('MessageEdited', onMessageEdited)
-  connection.on('MessageDeleted', onMessageDeleted)
-  connection.on('UserJoined', onUserJoined)
-  connection.on('UserLeft', onUserLeft)
-  connection.on('UserTyping', onUserTyping)
-  connection.on('ReactionAdded', onReaction)
-  connection.on('ReactionRemoved', onReaction)
-  connection.on('MessageRead', onMessageRead)
-  connection.on('ChannelUpdated', onChannelUpdated)
-  connection.on('UserStatusChanged', onUserStatusChanged)
-  connection.on('ReceiveWebRtcSignal', onWebRtcSignal)
+  hubOn(connection, 'ReceiveMessage', onReceive)
+  hubOn(connection, 'MessageEdited', onMessageEdited)
+  hubOn(connection, 'MessageDeleted', onMessageDeleted)
+  hubOn(connection, 'UserJoined', onUserJoined)
+  hubOn(connection, 'UserLeft', onUserLeft)
+  hubOn(connection, 'UserTyping', onUserTyping)
+  hubOn(connection, 'ReactionAdded', onReaction)
+  hubOn(connection, 'ReactionRemoved', onReaction)
+  hubOn(connection, 'MessageRead', onMessageRead)
+  hubOn(connection, 'ChannelUpdated', onChannelUpdated)
+  hubOn(connection, 'UserStatusChanged', onUserStatusChanged)
+  hubOn(connection, 'ReceiveWebRtcSignal', onWebRtcSignal)
 }
 
 export function detachChatHubHandlers(connection: HubConnection): void {
-  for (const method of CHAT_HUB_CLIENT_METHODS) {
+  for (const method of CHAT_HUB_CLIENT_LISTENER_NAMES) {
     connection.off(method)
   }
 }

@@ -29,6 +29,14 @@ public interface IConversationRepository
     Task<bool> ExistsAsync(ConversationId id, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Whether the user is in the conversation participants JSON (jsonb-safe query).
+    /// </summary>
+    Task<bool> IsUserParticipantAsync(
+        ConversationId conversationId,
+        Guid userId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Add a new conversation
     /// </summary>
     Task AddAsync(Conversation conversation, CancellationToken cancellationToken = default);

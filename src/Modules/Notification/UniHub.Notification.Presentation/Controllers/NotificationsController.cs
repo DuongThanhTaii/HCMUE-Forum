@@ -112,6 +112,7 @@ public class NotificationsController : ControllerBase
                 inAppNotification.Content.Body,
                 "announcement",
                 inAppNotification.CreatedAt,
+                inAppNotification.Content.ActionUrl,
                 cancellationToken);
 
             if (!request.SendEmail)

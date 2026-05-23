@@ -35,6 +35,8 @@ public static class DependencyInjection
         services.AddScoped<IConversationRepository, ConversationRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<IChannelRepository, ChannelRepository>();
+        services.AddScoped<IConversationMuteRepository, ConversationMuteRepository>();
+        services.AddScoped<IChatMessageReportRepository, ChatMessageReportRepository>();
 
         return services;
     }
@@ -50,6 +52,7 @@ public static class DependencyInjection
 
         services.AddScoped<IFileStorageService>(_ =>
             new LocalFileStorageService(finalUploadPath));
+        services.AddScoped<IUserBlockChecker, UserBlockChecker>();
 
         return services;
     }

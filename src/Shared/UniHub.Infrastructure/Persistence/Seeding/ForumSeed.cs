@@ -72,33 +72,8 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
     {
         logger.LogInformation("Seeding forum data...");
 
-        // 1. Seed Categories
-        if (!await context.Categories.AnyAsync())
-        {
-            var categoryData = new[]
-            {
-                ("Thảo luận chung", "Thảo luận mọi chủ đề liên quan đến đại học"),
-                ("Học tập", "Chia sẻ tài liệu, kinh nghiệm học tập"),
-                ("Hỏi đáp", "Đặt câu hỏi và nhận giải đáp"),
-                ("Công nghệ", "Thảo luận về công nghệ, lập trình"),
-                ("Tuyển dụng", "Thông tin tuyển dụng, thực tập"),
-                ("Đời sống sinh viên", "Chia sẻ kinh nghiệm đời sống"),
-                ("Sự kiện", "Thông tin sự kiện, hoạt động"),
-                ("Góp ý", "Góp ý, phản hồi về UniHub"),
-            };
-
-            var categories = new List<Category>();
-            foreach (var (name, desc) in categoryData)
-            {
-                var nameVo = CategoryName.Create(name).Value;
-                var descVo = CategoryDescription.Create(desc).Value;
-                categories.Add(Category.Create(nameVo, descVo).Value);
-            }
-
-            context.Categories.AddRange(categories);
-            await context.SaveChangesAsync();
-            logger.LogInformation("Seeded {Count} categories.", categories.Count);
-        }
+        // 1. Seed / migrate hierarchical categories (khu cha → diễn đàn con)
+        await ForumCategoryHierarchySeed.SeedOrMigrateAsync(context, logger);
 
         // 2. Seed Tags
         if (!await context.Tags.AnyAsync())
@@ -176,8 +151,9 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
                 systemAuthorId = Guid.Parse("00000000-0000-0000-0000-000000000001");
             }
 
-            var allCategories = await context.Categories.AsNoTracking().ToListAsync();
-            var lifestyleCategory = allCategories.FirstOrDefault(c => c.Name.Value == "Đời sống sinh viên");
+            var categoryByName = await context.Categories
+                .AsNoTracking()
+                .ToDictionaryAsync(c => c.Name.Value, c => c.Id.Value, StringComparer.OrdinalIgnoreCase);
 
             var postSeedData = new[]
             {
@@ -185,19 +161,22 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
                     ShowcaseGeneralThreadTitle,
                     ShowcaseGeneralThreadBody.Trim(),
                     PostType.Discussion,
-                    "general"
+                    "general",
+                    "Đời sống sinh viên"
                 ),
                 (
                     "EF Core: giảm chi phí Include/ProjectTo khi list bài kèm tag và category",
                     "Mình đang tối ưu API danh sách bài viết: mỗi bài có category, vài tag và đếm comment. Khi Include nhiều tầng thì thời gian phản hồi tăng rõ. Mọi người thường chọn AsSplitQuery, giới họn cột, hay chuyển sang projection/DTO từ đầu? Mình muốn nghe case thực tế hơn là lý thuyết chung chung.",
                     PostType.Question,
-                    "qna"
+                    "qna",
+                    "Hỏi đáp"
                 ),
                 (
                     "Gợi ý kiến trúc frontend: tách slice RTK Query theo feature hay theo domain API?",
                     "Nhóm mình đang chuẩn hóa codebase React sau một kỳ thực tập. Đang phân vân giữa injectEndpoints theo từng feature (forum, chat, career) và gom theo nhóm REST. Bạn nào đã migrate từ bundle lớn sang kiến trúc module, chia sẻ giúp mình vài bài học được không?",
                     PostType.Discussion,
-                    "tech"
+                    "tech",
+                    "Lập trình"
                 ),
             };
 
@@ -208,16 +187,10 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
             var posts = new List<Post>();
             for (var i = 0; i < postSeedData.Length; i++)
             {
-                var (titleRaw, contentRaw, type, channelCode) = postSeedData[i];
+                var (titleRaw, contentRaw, type, channelCode, categoryName) = postSeedData[i];
                 var title = PostTitle.Create(titleRaw).Value;
                 var content = PostContent.Create(contentRaw).Value;
-                Guid? categoryId = null;
-                if (allCategories.Count > 0)
-                {
-                    categoryId = i == 0 && lifestyleCategory is not null
-                        ? lifestyleCategory.Id.Value
-                        : allCategories[i % allCategories.Count].Id.Value;
-                }
+                Guid? categoryId = categoryByName.TryGetValue(categoryName, out var cid) ? cid : null;
 
                 threadChannelMap.TryGetValue(channelCode, out var threadChannelId);
                 var tagSet = i switch
@@ -288,8 +261,10 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
             systemAuthorId = Guid.Parse("00000000-0000-0000-0000-000000000001");
         }
 
-        var allCategories = await context.Categories.AsNoTracking().ToListAsync();
-        if (allCategories.Count == 0)
+        var categoryByName = await context.Categories
+            .AsNoTracking()
+            .ToDictionaryAsync(c => c.Name.Value, c => c.Id.Value, StringComparer.OrdinalIgnoreCase);
+        if (categoryByName.Count == 0)
         {
             logger.LogWarning("Skipping discussion pack seed: no categories.");
             return;
@@ -301,7 +276,7 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
 
         var markerTag = "seed-discussion-pack-v1";
 
-        var pack = new[]
+        var pack = new (string Title, string Body, PostType Type, string Channel, string CategoryName, string[] Replies)[]
         {
             (
                 markerTitle,
@@ -318,6 +293,7 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
                 """.Trim(),
                 PostType.Discussion,
                 "general",
+                "Thảo luận chung",
                 new[]
                 {
                     "Mình hay vỡ ở chỗ expectation: có người nghĩ “xong phần A là xong”, trong khi phần B phụ thuộc A nhưng không ai confirm.",
@@ -343,6 +319,7 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
                 """.Trim(),
                 PostType.Discussion,
                 "general",
+                "Thảo luận chung",
                 new[]
                 {
                     "Mình dùng template: Goal → Decision needed → Next step — hết 10 phút là tan họp.",
@@ -368,6 +345,7 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
                 """.Trim(),
                 PostType.Question,
                 "qna",
+                "Hỏi đáp",
                 new[]
                 {
                     "Rule của mình: luôn dán stack trace (hoặc log rút gọn) — không dán full wall of text.",
@@ -389,6 +367,7 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
                 """.Trim(),
                 PostType.Discussion,
                 "tech",
+                "Lập trình",
                 new[]
                 {
                     "Demo tuần sau thì mình ưu tiên đường đi vui nhất có thể; refactor sau demo nếu vẫn còn thời gian.",
@@ -404,10 +383,13 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
         var posts = new List<Post>();
         for (var i = 0; i < pack.Length; i++)
         {
-            var (titleRaw, body, type, channelCode, _) = pack[i];
+            var (titleRaw, body, type, channelCode, categoryName, _) = pack[i];
             var title = PostTitle.Create(titleRaw).Value;
             var content = PostContent.Create(body).Value;
-            var categoryId = allCategories[i % allCategories.Count].Id.Value;
+            if (!categoryByName.TryGetValue(categoryName, out var categoryId))
+            {
+                categoryId = categoryByName.Values.First();
+            }
             threadChannelMap.TryGetValue(channelCode, out var threadChannelId);
             var tagSet = new List<string>
             {
@@ -438,7 +420,7 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
         for (var i = 0; i < posts.Count; i++)
         {
             var post = posts[i];
-            var (_, _, _, _, replyLines) = pack[i];
+            var (_, _, _, _, _, replyLines) = pack[i]; // CategoryName unused here
             foreach (var line in replyLines)
             {
                 var body = CommentContent.Create(line).Value;
@@ -485,15 +467,19 @@ Chúc mọi người một học kỳ bình an và tiến bộ rõ rệt.
             systemAuthorId = Guid.Parse("00000000-0000-0000-0000-000000000001");
         }
 
-        var categories = await context.Categories.AsNoTracking().ToListAsync();
-        if (categories.Count == 0)
+        var categoryByName = await context.Categories
+            .AsNoTracking()
+            .ToDictionaryAsync(c => c.Name.Value, c => c.Id.Value, StringComparer.OrdinalIgnoreCase);
+        if (categoryByName.Count == 0)
         {
             logger.LogWarning("Cannot backfill general thread showcase: no categories.");
             return;
         }
 
-        var lifestyleCategory = categories.FirstOrDefault(c => c.Name.Value == "Đời sống sinh viên");
-        var categoryId = lifestyleCategory?.Id.Value ?? categories[0].Id.Value;
+        if (!categoryByName.TryGetValue("Đời sống sinh viên", out var categoryId))
+        {
+            categoryId = categoryByName.Values.First();
+        }
 
         var title = PostTitle.Create(ShowcaseGeneralThreadTitle).Value;
         var body = PostContent.Create(ShowcaseGeneralThreadBody.Trim()).Value;

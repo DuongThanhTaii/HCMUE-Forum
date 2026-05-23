@@ -10,39 +10,38 @@ const mockHookResult = {
       fullName: 'Alice Nguyen',
       email: 'alice@hcmue.edu.vn',
       status: 'Active',
-      badge: null,
+      roleIds: ['r-student'],
     },
   ],
   roleOptions: [
     { value: 'all', label: 'All roles' },
     { value: 'r-admin', label: 'Admin' },
+    { value: 'r-student', label: 'Student' },
   ],
   statusOptions: [
     { value: 'all', label: 'All statuses' },
     { value: 'Active', label: 'Active' },
   ],
+  roleListItems: [
+    { id: 'r-admin', label: 'Admin' },
+    { id: 'r-student', label: 'Student' },
+  ],
   searchValue: '',
   roleFilter: 'all',
   statusFilter: 'all',
-  assignRoleUserId: null,
-  assignBadgeUserId: null,
-  selectedUserForAssignRole: null,
-  selectedUserForAssignBadge: null,
-  isAssignRoleSubmitting: false,
-  isAssignBadgeSubmitting: false,
+  editingRolesUserId: null,
+  roleActionError: null,
+  isRoleMutating: false,
   isLoading: false,
   isError: false,
-  canFilterByRole: false,
   setSearchValue: vi.fn(),
   setRoleFilter: vi.fn(),
   setStatusFilter: vi.fn(),
-  openAssignRoleModal: vi.fn(),
-  closeAssignRoleModal: vi.fn(),
-  openAssignBadgeModal: vi.fn(),
-  closeAssignBadgeModal: vi.fn(),
-  submitAssignRole: vi.fn(),
-  submitAssignBadge: vi.fn(),
-  removeUserBadge: vi.fn(),
+  openRoleEditor: vi.fn(),
+  closeRoleEditor: vi.fn(),
+  assignRole: vi.fn(),
+  removeRole: vi.fn(),
+  getRoleLabels: () => ['Student'],
 }
 
 vi.mock('react-i18next', () => ({
@@ -56,13 +55,14 @@ vi.mock('../hooks/useAdminUsersPage', () => {
 })
 
 describe('AdminUsersPage', () => {
-  it('renders users table and delegates row action handlers', () => {
+  it('renders users table with roles column', () => {
     render(<AdminUsersPage />)
 
     expect(screen.getByText('Alice Nguyen')).toBeInTheDocument()
-    expect(screen.getByLabelText('admin.usersPage.filters.role')).toBeDisabled()
+    expect(screen.getAllByText('Student').length).toBeGreaterThan(0)
+    expect(screen.getByLabelText('admin.usersPage.filters.role')).toBeEnabled()
 
-    fireEvent.click(screen.getByRole('button', { name: 'admin.usersPage.actions.assignRole' }))
-    expect(mockHookResult.openAssignRoleModal).toHaveBeenCalledWith('u-1')
+    fireEvent.click(screen.getByRole('button', { name: 'admin.usersPage.actions.manageRoles' }))
+    expect(mockHookResult.openRoleEditor).toHaveBeenCalledWith('u-1')
   })
 })

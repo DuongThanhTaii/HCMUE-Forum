@@ -1,18 +1,41 @@
 import { Link } from 'react-router-dom'
-import { PenSquare } from 'lucide-react'
+import { ChevronLeft, PenSquare } from 'lucide-react'
 import { ForumFiltersRow } from './ForumFiltersRow'
 import { ForumListTable } from './ForumListTable'
 import { useForumListPage } from '../hooks/useForumListPage'
 
 export function ForumListPage() {
-  const { t, activeTab, setActiveTab, filteredItems, isLoading, isError, isEmpty } =
-    useForumListPage()
+  const {
+    t,
+    activeTab,
+    setActiveTab,
+    filteredItems,
+    isLoading,
+    isError,
+    isEmpty,
+    activeCategory,
+  } = useForumListPage()
 
   const toolbar = (
-    <div className="flex flex-wrap items-center justify-end gap-2">
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="min-w-0">
+        <Link
+          to="/forum"
+          className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-500 hover:text-primary"
+        >
+          <ChevronLeft className="h-3.5 w-3.5" />
+          {t('forum.index.backToZones')}
+        </Link>
+        <h1 className="mt-1 truncate text-base font-semibold text-slate-900">
+          {activeCategory ? activeCategory.name : t('forum.index.allPostsTitle')}
+        </h1>
+        {activeCategory?.description ? (
+          <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">{activeCategory.description}</p>
+        ) : null}
+      </div>
       <Link
         to="/forum/new"
-        className="inline-flex items-center gap-2 rounded-md border border-primary bg-primary px-3 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-primary-hover"
+        className="inline-flex shrink-0 items-center gap-2 rounded-md border border-primary bg-primary px-3 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-primary-hover"
       >
         <PenSquare className="h-3.5 w-3.5" aria-hidden />
         {t('forum.createPost.pageTitle')}
