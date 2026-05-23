@@ -1,33 +1,27 @@
 using Microsoft.Extensions.Logging;
 using UniHub.Forum.Domain.Events;
 using UniHub.Notification.Application.Abstractions;
-using UniHub.Notification.Application.Abstractions.Notifications;
-using UniHub.Notification.Domain.Notifications;
-using UniHub.Notification.Domain.NotificationTemplates;
+using UniHub.Notification.Application.Services;
 using UniHub.SharedKernel.Domain;
 
 namespace UniHub.Notification.Application.EventHandlers;
 
 /// <summary>
-/// Sends an in-app notification to the post author when someone comments on their post.
-/// Also notifies the parent-comment author when someone replies.
+/// Notifies post author on new comments and parent-comment author on replies.
 /// </summary>
 public sealed class CommentAddedEventHandler : IDomainEventHandler<CommentAddedEvent>
 {
-    private readonly INotificationRepository _notificationRepository;
-    private readonly IPostAuthorLookup _postAuthorLookup;
-    private readonly INotificationPusher _pusher;
+    private readonly InAppNotificationDispatcher _dispatcher;
+    private readonly INotificationRecipientResolver _resolver;
     private readonly ILogger<CommentAddedEventHandler> _logger;
 
     public CommentAddedEventHandler(
-        INotificationRepository notificationRepository,
-        IPostAuthorLookup postAuthorLookup,
-        INotificationPusher pusher,
+        InAppNotificationDispatcher dispatcher,
+        INotificationRecipientResolver resolver,
         ILogger<CommentAddedEventHandler> logger)
     {
-        _notificationRepository = notificationRepository;
-        _postAuthorLookup = postAuthorLookup;
-        _pusher = pusher;
+        _dispatcher = dispatcher;
+        _resolver = resolver;
         _logger = logger;
     }
 
@@ -35,61 +29,51 @@ public sealed class CommentAddedEventHandler : IDomainEventHandler<CommentAddedE
     {
         try
         {
-            var postInfo = await _postAuthorLookup.GetAuthorAsync(notification.PostId, cancellationToken);
-            if (postInfo is null) return;
+            var postInfo = await _resolver.GetPostAuthorAsync(notification.PostId.Value, cancellationToken);
+            if (postInfo is null)
+            {
+                return;
+            }
 
             var (postAuthorId, postTitle) = postInfo.Value;
+            var postUrl = $"/forum/{notification.PostId.Value}#comment-{notification.CommentId.Value}";
 
-            // Don't notify if the commenter IS the post author
-            if (postAuthorId == notification.AuthorId) return;
-
-            var actionUrl = $"/forum/{notification.PostId.Value}#comment-{notification.CommentId.Value}";
-            var subject = "Binh luan moi trong bai viet cua ban";
-            var body = $"Co binh luan moi tren bai \"{Truncate(postTitle, 60)}\".";
-
-            var contentResult = NotificationContent.Create(subject, body, actionUrl);
-            if (contentResult.IsFailure)
+            if (postAuthorId != notification.AuthorId)
             {
-                _logger.LogWarning("CommentAdded: could not build content: {Error}", contentResult.Error.Message);
-                return;
+                await _dispatcher.SendAsync(
+                    postAuthorId,
+                    "Bình luận mới trong bài viết của bạn",
+                    $"Có bình luận mới trên bài \"{NotificationMessageHelper.Truncate(postTitle, 60)}\".",
+                    "comment",
+                    postUrl,
+                    cancellationToken);
             }
 
-            var notifResult = Domain.Notifications.Notification.Create(
-                postAuthorId,
-                NotificationChannel.InApp,
-                contentResult.Value);
-
-            if (notifResult.IsFailure)
+            if (notification.ParentCommentId is not null)
             {
-                _logger.LogWarning("CommentAdded: could not create notification: {Error}", notifResult.Error.Message);
-                return;
+                var parentCtx = await _resolver.GetCommentContextAsync(
+                    notification.ParentCommentId.Value,
+                    cancellationToken);
+
+                if (parentCtx is not null)
+                {
+                    var (parentAuthorId, _, _) = parentCtx.Value;
+                    if (parentAuthorId != notification.AuthorId && parentAuthorId != postAuthorId)
+                    {
+                        await _dispatcher.SendAsync(
+                            parentAuthorId,
+                            "Phản hồi bình luận của bạn",
+                            $"Ai đó đã trả lời bình luận của bạn trong bài \"{NotificationMessageHelper.Truncate(postTitle, 60)}\".",
+                            "comment_reply",
+                            postUrl,
+                            cancellationToken);
+                    }
+                }
             }
-
-            var notif = notifResult.Value;
-            await _notificationRepository.AddAsync(notif, cancellationToken);
-
-            await _pusher.PushAsync(
-                postAuthorId,
-                notif.Id.Value,
-                subject,
-                body,
-                "comment",
-                notif.CreatedAt,
-                cancellationToken);
-
-            var unreadCount = await _notificationRepository.GetUnreadCountAsync(postAuthorId, cancellationToken);
-            await _pusher.PushUnreadCountAsync(postAuthorId, unreadCount, cancellationToken);
-
-            _logger.LogInformation(
-                "Comment notification sent to post author {AuthorId} for post {PostId}",
-                postAuthorId, notification.PostId.Value);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error handling CommentAddedEvent for comment {CommentId}", notification.CommentId.Value);
         }
     }
-
-    private static string Truncate(string s, int max) =>
-        s.Length <= max ? s : s[..max] + "…";
 }

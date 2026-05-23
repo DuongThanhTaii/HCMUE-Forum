@@ -1,6 +1,8 @@
+using MediatR;
 using UniHub.SharedKernel.CQRS;
 using UniHub.SharedKernel.Results;
 using UniHub.Forum.Application.Abstractions;
+using UniHub.Forum.Domain.Events;
 using UniHub.Forum.Domain.Posts;
 using UniHub.Forum.Domain.Reports;
 
@@ -10,13 +12,16 @@ public sealed class ReportPostCommandHandler : ICommandHandler<ReportPostCommand
 {
     private readonly IReportRepository _reportRepository;
     private readonly IPostRepository _postRepository;
+    private readonly IPublisher _publisher;
 
     public ReportPostCommandHandler(
         IReportRepository reportRepository,
-        IPostRepository postRepository)
+        IPostRepository postRepository,
+        IPublisher publisher)
     {
         _reportRepository = reportRepository;
         _postRepository = postRepository;
+        _publisher = publisher;
     }
 
     public async Task<Result<int>> Handle(
@@ -61,6 +66,15 @@ public sealed class ReportPostCommandHandler : ICommandHandler<ReportPostCommand
         }
 
         await _reportRepository.AddAsync(reportResult.Value, cancellationToken);
+
+        await _publisher.Publish(
+            new ReportSubmittedEvent(
+                reportResult.Value.Id.Value,
+                request.PostId,
+                ReportedItemType.Post,
+                request.ReporterId,
+                request.Reason),
+            cancellationToken);
 
         return Result.Success(reportResult.Value.Id.Value);
     }

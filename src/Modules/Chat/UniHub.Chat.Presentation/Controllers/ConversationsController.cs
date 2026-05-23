@@ -8,7 +8,12 @@ using UniHub.Chat.Application.Commands.AddParticipant;
 using UniHub.Chat.Application.Commands.CreateDirectConversation;
 using UniHub.Chat.Application.Commands.CreateGroupConversation;
 using UniHub.Chat.Application.Commands.RemoveParticipant;
+using UniHub.Chat.Application.Commands.SetConversationMute;
 using UniHub.Chat.Application.Queries.GetConversations;
+using UniHub.Chat.Application.Queries.GetMessages;
+using UniHub.Chat.Application.Queries.ListConversationAttachments;
+using UniHub.Chat.Application.Queries.ListConversationLinks;
+using UniHub.Chat.Application.Queries.SearchConversationMessages;
 
 namespace UniHub.Chat.Presentation.Controllers;
 
@@ -126,6 +131,149 @@ public class ConversationsController : ControllerBase
     }
 
     /// <summary>
+    /// Search messages in a conversation (participants only).
+    /// </summary>
+    [HttpGet("{id:guid}/messages/search")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResponse<MessageSearchHitResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SearchMessages(
+        Guid id,
+        [FromQuery] string q,
+        [FromQuery] string filter = "all",
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetUserId();
+        var query = new SearchConversationMessagesQuery(userId, id, q, filter, page, pageSize);
+        var result = await _sender.Send(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error.Code == "Conversation.NotFound")
+            {
+                return NotFound(ApiResponses.Failure(result.Error.Message));
+            }
+
+            if (result.Error.Code == "Conversation.NotParticipant")
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
+            }
+
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
+        }
+
+        return Ok(ApiResponses.Success(result.Value));
+    }
+
+    /// <summary>
+    /// List shared attachments in a conversation (participants only).
+    /// </summary>
+    [HttpGet("{id:guid}/attachments")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResponse<ConversationAttachmentResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ListAttachments(
+        Guid id,
+        [FromQuery] string kind = "all",
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 30,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetUserId();
+        var query = new ListConversationAttachmentsQuery(userId, id, kind, page, pageSize);
+        var result = await _sender.Send(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error.Code == "Conversation.NotFound")
+            {
+                return NotFound(ApiResponses.Failure(result.Error.Message));
+            }
+
+            if (result.Error.Code == "Conversation.NotParticipant")
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
+            }
+
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
+        }
+
+        return Ok(ApiResponses.Success(result.Value));
+    }
+
+    /// <summary>
+    /// List URLs found in conversation messages (participants only).
+    /// </summary>
+    [HttpGet("{id:guid}/links")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResponse<ConversationLinkResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ListLinks(
+        Guid id,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 30,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetUserId();
+        var query = new ListConversationLinksQuery(userId, id, page, pageSize);
+        var result = await _sender.Send(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error.Code == "Conversation.NotFound")
+            {
+                return NotFound(ApiResponses.Failure(result.Error.Message));
+            }
+
+            if (result.Error.Code == "Conversation.NotParticipant")
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
+            }
+
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
+        }
+
+        return Ok(ApiResponses.Success(result.Value));
+    }
+
+    [HttpPost("{id:guid}/mute")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SetMute(
+        Guid id,
+        [FromBody] SetConversationMuteRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetUserId();
+        var result = await _sender.Send(
+            new SetConversationMuteCommand(userId, id, request.Muted),
+            cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error.Code == "Conversation.NotFound")
+            {
+                return NotFound(ApiResponses.Failure(result.Error.Message));
+            }
+
+            if (result.Error.Code == "Conversation.NotParticipant")
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
+            }
+
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
+        }
+
+        return Ok(ApiResponses.Success("Mute updated"));
+    }
+
+    /// <summary>
     /// Add a participant to a group conversation
     /// </summary>
     /// <param name="id">Conversation ID</param>
@@ -238,3 +386,5 @@ public record CreateGroupConversationResponse
 /// Request to add a participant to a conversation
 /// </summary>
 public record AddParticipantRequest(Guid ParticipantId);
+
+public record SetConversationMuteRequest(bool Muted);

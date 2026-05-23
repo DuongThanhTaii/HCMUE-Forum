@@ -13,13 +13,16 @@ public sealed class SendMessageWithAttachmentsCommandHandler : ICommandHandler<S
 {
     private readonly IConversationRepository _conversationRepository;
     private readonly IMessageRepository _messageRepository;
+    private readonly IUserBlockChecker _userBlockChecker;
 
     public SendMessageWithAttachmentsCommandHandler(
         IConversationRepository conversationRepository,
-        IMessageRepository messageRepository)
+        IMessageRepository messageRepository,
+        IUserBlockChecker userBlockChecker)
     {
         _conversationRepository = conversationRepository;
         _messageRepository = messageRepository;
+        _userBlockChecker = userBlockChecker;
     }
 
     public async Task<Result<Guid>> Handle(
@@ -43,6 +46,16 @@ public sealed class SendMessageWithAttachmentsCommandHandler : ICommandHandler<S
             return Result.Failure<Guid>(new Error(
                 "Message.SenderNotParticipant",
                 "Sender must be a participant in the conversation"));
+        }
+
+        var blockFailure = await ChatSafetyHelper.EnsureNotBlockedForDirectAsync(
+            conversation,
+            request.SenderId,
+            _userBlockChecker,
+            cancellationToken);
+        if (blockFailure is not null)
+        {
+            return Result.Failure<Guid>(blockFailure.Error);
         }
 
         // Validate conversation is not archived

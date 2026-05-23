@@ -6,6 +6,7 @@ import { MainLayout } from '@shared/components/layouts/MainLayout';
 import { ModLayout } from '@shared/components/layouts/ModLayout';
 import { AdminLayout } from '@shared/components/layouts/AdminLayout';
 import { ForumListPage } from '@features/forum/components/ForumListPage';
+import { ForumIndexPage } from '@features/forum/components/ForumIndexPage';
 import { ForumDetailPage } from '@features/forum/components/ForumDetailPage';
 import { ForumSavedPostsPage } from '@features/forum/components/ForumSavedPostsPage';
 import { ForumThreadsPage } from '@features/forum/components/ForumThreadsPage';
@@ -15,7 +16,6 @@ import { ModPostsPage } from '@features/forum/components/ModPostsPage';
 import { ModLearningApprovalsPage } from '@features/learning/components/ModLearningApprovalsPage';
 import { ModDashboardPage } from '@features/forum/components/ModDashboardPage';
 import { ForumCreatePostPage } from '@features/forum/components/ForumCreatePostPage';
-import { Placeholder } from './components/Placeholder';
 import { LearningDocumentsPage } from '@features/learning/components/LearningDocumentsPage';
 import { LearningDocumentDetailPage } from '@features/learning/components/LearningDocumentDetailPage';
 import { LearningFacultiesPage } from '@features/learning/components/LearningFacultiesPage';
@@ -81,7 +81,8 @@ export const appRoutes = [
           {
             element: <RequireAuth />,
             children: [
-              { path: 'forum', element: <ForumListPage /> },
+              { path: 'forum', element: <ForumIndexPage /> },
+              { path: 'forum/posts', element: <ForumListPage /> },
               { path: 'forum/threads', element: <ForumThreadsPage /> },
               { path: 'forum/saved', element: <ForumSavedPostsPage /> },
               { path: 'forum/new', element: <ForumCreatePostPage /> },
@@ -128,7 +129,7 @@ export const appRoutes = [
           { path: 'dashboard', element: <AdminDashboardPage /> },
           { path: 'users', element: <AdminUsersPage /> },
           { path: 'roles', element: <AdminRolesPage /> },
-          { path: 'permissions', element: <Placeholder titleKey="placeholders.admin.permissions" /> },
+          { path: 'permissions', element: <Navigate to="/admin/roles" replace /> },
           { path: 'overrides/users', element: <AdminOverridesPage /> },
           { path: 'overrides/groups', element: <AdminOverridesPage /> },
           { path: 'forum/thread-channels', element: <AdminThreadChannelsPage /> },

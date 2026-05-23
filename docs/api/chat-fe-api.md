@@ -48,6 +48,33 @@ Error sample:
 - **200**: `ApiResponse<null>` with message `Participant removed successfully`
 - **404**: failure envelope (`Conversation.NotFound`)
 
+### `GET /api/v1/chat/conversations/{id}/attachments`
+- **Query**: `kind` (`all` \| `image` \| `file` \| `voice`, default `all`), `page`, `pageSize`
+- **200**: `ApiResponse<PagedResponse<ConversationAttachmentResponse>>`
+  - Item: `messageId`, `sentAt`, `fileName`, `fileUrl`, `mimeType`, `thumbnailUrl`, `fileSize`
+- **403**: `Conversation.NotParticipant`
+- **404**: `Conversation.NotFound`
+
+### `GET /api/v1/chat/conversations/{id}/links`
+- **Query**: `page`, `pageSize`
+- **200**: `ApiResponse<PagedResponse<ConversationLinkResponse>>`
+  - Item: `messageId`, `sentAt`, `url`, `host`
+- **403**: `Conversation.NotParticipant`
+- **404**: `Conversation.NotFound`
+
+### `GET /api/v1/chat/conversations/{id}/messages/search`
+- **Query**: `q` (required, min 2 chars), `filter` (`all` \| `text` \| `media` \| `links`, default `all`), `page`, `pageSize`
+- **200**: `ApiResponse<PagedResponse<MessageSearchHitResponse>>`
+  - Item: `messageId`, `sentAt`, `snippet`, `senderId`, `senderDisplayName`
+- **403**: failure envelope (`Conversation.NotParticipant`)
+- **404**: failure envelope (`Conversation.NotFound`)
+
+### `POST /api/v1/chat/conversations/{id}/mute`
+- **Body**: `{ "muted": boolean }`
+- **200**: `ApiResponse<null>` with message `Conversation mute updated`
+- **403**: `Conversation.NotParticipant`
+- **404**: `Conversation.NotFound`
+
 ## Messages
 
 ### `GET /api/v1/chat/messages?conversationId=&page=&pageSize=`
@@ -58,7 +85,7 @@ Error sample:
 ### `POST /api/v1/chat/messages`
 - **Body**: `SendMessageRequest`
 - **201**: `ApiResponse<SendMessageResponse>`
-- **403**: failure envelope (not participant)
+- **403**: failure envelope (`Conversation.NotParticipant` or `Chat.UserBlocked`)
 - **404**: failure envelope (resource not found)
 
 ### `POST /api/v1/chat/messages/upload`
@@ -69,8 +96,14 @@ Error sample:
 ### `POST /api/v1/chat/messages/with-attachments`
 - **Body**: `SendMessageWithAttachmentsRequest`
 - **201**: `ApiResponse<SendMessageResponse>`
-- **403**: failure envelope (not participant)
+- **403**: failure envelope (`Conversation.NotParticipant` or `Chat.UserBlocked`)
 - **404**: failure envelope (resource not found)
+
+### `POST /api/v1/chat/messages/{messageId}/report`
+- **Body**: `{ "reason": "Spam" | "Harassment" | "Inappropriate" | "Other", "description": string | null }`
+- **201**: `ApiResponse<null>` with message `Report submitted`
+- **403**: `Conversation.NotParticipant`
+- **404**: `Message.NotFound`
 
 ### `POST /api/v1/chat/messages/{messageId}/reactions`
 - **Body**: `AddReactionRequest`
@@ -126,6 +159,22 @@ Error sample:
 - **403**: failure envelope (not moderator/authorized)
 - **404**: failure envelope (`Channel.NotFound`)
 
+## User safety (Identity module)
+
+Base: `/api/v1/users` (same JWT auth).
+
+### `POST /api/v1/users/{userId}/block`
+- **200**: `ApiResponse<null>` — `User blocked`
+
+### `DELETE /api/v1/users/{userId}/block`
+- **200**: `ApiResponse<null>` — `User unblocked`
+
+### `GET /api/v1/users/me/blocked`
+- **200**: `ApiResponse<IReadOnlyList<BlockedUserResponse>>`
+  - Item: `userId`, `blockedAt`
+
+Blocking is enforced when creating a DM or sending messages (`Chat.UserBlocked`, HTTP 403).
+
 ## Schemas
 
 ### `ConversationResponse`
@@ -135,6 +184,8 @@ Error sample:
 - `lastMessageAt` (datetime | null)
 - `createdAt` (datetime)
 - `isArchived` (boolean)
+- `isMuted` (boolean) — current user muted this conversation
+- `isBlockedWithPeer` (boolean) — DM peer block in either direction (direct chats only)
 
 ### `CreateDirectConversationRequest`
 - `otherUserId` (guid)

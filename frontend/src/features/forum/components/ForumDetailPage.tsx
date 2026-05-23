@@ -401,6 +401,11 @@ export function ForumDetailPage() {
           <div className="mt-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-[13px] text-blue-800">
             <span className="font-semibold">{t('forum.threadMode.badge')}:</span>{' '}
             {t('forum.threadMode.description')}
+            <ul className="mt-2 list-disc space-y-0.5 pl-5 text-[12px] text-blue-900">
+              <li>{t('forum.threadMode.point1')}</li>
+              <li>{t('forum.threadMode.point2')}</li>
+              <li>{t('forum.threadMode.point3')}</li>
+            </ul>
           </div>
         ) : null}
         <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-slate-500">
@@ -686,7 +691,7 @@ export function ForumDetailPage() {
       <section className="forum-compact-card overflow-hidden">
         <header className="border-b border-slate-200 bg-slate-50 px-4 py-2 text-[13px] font-semibold text-slate-600">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span>{t('forum.replies')}</span>
+            <span>{isThreadTopic ? t('forum.threadMode.replyTitle') : t('forum.replies')}</span>
             <div className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white p-0.5">
               <span className="px-1 text-[11px] font-medium text-slate-500">{t('forum.commentSection.sortLabel')}</span>
               <button
@@ -712,7 +717,7 @@ export function ForumDetailPage() {
         </header>
         <form onSubmit={(event) => void onSubmitComment(event)} className="border-b border-slate-100 px-4 py-3">
           <label htmlFor="comment-content" className="mb-1 block text-[12px] font-medium text-slate-600">
-            {t('forum.actions.reply')}
+            {isThreadTopic ? t('forum.threadMode.replyLabel') : t('forum.actions.reply')}
           </label>
           <textarea
             id="comment-content"
@@ -720,7 +725,11 @@ export function ForumDetailPage() {
             onChange={(event) => onCommentDraftChange(event.target.value)}
             rows={3}
             className="w-full rounded-md border border-slate-300 px-3 py-2 text-[14px] focus:border-primary focus:outline-none"
-            placeholder={t('forum.detail.commentPlaceholder')}
+            placeholder={
+              isThreadTopic
+                ? t('forum.threadMode.replyPlaceholder')
+                : t('forum.detail.commentPlaceholder')
+            }
           />
           <input
             type="file"
@@ -740,7 +749,11 @@ export function ForumDetailPage() {
               disabled={!canSubmitComment}
               className="rounded-md bg-primary px-3 py-1.5 text-[13px] font-medium text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmittingComment || isUploadingAttachments ? t('common.loading') : t('forum.actions.reply')}
+              {isSubmittingComment || isUploadingAttachments
+                ? t('common.loading')
+                : isThreadTopic
+                  ? t('forum.threadMode.replyAction')
+                  : t('forum.actions.reply')}
             </button>
           </div>
         </form>

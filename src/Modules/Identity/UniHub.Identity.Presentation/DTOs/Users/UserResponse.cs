@@ -10,6 +10,7 @@ public sealed record UserResponse(
     string? Bio,
     string Status,
     OfficialBadgeDto? Badge,
+    IReadOnlyList<Guid> RoleIds,
     DateTime CreatedAt);
 
 public sealed record OfficialBadgeDto(

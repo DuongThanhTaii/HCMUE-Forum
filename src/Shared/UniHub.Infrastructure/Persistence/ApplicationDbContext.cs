@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using UniHub.SharedKernel.Domain;
 // Identity
 using UniHub.Identity.Domain.Users;
+using UniHub.Chat.Domain.Safety;
 using UniHub.Identity.Domain.Roles;
 using UniHub.Identity.Domain.Permissions;
 using UniHub.Identity.Domain.Tokens;
@@ -63,6 +64,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Permission> Permissions => Set<Permission>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
+    public DbSet<UserBlock> UserBlocks => Set<UserBlock>();
     #endregion
 
     #region Forum Module DbSets
@@ -86,6 +88,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Conversation> Conversations => Set<Conversation>();
     public DbSet<Message> Messages => Set<Message>();
     public DbSet<Channel> Channels => Set<Channel>();
+    public DbSet<ConversationMute> ConversationMutes => Set<ConversationMute>();
+    public DbSet<ChatMessageReport> ChatMessageReports => Set<ChatMessageReport>();
     #endregion
 
     #region Career Module DbSets

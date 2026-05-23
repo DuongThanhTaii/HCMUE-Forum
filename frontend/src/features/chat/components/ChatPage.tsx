@@ -68,6 +68,11 @@ export function ChatPage() {
     if (selected?.kind !== 'conversation') return null
     return convos?.find((c) => c.id === selected.conversationId) ?? null
   }, [convos, selected])
+  const selectedPeerActiveNow = useMemo(() => {
+    if (!selectedConversation) return false
+    const isDirect = (selectedConversation.type ?? '').toLowerCase().includes('direct')
+    return isDirect && isUserOnline(selectedConversation.directPeerUserId)
+  }, [selectedConversation, isUserOnline])
 
   const conversationFromUrl = searchParams.get('conversation')
 
@@ -133,8 +138,7 @@ export function ChatPage() {
     if (!selected || selected.kind !== 'conversation') return null
     const c = convos?.find((x) => x.id === selected.conversationId)
     if (!c) return null
-    const isDirect = (c.type ?? '').toLowerCase().includes('direct')
-    if (isDirect && isUserOnline(c.directPeerUserId)) {
+    if (selectedPeerActiveNow) {
       return t('chat.presence.activeNow')
     }
     return conversationSubtitle(c)
@@ -230,8 +234,9 @@ export function ChatPage() {
                       selected?.kind === 'conversation' && selected.conversationId === c.id
                     const title = primaryConversationTitle(c, currentUserId)
                     const isDirect = (c.type ?? '').toLowerCase().includes('direct')
+                    const isActiveNow = isDirect && isUserOnline(c.directPeerUserId)
                     const sub =
-                      isDirect && isUserOnline(c.directPeerUserId)
+                      isActiveNow
                         ? t('chat.presence.activeNow')
                         : conversationSubtitle(c)
                     return (
@@ -247,7 +252,17 @@ export function ChatPage() {
                           <span className="min-w-0 flex-1">
                             <span className="block truncate font-medium text-slate-900">{title}</span>
                             {sub ? (
-                              <span className="block truncate text-xs text-slate-500">{sub}</span>
+                              <span
+                                className={`block truncate text-xs ${isActiveNow ? 'inline-flex items-center gap-1 text-emerald-600' : 'text-slate-500'}`}
+                              >
+                                {isActiveNow && (
+                                  <span
+                                    className="inline-block h-2 w-2 rounded-full bg-emerald-500"
+                                    aria-hidden
+                                  />
+                                )}
+                                {sub}
+                              </span>
                             ) : (
                               <span className="block truncate text-xs text-slate-400">
                                 {t('chat.dm.directChat')}
@@ -460,7 +475,14 @@ export function ChatPage() {
                   {titleForSelected()}
                 </h2>
                 {subtitleForSelected() && (
-                  <p className="mt-0.5 text-xs text-slate-500">{subtitleForSelected()}</p>
+                  <p
+                    className={`mt-0.5 text-xs ${selectedPeerActiveNow ? 'inline-flex items-center gap-1 text-emerald-600' : 'text-slate-500'}`}
+                  >
+                    {selectedPeerActiveNow && (
+                      <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+                    )}
+                    {subtitleForSelected()}
+                  </p>
                 )}
               </div>
             </div>

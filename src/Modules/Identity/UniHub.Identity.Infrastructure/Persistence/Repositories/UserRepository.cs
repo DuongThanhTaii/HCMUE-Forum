@@ -21,6 +21,7 @@ public sealed class UserRepository : IUserRepository
     public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Users
+            .Include(u => u.Roles)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
@@ -48,6 +49,7 @@ public sealed class UserRepository : IUserRepository
                 ORDER BY last_name, first_name
                 LIMIT {take}
                 """)
+            .Include(u => u.Roles)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
@@ -91,8 +93,19 @@ public sealed class UserRepository : IUserRepository
         var entry = _context.Entry(user);
         if (entry.State == EntityState.Detached)
         {
-            _context.Users.Update(user);
+            _context.Users.Attach(user);
+            entry.State = EntityState.Modified;
         }
+
+        foreach (var userRole in user.Roles)
+        {
+            var roleEntry = _context.Entry(userRole);
+            if (roleEntry.State == EntityState.Detached)
+            {
+                _context.UserRoles.Add(userRole);
+            }
+        }
+
         return Task.CompletedTask;
     }
 

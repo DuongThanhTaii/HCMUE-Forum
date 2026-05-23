@@ -15,7 +15,9 @@ public sealed record ConversationResponse(
     string? Title,
     Guid? DirectPeerUserId,
     string? DirectPeerFullName,
-    string? DirectPeerEmail);
+    string? DirectPeerEmail,
+    bool IsMuted,
+    bool IsBlockedWithPeer);
 
 /// <summary>
 /// Query to get all conversations for a user

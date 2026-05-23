@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Bell, Check, ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
@@ -20,11 +20,21 @@ function timeAgo(iso: string): string {
   return `${Math.floor(h / 24)} ngày`
 }
 
+type DisplayItem = {
+  id: string
+  subject: string
+  body: string
+  createdAt: string
+  isRead: boolean
+  actionUrl?: string | null
+  isLive?: boolean
+}
+
 export function NotificationBell() {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement | null>(null)
-  const { unreadCount: liveUnread } = useNotificationContext()
+  const { unreadCount: liveUnread, liveItems, clearLive } = useNotificationContext()
 
   const { data: unreadData } = useGetUnreadCountQuery()
   const { data: notifs, isFetching } = useGetNotificationsQuery(
@@ -34,9 +44,35 @@ export function NotificationBell() {
   const [markRead] = useMarkAsReadMutation()
   const [markAllRead] = useMarkAllAsReadMutation()
 
-  const count = liveUnread || unreadData || 0
+  const count = Math.max(liveUnread, unreadData ?? 0)
 
-  // Close on outside click
+  const displayItems = useMemo((): DisplayItem[] => {
+    const fromApi: DisplayItem[] =
+      notifs?.notifications?.map((n) => ({
+        id: n.id,
+        subject: n.subject,
+        body: n.body,
+        createdAt: n.createdAt,
+        isRead: n.isRead,
+        actionUrl: n.actionUrl,
+      })) ?? []
+
+    const apiIds = new Set(fromApi.map((n) => n.id))
+    const liveOnly: DisplayItem[] = liveItems
+      .filter((l) => !apiIds.has(l.id))
+      .map((l) => ({
+        id: l.id,
+        subject: l.title,
+        body: l.message,
+        createdAt: l.createdAt,
+        isRead: false,
+        actionUrl: l.actionUrl,
+        isLive: true,
+      }))
+
+    return [...liveOnly, ...fromApi]
+  }, [notifs?.notifications, liveItems])
+
   useEffect(() => {
     if (!open) return
     const fn = (e: MouseEvent) => {
@@ -51,13 +87,12 @@ export function NotificationBell() {
   }, [markAllRead])
 
   const handleMarkOne = useCallback(
-    async (id: string) => {
+    async (id: string, isLive?: boolean) => {
+      if (isLive) clearLive(id)
       await markRead(id)
     },
-    [markRead],
+    [markRead, clearLive],
   )
-
-  const items = notifs?.notifications ?? []
 
   return (
     <div ref={ref} className="relative">
@@ -92,13 +127,13 @@ export function NotificationBell() {
           </div>
 
           <div className="max-h-[min(60vh,380px)] overflow-y-auto">
-            {isFetching && items.length === 0 ? (
+            {isFetching && displayItems.length === 0 ? (
               <p className="py-6 text-center text-xs text-slate-400">{t('common.loading')}</p>
-            ) : items.length === 0 ? (
+            ) : displayItems.length === 0 ? (
               <p className="py-8 text-center text-xs text-slate-400">{t('notifications.empty')}</p>
             ) : (
               <ul>
-                {items.map((n) => (
+                {displayItems.map((n) => (
                   <li
                     key={n.id}
                     className={`flex gap-3 border-b border-slate-50 px-4 py-3 last:border-0 ${
@@ -120,7 +155,7 @@ export function NotificationBell() {
                               to={n.actionUrl}
                               onClick={() => {
                                 setOpen(false)
-                                if (!n.isRead) void handleMarkOne(n.id)
+                                if (!n.isRead) void handleMarkOne(n.id, n.isLive)
                               }}
                               className="inline-flex items-center gap-0.5 text-[11px] text-indigo-600 hover:underline"
                             >
@@ -131,7 +166,7 @@ export function NotificationBell() {
                           {!n.isRead && (
                             <button
                               type="button"
-                              onClick={() => void handleMarkOne(n.id)}
+                              onClick={() => void handleMarkOne(n.id, n.isLive)}
                               className="text-[11px] text-slate-400 hover:text-slate-600"
                             >
                               {t('notifications.markRead')}

@@ -150,6 +150,9 @@ try
     builder.Services.AddScoped<
         UniHub.Notification.Application.Abstractions.IPostAuthorLookup,
         UniHub.API.Services.PostAuthorLookup>();
+    builder.Services.AddScoped<
+        UniHub.Notification.Application.Abstractions.INotificationRecipientResolver,
+        UniHub.API.Services.NotificationRecipientResolver>();
 
     // Add AI module
     builder.Services.AddAIInfrastructure(builder.Configuration);

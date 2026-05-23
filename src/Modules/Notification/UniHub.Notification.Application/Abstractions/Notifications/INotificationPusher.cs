@@ -16,6 +16,7 @@ public interface INotificationPusher
         string message,
         string type,
         DateTime createdAt,
+        string? actionUrl = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>

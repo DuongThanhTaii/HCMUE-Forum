@@ -11,7 +11,9 @@ using UniHub.Chat.Application.Commands.DeleteMessage;
 using UniHub.Chat.Application.Commands.EditMessage;
 using UniHub.Chat.Application.Commands.MarkMessageAsRead;
 using UniHub.Chat.Application.Commands.RemoveReaction;
+using UniHub.Chat.Application.Commands.ReportMessage;
 using UniHub.Chat.Application.Commands.SendMessage;
+using UniHub.Chat.Domain.Safety;
 using UniHub.Chat.Application.Commands.SendMessageWithAttachments;
 using UniHub.Chat.Application.Commands.UploadFile;
 using UniHub.Chat.Application.Queries.GetMessageReadReceipts;
@@ -186,7 +188,7 @@ public class MessagesController : ControllerBase
                 return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
-            if (result.Error.Code.Contains("NotParticipant"))
+            if (result.Error.Code.Contains("NotParticipant") || result.Error.Code == "Chat.UserBlocked")
             {
                 return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
             }
@@ -319,7 +321,7 @@ public class MessagesController : ControllerBase
                 return NotFound(ApiResponses.Failure(result.Error.Message));
             }
 
-            if (result.Error.Code.Contains("NotParticipant"))
+            if (result.Error.Code.Contains("NotParticipant") || result.Error.Code == "Chat.UserBlocked")
             {
                 return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
             }
@@ -442,6 +444,43 @@ public class MessagesController : ControllerBase
         return Ok(ApiResponses.Success("Message marked as read"));
     }
 
+    [HttpPost("{messageId:guid}/report")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReportMessage(
+        Guid messageId,
+        [FromBody] ReportMessageRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetUserId();
+        var reason = Enum.TryParse<ChatMessageReportReason>(request.Reason, true, out var parsed)
+            ? parsed
+            : ChatMessageReportReason.Other;
+
+        var result = await _sender.Send(
+            new ReportMessageCommand(userId, messageId, reason, request.Description),
+            cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error.Code == "Message.NotFound")
+            {
+                return NotFound(ApiResponses.Failure(result.Error.Message));
+            }
+
+            if (result.Error.Code is "Conversation.NotParticipant")
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponses.Failure(result.Error.Message));
+            }
+
+            return BadRequest(ApiResponses.Failure(result.Error.Message));
+        }
+
+        return StatusCode(StatusCodes.Status201Created, ApiResponses.Success("Report submitted"));
+    }
+
     /// <summary>
     /// Get read receipts for a message
     /// </summary>
@@ -540,3 +579,5 @@ public record UploadFileResponse
 /// Request to add a reaction to a message
 /// </summary>
 public record AddReactionRequest(string Emoji);
+
+public record ReportMessageRequest(string Reason, string? Description);

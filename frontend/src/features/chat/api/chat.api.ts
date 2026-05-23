@@ -4,8 +4,17 @@ import type {
   ChannelDto,
   ConversationDto,
   MessageAttachmentDto,
+  ConversationAttachmentDto,
+  ConversationAttachmentKind,
+  ConversationLinkDto,
+  ConversationMessageSearchFilter,
   MessageDto,
+  PagedConversationAttachmentsDto,
+  PagedConversationLinksDto,
+  MessageSearchHitDto,
+  PagedMessageSearchDto,
   PagedMessagesDto,
+  ReadReceiptDto,
   SendMessagePayload,
   SendMessageResultDto,
   SendWithAttachmentsPayload,
@@ -71,6 +80,8 @@ function mapConversation(raw: Record<string, unknown>): ConversationDto {
       raw.directPeerFullName != null ? String(raw.directPeerFullName) : null,
     directPeerEmail:
       raw.directPeerEmail != null ? String(raw.directPeerEmail) : null,
+    isMuted: Boolean(raw.isMuted),
+    isBlockedWithPeer: Boolean(raw.isBlockedWithPeer),
   }
 }
 
@@ -84,6 +95,86 @@ function mapChannel(raw: Record<string, unknown>): ChannelDto {
     memberCount: Number(raw.memberCount ?? 0),
     createdAt: String(raw.createdAt ?? ''),
     isArchived: Boolean(raw.isArchived),
+  }
+}
+
+function mapMessageSearchHit(raw: Record<string, unknown>): MessageSearchHitDto {
+  const senderDisplayNameRaw = raw.senderDisplayName
+  return {
+    messageId: String(raw.messageId ?? ''),
+    sentAt: String(raw.sentAt ?? ''),
+    snippet: String(raw.snippet ?? ''),
+    senderId: String(raw.senderId ?? ''),
+    senderDisplayName:
+      senderDisplayNameRaw != null && String(senderDisplayNameRaw).trim().length > 0
+        ? String(senderDisplayNameRaw).trim()
+        : null,
+  }
+}
+
+function mapConversationAttachment(raw: Record<string, unknown>): ConversationAttachmentDto {
+  return {
+    messageId: String(raw.messageId ?? ''),
+    sentAt: String(raw.sentAt ?? ''),
+    fileName: String(raw.fileName ?? ''),
+    fileUrl: String(raw.fileUrl ?? ''),
+    mimeType: String(raw.mimeType ?? ''),
+    thumbnailUrl: raw.thumbnailUrl != null ? String(raw.thumbnailUrl) : null,
+    fileSize: Number(raw.fileSize ?? raw.fileSizeBytes ?? 0),
+  }
+}
+
+function mapPagedAttachments(data: unknown): PagedConversationAttachmentsDto {
+  const raw = (unwrapApiData<Record<string, unknown>>(data) ?? {}) as Record<string, unknown>
+  const itemsRaw = raw.items ?? raw.Items
+  const items: ConversationAttachmentDto[] = Array.isArray(itemsRaw)
+    ? itemsRaw.map((x) => mapConversationAttachment(x as Record<string, unknown>))
+    : []
+  return {
+    items,
+    page: Number(raw.page ?? 1),
+    pageSize: Number(raw.pageSize ?? 30),
+    totalCount: Number(raw.totalCount ?? 0),
+    totalPages: Number(raw.totalPages ?? 0),
+  }
+}
+
+function mapConversationLink(raw: Record<string, unknown>): ConversationLinkDto {
+  return {
+    messageId: String(raw.messageId ?? ''),
+    sentAt: String(raw.sentAt ?? ''),
+    url: String(raw.url ?? ''),
+    host: String(raw.host ?? ''),
+  }
+}
+
+function mapPagedLinks(data: unknown): PagedConversationLinksDto {
+  const raw = (unwrapApiData<Record<string, unknown>>(data) ?? {}) as Record<string, unknown>
+  const itemsRaw = raw.items
+  const items: ConversationLinkDto[] = Array.isArray(itemsRaw)
+    ? itemsRaw.map((x) => mapConversationLink(x as Record<string, unknown>))
+    : []
+  return {
+    items,
+    page: Number(raw.page ?? 1),
+    pageSize: Number(raw.pageSize ?? 30),
+    totalCount: Number(raw.totalCount ?? 0),
+    totalPages: Number(raw.totalPages ?? 0),
+  }
+}
+
+function mapPagedMessageSearch(data: unknown): PagedMessageSearchDto {
+  const raw = (unwrapApiData<Record<string, unknown>>(data) ?? {}) as Record<string, unknown>
+  const itemsRaw = raw.items
+  const items: MessageSearchHitDto[] = Array.isArray(itemsRaw)
+    ? itemsRaw.map((x) => mapMessageSearchHit(x as Record<string, unknown>))
+    : []
+  return {
+    items,
+    page: Number(raw.page ?? 1),
+    pageSize: Number(raw.pageSize ?? 20),
+    totalCount: Number(raw.totalCount ?? 0),
+    totalPages: Number(raw.totalPages ?? 0),
   }
 }
 
@@ -122,6 +213,50 @@ export const chatApi = baseApi.injectEndpoints({
         return inner.map((x) => mapConversation(x))
       },
       providesTags: [{ type: 'ChatConversation', id: CHAT_LIST }],
+    }),
+
+    getConversationAttachments: build.query<
+      PagedConversationAttachmentsDto,
+      {
+        conversationId: string
+        kind?: ConversationAttachmentKind
+        page?: number
+        pageSize?: number
+      }
+    >({
+      query: ({ conversationId, kind = 'all', page = 1, pageSize = 30 }) => ({
+        url: `/api/v1/chat/conversations/${conversationId}/attachments`,
+        params: { kind, page, pageSize },
+      }),
+      transformResponse: (response: unknown) => mapPagedAttachments(response),
+    }),
+
+    getConversationLinks: build.query<
+      PagedConversationLinksDto,
+      { conversationId: string; page?: number; pageSize?: number }
+    >({
+      query: ({ conversationId, page = 1, pageSize = 30 }) => ({
+        url: `/api/v1/chat/conversations/${conversationId}/links`,
+        params: { page, pageSize },
+      }),
+      transformResponse: (response: unknown) => mapPagedLinks(response),
+    }),
+
+    searchConversationMessages: build.query<
+      PagedMessageSearchDto,
+      {
+        conversationId: string
+        q: string
+        filter?: ConversationMessageSearchFilter
+        page?: number
+        pageSize?: number
+      }
+    >({
+      query: ({ conversationId, q, filter = 'text', page = 1, pageSize = 20 }) => ({
+        url: `/api/v1/chat/conversations/${conversationId}/messages/search`,
+        params: { q, filter, page, pageSize },
+      }),
+      transformResponse: (response: unknown) => mapPagedMessageSearch(response),
     }),
 
     getMessages: build.query<
@@ -303,6 +438,90 @@ export const chatApi = baseApi.injectEndpoints({
      * User directory search for DM picker (`search` + `take` query params).
      * Named differently from admin `getUsers` to avoid RTK Query endpoint collision / override.
      */
+    blockUser: build.mutation<void, string>({
+      query: (userId) => ({
+        url: `/api/v1/users/${userId}/block`,
+        method: 'POST',
+      }),
+      invalidatesTags: [{ type: 'ChatConversation', id: CHAT_LIST }],
+    }),
+
+    unblockUser: build.mutation<void, string>({
+      query: (userId) => ({
+        url: `/api/v1/users/${userId}/block`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'ChatConversation', id: CHAT_LIST }],
+    }),
+
+    setConversationMute: build.mutation<void, { conversationId: string; muted: boolean }>({
+      query: ({ conversationId, muted }) => ({
+        url: `/api/v1/chat/conversations/${conversationId}/mute`,
+        method: 'POST',
+        body: { muted },
+      }),
+      invalidatesTags: [{ type: 'ChatConversation', id: CHAT_LIST }],
+    }),
+
+    reportMessage: build.mutation<
+      void,
+      { messageId: string; reason: string; description?: string | null }
+    >({
+      query: ({ messageId, reason, description }) => ({
+        url: `/api/v1/chat/messages/${messageId}/report`,
+        method: 'POST',
+        body: { reason, description: description ?? null },
+      }),
+    }),
+
+    addMessageReaction: build.mutation<
+      void,
+      { messageId: string; conversationId: string; emoji: string }
+    >({
+      query: ({ messageId, emoji }) => ({
+        url: `/api/v1/chat/messages/${messageId}/reactions`,
+        method: 'POST',
+        body: { emoji },
+      }),
+      invalidatesTags: (_r, _e, arg) => [
+        { type: 'ChatMessage', id: arg.conversationId },
+      ],
+    }),
+
+    removeMessageReaction: build.mutation<
+      void,
+      { messageId: string; conversationId: string; emoji: string }
+    >({
+      query: ({ messageId, emoji }) => ({
+        url: `/api/v1/chat/messages/${messageId}/reactions/${encodeURIComponent(emoji)}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (_r, _e, arg) => [
+        { type: 'ChatMessage', id: arg.conversationId },
+      ],
+    }),
+
+    markMessageAsRead: build.mutation<void, { messageId: string; conversationId: string }>({
+      query: ({ messageId }) => ({
+        url: `/api/v1/chat/messages/${messageId}/read`,
+        method: 'POST',
+      }),
+      // Avoid refetching the whole thread on every read receipt (scroll stability).
+    }),
+
+    getMessageReadReceipts: build.query<ReadReceiptDto[], string>({
+      query: (messageId) => ({
+        url: `/api/v1/chat/messages/${messageId}/read-receipts`,
+      }),
+      transformResponse: (response: unknown) => {
+        const inner = unwrapApiList<Record<string, unknown>>(response)
+        return inner.map((raw) => ({
+          userId: String(raw.userId ?? ''),
+          readAt: String(raw.readAt ?? ''),
+        }))
+      },
+    }),
+
     searchChatUsers: build.query<UserListItemDto[], { q: string; take?: number }>({
       query: ({ q, take = 24 }) => ({
         url: '/api/v1/users',
@@ -319,6 +538,10 @@ export const chatApi = baseApi.injectEndpoints({
 export const {
   useGetConversationsQuery,
   useGetMessagesQuery,
+  useLazyGetMessagesQuery,
+  useSearchConversationMessagesQuery,
+  useGetConversationAttachmentsQuery,
+  useGetConversationLinksQuery,
   useEditMessageMutation,
   useDeleteMessageMutation,
   useSendMessageMutation,
@@ -331,4 +554,13 @@ export const {
   useCreateDirectConversationMutation,
   useCreateGroupConversationMutation,
   useSearchChatUsersQuery,
+  useBlockUserMutation,
+  useUnblockUserMutation,
+  useSetConversationMuteMutation,
+  useReportMessageMutation,
+  useAddMessageReactionMutation,
+  useRemoveMessageReactionMutation,
+  useMarkMessageAsReadMutation,
+  useGetMessageReadReceiptsQuery,
+  useLazyGetMessageReadReceiptsQuery,
 } = chatApi

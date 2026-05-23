@@ -1,36 +1,32 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  useAssignBadgeMutation,
   useAssignRoleToUserMutation,
   useGetRolesQuery,
   useGetUsersQuery,
-  useRemoveBadgeMutation,
+  useRemoveRoleFromUserMutation,
 } from '../../api/admin.api'
-import type { AssignBadgeRequest, UserDto, UserStatus } from '../../types/admin.types'
+import type { UserDto, UserStatus } from '../../types/admin.types'
 
 type FilterOption = { value: string; label: string }
-
-type AssignRoleInput = { roleId: string }
 
 export function useAdminUsersPage() {
   const { t } = useTranslation()
   const { data: usersData, isLoading: isUsersLoading, isError: isUsersError } = useGetUsersQuery()
   const { data: rolesData, isLoading: isRolesLoading, isError: isRolesError } = useGetRolesQuery()
-  const [assignRoleToUser, { isLoading: isAssignRoleSubmitting }] = useAssignRoleToUserMutation()
-  const [assignBadge, { isLoading: isAssignBadgeSubmitting }] = useAssignBadgeMutation()
-  const [removeBadge] = useRemoveBadgeMutation()
+  const [assignRoleToUser, { isLoading: isAssigningRole }] = useAssignRoleToUserMutation()
+  const [removeRoleFromUser, { isLoading: isRemovingRole }] = useRemoveRoleFromUserMutation()
 
   const [searchValue, setSearchValue] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState<'all' | UserStatus>('all')
-  const [assignRoleUserId, setAssignRoleUserId] = useState<string | null>(null)
-  const [assignBadgeUserId, setAssignBadgeUserId] = useState<string | null>(null)
+  const [editingRolesUserId, setEditingRolesUserId] = useState<string | null>(null)
+  const [roleActionError, setRoleActionError] = useState<string | null>(null)
 
   const users = useMemo(() => usersData ?? [], [usersData])
   const roles = useMemo(() => rolesData ?? [], [rolesData])
+  const roleNameById = useMemo(() => new Map(roles.map((r) => [r.id, r.name])), [roles])
   const normalizedSearch = searchValue.trim().toLowerCase()
-  const canFilterByRole = false
 
   const filteredUsers = useMemo(
     () =>
@@ -40,14 +36,19 @@ export function useAdminUsersPage() {
           user.fullName.toLowerCase().includes(normalizedSearch) ||
           user.email.toLowerCase().includes(normalizedSearch)
         const byStatus = statusFilter === 'all' || user.status === statusFilter
-        const byRole = !canFilterByRole || roleFilter === 'all'
+        const userRoleIds = user.roleIds ?? []
+        const byRole =
+          roleFilter === 'all' || userRoleIds.some((roleId) => roleId === roleFilter)
         return bySearch && byStatus && byRole
       }),
-    [users, normalizedSearch, statusFilter, roleFilter, canFilterByRole],
+    [users, normalizedSearch, statusFilter, roleFilter],
   )
 
   const roleOptions: FilterOption[] = useMemo(
-    () => [{ value: 'all', label: t('admin.usersPage.filters.allRoles') }, ...roles.map((r) => ({ value: r.id, label: r.name }))],
+    () => [
+      { value: 'all', label: t('admin.usersPage.filters.allRoles') },
+      ...roles.map((r) => ({ value: r.id, label: r.name })),
+    ],
     [roles, t],
   )
 
@@ -61,68 +62,79 @@ export function useAdminUsersPage() {
     [t],
   )
 
-  const selectedUserForAssignRole = useMemo(
-    () => users.find((user) => user.id === assignRoleUserId) ?? null,
-    [users, assignRoleUserId],
-  )
-  const selectedUserForAssignBadge = useMemo(
-    () => users.find((user) => user.id === assignBadgeUserId) ?? null,
-    [users, assignBadgeUserId],
+  const roleListItems = useMemo(
+    () => roles.map((r) => ({ id: r.id, label: r.name, hint: r.description || undefined })),
+    [roles],
   )
 
-  const openAssignRoleModal = (userId: string) => setAssignRoleUserId(userId)
-  const closeAssignRoleModal = () => setAssignRoleUserId(null)
-  const openAssignBadgeModal = (userId: string) => setAssignBadgeUserId(userId)
-  const closeAssignBadgeModal = () => setAssignBadgeUserId(null)
+  const editingUser = useMemo(
+    () => users.find((user) => user.id === editingRolesUserId) ?? null,
+    [users, editingRolesUserId],
+  )
 
-  const submitAssignRole = async ({ roleId }: AssignRoleInput) => {
-    if (!assignRoleUserId) return
-    await assignRoleToUser({ userId: assignRoleUserId, body: { roleId } }).unwrap()
-    setAssignRoleUserId(null)
+  const openRoleEditor = (userId: string) => {
+    setRoleActionError(null)
+    setEditingRolesUserId((current) => (current === userId ? null : userId))
   }
 
-  const submitAssignBadge = async (input: AssignBadgeRequest) => {
-    if (!assignBadgeUserId) return
-    await assignBadge({ userId: assignBadgeUserId, body: input }).unwrap()
-    setAssignBadgeUserId(null)
+  const closeRoleEditor = () => {
+    setEditingRolesUserId(null)
+    setRoleActionError(null)
   }
 
-  const removeUserBadge = async (userId: string) => {
-    await removeBadge(userId).unwrap()
+  const assignRole = async (userId: string, roleId: string) => {
+    setRoleActionError(null)
+    try {
+      await assignRoleToUser({ userId, body: { roleId } }).unwrap()
+    } catch {
+      setRoleActionError(t('admin.usersPage.messages.assignRoleFailed'))
+    }
   }
+
+  const removeRole = async (userId: string, roleId: string) => {
+    setRoleActionError(null)
+    const user = users.find((u) => u.id === userId)
+    const roleCount = user?.roleIds?.length ?? 0
+    if (roleCount <= 1) {
+      setRoleActionError(t('admin.usersPage.messages.cannotRemoveLastRole'))
+      return
+    }
+    try {
+      await removeRoleFromUser({ userId, roleId }).unwrap()
+    } catch {
+      setRoleActionError(t('admin.usersPage.messages.removeRoleFailed'))
+    }
+  }
+
+  const getRoleLabels = (user: UserDto): string[] =>
+    (user.roleIds ?? []).map((id) => roleNameById.get(id) ?? id)
 
   return {
     t,
     users: filteredUsers,
+    roles,
     roleOptions,
     statusOptions,
+    roleListItems,
+    roleNameById,
     searchValue,
     roleFilter,
     statusFilter,
-    assignRoleUserId,
-    assignBadgeUserId,
-    selectedUserForAssignRole,
-    selectedUserForAssignBadge,
-    isAssignRoleSubmitting,
-    isAssignBadgeSubmitting,
+    editingRolesUserId,
+    editingUser,
+    roleActionError,
+    isRoleMutating: isAssigningRole || isRemovingRole,
     isLoading: isUsersLoading || isRolesLoading,
     isError: isUsersError || isRolesError,
     setSearchValue,
-    setRoleFilter: (value: string) => {
-      if (!canFilterByRole) return
-      setRoleFilter(value)
-    },
+    setRoleFilter,
     setStatusFilter: (value: string) => setStatusFilter(value as 'all' | UserStatus),
-    canFilterByRole,
-    openAssignRoleModal,
-    closeAssignRoleModal,
-    openAssignBadgeModal,
-    closeAssignBadgeModal,
-    submitAssignRole,
-    submitAssignBadge,
-    removeUserBadge,
+    openRoleEditor,
+    closeRoleEditor,
+    assignRole,
+    removeRole,
+    getRoleLabels,
   }
 }
 
 export type AdminUsersPageHook = ReturnType<typeof useAdminUsersPage>
-export type AdminUsersPageUser = UserDto

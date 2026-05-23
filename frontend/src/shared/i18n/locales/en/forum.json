@@ -153,16 +153,49 @@
     "backToForum": "Forum",
     "backHome": "Home"
   },
+  "index": {
+    "eyebrow": "Forum map",
+    "title": "Discussion zones",
+    "subtitle": "Grouped by purpose: academic, community, official news, and career — similar to VOZ section layout.",
+    "viewAllPosts": "All posts",
+    "backToZones": "Back to zone map",
+    "allPostsTitle": "All posts",
+    "colForum": "Forum",
+    "threads": "Threads",
+    "messages": "Replies",
+    "latest": "Latest",
+    "noPostsYet": "No posts in this section yet",
+    "statsZones": "Zones",
+    "statsCategories": "Sections",
+    "statsThreads": "Posts",
+    "learningShortcut": "Learning document library",
+    "threadsShortcut": "Thread board by topic",
+    "zones": {
+      "official": "Main lobby",
+      "officialDesc": "Announcements, feedback, and official updates from moderators.",
+      "academic": "Academic & professional",
+      "academicDesc": "Study materials, Q&A, programming and tech.",
+      "community": "Community & campus life",
+      "communityDesc": "General chat, student life, casual discussion.",
+      "career": "Career",
+      "careerDesc": "Internships, jobs, and career guidance.",
+      "other": "Other",
+      "otherDesc": "Uncategorized sections."
+    }
+  },
   "sidebar": {
     "main": {
       "assistant": "Assistant",
-      "saved": "Saved posts"
+      "saved": "Saved posts",
+      "forumIndex": "Zone map",
+      "allPosts": "All posts"
     },
     "sections": {
       "main": "Main",
       "topics": "Topics",
       "categories": "Categories",
-      "tags": "Tags"
+      "tags": "Tags",
+      "learningCareer": "Learning & career"
     },
     "topics": {
       "all": "All topics",
@@ -245,7 +278,14 @@
   },
   "threadMode": {
     "badge": "Thread mode",
-    "description": "This topic is comment-first. Continue discussion in replies to keep context in one place."
+    "description": "This topic is comment-first. Continue discussion in replies to keep context in one place.",
+    "point1": "The original post is only context to open the topic; the main content lives in comments.",
+    "point2": "Discussion flow is preserved via nested replies instead of splitting into many new posts.",
+    "point3": "Best for long multi-opinion discussions; regular posts are better for announcements or complete writeups.",
+    "replyTitle": "Discussion flow",
+    "replyLabel": "Add your take to this thread",
+    "replyPlaceholder": "Write your thoughts to continue this discussion...",
+    "replyAction": "Reply to thread"
   },
   "mod": {
     "reportsTitle": "Moderation reports",

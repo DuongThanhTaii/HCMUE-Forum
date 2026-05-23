@@ -12,8 +12,10 @@ import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
 import { enqueueOutbox, openOutboxDb } from "../lib/outboxDb";
 import { getRtkQueryErrorMessage } from "../lib/rtkErrorMessage";
 import { drainChatOutbox } from "../lib/processOutbox";
-import type { ChatThreadRef } from "../types/chat.types";
+import type { ChatThreadRef, ReplyTarget } from "../types/chat.types";
 import { useAppSelector } from "@shared/hooks/useAppSelector";
+import { ReplyPreviewBar } from "./ReplyPreviewBar";
+import { useChatOutboxBanner } from "../hooks/useChatOutboxBanner";
 
 function fileExtForAudioMime(mime: string): string {
   if (mime.includes("mp4") || mime.includes("m4a") || mime.includes("aac"))
@@ -33,7 +35,19 @@ function formatUploadError(
   return t("chat.uploadError");
 }
 
-export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
+export function ChatComposer({
+  threadRef,
+  onUserSentMessage,
+  disabled = false,
+  replyTarget = null,
+  onClearReply,
+}: {
+  threadRef: ChatThreadRef
+  onUserSentMessage?: () => void
+  disabled?: boolean
+  replyTarget?: ReplyTarget | null
+  onClearReply?: () => void
+}) {
   const { t } = useTranslation();
   const accessToken = useAppSelector((s) => s.auth.accessToken);
   const { sendTyping, sendChannelMessage } = useChatContext();
@@ -47,6 +61,8 @@ export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
   const conversationId =
     threadRef.kind === "conversation" ? threadRef.conversationId : null;
   const hasToken = Boolean(accessToken?.trim());
+  const { state: outboxState, retry: retryOutbox, dismissFailed } =
+    useChatOutboxBanner(conversationId);
 
   const { onComposerChange, flushStop } = useTypingComposer({
     enabled: threadRef.kind === "conversation",
@@ -59,22 +75,33 @@ export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
     onComposerChange(v);
   };
 
+  const notifySent = useCallback(() => {
+    onUserSentMessage?.();
+  }, [onUserSentMessage]);
+
   const sendWithOutboxFallback = useCallback(
     async (content: string) => {
       if (threadRef.kind !== "conversation") return;
+      const replyToMessageId = replyTarget?.messageId ?? null;
       try {
         await sendMessage({
           conversationId: threadRef.conversationId,
           content,
+          replyToMessageId,
         }).unwrap();
         await drainChatOutbox();
+        notifySent();
       } catch {
         const db = await openOutboxDb();
         const id = crypto.randomUUID();
         const enq = await enqueueOutbox(db, {
           id,
           conversationId: threadRef.conversationId,
-          body: { type: "text", content },
+          body: {
+            type: "text",
+            content,
+            replyToMessageId: replyTarget?.messageId,
+          },
           attempts: 0,
           createdAt: Date.now(),
         });
@@ -83,16 +110,18 @@ export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
         }
       }
     },
-    [sendMessage, t, threadRef],
+    [notifySent, replyTarget?.messageId, sendMessage, t, threadRef],
   );
 
   const submitText = async () => {
+    if (disabled) return;
     const trimmed = text.trim();
     if (!trimmed) return;
     flushStop();
     setText("");
     if (threadRef.kind === "channel") {
       await sendChannelMessage(threadRef.channelId, trimmed);
+      notifySent();
       return;
     }
     if (!navigator.onLine) {
@@ -101,12 +130,18 @@ export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
       const enq = await enqueueOutbox(db, {
         id,
         conversationId: threadRef.conversationId,
-        body: { type: "text", content: trimmed },
+        body: {
+          type: "text",
+          content: trimmed,
+          replyToMessageId: replyTarget?.messageId,
+        },
         attempts: 0,
         createdAt: Date.now(),
       });
       if (enq === "full") {
         window.alert(t("chat.outbox.full"));
+      } else {
+        notifySent();
       }
       return;
     }
@@ -129,6 +164,7 @@ export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
       await sendAttachments({
         conversationId: threadRef.conversationId,
         content: text.trim() || null,
+        replyToMessageId: replyTarget?.messageId ?? null,
         attachments: [
           {
             fileName: up.fileName,
@@ -140,6 +176,7 @@ export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
         ],
       }).unwrap();
       setText("");
+      notifySent();
     } catch (e) {
       window.alert(formatUploadError(t, e, hasToken));
     }
@@ -176,6 +213,7 @@ export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
           },
         ],
       }).unwrap();
+      notifySent();
     } catch (e) {
       window.alert(formatUploadError(t, e, hasToken));
     }
@@ -183,6 +221,33 @@ export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
 
   return (
     <div className="space-y-2 border-t border-slate-200 pt-3">
+      {outboxState.kind === "pending" && (
+        <p className="text-xs text-slate-500">{t("chat.delivery.sending")}</p>
+      )}
+      {outboxState.kind === "failed" && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1.5 text-xs text-amber-900">
+          <span>{t("chat.delivery.failed")}</span>
+          <span className="flex gap-2">
+            <button
+              type="button"
+              className="font-medium text-indigo-700 hover:underline"
+              onClick={() => void retryOutbox()}
+            >
+              {t("chat.delivery.retry")}
+            </button>
+            <button
+              type="button"
+              className="text-slate-600 hover:underline"
+              onClick={() => void dismissFailed()}
+            >
+              {t("chat.delivery.dismiss")}
+            </button>
+          </span>
+        </div>
+      )}
+      {replyTarget && onClearReply ? (
+        <ReplyPreviewBar target={replyTarget} onClear={onClearReply} />
+      ) : null}
       {voice.error && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-2 py-1.5 text-xs text-red-800">
           {voice.error === "VOICE_EMPTY" ? t("chat.voice.empty") : voice.error}
@@ -261,8 +326,9 @@ export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
                 void submitText();
               }
             }}
-            placeholder={t("chat.typeMessage")}
+            placeholder={disabled ? t("chat.safety.composerDisabled") : t("chat.typeMessage")}
             rows={1}
+            disabled={disabled}
             className="max-h-28 min-h-[2.5rem] w-full resize-none border-0 bg-transparent px-3 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-0 placeholder:text-slate-400 focus:ring-0 disabled:opacity-50 sm:min-h-[2.75rem] sm:text-[0.9375rem]"
           />
         </div>
@@ -290,7 +356,8 @@ export function ChatComposer({ threadRef }: { threadRef: ChatThreadRef }) {
         <button
           type="button"
           onClick={() => void submitText()}
-          className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-medium text-white hover:bg-indigo-700 sm:h-11 sm:px-5"
+          disabled={disabled}
+          className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 sm:h-11 sm:px-5"
         >
           {t("chat.send")}
         </button>
